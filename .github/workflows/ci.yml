@@ -185,7 +185,11 @@ jobs:
           cat evidence/app.log
           exit 1
       - name: Process a Proof Graph asynchronously
-        run: python scripts/external_cloud_proof.py bootstrap --state evidence/state.json --report evidence/report.json
+        shell: bash
+        run: |
+          set -o pipefail
+          python scripts/external_cloud_proof.py bootstrap --state evidence/state.json --report evidence/report.json \
+            2>&1 | tee evidence/external-proof-bootstrap.log
       - name: Restart app and worker
         run: |
           kill "$(cat evidence/app.pid)" "$(cat evidence/worker.pid)"
@@ -199,7 +203,11 @@ jobs:
           cat evidence/app.log
           exit 1
       - name: Verify Proof Graph, files, jobs and audit persistence
-        run: python scripts/external_cloud_proof.py verify --state evidence/state.json --report evidence/report.json
+        shell: bash
+        run: |
+          set -o pipefail
+          python scripts/external_cloud_proof.py verify --state evidence/state.json --report evidence/report.json \
+            2>&1 | tee evidence/external-proof-verify.log
       - name: Capture role and migration evidence
         if: always()
         env:
