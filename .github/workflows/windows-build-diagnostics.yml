@@ -50,6 +50,9 @@ jobs:
           "`nRelease files:" | Add-Content "windows-build-summary.txt"
           Get-ChildItem "release/windows" -Recurse -File -ErrorAction SilentlyContinue |
             Select-Object FullName, Length | Format-Table -AutoSize | Out-String | Add-Content "windows-build-summary.txt"
+          "`nFrozen smoke files:" | Add-Content "windows-build-summary.txt"
+          Get-ChildItem "build/windows-smoke-data" -Recurse -File -ErrorAction SilentlyContinue |
+            Select-Object FullName, Length | Format-Table -AutoSize | Out-String | Add-Content "windows-build-summary.txt"
           "`nDist files:" | Add-Content "windows-build-summary.txt"
           Get-ChildItem "dist" -Recurse -File -ErrorAction SilentlyContinue |
             Select-Object FullName, Length | Format-Table -AutoSize | Out-String | Add-Content "windows-build-summary.txt"
@@ -62,6 +65,7 @@ jobs:
             windows-build.log
             windows-build-summary.txt
             release/windows/**
+            build/windows-smoke-data/**
           if-no-files-found: warn
           retention-days: 7
       - name: Fail when build failed
