@@ -160,7 +160,11 @@ jobs:
       - name: Prove PostgreSQL RLS and cross-tenant guards as runtime
         env:
           THISTINTI_PROCESS_ROLE: app
-        run: python scripts/postgres_security_smoke.py
+        shell: bash
+        run: |
+          mkdir -p evidence
+          set -o pipefail
+          python scripts/postgres_security_smoke.py 2>&1 | tee evidence/postgres-security-smoke.log
       - name: Start app and worker
         run: |
           mkdir -p external-proof-data evidence
