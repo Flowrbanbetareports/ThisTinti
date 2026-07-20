@@ -67,6 +67,8 @@ jobs:
   python-compatibility:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      THISTINTI_OCR_ENABLED: "false"
     strategy:
       fail-fast: false
       matrix:
