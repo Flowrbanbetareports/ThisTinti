@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import os
 import pwd
+import stat
 import sys
 import tempfile
 from pathlib import Path
@@ -13,6 +14,8 @@ from pathlib import Path
 SECRET_PREFIX = "THISTINTI_"  # nosec B105
 SECRET_SUFFIX = "_FILE"  # nosec B105
 RUNTIME_USER = "thistinti"
+WRITABLE_DIRECTORIES_ENV = "THISTINTI_ENTRYPOINT_WRITABLE_DIRECTORIES"
+ALLOWED_WRITABLE_DIRECTORIES = frozenset({"/backups"})
 
 
 def stage_secret_files(target_root: Path, *, uid: int, gid: int) -> dict[str, str]:
@@ -42,6 +45,25 @@ def stage_secret_files(target_root: Path, *, uid: int, gid: int) -> dict[str, st
     return rewritten
 
 
+def prepare_writable_directories(value: str, *, uid: int, gid: int) -> list[Path]:
+    """Transfer explicitly allow-listed bind mounts to the runtime account."""
+    prepared: list[Path] = []
+    for raw in value.split(","):
+        raw = raw.strip()
+        if not raw:
+            continue
+        if raw not in ALLOWED_WRITABLE_DIRECTORIES:
+            raise RuntimeError(f"Writable directory is not allow-listed: {raw}")
+        path = Path(raw)
+        metadata = path.lstat()
+        if stat.S_ISLNK(metadata.st_mode) or not stat.S_ISDIR(metadata.st_mode):
+            raise RuntimeError(f"Writable path must be an existing directory, not a symlink: {raw}")
+        os.chown(path, uid, gid)
+        os.chmod(path, 0o700)
+        prepared.append(path)
+    return prepared
+
+
 def drop_privileges_and_exec(argv: list[str]) -> None:
     if not argv:
         raise RuntimeError("Container entrypoint requires a command")
@@ -50,6 +72,11 @@ def drop_privileges_and_exec(argv: list[str]) -> None:
         os.umask(0o077)
         target_root = Path(tempfile.mkdtemp(prefix="thistinti-secrets-"))
         os.environ.update(stage_secret_files(target_root, uid=account.pw_uid, gid=account.pw_gid))
+        prepare_writable_directories(
+            os.getenv(WRITABLE_DIRECTORIES_ENV, ""),
+            uid=account.pw_uid,
+            gid=account.pw_gid,
+        )
         os.initgroups(account.pw_name, account.pw_gid)
         os.setgid(account.pw_gid)
         os.setuid(account.pw_uid)
