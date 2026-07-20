@@ -6,10 +6,12 @@ from __future__ import annotations
 import os
 import pwd
 import sys
+import tempfile
 from pathlib import Path
 
-SECRET_PREFIX = "THISTINTI_"
-SECRET_SUFFIX = "_FILE"
+# Environment-variable naming fragments, not credentials.
+SECRET_PREFIX = "THISTINTI_"  # nosec B105
+SECRET_SUFFIX = "_FILE"  # nosec B105
 RUNTIME_USER = "thistinti"
 
 
@@ -44,11 +46,16 @@ def drop_privileges_and_exec(argv: list[str]) -> None:
     if os.geteuid() == 0:
         account = pwd.getpwnam(RUNTIME_USER)
         os.umask(0o077)
-        os.environ.update(stage_secret_files(Path("/tmp/thistinti-secrets"), uid=account.pw_uid, gid=account.pw_gid))
+        os.environ.update(
+            stage_secret_files(
+                Path(tempfile.gettempdir()) / "thistinti-secrets", uid=account.pw_uid, gid=account.pw_gid
+            )
+        )
         os.initgroups(account.pw_name, account.pw_gid)
         os.setgid(account.pw_gid)
         os.setuid(account.pw_uid)
-    os.execvpe(argv[0], argv, os.environ)
+    # Intentional exec-style handoff: no shell is involved and argv is supplied by Compose.
+    os.execvpe(argv[0], argv, os.environ)  # nosec B606
 
 
 def main() -> int:
