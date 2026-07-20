@@ -3,11 +3,27 @@ name: Build Windows Free Download
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/windows-release.yml"
+      - "app/**"
+      - "installer/windows/**"
+      - "migrations/**"
+      - "samples/**"
+      - "scripts/local_distribution_smoke.py"
+      - "scripts/package_self_hosted.py"
+      - "requirements*.txt"
+      - "run_thistinti.py"
     tags:
       - "v*"
 
 permissions:
   contents: write
+
+concurrency:
+  group: thistinti-windows-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   windows-installer:
