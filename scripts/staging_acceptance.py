@@ -6,25 +6,92 @@ import json
 import os
 import sys
 import time
+from dataclasses import dataclass
+from http.cookiejar import CookieJar
 from pathlib import Path
+from urllib.error import HTTPError, URLError
+from urllib.parse import urljoin
+from urllib.request import HTTPCookieProcessor, Request, build_opener
 
-import httpx
+
+@dataclass(slots=True)
+class Response:
+    status_code: int
+    body: bytes
+
+    @property
+    def text(self) -> str:
+        return self.body.decode("utf-8", errors="replace")
+
+    def json(self) -> dict:
+        payload = json.loads(self.text)
+        if not isinstance(payload, dict):
+            raise RuntimeError(f"Expected JSON object, got {type(payload).__name__}")
+        return payload
+
+    def raise_for_status(self) -> None:
+        if self.status_code >= 400:
+            raise RuntimeError(f"HTTP {self.status_code}: {self.text}")
 
 
-def wait_for_health(client: httpx.Client, timeout: float) -> dict[str, object]:
+class ApiClient:
+    def __init__(self, base_url: str, timeout: float = 20.0) -> None:
+        self.base_url = base_url.rstrip("/") + "/"
+        self.timeout = timeout
+        self.cookies = CookieJar()
+        self.opener = build_opener(HTTPCookieProcessor(self.cookies))
+
+    def request(
+        self,
+        method: str,
+        path: str,
+        *,
+        headers: dict[str, str] | None = None,
+        payload: dict | None = None,
+    ) -> Response:
+        data = None
+        request_headers = dict(headers or {})
+        if payload is not None:
+            data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+            request_headers["Content-Type"] = "application/json"
+        request = Request(
+            urljoin(self.base_url, path.lstrip("/")),
+            data=data,
+            headers=request_headers,
+            method=method,
+        )
+        try:
+            with self.opener.open(request, timeout=self.timeout) as raw:
+                return Response(raw.status, raw.read())
+        except HTTPError as exc:
+            return Response(exc.code, exc.read())
+
+    def get(self, path: str, *, headers: dict[str, str] | None = None) -> Response:
+        return self.request("GET", path, headers=headers)
+
+    def post(
+        self,
+        path: str,
+        *,
+        headers: dict[str, str] | None = None,
+        payload: dict | None = None,
+    ) -> Response:
+        return self.request("POST", path, headers=headers, payload=payload)
+
+    def cookie(self, name: str) -> str | None:
+        return next((cookie.value for cookie in self.cookies if cookie.name == name), None)
+
+
+def wait_for_health(client: ApiClient, timeout: float) -> dict:
     deadline = time.monotonic() + timeout
     last_error = "no response"
     while True:
         try:
             response = client.get("/api/health")
             if response.status_code == 200:
-                payload = response.json()
-                if isinstance(payload, dict):
-                    return payload
-                last_error = f"unexpected health payload: {payload!r}"
-            else:
-                last_error = f"HTTP {response.status_code}: {response.text}"
-        except (httpx.HTTPError, ValueError) as exc:
+                return response.json()
+            last_error = f"HTTP {response.status_code}: {response.text}"
+        except (OSError, TimeoutError, URLError, ValueError, RuntimeError) as exc:
             last_error = str(exc)
         if time.monotonic() > deadline:
             raise RuntimeError(f"health timeout: {last_error}")
@@ -57,73 +124,74 @@ def main() -> int:
     if not isinstance(checks, dict):
         raise RuntimeError("Internal acceptance-report state is invalid")
 
-    with httpx.Client(base_url=base_url, timeout=20, follow_redirects=True) as client:
-        checks["health"] = wait_for_health(client, args.readiness_timeout)
+    client = ApiClient(base_url=base_url, timeout=20)
+    checks["health"] = wait_for_health(client, args.readiness_timeout)
+    session_headers = {"X-Session-Mode": "token"} if args.token_mode else None
 
-        if args.bootstrap:
-            auth = client.post(
-                "/api/auth/register",
-                headers={"X-Session-Mode": "token"} if args.token_mode else None,
-                json={
-                    "organization_name": "ThisTinti Staging Acceptance",
-                    "email": args.email,
-                    "password": args.password,
-                },
-            )
-            if auth.status_code not in (201, 409):
-                auth.raise_for_status()
-            if auth.status_code == 409:
-                auth = client.post(
-                    "/api/auth/login",
-                    headers={"X-Session-Mode": "token"} if args.token_mode else None,
-                    json={"email": args.email, "password": args.password},
-                )
-                auth.raise_for_status()
-        else:
+    if args.bootstrap:
+        auth = client.post(
+            "/api/auth/register",
+            headers=session_headers,
+            payload={
+                "organization_name": "ThisTinti Staging Acceptance",
+                "email": args.email,
+                "password": args.password,
+            },
+        )
+        if auth.status_code not in (201, 409):
+            auth.raise_for_status()
+        if auth.status_code == 409:
             auth = client.post(
                 "/api/auth/login",
-                headers={"X-Session-Mode": "token"} if args.token_mode else None,
-                json={"email": args.email, "password": args.password},
+                headers=session_headers,
+                payload={"email": args.email, "password": args.password},
             )
             auth.raise_for_status()
+    else:
+        auth = client.post(
+            "/api/auth/login",
+            headers=session_headers,
+            payload={"email": args.email, "password": args.password},
+        )
+        auth.raise_for_status()
 
-        if args.token_mode:
-            token = auth.json().get("token")
-            if not token:
-                raise RuntimeError("Bearer token not issued")
-            headers = {"Authorization": f"Bearer {token}"}
-        else:
-            csrf = client.cookies.get("thistinti_csrf")
-            if not csrf:
-                raise RuntimeError("CSRF cookie not issued")
-            headers = {"X-CSRF-Token": csrf, "Origin": base_url}
+    if args.token_mode:
+        token = auth.json().get("token")
+        if not token:
+            raise RuntimeError("Bearer token not issued")
+        headers = {"Authorization": f"Bearer {token}"}
+    else:
+        csrf = client.cookie("thistinti_csrf")
+        if not csrf:
+            raise RuntimeError("CSRF cookie not issued")
+        headers = {"X-CSRF-Token": csrf, "Origin": base_url}
 
-        demo = client.post("/api/demo/load", headers=headers)
-        demo.raise_for_status()
-        checks["demo"] = demo.json()
+    demo = client.post("/api/demo/load", headers=headers)
+    demo.raise_for_status()
+    checks["demo"] = demo.json()
 
-        deadline = time.monotonic() + args.readiness_timeout
-        while True:
-            readiness = client.get("/api/readiness")
-            if readiness.status_code == 200 and readiness.json().get("ready"):
-                break
-            if time.monotonic() > deadline:
-                raise RuntimeError(f"readiness timeout: {readiness.text}")
-            time.sleep(2)
-        checks["readiness"] = readiness.json()
+    deadline = time.monotonic() + args.readiness_timeout
+    while True:
+        readiness = client.get("/api/readiness")
+        if readiness.status_code == 200 and readiness.json().get("ready"):
+            break
+        if time.monotonic() > deadline:
+            raise RuntimeError(f"readiness timeout: {readiness.text}")
+        time.sleep(2)
+    checks["readiness"] = readiness.json()
 
-        dashboard = client.get("/api/dashboard", headers=headers)
-        dashboard.raise_for_status()
-        checks["dashboard"] = dashboard.json()
+    dashboard = client.get("/api/dashboard", headers=headers)
+    dashboard.raise_for_status()
+    checks["dashboard"] = dashboard.json()
 
-        audit = client.get("/api/audit/verify", headers=headers)
-        audit.raise_for_status()
-        checks["audit"] = audit.json()
+    audit = client.get("/api/audit/verify", headers=headers)
+    audit.raise_for_status()
+    checks["audit"] = audit.json()
 
-        if not audit.json().get("valid"):
-            raise RuntimeError("audit chain invalid")
-        if dashboard.json().get("documents", 0) < 4:
-            raise RuntimeError("demo documents missing")
+    if not audit.json().get("valid"):
+        raise RuntimeError("audit chain invalid")
+    if dashboard.json().get("documents", 0) < 4:
+        raise RuntimeError("demo documents missing")
 
     result["passed"] = True
     result["completed_at"] = time.time()
