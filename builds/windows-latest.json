@@ -1,0 +1,65 @@
+{
+  "workflow": "Build Windows Free Download",
+  "run_id": 29781275397,
+  "run_number": 4,
+  "head_sha": "ebf97716ce0112b16a245684dd78ccfd38d938b8",
+  "branch": "main",
+  "artifact_name": "ThisTinti-Windows-main-4",
+  "files": [
+    {
+      "name": "DISCLAIMER.md",
+      "size": 1223,
+      "sha256": "46abf3a02065f5b05d99e48db625e88050172ab7983b411d7cfb74348d1920b1"
+    },
+    {
+      "name": "frozen-local-smoke.json",
+      "size": 271,
+      "sha256": "326b2f6b5626de89276f7912ddfcf6dcbfad49cfc92db1ce02408ede32876512"
+    },
+    {
+      "name": "PRIVACY.md",
+      "size": 1049,
+      "sha256": "378966bb8c0cbd7d73614abfbcaddd1889c469722b261431b89c7748ae03642a"
+    },
+    {
+      "name": "TERMS_OF_USE.md",
+      "size": 10817,
+      "sha256": "b29d072205616a8f57216446c6b48036f8fcc078b675b7590485b218b2383f6f"
+    },
+    {
+      "name": "ThisTinti-3.4.0-alpha.3-self-hosted-source.zip",
+      "size": 428784,
+      "sha256": "836a507f48c7f5f15d9096053b84588509e16d94600aab086a43adc6131a895a"
+    },
+    {
+      "name": "ThisTinti-3.4.0-alpha.3-self-hosted-source.zip.sha256",
+      "size": 114,
+      "sha256": "c80e889afec57aa9221ba48641f27743f3f819992c64bfe98c28ea3706dee800"
+    },
+    {
+      "name": "ThisTinti-Portable-3.4.0-alpha.3-x64.zip",
+      "size": 81948291,
+      "sha256": "d5f8f10361ddfca8a2328424fb269b4064982ab8626b43d4e4aad8dc8cae608b"
+    },
+    {
+      "name": "ThisTinti-Portable-3.4.0-alpha.3-x64.zip.sha256",
+      "size": 108,
+      "sha256": "087253a94a709515d19fac57548ca2e209f9b944d339882966c916fa9bd0bcfb"
+    },
+    {
+      "name": "ThisTinti-Setup-3.4.0-alpha.3-x64.exe",
+      "size": 56887432,
+      "sha256": "6097cd0be1f52ea8fb97f8ed2fbc1d272e3e912148389f94493dd41dc582f493"
+    },
+    {
+      "name": "ThisTinti-Setup-3.4.0-alpha.3-x64.exe.sha256",
+      "size": 105,
+      "sha256": "06a15afe8fc7b0c75f14d98393a41bbf94fea8f4555a2556a096b9d0bb2f453e"
+    },
+    {
+      "name": "TRADEMARKS.md",
+      "size": 781,
+      "sha256": "25b63b797e47317f8bf9776e559014641e84514b9cb895e6f97dcc46f279bde0"
+    }
+  ]
+}
