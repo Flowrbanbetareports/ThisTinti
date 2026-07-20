@@ -1,0 +1,48 @@
+name: Quality Diagnostics
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: thistinti-quality-diagnostics-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-diagnostics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install quality dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Capture static and formatting output
+        shell: bash
+        run: |
+          set +e
+          : > quality-diagnostics.log
+          ruff check app tests scripts migrations 2>&1 | tee -a quality-diagnostics.log
+          lint_status=${PIPESTATUS[0]}
+          ruff format --check app tests scripts migrations 2>&1 | tee -a quality-diagnostics.log
+          format_status=${PIPESTATUS[0]}
+          printf '\nlint_status=%s\nformat_status=%s\n' "$lint_status" "$format_status" | tee -a quality-diagnostics.log
+          if [[ "$lint_status" -ne 0 || "$format_status" -ne 0 ]]; then
+            exit 1
+          fi
+      - name: Upload quality diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: quality-diagnostics.log
+          retention-days: 7
