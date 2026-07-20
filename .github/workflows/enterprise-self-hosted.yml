@@ -59,7 +59,13 @@ jobs:
         env:
           THISTINTI_STAGING_URL: http://127.0.0.1:18000
           THISTINTI_STAGING_ADMIN_EMAIL: enterprise-ci@example.com
-        run: THISTINTI_STAGING_ADMIN_PASSWORD="$THISTINTI_CI_ADMIN_PASSWORD" python scripts/staging_acceptance.py --token-mode --readiness-timeout 300 --report enterprise-acceptance-before-restart.json
+        shell: bash
+        run: |
+          set -o pipefail
+          THISTINTI_STAGING_ADMIN_PASSWORD="$THISTINTI_CI_ADMIN_PASSWORD" \
+            python scripts/staging_acceptance.py --token-mode --readiness-timeout 300 \
+            --report enterprise-acceptance-before-restart.json 2>&1 \
+            | tee enterprise-acceptance-before-restart.log
       - name: Create and verify backup
         working-directory: deploy/enterprise
         run: |
@@ -74,7 +80,13 @@ jobs:
         env:
           THISTINTI_STAGING_URL: http://127.0.0.1:18000
           THISTINTI_STAGING_ADMIN_EMAIL: enterprise-ci@example.com
-        run: THISTINTI_STAGING_ADMIN_PASSWORD="$THISTINTI_CI_ADMIN_PASSWORD" python scripts/staging_acceptance.py --token-mode --readiness-timeout 300 --report enterprise-acceptance-after-restart.json
+        shell: bash
+        run: |
+          set -o pipefail
+          THISTINTI_STAGING_ADMIN_PASSWORD="$THISTINTI_CI_ADMIN_PASSWORD" \
+            python scripts/staging_acceptance.py --token-mode --readiness-timeout 300 \
+            --report enterprise-acceptance-after-restart.json 2>&1 \
+            | tee enterprise-acceptance-after-restart.log
       - name: Collect service evidence
         if: always()
         working-directory: deploy/enterprise
@@ -82,7 +94,7 @@ jobs:
           mkdir -p ../../enterprise-evidence
           docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml ps -a > ../../enterprise-evidence/compose-ps.txt || true
           docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml logs --no-color > ../../enterprise-evidence/compose.log || true
-          cp ../../enterprise-acceptance-*.json ../../enterprise-evidence/ 2>/dev/null || true
+          cp ../../enterprise-acceptance-* ../../enterprise-evidence/ 2>/dev/null || true
           cp backups/enterprise-ci.zip ../../enterprise-evidence/ 2>/dev/null || true
       - name: Upload evidence
         if: always()
