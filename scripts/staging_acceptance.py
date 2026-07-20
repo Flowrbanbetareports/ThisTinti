@@ -18,11 +18,14 @@ def main() -> int:
     parser.add_argument("--password", default=os.getenv("THISTINTI_STAGING_ADMIN_PASSWORD"))
     parser.add_argument("--bootstrap", action="store_true")
     parser.add_argument("--token-mode", action="store_true", help="Use bearer auth for non-browser CI probes")
+    parser.add_argument("--readiness-timeout", type=float, default=180.0)
     parser.add_argument("--report", default="staging-acceptance-report.json")
     args = parser.parse_args()
 
     if not all((args.base_url, args.email, args.password)):
         parser.error("base URL, email and password are required")
+    if args.readiness_timeout <= 0:
+        parser.error("readiness timeout must be greater than zero")
 
     base_url = args.base_url.rstrip("/")
     result: dict[str, object] = {
