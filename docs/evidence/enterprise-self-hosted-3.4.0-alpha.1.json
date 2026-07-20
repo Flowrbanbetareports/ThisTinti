@@ -1,0 +1,73 @@
+{
+  "product": "ThisTinti",
+  "version": "3.4.0-alpha.1",
+  "edition": "Enterprise Self-Hosted Reference Edition",
+  "date": "2026-07-20",
+  "commercial_model": {
+    "price": "free",
+    "managed_service": false,
+    "hosting_by_author": false,
+    "telemetry_to_author": false,
+    "support_or_sla_promised": false,
+    "operator_managed": true
+  },
+  "verified": {
+    "pytest": {
+      "passed": 151,
+      "failed": 0,
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest -q"
+    },
+    "coverage": {
+      "application_percent": 90,
+      "status": "previous combined gate passed on this 3.4 implementation; final full-suite rerun passed without re-claiming a fresh coverage measurement"
+    },
+    "static_checks": [
+      "ruff check",
+      "ruff format --check",
+      "bandit",
+      "compileall",
+      "JavaScript syntax",
+      "legal distribution gate"
+    ],
+    "targeted_enterprise_tests": 15,
+    "database_migrations": "upgrade, check, downgrade to base, re-upgrade passed",
+    "synthetic_validation_gate": "passed; synthetic evidence cannot authorize production automation",
+    "http_smoke": "passed",
+    "local_distribution_restart_and_persistence": "passed",
+    "compose_files": "parsed structurally as YAML",
+    "package_secret_exclusion": "enforced by package_self_hosted.py"
+  },
+  "pending_external_proof": {
+    "docker_compose_runtime": "not run in this container because Docker is unavailable",
+    "github_workflow": ".github/workflows/enterprise-self-hosted.yml prepared to build, start, migrate, bootstrap, authenticate, back up, restart and verify persistence",
+    "exact_locked_dependency_install": "delegated to GitHub CI; local isolated installation was unavailable within the session constraints",
+    "production_security_review": "operator must perform environment-specific review, vulnerability scanning, penetration testing and acceptance checklist"
+  },
+  "operator_boundary": {
+    "responsible_for": [
+      "infrastructure",
+      "hosting costs",
+      "access control",
+      "privacy and lawful basis",
+      "security monitoring",
+      "backup and restore drills",
+      "updates",
+      "incident response",
+      "ERP integrations",
+      "third-party modifications",
+      "human verification",
+      "regulatory compliance"
+    ],
+    "author_does_not_receive_operator_acceptance": true,
+    "legal_notice_version": "2026-07-20-v2",
+    "legal_document_hashes": {
+      "LICENSE": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9",
+      "TERMS_OF_USE.md": "d81d1b5c178cbafb31323f997c5359ae38ee39e514ca8a04c354f5e74b3c58b6",
+      "DISCLAIMER.md": "4948aaa5e5c288c2d7a11ae4e796d73ed6353814cb364d0abf55f0ab7d2db9b2",
+      "PRIVACY.md": "6158970a56b765ad6245b1074240a3652cadd3a0603a9f41395e8f2ba364d91d",
+      "TRADEMARKS.md": "3e830480082f76ce48861ce4f71e6325a20fb0679d50e7016f2aaf25b8a2c6a0",
+      "SUPPORT.md": "6cbf5b49331d0ed3a6f10e6951a4afb4540e66b5cec1ca93d282bd9fe962f7c7"
+    },
+    "absolute_liability_immunity_claimed": false
+  }
+}

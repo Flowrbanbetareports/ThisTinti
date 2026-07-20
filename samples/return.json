@@ -1,0 +1,11 @@
+{
+  "document_type": "return",
+  "number": "RET-203",
+  "document_date": "2026-07-12",
+  "supplier_name": "Fornitore Demo S.p.A.",
+  "supplier_vat": "IT01234567890",
+  "references": {"order_numbers": ["PO-1049"], "invoice_numbers": ["INV-3921"]},
+  "lines": [
+    {"line_no": 1, "sku": "PANT-220", "description": "Pantalone tecnico", "color": "Nero", "size": "50", "quantity": 5, "unit_price": 31, "discount_rate": 5}
+  ]
+}

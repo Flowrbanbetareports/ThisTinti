@@ -1,0 +1,74 @@
+{
+  "release": "3.3.0-alpha.2",
+  "legal_notice_version": "2026-07-20-v1",
+  "generated_at": "2026-07-20T08:30:00Z",
+  "legal_documents_sha256": {
+    "LICENSE": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9",
+    "TERMS_OF_USE.md": "3e5b5e2aa2f7c2ff6ef3fa12e7659bfac5b1fe045212f694a9ca2a13f41d5fdf",
+    "DISCLAIMER.md": "bb775ff22392905369ffc140cc18d6b452c7c0fa1064cb3c82b515834e3a2957",
+    "PRIVACY.md": "de1e70ef4a4b13689027429f41cf115d7161c9bfe6cbf2911191164bd22e5624",
+    "TRADEMARKS.md": "3e830480082f76ce48861ce4f71e6325a20fb0679d50e7016f2aaf25b8a2c6a0"
+  },
+  "layers": {
+    "apache_2_license": true,
+    "full_terms": true,
+    "concise_disclaimer": true,
+    "local_privacy_notice": true,
+    "third_party_modification_boundary": true,
+    "installer_license_acceptance": true,
+    "installer_specific_clause_acceptance": true,
+    "portable_first_run_acceptance": true,
+    "versioned_hashed_local_acceptance_record": true,
+    "server_side_local_registration_check": true,
+    "persistent_in_app_warning": true,
+    "download_gate": true,
+    "github_release_legal_notice": true,
+    "automated_legal_distribution_check": true
+  },
+  "verification": {
+    "tests_collected": 141,
+    "tests_passed": 141,
+    "application_coverage_percent": 90,
+    "ruff": "passed",
+    "format": "passed",
+    "bandit": "passed",
+    "python_compile": "passed",
+    "javascript_syntax": "passed",
+    "legal_distribution_gate": "passed",
+    "migrations_upgrade_downgrade_upgrade": "passed",
+    "validation_gate": {
+      "scenarios": 6,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "passed": true
+    },
+    "http_smoke": {
+      "demo_loaded": 4,
+      "documents": 4,
+      "chains": 1,
+      "open_cases": 5,
+      "readiness": true,
+      "audit_valid": true
+    },
+    "local_distribution_smoke": {
+      "port": 46819,
+      "data_dir": "/tmp/thistinti-legal-smoke",
+      "frozen": false,
+      "first_run": {
+        "job": "completed",
+        "documents": 1
+      },
+      "restart": {
+        "documents": 1,
+        "same_document": true
+      },
+      "passed": true
+    }
+  },
+  "not_verified_here": [
+    "Compilation and interactive acceptance test of the Inno Setup installer on Windows",
+    "Independent Italian legal opinion on the final public distribution and future business model",
+    "Effectiveness of clauses in every jurisdiction and factual scenario"
+  ]
+}

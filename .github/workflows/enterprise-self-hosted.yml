@@ -1,0 +1,97 @@
+name: Enterprise Self-Hosted Reference Proof
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enterprise-self-hosted-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docker-reference-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Install probe dependencies
+        run: pip install httpx PyYAML
+      - name: Generate operator-managed configuration locally
+        run: |
+          python scripts/enterprise_init.py \
+            --host thistinti-ci.example.com \
+            --deployment-id selfhost-github-${{ github.run_id }} \
+            --accept-operator-responsibility \
+            --accept-no-support
+          python scripts/enterprise_preflight.py --directory deploy/enterprise
+          echo "THISTINTI_CI_ADMIN_PASSWORD=$(openssl rand -base64 36 | tr -d '\n')" >> "$GITHUB_ENV"
+      - name: Validate Compose model
+        working-directory: deploy/enterprise
+        run: docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml config --quiet
+      - name: Start database and scanner
+        working-directory: deploy/enterprise
+        run: docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml up -d --build db clamav
+      - name: Configure roles and migrate
+        working-directory: deploy/enterprise
+        run: |
+          docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml up --build --exit-code-from migrate migrate
+      - name: Start application and worker
+        working-directory: deploy/enterprise
+        run: docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml up -d --build app worker
+      - name: Create first administrator without public registration
+        working-directory: deploy/enterprise
+        run: |
+          printf '%s\n' "$THISTINTI_CI_ADMIN_PASSWORD" | docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml \
+            --profile ops run --rm admin-bootstrap \
+            python scripts/enterprise_create_admin.py \
+            --organization "ThisTinti Enterprise CI" \
+            --email enterprise-ci@example.com \
+            --password-stdin
+      - name: Run authenticated acceptance and wait for readiness
+        env:
+          THISTINTI_STAGING_URL: http://127.0.0.1:18000
+          THISTINTI_STAGING_ADMIN_EMAIL: enterprise-ci@example.com
+        run: THISTINTI_STAGING_ADMIN_PASSWORD="$THISTINTI_CI_ADMIN_PASSWORD" python scripts/staging_acceptance.py --token-mode --readiness-timeout 300 --report enterprise-acceptance-before-restart.json
+      - name: Create and verify backup
+        working-directory: deploy/enterprise
+        run: |
+          docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml --profile ops run --rm backup \
+            python scripts/backup_system.py /backups/enterprise-ci.zip
+          docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml --profile ops run --rm backup \
+            python scripts/verify_backup.py /backups/enterprise-ci.zip
+      - name: Restart runtime and verify persistence
+        working-directory: deploy/enterprise
+        run: docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml restart app worker
+      - name: Re-run authenticated acceptance
+        env:
+          THISTINTI_STAGING_URL: http://127.0.0.1:18000
+          THISTINTI_STAGING_ADMIN_EMAIL: enterprise-ci@example.com
+        run: THISTINTI_STAGING_ADMIN_PASSWORD="$THISTINTI_CI_ADMIN_PASSWORD" python scripts/staging_acceptance.py --token-mode --readiness-timeout 300 --report enterprise-acceptance-after-restart.json
+      - name: Collect service evidence
+        if: always()
+        working-directory: deploy/enterprise
+        run: |
+          mkdir -p ../../enterprise-evidence
+          docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml ps -a > ../../enterprise-evidence/compose-ps.txt || true
+          docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml logs --no-color > ../../enterprise-evidence/compose.log || true
+          cp ../../enterprise-acceptance-*.json ../../enterprise-evidence/ 2>/dev/null || true
+          cp backups/enterprise-ci.zip ../../enterprise-evidence/ 2>/dev/null || true
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enterprise-self-hosted-proof-${{ github.run_id }}
+          path: enterprise-evidence/
+          retention-days: 14
+      - name: Stop stack
+        if: always()
+        working-directory: deploy/enterprise
+        run: docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml down -v --remove-orphans

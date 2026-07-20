@@ -1,0 +1,66 @@
+name: Build Windows Free Download
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  windows-installer:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install -r requirements-build.txt
+      - name: Verify source before packaging
+        shell: pwsh
+        run: |
+          python -m pytest -q
+          python -m ruff check app tests scripts migrations run_thistinti.py
+          python -m bandit -q -r app scripts run_thistinti.py -x tests
+          python scripts/check_legal_distribution.py
+          python scripts/local_distribution_smoke.py --report local-source-smoke.json
+          python scripts/package_self_hosted.py
+      - name: Build, freeze and smoke-test installer
+        shell: pwsh
+        run: |
+          ./installer/windows/build_windows.ps1
+          Copy-Item "..\ThisTinti-*-self-hosted-source.zip" "release\windows"
+          Copy-Item "..\ThisTinti-*-self-hosted-source.zip.sha256" "release\windows"
+      - name: Upload downloadable artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ThisTinti-Windows-${{ github.ref_name }}-${{ github.run_number }}
+          path: |
+            release/windows/*.exe
+            release/windows/*.zip
+            release/windows/*.sha256
+            release/windows/*.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          Copy-Item "TERMS_OF_USE.md", "DISCLAIMER.md", "PRIVACY.md", "TRADEMARKS.md", "SUPPORT.md" "release\windows"
+          Copy-Item "docs\RESPONSIBILITY_MATRIX.md" "release\windows\SELF-HOSTED-RESPONSIBILITY-MATRIX.md"
+          Copy-Item "docs\ENTERPRISE_ACCEPTANCE_CHECKLIST.md" "release\windows\SELF-HOSTED-ACCEPTANCE-CHECKLIST.md"
+          @"
+          ### Prima del download
+          ThisTinti è software libero e gratuito fornito senza garanzia, assistenza o SLA. Può produrre errori e non deve essere l’unica base per pagamenti, contabilità, adempimenti fiscali, pareri legali o decisioni verso terzi. Verificare sempre i documenti originali.
+
+          Le distribuzioni ufficiali non inviano documenti o telemetria all’autore. La Self-Hosted Reference Edition non è un servizio gestito: l’organizzazione o il fornitore scelto resta responsabile di infrastruttura, privacy, sicurezza, backup, aggiornamenti, costi, incidenti e modifiche. Leggere `TERMS_OF_USE.md`, `DISCLAIMER.md` e la documentazione allegata.
+          "@ | Set-Content "release\windows\RELEASE-LEGAL-NOTICE.md" -Encoding utf8
+          $files = Get-ChildItem "release\windows" -File | ForEach-Object { $_.FullName }
+          gh release create "$env:GITHUB_REF_NAME" $files --title "ThisTinti $env:GITHUB_REF_NAME" --notes-file "release\windows\RELEASE-LEGAL-NOTICE.md"

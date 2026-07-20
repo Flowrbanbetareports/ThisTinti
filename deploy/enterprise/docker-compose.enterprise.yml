@@ -1,0 +1,262 @@
+name: thistinti-self-hosted
+
+x-app-build: &app_build
+  context: ../..
+  dockerfile: Dockerfile
+
+x-app-environment: &app_environment
+  THISTINTI_ENV: production
+  THISTINTI_SELF_HOSTED_REFERENCE: "true"
+  THISTINTI_DEPLOYMENT_ID: ${THISTINTI_DEPLOYMENT_ID:?Run enterprise_init.py first}
+  THISTINTI_OPERATOR_ACCEPTS_SELF_HOSTING_RESPONSIBILITY: ${THISTINTI_OPERATOR_ACCEPTS_SELF_HOSTING_RESPONSIBILITY:?Explicit operator acceptance required}
+  THISTINTI_OPERATOR_ACCEPTS_NO_SUPPORT: ${THISTINTI_OPERATOR_ACCEPTS_NO_SUPPORT:?Explicit no-support acceptance required}
+  THISTINTI_OPERATOR_ACCEPTANCE_FILE: /run/secrets/operator_acceptance
+  THISTINTI_STORAGE_DIR: /app/data/uploads
+  THISTINTI_QUARANTINE_DIR: /app/data/quarantine
+  THISTINTI_REJECTED_DIR: /app/data/rejected
+  THISTINTI_SECRET_KEY_FILE: /run/secrets/app_secret_key
+  THISTINTI_ALLOW_REGISTRATION: "false"
+  THISTINTI_AUTO_CREATE_SCHEMA: "false"
+  THISTINTI_DATABASE_RATE_LIMITING: "true"
+  THISTINTI_SECURE_COOKIES: "true"
+  THISTINTI_ASYNC_INGESTION_ENABLED: "true"
+  THISTINTI_ALLOW_SYNCHRONOUS_INGESTION: "false"
+  THISTINTI_WORKER_MAX_ATTEMPTS: "3"
+  THISTINTI_WORKER_LEASE_SECONDS: "300"
+  THISTINTI_WORKER_HEARTBEAT_STALE_SECONDS: "60"
+  THISTINTI_COMPLETED_JOB_RETENTION_DAYS: ${THISTINTI_COMPLETED_JOB_RETENTION_DAYS:-30}
+  THISTINTI_QUARANTINE_RETENTION_HOURS: ${THISTINTI_QUARANTINE_RETENTION_HOURS:-24}
+  THISTINTI_CORS_ORIGINS: ${THISTINTI_CORS_ORIGINS:?HTTPS public origin required}
+  THISTINTI_OCR_ENABLED: "true"
+  THISTINTI_OCR_LANGUAGES: ita+eng
+  THISTINTI_OCR_MAX_PAGES: "20"
+  THISTINTI_OCR_DPI: "200"
+  THISTINTI_OCR_TIMEOUT_SECONDS: "45"
+  THISTINTI_OCR_MAX_CHARS: "2000000"
+  THISTINTI_REQUIRE_MALWARE_SCANNER: "true"
+  THISTINTI_MALWARE_SCANNER_COMMAND: /app/scripts/clamd_client_scan.py
+  THISTINTI_MALWARE_SCAN_TIMEOUT_SECONDS: "90"
+  THISTINTI_CLAMD_HOST: clamav
+  THISTINTI_CLAMD_PORT: "3310"
+  THISTINTI_CLAMD_TIMEOUT_SECONDS: "90"
+
+x-runtime-security: &runtime_security
+  read_only: true
+  cap_drop: ["ALL"]
+  security_opt: ["no-new-privileges:true"]
+  init: true
+  pids_limit: 300
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: thistinti
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_admin_password
+    secrets: [postgres_admin_password]
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d thistinti"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    networks: [backplane]
+    security_opt: ["no-new-privileges:true"]
+
+  clamav:
+    image: clamav/clamav:stable
+    restart: unless-stopped
+    volumes:
+      - clamav_database:/var/lib/clamav
+    networks: [backplane]
+    security_opt: ["no-new-privileges:true"]
+
+  db-roles:
+    build: *app_build
+    command: ["python", "scripts/configure_postgres_roles.py"]
+    restart: "no"
+    environment:
+      THISTINTI_POSTGRES_ADMIN_URL_FILE: /run/secrets/postgres_admin_url
+      THISTINTI_DB_OWNER_USER: thistinti_owner
+      THISTINTI_DB_OWNER_PASSWORD_FILE: /run/secrets/db_owner_password
+      THISTINTI_DB_APP_USER: thistinti_app
+      THISTINTI_DB_APP_PASSWORD_FILE: /run/secrets/db_app_password
+    secrets: [postgres_admin_url, db_owner_password, db_app_password]
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [backplane]
+    security_opt: ["no-new-privileges:true"]
+
+  migrate:
+    build: *app_build
+    command: ["alembic", "upgrade", "head"]
+    restart: "no"
+    environment:
+      <<: *app_environment
+      THISTINTI_PROCESS_ROLE: migrate
+      THISTINTI_DATABASE_URL_FILE: /run/secrets/database_owner_url
+    secrets: [database_owner_url, app_secret_key, operator_acceptance]
+    depends_on:
+      db-roles:
+        condition: service_completed_successfully
+    networks: [backplane]
+    security_opt: ["no-new-privileges:true"]
+
+  app:
+    build: *app_build
+    restart: unless-stopped
+    environment:
+      <<: *app_environment
+      THISTINTI_PROCESS_ROLE: app
+      THISTINTI_DATABASE_URL_FILE: /run/secrets/database_app_url
+    secrets: [database_app_url, app_secret_key, operator_acceptance]
+    volumes:
+      - app_data:/app/data
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+    <<: *runtime_security
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      clamav:
+        condition: service_started
+    networks: [backplane]
+
+  worker:
+    build: *app_build
+    command: ["python", "scripts/run_worker.py", "--poll-seconds", "1"]
+    restart: unless-stopped
+    environment:
+      <<: *app_environment
+      THISTINTI_PROCESS_ROLE: worker
+      THISTINTI_DATABASE_URL_FILE: /run/secrets/database_app_url
+    secrets: [database_app_url, app_secret_key, operator_acceptance]
+    volumes:
+      - app_data:/app/data
+    tmpfs:
+      - /tmp:size=512m,mode=1777
+    <<: *runtime_security
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      clamav:
+        condition: service_started
+    networks: [backplane]
+    deploy:
+      replicas: ${THISTINTI_WORKER_REPLICAS:-2}
+
+  proxy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      THISTINTI_PUBLIC_HOST: ${THISTINTI_PUBLIC_HOST:?Public DNS host required}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [app]
+    networks: [edge, backplane]
+    cap_drop: ["ALL"]
+    cap_add: ["NET_BIND_SERVICE"]
+    security_opt: ["no-new-privileges:true"]
+
+  admin-bootstrap:
+    profiles: ["ops"]
+    build: *app_build
+    command: ["python", "scripts/enterprise_create_admin.py", "--help"]
+    restart: "no"
+    environment:
+      <<: *app_environment
+      THISTINTI_PROCESS_ROLE: admin-bootstrap
+      THISTINTI_DATABASE_URL_FILE: /run/secrets/database_app_url
+    secrets: [database_app_url, app_secret_key, operator_acceptance]
+    networks: [backplane]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    security_opt: ["no-new-privileges:true"]
+
+  backup:
+    profiles: ["ops"]
+    build: *app_build
+    command: ["python", "scripts/backup_system.py", "/backups/manual-backup.zip"]
+    restart: "no"
+    environment:
+      <<: *app_environment
+      THISTINTI_PROCESS_ROLE: backup
+      THISTINTI_DATABASE_URL_FILE: /run/secrets/database_owner_url
+    secrets: [database_owner_url, app_secret_key, operator_acceptance]
+    volumes:
+      - app_data:/app/data:ro
+      - ./backups:/backups
+    networks: [backplane]
+    depends_on:
+      db:
+        condition: service_healthy
+    security_opt: ["no-new-privileges:true"]
+
+  restore:
+    profiles: ["ops"]
+    build: *app_build
+    command: ["python", "scripts/restore_backup.py", "--help"]
+    restart: "no"
+    environment:
+      <<: *app_environment
+      THISTINTI_PROCESS_ROLE: restore
+      THISTINTI_DATABASE_URL_FILE: /run/secrets/database_owner_url
+    secrets: [database_owner_url, app_secret_key, operator_acceptance]
+    volumes:
+      - app_data:/app/data
+      - ./backups:/backups:ro
+    networks: [backplane]
+    depends_on:
+      db:
+        condition: service_healthy
+    security_opt: ["no-new-privileges:true"]
+
+  preflight:
+    profiles: ["ops"]
+    build: *app_build
+    user: "0:0"
+    command: ["python", "scripts/enterprise_preflight.py", "--directory", "/deployment"]
+    restart: "no"
+    volumes:
+      - ./:/deployment:ro
+    security_opt: ["no-new-privileges:true"]
+
+networks:
+  edge:
+  backplane:
+    internal: true
+
+volumes:
+  postgres_data:
+  app_data:
+  clamav_database:
+  caddy_data:
+  caddy_config:
+
+secrets:
+  postgres_admin_password:
+    file: ./secrets/postgres_admin_password.txt
+  db_owner_password:
+    file: ./secrets/db_owner_password.txt
+  db_app_password:
+    file: ./secrets/db_app_password.txt
+  app_secret_key:
+    file: ./secrets/app_secret_key.txt
+  postgres_admin_url:
+    file: ./secrets/postgres_admin_url.txt
+  database_owner_url:
+    file: ./secrets/database_owner_url.txt
+  database_app_url:
+    file: ./secrets/database_app_url.txt
+  operator_acceptance:
+    file: ./operator-acceptance.json

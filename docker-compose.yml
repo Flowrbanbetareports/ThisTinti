@@ -1,0 +1,124 @@
+x-app-environment: &app_environment
+  THISTINTI_ENV: ${THISTINTI_ENV:-development}
+  THISTINTI_STORAGE_DIR: /app/data/uploads
+  THISTINTI_QUARANTINE_DIR: /app/data/quarantine
+  THISTINTI_REJECTED_DIR: /app/data/rejected
+  THISTINTI_SECRET_KEY: ${THISTINTI_SECRET_KEY:?Set THISTINTI_SECRET_KEY}
+  THISTINTI_ALLOW_REGISTRATION: ${THISTINTI_ALLOW_REGISTRATION:-true}
+  THISTINTI_AUTO_CREATE_SCHEMA: "false"
+  THISTINTI_DATABASE_RATE_LIMITING: ${THISTINTI_DATABASE_RATE_LIMITING:-true}
+  THISTINTI_SECURE_COOKIES: ${THISTINTI_SECURE_COOKIES:-false}
+  THISTINTI_ASYNC_INGESTION_ENABLED: ${THISTINTI_ASYNC_INGESTION_ENABLED:-true}
+  THISTINTI_ALLOW_SYNCHRONOUS_INGESTION: ${THISTINTI_ALLOW_SYNCHRONOUS_INGESTION:-false}
+  THISTINTI_WORKER_MAX_ATTEMPTS: ${THISTINTI_WORKER_MAX_ATTEMPTS:-3}
+  THISTINTI_WORKER_LEASE_SECONDS: ${THISTINTI_WORKER_LEASE_SECONDS:-300}
+  THISTINTI_WORKER_HEARTBEAT_STALE_SECONDS: ${THISTINTI_WORKER_HEARTBEAT_STALE_SECONDS:-30}
+  THISTINTI_COMPLETED_JOB_RETENTION_DAYS: ${THISTINTI_COMPLETED_JOB_RETENTION_DAYS:-30}
+  THISTINTI_QUARANTINE_RETENTION_HOURS: ${THISTINTI_QUARANTINE_RETENTION_HOURS:-24}
+  THISTINTI_CORS_ORIGINS: ${THISTINTI_CORS_ORIGINS:-http://localhost:8000,http://127.0.0.1:8000}
+  THISTINTI_OCR_ENABLED: ${THISTINTI_OCR_ENABLED:-true}
+  THISTINTI_OCR_LANGUAGES: ${THISTINTI_OCR_LANGUAGES:-ita+eng}
+  THISTINTI_OCR_MAX_PAGES: ${THISTINTI_OCR_MAX_PAGES:-20}
+  THISTINTI_OCR_DPI: ${THISTINTI_OCR_DPI:-200}
+  THISTINTI_OCR_TIMEOUT_SECONDS: ${THISTINTI_OCR_TIMEOUT_SECONDS:-45}
+  THISTINTI_OCR_MAX_CHARS: ${THISTINTI_OCR_MAX_CHARS:-2000000}
+  THISTINTI_REQUIRE_MALWARE_SCANNER: ${THISTINTI_REQUIRE_MALWARE_SCANNER:-false}
+  THISTINTI_MALWARE_SCANNER_COMMAND: ${THISTINTI_MALWARE_SCANNER_COMMAND:-clamdscan}
+  THISTINTI_MALWARE_SCAN_TIMEOUT_SECONDS: ${THISTINTI_MALWARE_SCAN_TIMEOUT_SECONDS:-60}
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: thistinti
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${THISTINTI_POSTGRES_ADMIN_PASSWORD:?Set THISTINTI_POSTGRES_ADMIN_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d thistinti"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    security_opt:
+      - no-new-privileges:true
+
+  db-roles:
+    build: .
+    command: ["python", "scripts/configure_postgres_roles.py"]
+    restart: "no"
+    environment:
+      THISTINTI_POSTGRES_ADMIN_URL: postgresql://postgres:${THISTINTI_POSTGRES_ADMIN_PASSWORD}@db:5432/thistinti
+      THISTINTI_DB_OWNER_USER: thistinti_owner
+      THISTINTI_DB_OWNER_PASSWORD: ${THISTINTI_DB_OWNER_PASSWORD:?Set THISTINTI_DB_OWNER_PASSWORD}
+      THISTINTI_DB_APP_USER: thistinti_app
+      THISTINTI_DB_APP_PASSWORD: ${THISTINTI_DB_APP_PASSWORD:?Set THISTINTI_DB_APP_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+
+  migrate:
+    build: .
+    command: ["alembic", "upgrade", "head"]
+    restart: "no"
+    environment:
+      <<: *app_environment
+      THISTINTI_PROCESS_ROLE: migrate
+      THISTINTI_DATABASE_URL: postgresql+psycopg://thistinti_owner:${THISTINTI_DB_OWNER_PASSWORD}@db:5432/thistinti
+    depends_on:
+      db-roles:
+        condition: service_completed_successfully
+    security_opt:
+      - no-new-privileges:true
+
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      <<: *app_environment
+      THISTINTI_PROCESS_ROLE: app
+      THISTINTI_DATABASE_URL: postgresql+psycopg://thistinti_app:${THISTINTI_DB_APP_PASSWORD}@db:5432/thistinti
+    volumes:
+      - app_data:/app/data
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 200
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    build: .
+    command: ["python", "scripts/run_worker.py", "--poll-seconds", "1"]
+    restart: unless-stopped
+    environment:
+      <<: *app_environment
+      THISTINTI_PROCESS_ROLE: worker
+      THISTINTI_DATABASE_URL: postgresql+psycopg://thistinti_app:${THISTINTI_DB_APP_PASSWORD}@db:5432/thistinti
+    volumes:
+      - app_data:/app/data
+    tmpfs:
+      - /tmp:size=512m,mode=1777
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 250
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  postgres_data:
+  app_data:

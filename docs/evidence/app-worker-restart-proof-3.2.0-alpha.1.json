@@ -1,0 +1,132 @@
+{
+  "passed": true,
+  "base_url": "http://127.0.0.1:39781",
+  "phases": [
+    {
+      "phase": "bootstrap",
+      "health": {
+        "status": "ok",
+        "name": "ThisTinti",
+        "version": "3.2.0-alpha.1"
+      },
+      "chain_id": "0abbda94-5773-40fa-912b-deab6fc2efb5",
+      "documents": [
+        {
+          "id": "5b02e9f1-f4f0-4579-9947-4bb55e72f520",
+          "number": "CLOUD-PROOF-001",
+          "filename": "external-proof-proposal.json"
+        },
+        {
+          "id": "d7ffc37e-4986-45ee-9766-182e7b2580c5",
+          "number": "CLOUD-INV-001",
+          "filename": "external-proof-invoice.json"
+        },
+        {
+          "id": "b25e9607-2896-481d-82c1-d412bad34871",
+          "number": "CLOUD-PAY-001",
+          "filename": "external-proof-payment.json"
+        }
+      ],
+      "jobs": [
+        {
+          "id": "3cb3f3a5-80d8-4e61-a33d-366f7799bf26",
+          "status": "completed"
+        },
+        {
+          "id": "40398899-48d0-4aa3-89b8-e35b430aad2e",
+          "status": "completed"
+        },
+        {
+          "id": "61f0fcb2-33b5-4636-b568-faa4be820af1",
+          "status": "completed"
+        }
+      ],
+      "proof_graph_roles": [
+        "delivery",
+        "invoice",
+        "order",
+        "payment",
+        "proposal"
+      ],
+      "risk_decision": "review",
+      "risk_score": 31.0,
+      "red_team_coverage": 0.8571,
+      "readiness": {
+        "ready": true,
+        "checks": {
+          "database": true,
+          "storage_write": true,
+          "quarantine_write": true,
+          "rejected_write": true,
+          "secret_configured": true,
+          "secure_cookies": true,
+          "managed_schema": true,
+          "asynchronous_ingestion": true,
+          "malware_scanner": true,
+          "ocr_runtime": true,
+          "worker_heartbeat": true
+        },
+        "details": {
+          "worker_last_seen_seconds": 0.1
+        }
+      },
+      "audit_valid": true
+    },
+    {
+      "phase": "verify_after_restart",
+      "health": {
+        "status": "ok",
+        "name": "ThisTinti",
+        "version": "3.2.0-alpha.1"
+      },
+      "chain_id": "0abbda94-5773-40fa-912b-deab6fc2efb5",
+      "documents": [
+        {
+          "id": "5b02e9f1-f4f0-4579-9947-4bb55e72f520",
+          "number": "CLOUD-PROOF-001"
+        },
+        {
+          "id": "d7ffc37e-4986-45ee-9766-182e7b2580c5",
+          "number": "CLOUD-INV-001"
+        },
+        {
+          "id": "b25e9607-2896-481d-82c1-d412bad34871",
+          "number": "CLOUD-PAY-001"
+        }
+      ],
+      "job_statuses": [
+        "completed",
+        "completed",
+        "completed"
+      ],
+      "proof_graph_roles": [
+        "delivery",
+        "invoice",
+        "order",
+        "payment",
+        "proposal"
+      ],
+      "readiness": {
+        "ready": true,
+        "checks": {
+          "database": true,
+          "storage_write": true,
+          "quarantine_write": true,
+          "rejected_write": true,
+          "secret_configured": true,
+          "secure_cookies": true,
+          "managed_schema": true,
+          "asynchronous_ingestion": true,
+          "malware_scanner": true,
+          "ocr_runtime": true,
+          "worker_heartbeat": true
+        },
+        "details": {
+          "worker_last_seen_seconds": 0.1
+        }
+      },
+      "audit_valid": true
+    }
+  ],
+  "updated_at": 1784510747.914555
+}

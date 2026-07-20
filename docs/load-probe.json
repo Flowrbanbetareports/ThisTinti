@@ -1,0 +1,15 @@
+{
+  "scope": "local single-process SQLite read probe; not a production capacity claim",
+  "requests": 300,
+  "workers": 16,
+  "success": 300,
+  "errors": 0,
+  "duration_seconds": 1.295,
+  "requests_per_second": 231.61,
+  "latency_ms": {
+    "mean": 60.91,
+    "p50": 67.65,
+    "p95": 99.61,
+    "max": 123.29
+  }
+}

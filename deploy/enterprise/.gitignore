@@ -1,0 +1,7 @@
+.env
+operator-acceptance.json
+secrets/*.txt
+backups/*
+!backups/.gitkeep
+logs/*
+!logs/.gitkeep

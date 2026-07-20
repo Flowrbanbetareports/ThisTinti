@@ -1,0 +1,44 @@
+{
+  "version": "3.4.0-alpha.2",
+  "date": "2026-07-20",
+  "tests": {
+    "collected": 153,
+    "passed": 153,
+    "environment": "exact pinned development dependencies"
+  },
+  "static_gates": {
+    "ruff": "passed",
+    "format": "passed",
+    "bandit": "passed",
+    "python_compile": "passed",
+    "javascript_syntax": "passed",
+    "legal_distribution": "passed",
+    "publication_readiness": "passed"
+  },
+  "functional_gates": {
+    "sqlite_migration_reversibility": "passed",
+    "validation_gate": "passed",
+    "http_smoke": "passed",
+    "dependency_graph": "63 installed distributions validated"
+  },
+  "artifacts": {
+    "openapi": "regenerated",
+    "sbom": "regenerated with 31 runtime components",
+    "license_inventory": "generated with 70 environment distributions"
+  },
+  "coverage": {
+    "previous_app_gate_percent": 90,
+    "current_app_logic_changed": false,
+    "current_measurement": "deferred to GitHub CI because the local coverage process did not terminate after tests completed"
+  },
+  "pending_external_gates": [
+    "pip-audit with Internet access",
+    "Windows installer build and smoke",
+    "Docker enterprise stack runtime proof",
+    "real Windows 10 and Windows 11 installation",
+    "name and trademark clearance",
+    "external legal review",
+    "independent security review",
+    "real company pilot"
+  ]
+}

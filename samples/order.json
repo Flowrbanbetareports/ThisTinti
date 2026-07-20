@@ -1,0 +1,11 @@
+{
+  "document_type": "order",
+  "number": "PO-1049",
+  "document_date": "2026-07-01",
+  "supplier_name": "Fornitore Demo S.p.A.",
+  "supplier_vat": "IT01234567890",
+  "lines": [
+    {"line_no": 1, "sku": "GIACCA-145", "description": "Giacca tecnica", "color": "Blu", "size": "48", "quantity": 120, "unit_price": 42, "discount_rate": 8, "tax_rate": 22},
+    {"line_no": 2, "sku": "PANT-220", "description": "Pantalone tecnico", "color": "Nero", "size": "50", "quantity": 80, "unit_price": 31, "discount_rate": 5, "tax_rate": 22}
+  ]
+}

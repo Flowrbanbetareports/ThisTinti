@@ -1,0 +1,115 @@
+Condizioni d’uso e avviso sui rischi — ThisTinti Local Free Edition
+
+Versione dell’avviso: 2026-07-20-v2
+Ultimo aggiornamento: 20 luglio 2026
+
+#1. Documenti applicabili e prevalenza
+
+Il codice sorgente di ThisTinti è concesso secondo la Apache License, Version 2.0, contenuta nel file LICENSE. La licenza disciplina i diritti di utilizzo, copia, modifica e redistribuzione del software.
+
+Le presenti condizioni disciplinano la distribuzione binaria ufficiale, chiariscono lo scopo del programma e informano l’utilizzatore sui rischi. Non riducono i diritti riconosciuti dalla Apache License 2.0. In caso di contrasto prevalgono la licenza open source e le norme inderogabili applicabili.
+
+#2. Natura del progetto
+
+ThisTinti è software libero, gratuito e distribuito senza attività commerciale, account centrale, telemetria, cloud obbligatorio, assistenza garantita o accordo sul livello di servizio. L’autore non gestisce l’installazione dell’utilizzatore e non riceve i documenti caricati nella Local Edition.
+
+Il download, la documentazione pubblica, le release e gli eventuali aggiornamenti non costituiscono una promessa di continuità, manutenzione, compatibilità futura, correzione degli errori o assistenza.
+
+#3. Scopo previsto e usi non coperti
+
+ThisTinti è uno strumento di supporto al controllo documentale aziendale. Può estrarre dati, collegare documenti, segnalare possibili anomalie e formulare valutazioni probabilistiche o basate su regole.
+
+Non è progettato, certificato o garantito come:
+
+- sistema contabile, fiscale, legale o di revisione;
+- sistema di autorizzazione, esecuzione o blocco dei pagamenti;
+- sistema antifrode o di conformità normativa completo;
+- sistema destinato a decisioni mediche, occupazionali, creditizie, assicurative, giudiziarie, di sicurezza pubblica o comunque ad alto rischio;
+- componente di sicurezza, emergenza o infrastruttura critica;
+- sostituto dei documenti originali, dei professionisti abilitati o dei controlli interni dell’organizzazione.
+
+Qualsiasi impiego diverso dallo scopo descritto avviene sotto l’esclusiva valutazione e responsabilità dell’utilizzatore e dell’eventuale integratore.
+
+#4. Verifica umana obbligatoria
+
+Gli output possono essere incompleti, errati, ambigui o non aggiornati. OCR, parser, regole, modelli statistici e funzioni di intelligence possono generare falsi positivi e falsi negativi.
+
+L’utilizzatore deve sempre:
+
+1. consultare i documenti originali;
+2. verificare quantità, importi, date, soggetti, riferimenti e conclusioni;
+3. sottoporre le decisioni economiche, contabili, fiscali, legali e regolamentari a una persona competente;
+4. impedire che ThisTinti sia l’unica base di un pagamento, una registrazione contabile, una dichiarazione, una contestazione o una decisione verso terzi.
+
+Le indicazioni “basso rischio”, “coerente”, “pagamento riconciliato”, “automazione consentita” o equivalenti non costituiscono garanzia né autorizzazione giuridica o finanziaria.
+
+#5. Responsabilità dell’utilizzatore
+
+L’utilizzatore è responsabile di:
+
+- liceità, correttezza e disponibilità dei documenti caricati;
+- base giuridica, informative, autorizzazioni, tempi di conservazione e diritti degli interessati;
+- configurazione, accessi, password, sicurezza del dispositivo e della rete;
+- installazione di aggiornamenti, antivirus, sistemi operativi supportati e misure di sicurezza adeguate;
+- backup regolari, verifica dei backup e prova del ripristino;
+- verifica delle dipendenze, dei componenti di terze parti e delle modifiche applicate;
+- conformità alle norme applicabili al proprio settore e al proprio territorio;
+- scelta di personale qualificato per installazione, personalizzazione, integrazione e manutenzione.
+
+#6. Dati e privacy
+
+La Local Edition opera su 127.0.0.1 e, nella configurazione ufficiale, non trasmette documenti o telemetria all’autore. L’autore non assume il ruolo di titolare o responsabile del trattamento per i dati conservati esclusivamente nell’installazione locale dell’utilizzatore.
+
+L’organizzazione che utilizza, modifica o integra ThisTinti determina finalità e mezzi del proprio trattamento e rimane responsabile della protezione dei dati. Servizi esterni scelti dall’utilizzatore, modifiche di terzi, sistemi operativi, repository e piattaforme di download sono soggetti alle rispettive condizioni e politiche.
+
+#7. Sicurezza, backup e continuità
+
+Nessun software è immune da vulnerabilità, perdita di dati, incompatibilità, malware o errori. La presenza di test, checksum, audit log, backup o controlli di sicurezza non equivale a certificazione, garanzia di sicurezza o conformità.
+
+Prima di usare ThisTinti su documenti reali, l’utilizzatore deve provarlo in un ambiente separato, creare un backup indipendente e predisporre una procedura manuale alternativa. L’applicazione non deve essere esposta direttamente a Internet senza un progetto di sicurezza e un collaudo professionale.
+
+#8. Assenza di garanzie
+
+Nei limiti massimi consentiti dalla legge applicabile, il software, i file, la documentazione, i risultati e gli aggiornamenti sono forniti “così come sono” e “come disponibili”, senza garanzie espresse o implicite, incluse accuratezza, affidabilità, disponibilità, idoneità a uno scopo particolare, commerciabilità, non violazione, assenza di errori, sicurezza o compatibilità.
+
+L’utilizzatore decide autonomamente se il software sia appropriato e si assume i rischi del suo impiego, come previsto anche dalle sezioni 7 e 8 della Apache License 2.0.
+
+#9. Limitazione di responsabilità
+
+Nei limiti massimi consentiti dalla legge applicabile, l’autore e i contributori non rispondono di danni diretti o indiretti, perdita di dati, perdita di profitto, interruzione dell’attività, errori di pagamento, sanzioni, contestazioni, mancati guadagni, perdita di avviamento, costi di ripristino o danni derivanti dall’uso, dall’impossibilità di usare o dall’affidamento sugli output di ThisTinti.
+
+Questa clausola non esclude né limita responsabilità che non possano essere escluse per legge, incluse quelle derivanti da dolo o colpa grave, ove applicabile. Nessuna formulazione delle presenti condizioni deve essere interpretata come rinuncia a diritti inderogabili.
+
+#10. Modifiche, fork, integrazioni e distribuzioni di terzi
+
+La Apache License 2.0 consente modifiche e redistribuzioni. Tuttavia:
+
+- l’autore non controlla, approva o garantisce versioni modificate, fork, plugin, modelli, regole, installer o servizi di terzi;
+- chi modifica, integra, ridistribuisce o commercializza il software opera per proprio conto e risponde delle proprie modifiche, promesse, garanzie, assistenza e conformità;
+- una versione modificata deve essere identificata chiaramente come tale e non deve suggerire approvazione, certificazione o gestione da parte dell’autore originario;
+- il nome e il logo ThisTinti non sono concessi dalla Apache License 2.0 per presentare una versione modificata come distribuzione ufficiale.
+
+#11. Nessuna assistenza, manutenzione o obbligo di aggiornamento
+
+Non sono garantiti supporto, correzioni, risposte, aggiornamenti di sicurezza, disponibilità del sito, conservazione delle release o compatibilità con versioni future. L’utilizzatore deve predisporre autonomamente manutenzione, monitoraggio e continuità operativa.
+
+#12. Componenti e servizi di terze parti
+
+ThisTinti può includere componenti open source elencati nello SBOM e nelle note di terze parti. Tali componenti restano soggetti alle rispettive licenze. Il download tramite GitHub o altri fornitori è soggetto ai loro sistemi e alle loro politiche.
+
+#13. Norme inderogabili
+
+Nulla nelle presenti condizioni modifica obblighi o responsabilità inderogabili previsti dalla legge applicabile. Se una clausola è invalida o inefficace, le altre rimangono applicabili nella misura consentita.
+
+#14. Accettazione e registrazione locale
+
+L’installer e il primo avvio della distribuzione ufficiale richiedono due conferme separate:
+
+1. presa visione della licenza e del presente avviso;
+2. approvazione specifica delle clausole sui limiti d’uso, verifica umana, responsabilità dell’utilizzatore, assenza di garanzie, limitazione di responsabilità, modifiche di terzi e assenza di supporto.
+
+La conferma viene registrata soltanto sul computer dell’utilizzatore con versione dell’avviso, data, hash dei documenti e dichiarazioni accettate. Non viene inviata all’autore.
+
+##Approvazione specifica
+
+Ai sensi e per gli effetti degli articoli 1341 e 1342 del Codice civile italiano, ove applicabili, l’utilizzatore dichiara di approvare specificamente le clausole: 3 (scopo e usi non coperti), 4 (verifica umana), 5 (responsabilità dell’utilizzatore), 7 (sicurezza e backup), 8 (assenza di garanzie), 9 (limitazione di responsabilità), 10 (modifiche e terzi), 11 (assenza di assistenza), 12 (componenti di terze parti).

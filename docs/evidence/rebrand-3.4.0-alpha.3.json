@@ -1,0 +1,26 @@
+{
+  "version": "3.4.0-alpha.3",
+  "project_name": "ThisTinti",
+  "checked_at": "2026-07-20",
+  "clearance_status": "preliminary_favorable",
+  "exact_public_web_matches_found": false,
+  "exact_company_or_product_matches_found": false,
+  "exact_indexed_domain_results_found": false,
+  "live_domain_registration_check_completed": false,
+  "official_similarity_search_completed": false,
+  "legacy_name_occurrences_in_distributed_tree": 0,
+  "tests_passed": 155,
+  "application_coverage_percent": 90,
+  "migrations_reversible": true,
+  "validation_gate_passed": true,
+  "http_smoke_passed": true,
+  "local_restart_persistence_passed": true,
+  "dependency_distributions_validated": 63,
+  "license_inventory_distributions": 70,
+  "limitations": [
+    "Search-engine absence does not prove legal availability.",
+    "Domains must be checked live immediately before purchase.",
+    "Similar marks must be searched directly in official databases.",
+    "Windows and Docker release workflows still require GitHub runners."
+  ]
+}

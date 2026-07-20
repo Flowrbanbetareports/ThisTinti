@@ -1,0 +1,36 @@
+{
+  "release": "3.3.0-alpha.1",
+  "generated_at": "2026-07-20T03:45:49Z",
+  "source_checkout": {
+    "tests_collected": 138,
+    "tests_passed": 138,
+    "coverage_percent_displayed": 90,
+    "coverage_fail_under": 90,
+    "ruff": "passed",
+    "ruff_format": "passed",
+    "bandit": "passed",
+    "python_compile": "passed",
+    "javascript_syntax": "passed",
+    "dependency_graph": "passed_63_distributions"
+  },
+  "functional_gates": {
+    "sqlite_migration_upgrade_downgrade_upgrade": "passed",
+    "alembic_check": "passed",
+    "synthetic_validation_precision": 1.0,
+    "synthetic_validation_recall": 1.0,
+    "synthetic_validation_f1": 1.0,
+    "http_smoke": "passed",
+    "backup_verify_restore": "passed",
+    "local_app_worker_restart_persistence": "passed"
+  },
+  "distribution": {
+    "source_local_runtime": "verified",
+    "windows_workflow": "prepared_not_executed",
+    "windows_installer": "not_generated_in_linux_environment",
+    "windows_frozen_smoke": "pending_github_windows_runner",
+    "code_signing": "not_configured"
+  },
+  "external_checks": {
+    "pip_audit": "not_completed_local_network_timeout; blocking_job_present_in_github_ci"
+  }
+}

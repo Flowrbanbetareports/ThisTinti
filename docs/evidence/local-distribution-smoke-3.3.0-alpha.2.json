@@ -1,0 +1,14 @@
+{
+  "port": 46819,
+  "data_dir": "/tmp/thistinti-legal-smoke",
+  "frozen": false,
+  "first_run": {
+    "job": "completed",
+    "documents": 1
+  },
+  "restart": {
+    "documents": 1,
+    "same_document": true
+  },
+  "passed": true
+}

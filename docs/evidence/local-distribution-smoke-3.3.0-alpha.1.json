@@ -1,0 +1,14 @@
+{
+  "port": 33641,
+  "data_dir": "/tmp/thistinti-local-smoke-4v2y4rh5",
+  "frozen": false,
+  "first_run": {
+    "job": "completed",
+    "documents": 1
+  },
+  "restart": {
+    "documents": 1,
+    "same_document": true
+  },
+  "passed": true
+}

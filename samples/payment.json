@@ -1,0 +1,11 @@
+{
+  "document_type": "payment",
+  "number": "PAY-3921",
+  "document_date": "2026-07-10",
+  "supplier_name": "Fornitore Demo S.p.A.",
+  "supplier_vat": "IT01234567890",
+  "references": {"invoice_numbers": ["INV-3921"]},
+  "lines": [
+    {"line_no": 1, "description": "Pagamento fattura INV-3921", "quantity": 1, "unit_price": 7500.00}
+  ]
+}

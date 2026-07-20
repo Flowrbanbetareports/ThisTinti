@@ -1,0 +1,900 @@
+{
+  "name": "ThisTinti Core Regression",
+  "version": "2.1.0",
+  "description": "Suite deterministica incorporata per impedire regressioni del motore documentale.",
+  "gate": {
+    "min_precision": 1.0,
+    "min_recall": 1.0,
+    "min_f1": 1.0,
+    "max_amount_mae": 0.05,
+    "require_all_scenarios_pass": true
+  },
+  "scenarios": [
+    {
+      "id": "clean-chain",
+      "description": "Ordine, consegna e fattura perfettamente coerenti.",
+      "documents": [
+        {
+          "filename": "order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-CLEAN-1",
+            "document_date": "2026-07-01",
+            "supplier_name": "Fornitore Pulito S.r.l.",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "CLEAN-1",
+                "description": "Articolo pulito",
+                "quantity": 10,
+                "unit_price": 12.5,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-CLEAN-1",
+            "document_date": "2026-07-02",
+            "supplier_name": "Fornitore Pulito S.r.l.",
+            "references": {
+              "order_numbers": [
+                "PO-CLEAN-1"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "CLEAN-1",
+                "description": "Articolo pulito",
+                "quantity": 10,
+                "unit_price": 12.5,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-CLEAN-1",
+            "document_date": "2026-07-03",
+            "supplier_name": "Fornitore Pulito S.r.l.",
+            "references": {
+              "order_numbers": [
+                "PO-CLEAN-1"
+              ],
+              "delivery_numbers": [
+                "DDT-CLEAN-1"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "CLEAN-1",
+                "description": "Articolo pulito",
+                "quantity": 10,
+                "unit_price": 12.5,
+                "discount_rate": 5
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "commercial-anomalies",
+      "description": "Quantità, prezzo, sconto e costo non autorizzato.",
+      "documents": [
+        {
+          "filename": "order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-1049",
+            "document_date": "2026-07-01",
+            "supplier_name": "Fornitore Demo S.p.A.",
+            "supplier_vat": "IT01234567890",
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-145",
+                "description": "Giacca tecnica",
+                "color": "Blu",
+                "size": "48",
+                "quantity": 120,
+                "unit_price": 42,
+                "discount_rate": 8,
+                "tax_rate": 22
+              },
+              {
+                "line_no": 2,
+                "sku": "PANT-220",
+                "description": "Pantalone tecnico",
+                "color": "Nero",
+                "size": "50",
+                "quantity": 80,
+                "unit_price": 31,
+                "discount_rate": 5,
+                "tax_rate": 22
+              }
+            ]
+          }
+        },
+        {
+          "filename": "delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-8841",
+            "document_date": "2026-07-07",
+            "supplier_name": "Fornitore Demo S.p.A.",
+            "supplier_vat": "IT01234567890",
+            "references": {
+              "order_numbers": [
+                "PO-1049"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-145",
+                "description": "Giacca tecnica",
+                "color": "Blu",
+                "size": "48",
+                "quantity": 114,
+                "unit_price": 42,
+                "discount_rate": 8
+              },
+              {
+                "line_no": 2,
+                "sku": "PANT-220",
+                "description": "Pantalone tecnico",
+                "color": "Nero",
+                "size": "50",
+                "quantity": 80,
+                "unit_price": 31,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-3921",
+            "document_date": "2026-07-08",
+            "supplier_name": "Fornitore Demo S.p.A.",
+            "supplier_vat": "IT01234567890",
+            "references": {
+              "order_numbers": [
+                "PO-1049"
+              ],
+              "delivery_numbers": [
+                "DDT-8841"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-145",
+                "description": "Giacca tecnica",
+                "color": "Blu",
+                "size": "48",
+                "quantity": 120,
+                "unit_price": 43,
+                "discount_rate": 0,
+                "tax_rate": 22
+              },
+              {
+                "line_no": 2,
+                "sku": "PANT-220",
+                "description": "Pantalone tecnico",
+                "color": "Nero",
+                "size": "50",
+                "quantity": 80,
+                "unit_price": 31,
+                "discount_rate": 5,
+                "tax_rate": 22
+              },
+              {
+                "line_no": 3,
+                "sku": "FEE-TRASP",
+                "description": "Spese trasporto",
+                "quantity": 1,
+                "unit_price": 75,
+                "discount_rate": 0,
+                "tax_rate": 22
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "invoiced_over_received",
+          "amount": 258.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        },
+        {
+          "case_type": "price_over_order",
+          "amount": 120.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        },
+        {
+          "case_type": "discount_missing",
+          "amount": 412.8,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        },
+        {
+          "case_type": "unmatched_invoice_line",
+          "amount": 75.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "return-without-credit",
+      "description": "Reso completo senza nota di credito.",
+      "documents": [
+        {
+          "filename": "order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-1049",
+            "document_date": "2026-07-01",
+            "supplier_name": "Fornitore Demo S.p.A.",
+            "supplier_vat": "IT01234567890",
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-145",
+                "description": "Giacca tecnica",
+                "color": "Blu",
+                "size": "48",
+                "quantity": 120,
+                "unit_price": 42,
+                "discount_rate": 8,
+                "tax_rate": 22
+              },
+              {
+                "line_no": 2,
+                "sku": "PANT-220",
+                "description": "Pantalone tecnico",
+                "color": "Nero",
+                "size": "50",
+                "quantity": 80,
+                "unit_price": 31,
+                "discount_rate": 5,
+                "tax_rate": 22
+              }
+            ]
+          }
+        },
+        {
+          "filename": "delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-8841",
+            "document_date": "2026-07-07",
+            "supplier_name": "Fornitore Demo S.p.A.",
+            "supplier_vat": "IT01234567890",
+            "references": {
+              "order_numbers": [
+                "PO-1049"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-145",
+                "description": "Giacca tecnica",
+                "color": "Blu",
+                "size": "48",
+                "quantity": 114,
+                "unit_price": 42,
+                "discount_rate": 8
+              },
+              {
+                "line_no": 2,
+                "sku": "PANT-220",
+                "description": "Pantalone tecnico",
+                "color": "Nero",
+                "size": "50",
+                "quantity": 80,
+                "unit_price": 31,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-3921",
+            "document_date": "2026-07-08",
+            "supplier_name": "Fornitore Demo S.p.A.",
+            "supplier_vat": "IT01234567890",
+            "references": {
+              "order_numbers": [
+                "PO-1049"
+              ],
+              "delivery_numbers": [
+                "DDT-8841"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-145",
+                "description": "Giacca tecnica",
+                "color": "Blu",
+                "size": "48",
+                "quantity": 120,
+                "unit_price": 43,
+                "discount_rate": 0,
+                "tax_rate": 22
+              },
+              {
+                "line_no": 2,
+                "sku": "PANT-220",
+                "description": "Pantalone tecnico",
+                "color": "Nero",
+                "size": "50",
+                "quantity": 80,
+                "unit_price": 31,
+                "discount_rate": 5,
+                "tax_rate": 22
+              },
+              {
+                "line_no": 3,
+                "sku": "FEE-TRASP",
+                "description": "Spese trasporto",
+                "quantity": 1,
+                "unit_price": 75,
+                "discount_rate": 0,
+                "tax_rate": 22
+              }
+            ]
+          }
+        },
+        {
+          "filename": "return.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "return",
+            "number": "RET-203",
+            "document_date": "2026-07-12",
+            "supplier_name": "Fornitore Demo S.p.A.",
+            "supplier_vat": "IT01234567890",
+            "references": {
+              "order_numbers": [
+                "PO-1049"
+              ],
+              "invoice_numbers": [
+                "INV-3921"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PANT-220",
+                "description": "Pantalone tecnico",
+                "color": "Nero",
+                "size": "50",
+                "quantity": 5,
+                "unit_price": 31,
+                "discount_rate": 5
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "invoiced_over_received",
+          "amount": 258.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        },
+        {
+          "case_type": "price_over_order",
+          "amount": 120.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        },
+        {
+          "case_type": "discount_missing",
+          "amount": 412.8,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        },
+        {
+          "case_type": "unmatched_invoice_line",
+          "amount": 75.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        },
+        {
+          "case_type": "return_without_credit",
+          "amount": 155.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "partial-credit",
+      "description": "Il reso è accreditato solo in parte.",
+      "documents": [
+        {
+          "filename": "order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-1049",
+            "document_date": "2026-07-01",
+            "supplier_name": "Fornitore Demo S.p.A.",
+            "supplier_vat": "IT01234567890",
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-145",
+                "description": "Giacca tecnica",
+                "color": "Blu",
+                "size": "48",
+                "quantity": 120,
+                "unit_price": 42,
+                "discount_rate": 8,
+                "tax_rate": 22
+              },
+              {
+                "line_no": 2,
+                "sku": "PANT-220",
+                "description": "Pantalone tecnico",
+                "color": "Nero",
+                "size": "50",
+                "quantity": 80,
+                "unit_price": 31,
+                "discount_rate": 5,
+                "tax_rate": 22
+              }
+            ]
+          }
+        },
+        {
+          "filename": "delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-8841",
+            "document_date": "2026-07-07",
+            "supplier_name": "Fornitore Demo S.p.A.",
+            "supplier_vat": "IT01234567890",
+            "references": {
+              "order_numbers": [
+                "PO-1049"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-145",
+                "description": "Giacca tecnica",
+                "color": "Blu",
+                "size": "48",
+                "quantity": 114,
+                "unit_price": 42,
+                "discount_rate": 8
+              },
+              {
+                "line_no": 2,
+                "sku": "PANT-220",
+                "description": "Pantalone tecnico",
+                "color": "Nero",
+                "size": "50",
+                "quantity": 80,
+                "unit_price": 31,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-3921",
+            "document_date": "2026-07-08",
+            "supplier_name": "Fornitore Demo S.p.A.",
+            "supplier_vat": "IT01234567890",
+            "references": {
+              "order_numbers": [
+                "PO-1049"
+              ],
+              "delivery_numbers": [
+                "DDT-8841"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-145",
+                "description": "Giacca tecnica",
+                "color": "Blu",
+                "size": "48",
+                "quantity": 120,
+                "unit_price": 43,
+                "discount_rate": 0,
+                "tax_rate": 22
+              },
+              {
+                "line_no": 2,
+                "sku": "PANT-220",
+                "description": "Pantalone tecnico",
+                "color": "Nero",
+                "size": "50",
+                "quantity": 80,
+                "unit_price": 31,
+                "discount_rate": 5,
+                "tax_rate": 22
+              },
+              {
+                "line_no": 3,
+                "sku": "FEE-TRASP",
+                "description": "Spese trasporto",
+                "quantity": 1,
+                "unit_price": 75,
+                "discount_rate": 0,
+                "tax_rate": 22
+              }
+            ]
+          }
+        },
+        {
+          "filename": "return.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "return",
+            "number": "RET-203",
+            "document_date": "2026-07-12",
+            "supplier_name": "Fornitore Demo S.p.A.",
+            "supplier_vat": "IT01234567890",
+            "references": {
+              "order_numbers": [
+                "PO-1049"
+              ],
+              "invoice_numbers": [
+                "INV-3921"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PANT-220",
+                "description": "Pantalone tecnico",
+                "color": "Nero",
+                "size": "50",
+                "quantity": 5,
+                "unit_price": 31,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "credit_note.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "credit_note",
+            "number": "CN-118",
+            "document_date": "2026-07-18",
+            "supplier_name": "Fornitore Demo S.p.A.",
+            "supplier_vat": "IT01234567890",
+            "references": {
+              "order_numbers": [
+                "PO-1049"
+              ],
+              "invoice_numbers": [
+                "INV-3921"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PANT-220",
+                "description": "Pantalone tecnico",
+                "color": "Nero",
+                "size": "50",
+                "quantity": 3,
+                "unit_price": 31,
+                "discount_rate": 5
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "invoiced_over_received",
+          "amount": 258.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        },
+        {
+          "case_type": "price_over_order",
+          "amount": 120.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        },
+        {
+          "case_type": "discount_missing",
+          "amount": 412.8,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        },
+        {
+          "case_type": "unmatched_invoice_line",
+          "amount": 75.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        },
+        {
+          "case_type": "credit_below_return",
+          "amount": 62.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "fuzzy-code-equivalence",
+      "description": "Codici diversi ma articolo e variante equivalenti.",
+      "documents": [
+        {
+          "filename": "order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-FUZZY-LAB",
+            "document_date": "2026-07-01",
+            "supplier_name": "Fuzzy Lab Supplier",
+            "lines": [
+              {
+                "sku": "GIACCA-145",
+                "description": "Giacca tecnica",
+                "color": "Blu",
+                "size": "48",
+                "quantity": 10,
+                "unit_price": 40,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-FUZZY-LAB",
+            "document_date": "2026-07-02",
+            "supplier_name": "Fuzzy Lab Supplier",
+            "references": {
+              "order_numbers": [
+                "PO-FUZZY-LAB"
+              ]
+            },
+            "lines": [
+              {
+                "sku": "ART.145",
+                "description": "Giacca tecnica navy",
+                "color": "Navy",
+                "size": "EU48",
+                "quantity": 8,
+                "unit_price": 40,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-FUZZY-LAB",
+            "document_date": "2026-07-03",
+            "supplier_name": "Fuzzy Lab Supplier",
+            "references": {
+              "order_numbers": [
+                "PO-FUZZY-LAB"
+              ]
+            },
+            "lines": [
+              {
+                "sku": "145-GIACCA",
+                "description": "Giacca tecnica blue",
+                "color": "Blue",
+                "size": "48",
+                "quantity": 10,
+                "unit_price": 42,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "invoiced_over_received",
+          "amount": 84.0,
+          "amount_tolerance": 0,
+          "absolute_tolerance": 0.05
+        },
+        {
+          "case_type": "price_over_order",
+          "amount": 20.0,
+          "amount_tolerance": 0,
+          "absolute_tolerance": 0.05
+        },
+        {
+          "case_type": "discount_missing",
+          "amount": 21.0,
+          "amount_tolerance": 0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "multiple-deliveries-and-invoices",
+      "description": "Due DDT e due fatture coerenti nella stessa catena.",
+      "documents": [
+        {
+          "filename": "order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-MULTI-LAB",
+            "document_date": "2026-07-01",
+            "supplier_name": "Multi Lab Supplier",
+            "lines": [
+              {
+                "sku": "MULTI-1",
+                "description": "Multi item",
+                "quantity": 100,
+                "unit_price": 10,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "delivery-1.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-M1",
+            "document_date": "2026-07-02",
+            "supplier_name": "Multi Lab Supplier",
+            "references": {
+              "order_numbers": [
+                "PO-MULTI-LAB"
+              ]
+            },
+            "lines": [
+              {
+                "sku": "MULTI-1",
+                "description": "Multi item",
+                "quantity": 60,
+                "unit_price": 10,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "delivery-2.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-M2",
+            "document_date": "2026-07-03",
+            "supplier_name": "Multi Lab Supplier",
+            "references": {
+              "order_numbers": [
+                "PO-MULTI-LAB"
+              ]
+            },
+            "lines": [
+              {
+                "sku": "MULTI-1",
+                "description": "Multi item",
+                "quantity": 40,
+                "unit_price": 10,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "invoice-1.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-M1",
+            "document_date": "2026-07-04",
+            "supplier_name": "Multi Lab Supplier",
+            "references": {
+              "order_numbers": [
+                "PO-MULTI-LAB"
+              ]
+            },
+            "lines": [
+              {
+                "sku": "MULTI-1",
+                "description": "Multi item",
+                "quantity": 60,
+                "unit_price": 10,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "invoice-2.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-M2",
+            "document_date": "2026-07-05",
+            "supplier_name": "Multi Lab Supplier",
+            "references": {
+              "order_numbers": [
+                "PO-MULTI-LAB"
+              ]
+            },
+            "lines": [
+              {
+                "sku": "MULTI-1",
+                "description": "Multi item",
+                "quantity": 40,
+                "unit_price": 10,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    }
+  ],
+  "evidence_level": "synthetic",
+  "automation_eligible": false
+}

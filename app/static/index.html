@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="ThisTinti — controllo documentale e anomalie commerciali." />
+  <title>ThisTinti</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <main id="authView" class="auth-shell">
+    <section class="auth-brand">
+      <div class="brand-mark">T</div>
+      <p class="eyebrow">Document integrity platform</p>
+      <h1>ThisTinti</h1>
+      <p class="hero-copy">Confronta ordini, consegne, fatture, resi e note di credito. Ogni anomalia resta collegata alle prove originali.</p>
+      <p id="localEditionBadge" class="local-edition-badge hidden">Local Edition · dati conservati su questo computer · nessuna telemetria</p>
+      <div class="principles">
+        <div><span>01</span><p>Regole verificabili prima dell'automazione.</p></div>
+        <div><span>02</span><p>Nessuna azione economica senza approvazione.</p></div>
+        <div><span>03</span><p>Dati separati per ogni organizzazione.</p></div>
+      </div>
+    </section>
+
+    <section class="auth-panel">
+      <div class="auth-card">
+        <div class="segmented" role="tablist" aria-label="Accesso o registrazione">
+          <button id="loginTab" class="active" type="button">Accedi</button>
+          <button id="registerTab" type="button">Crea spazio</button>
+        </div>
+
+        <form id="loginForm" class="form-stack">
+          <div>
+            <label for="loginEmail">Email</label>
+            <input id="loginEmail" name="email" type="email" autocomplete="email" required />
+          </div>
+          <div>
+            <label for="loginPassword">Password</label>
+            <input id="loginPassword" name="password" type="password" autocomplete="current-password" required />
+          </div>
+          <button class="primary-button" type="submit">Entra in ThisTinti</button>
+        </form>
+
+        <form id="registerForm" class="form-stack hidden">
+          <div>
+            <label for="organizationName">Organizzazione</label>
+            <input id="organizationName" name="organization" type="text" minlength="2" maxlength="180" required />
+          </div>
+          <div>
+            <label for="registerEmail">Email amministratore</label>
+            <input id="registerEmail" name="email" type="email" autocomplete="email" required />
+          </div>
+          <div>
+            <label for="registerPassword">Password</label>
+            <input id="registerPassword" name="password" type="password" minlength="10" autocomplete="new-password" required />
+            <small>Almeno 10 caratteri.</small>
+          </div>
+          <label class="local-consent"><input id="acceptTerms" type="checkbox" required /> <span>Ho letto la <a href="/legal.html" target="_blank" rel="noopener">licenza e l’avviso sui rischi</a>.</span></label>
+          <label class="local-consent"><input id="acceptSpecificClauses" type="checkbox" required /> <span>Approvo specificamente i limiti d’uso, la verifica umana obbligatoria, l’assenza di garanzie e supporto e le limitazioni di responsabilità nei limiti di legge.</span></label>
+          <button class="primary-button" type="submit">Crea spazio sicuro</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <div id="appView" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="sidebar-brand"><div class="brand-mark small">T</div><strong>ThisTinti</strong></div>
+      <nav id="mainNav" class="nav-list" aria-label="Navigazione principale">
+        <button class="active" data-view="dashboard" type="button"><span>◫</span> Panoramica</button>
+        <button data-view="documents" type="button"><span>▤</span> Documenti</button>
+        <button data-view="chains" type="button"><span>⌘</span> Catene</button>
+        <button data-view="cases" type="button"><span>△</span> Anomalie</button>
+        <button data-view="discovery" type="button"><span>✦</span> Autopilota</button>
+        <button data-view="validation" type="button"><span>✓</span> Validation Lab</button>
+        <button data-view="audit" data-admin-only type="button"><span>◎</span> Audit</button>
+        <button data-view="users" data-admin-only type="button"><span>◇</span> Utenti</button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="tenant-chip"><span id="tenantInitial">T</span><div><strong id="tenantName">Organizzazione</strong><small id="userEmail">—</small></div></div>
+        <a class="sidebar-legal-link" href="/legal.html" target="_blank" rel="noopener">Licenza · Privacy · Rischi</a>
+        <button id="logoutButton" class="ghost-button" type="button">Esci</button>
+      </div>
+    </aside>
+
+    <section class="workspace">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow" id="pageEyebrow">Controllo documentale</p>
+          <h2 id="pageTitle">Panoramica</h2>
+        </div>
+        <div class="topbar-actions">
+          <button id="exportButton" class="secondary-button" data-admin-only type="button">Esporta</button>
+          <button id="demoButton" class="secondary-button" data-reviewer-only type="button">Carica esempio</button>
+          <button id="openUploadButton" class="primary-button compact" data-reviewer-only type="button">＋ Nuovo documento</button>
+        </div>
+      </header>
+      <aside class="legal-warning" role="note"><strong>Output automatici da verificare.</strong> Confronta sempre i documenti originali. ThisTinti non autorizza pagamenti e non sostituisce controlli contabili, fiscali o legali. <a href="/legal.html" target="_blank" rel="noopener">Note legali</a></aside>
+
+      <div id="dashboardView" class="view-panel">
+        <section class="metric-grid">
+          <article class="metric-card"><p>Documenti</p><strong id="metricDocuments">0</strong><small>archiviati e analizzati</small></article>
+          <article class="metric-card"><p>Anomalie aperte</p><strong id="metricCases">0</strong><small>da verificare</small></article>
+          <article class="metric-card"><p>Catene operative</p><strong id="metricChains">0</strong><small>documenti collegati</small></article>
+          <article class="metric-card"><p>Importo potenziale</p><strong id="metricAmount">€0</strong><small>non è un importo garantito</small></article>
+        </section>
+        <section class="dashboard-grid">
+          <article class="panel">
+            <div class="panel-heading"><div><h3>Anomalie prioritarie</h3><p>Ordinate per gravità e data.</p></div><button class="text-button" data-go="cases" type="button">Vedi tutte</button></div>
+            <div id="priorityCases" class="list-stack empty-state">Nessuna anomalia disponibile.</div>
+          </article>
+          <article class="panel">
+            <div class="panel-heading"><div><h3>Integrità del sistema</h3><p>Stato dei controlli principali.</p></div></div>
+            <div class="health-list">
+              <div><span class="status-dot ok"></span><div><strong>Database</strong><small>Connessione attiva</small></div></div>
+              <div><span class="status-dot ok"></span><div><strong>Isolamento tenant</strong><small>Filtro applicato a ogni endpoint</small></div></div>
+              <div><span id="parserDot" class="status-dot ok"></span><div><strong>Parser</strong><small id="parserStatus">Nessun errore rilevato</small></div></div>
+              <div><span class="status-dot neutral"></span><div><strong>IA esterna</strong><small>Disattivata: nessun costo API</small></div></div>
+            </div>
+          </article>
+        </section>
+        <section class="panel">
+          <div class="panel-heading"><div><h3>Pipeline</h3><p>Dal file originale alla decisione umana.</p></div></div>
+          <div class="pipeline">
+            <div><b>1</b><strong>Ingestione</strong><small>Hash e archiviazione</small></div><i>→</i>
+            <div><b>2</b><strong>Estrazione</strong><small>Campi e righe</small></div><i>→</i>
+            <div><b>3</b><strong>Collegamento</strong><small>Ordine → fattura</small></div><i>→</i>
+            <div><b>4</b><strong>Regole</strong><small>Anomalie verificabili</small></div><i>→</i>
+            <div><b>5</b><strong>Revisione</strong><small>Decisione umana</small></div>
+          </div>
+        </section>
+      </div>
+
+      <div id="documentsView" class="view-panel hidden">
+        <section class="panel table-panel">
+          <div class="panel-heading"><div><h3>Documenti</h3><p>XML/P7M, JSON, CSV, XLSX e PDF testuali.</p></div><div class="filter-row"><select id="documentTypeFilter"><option value="">Tutti i tipi</option><option value="proposal">Proposte</option><option value="order">Ordini</option><option value="confirmation">Conferme</option><option value="delivery">Consegne</option><option value="invoice">Fatture</option><option value="payment">Pagamenti</option><option value="return">Resi</option><option value="credit_note">Note di credito</option></select><select id="documentStatusFilter"><option value="">Tutti gli stati</option><option value="parsed">Letti</option><option value="review_required">Da rivedere</option><option value="failed">Falliti</option></select></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Documento</th><th>Fornitore</th><th>Tipo</th><th>Righe</th><th>Confidenza</th><th>Stato</th></tr></thead><tbody id="documentsTable"></tbody></table></div>
+        </section>
+      </div>
+
+      <div id="chainsView" class="view-panel hidden">
+        <section class="panel table-panel">
+          <div class="panel-heading"><div><h3>Catene operative</h3><p>Collegamenti tra documenti della stessa operazione.</p></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Riferimento</th><th>Proposta</th><th>Ordine</th><th>Consegna</th><th>Fattura</th><th>Pagamento</th><th>Reso</th><th>Nota credito</th><th>Stato</th></tr></thead><tbody id="chainsTable"></tbody></table></div>
+        </section>
+      </div>
+
+      <div id="casesView" class="view-panel hidden">
+        <section class="panel table-panel">
+          <div class="panel-heading"><div><h3>Anomalie</h3><p>Ogni caso include origine, prova e livello di affidabilità.</p></div><div class="filter-row"><select id="caseStatusFilter"><option value="">Tutti gli stati</option><option value="open">Aperte</option><option value="needs_review">Da rivedere</option><option value="confirmed">Confermate</option><option value="dismissed">Scartate</option><option value="resolved">Risolte</option></select><select id="caseSeverityFilter"><option value="">Tutte le gravità</option><option value="high">Alta</option><option value="medium">Media</option><option value="low">Bassa</option></select></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Caso</th><th>Gravità</th><th>Importo</th><th>Confidenza</th><th>Stato</th></tr></thead><tbody id="casesTable"></tbody></table></div>
+        </section>
+      </div>
+
+      <div id="discoveryView" class="view-panel hidden">
+        <section class="metric-grid">
+          <article class="metric-card"><p>Attività rilevata</p><strong id="discoveryActivity">—</strong><small id="discoveryActivityNote">in apprendimento</small></article>
+          <article class="metric-card"><p>Confidenza</p><strong id="discoveryConfidence">—</strong><small>basata sui documenti osservati</small></article>
+          <article class="metric-card"><p>Regole attive</p><strong id="discoveryActiveRules">0</strong><small>attivate senza intervento</small></article>
+          <article class="metric-card"><p>Domande</p><strong id="discoveryQuestions">0</strong><small>solo casi realmente incerti</small></article>
+        </section>
+        <section class="panel table-panel">
+          <div class="panel-heading"><div><h3>Comprensione dell'attività</h3><p>ThisTinti osserva i campi ricorrenti e propone controlli spiegabili.</p></div><div class="filter-row"><button id="confirmActivityButton" class="secondary-button hidden" data-reviewer-only type="button">Conferma attività</button><button id="correctActivityButton" class="secondary-button" data-reviewer-only type="button">Correggi</button><button id="runDiscoveryButton" class="primary-button compact" data-reviewer-only type="button">Rianalizza attività</button></div></div>
+          <div id="discoveryFields" class="detail-grid"></div>
+        </section>
+        <section class="panel table-panel">
+          <div class="panel-heading"><div><h3>Regole proposte</h3><p>Le regole ad alta confidenza sono automatiche. Solo quelle incerte richiedono una scelta.</p></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Regola</th><th>Motivo</th><th>Confidenza</th><th>Stato</th><th></th></tr></thead><tbody id="discoveryRulesTable"></tbody></table></div>
+        </section>
+      </div>
+
+
+      <div id="validationView" class="view-panel hidden">
+        <section class="metric-grid">
+          <article class="metric-card"><p>Precisione</p><strong id="validationPrecision">—</strong><small>segnalazioni corrette</small></article>
+          <article class="metric-card"><p>Recall</p><strong id="validationRecall">—</strong><small>anomalie attese trovate</small></article>
+          <article class="metric-card"><p>F1</p><strong id="validationF1">—</strong><small>equilibrio complessivo</small></article>
+          <article class="metric-card"><p>Gate rilascio</p><strong id="validationGate">—</strong><small id="validationGateNote">nessuna esecuzione</small></article>
+        </section>
+        <section class="panel table-panel">
+          <div class="panel-heading"><div><h3>Suite di validazione</h3><p>Scenari versionati con risultati attesi e soglie di rilascio.</p></div><div class="filter-row"><button id="loadDefaultValidationButton" class="secondary-button" data-admin-only type="button">Carica suite base</button><button id="openValidationDatasetButton" class="primary-button compact" data-admin-only type="button">＋ Nuova suite</button></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Suite</th><th>Versione</th><th>Evidenza</th><th>Stato</th><th>Automazione</th><th>Esecuzioni</th><th></th></tr></thead><tbody id="validationDatasetsTable"></tbody></table></div>
+        </section>
+        <section class="panel table-panel">
+          <div class="panel-heading"><div><h3>Esecuzioni</h3><p>Metriche, regressioni e scenari falliti.</p></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Data</th><th>Motore</th><th>Scenari</th><th>Precisione</th><th>Recall</th><th>F1</th><th>Gate</th></tr></thead><tbody id="validationRunsTable"></tbody></table></div>
+        </section>
+      </div>
+
+      <div id="auditView" class="view-panel hidden">
+        <section class="panel table-panel">
+          <div class="panel-heading"><div><h3>Audit log</h3><p>Azioni e modifiche registrate in ordine cronologico.</p></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Data</th><th>Azione</th><th>Entità</th><th>Dettagli</th></tr></thead><tbody id="auditTable"></tbody></table></div>
+        </section>
+      </div>
+
+      <div id="usersView" class="view-panel hidden">
+        <section class="panel table-panel">
+          <div class="panel-heading"><div><h3>Utenti e ruoli</h3><p>Amministratori, revisori e utenti in sola lettura.</p></div><button id="openUserButton" class="primary-button compact" type="button">＋ Nuovo utente</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Utente</th><th>Ruolo</th><th>Stato</th><th>Creato</th><th></th></tr></thead><tbody id="usersTable"></tbody></table></div>
+        </section>
+      </div>
+    </section>
+  </div>
+
+  <dialog id="uploadDialog" class="modal">
+    <form id="uploadForm" method="dialog" class="modal-card">
+      <div class="modal-heading"><div><p class="eyebrow">Nuova analisi</p><h3>Carica documento</h3></div><button class="icon-button" value="cancel" type="button" data-close-dialog="uploadDialog">×</button></div>
+      <div class="form-grid">
+        <div class="full"><label for="documentFile">File</label><input id="documentFile" name="file" type="file" accept=".xml,.p7m,.json,.csv,.xlsx,.xlsm,.pdf,.zip" required /><small>Massimo 25 MB. Un file ZIP può contenere fino a 200 documenti supportati; le scansioni PDF richiedono revisione.</small></div>
+        <div><label for="documentType">Tipo documento</label><select id="documentType" name="document_type"><option value="">Rileva se possibile</option><option value="proposal">Proposta</option><option value="order">Ordine</option><option value="confirmation">Conferma ordine</option><option value="delivery">DDT / consegna</option><option value="invoice">Fattura</option><option value="payment">Pagamento</option><option value="return">Reso</option><option value="credit_note">Nota di credito</option></select></div>
+        <div><label for="documentNumber">Numero</label><input id="documentNumber" name="number" type="text" /></div>
+        <div><label for="supplierName">Fornitore</label><input id="supplierName" name="supplier_name" type="text" /></div>
+        <div><label for="documentDate">Data documento</label><input id="documentDate" name="document_date" type="date" /></div>
+      </div>
+      <div id="uploadProgress" class="progress-row hidden"><span></span><p>Analisi in corso…</p></div>
+      <div class="modal-actions"><button class="secondary-button" type="button" data-close-dialog="uploadDialog">Annulla</button><button class="primary-button" type="submit">Carica e analizza</button></div>
+    </form>
+  </dialog>
+
+
+  <dialog id="chainDialog" class="modal wide">
+    <article class="modal-card">
+      <div class="modal-heading"><div><p class="eyebrow">Confronto operativo</p><h3 id="chainDialogTitle">Catena documentale</h3></div><button class="icon-button" type="button" data-close-dialog="chainDialog">×</button></div>
+      <div id="chainDialogBody"></div>
+    </article>
+  </dialog>
+
+  <dialog id="caseDialog" class="modal wide">
+    <article class="modal-card">
+      <div class="modal-heading"><div><p class="eyebrow">Fascicolo di prova</p><h3 id="caseDialogTitle">Anomalia</h3></div><button class="icon-button" type="button" data-close-dialog="caseDialog">×</button></div>
+      <div id="caseDialogBody"></div>
+      <div class="review-box">
+        <label for="reviewNote">Nota di revisione</label>
+        <textarea id="reviewNote" rows="3" placeholder="Motivazione facoltativa"></textarea>
+        <div class="decision-row"><button class="secondary-button" data-decision="dismissed" type="button">Scarta</button><button class="secondary-button" data-decision="needs_review" type="button">Richiedi verifica</button><button class="primary-button" data-decision="confirmed" type="button">Conferma</button><button class="primary-button dark" data-decision="resolved" type="button">Segna risolta</button></div>
+      </div>
+    </article>
+  </dialog>
+
+  <dialog id="documentDialog" class="modal wide">
+    <article class="modal-card">
+      <div class="modal-heading"><div><p class="eyebrow">Documento</p><h3 id="documentDialogTitle">Dettaglio</h3></div><button class="icon-button" type="button" data-close-dialog="documentDialog">×</button></div>
+      <div id="documentDialogBody"></div>
+    </article>
+  </dialog>
+
+  <dialog id="userDialog" class="modal">
+    <form id="userForm" class="modal-card">
+      <div class="modal-heading"><div><p class="eyebrow">Accesso organizzazione</p><h3>Crea utente</h3></div><button class="icon-button" type="button" data-close-dialog="userDialog">×</button></div>
+      <div class="form-stack">
+        <div><label for="userEmailInput">Email</label><input id="userEmailInput" type="email" required /></div>
+        <div><label for="userPasswordInput">Password temporanea</label><input id="userPasswordInput" type="password" minlength="10" required /><small>L'utente potrà cambiarla dopo il primo accesso.</small></div>
+        <div><label for="userRoleInput">Ruolo</label><select id="userRoleInput"><option value="viewer">Sola lettura</option><option value="reviewer">Revisore</option><option value="admin">Amministratore</option></select></div>
+      </div>
+      <div class="modal-actions"><button class="secondary-button" type="button" data-close-dialog="userDialog">Annulla</button><button class="primary-button" type="submit">Crea utente</button></div>
+    </form>
+  </dialog>
+
+
+  <dialog id="validationDatasetDialog" class="modal wide">
+    <form id="validationDatasetForm" class="modal-card">
+      <div class="modal-heading"><div><p class="eyebrow">Validation Lab</p><h3>Nuova suite JSON</h3></div><button class="icon-button" type="button" data-close-dialog="validationDatasetDialog">×</button></div>
+      <div class="form-stack">
+        <div><label for="validationDatasetJson">Definizione completa</label><textarea id="validationDatasetJson" rows="18" spellcheck="false" required placeholder='{"name":"Suite","version":"1","evidence_level":"synthetic","gate":{"min_precision":0.95,"min_recall":0.95,"min_f1":0.95,"max_amount_mae":1},"scenarios":[]}'></textarea><small>Il JSON deve contenere nome, versione, gate e almeno uno scenario con documenti strutturati.</small></div>
+      </div>
+      <div class="modal-actions"><button class="secondary-button" type="button" data-close-dialog="validationDatasetDialog">Annulla</button><button class="primary-button" type="submit">Salva suite</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="validationAutomationDialog" class="modal">
+    <form id="validationAutomationForm" class="modal-card">
+      <div class="modal-heading"><div><p class="eyebrow">Controllo umano</p><h3 id="validationAutomationTitle">Approva automazione</h3></div><button class="icon-button" type="button" data-close-dialog="validationAutomationDialog">×</button></div>
+      <input id="validationAutomationDatasetId" type="hidden">
+      <input id="validationAutomationEnabled" type="hidden">
+      <p id="validationAutomationExplanation">L'approvazione richiede un pilot reale, almeno 30 scenari, gate superato e motore corrente.</p>
+      <div><label for="validationAutomationNote">Motivazione registrata nell'audit</label><textarea id="validationAutomationNote" rows="5" minlength="10" maxlength="2000" required></textarea></div>
+      <div class="modal-actions"><button class="secondary-button" type="button" data-close-dialog="validationAutomationDialog">Annulla</button><button id="validationAutomationSubmit" class="primary-button" type="submit">Conferma</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="validationRunDialog" class="modal wide">
+    <article class="modal-card">
+      <div class="modal-heading"><div><p class="eyebrow">Risultato validazione</p><h3 id="validationRunDialogTitle">Esecuzione</h3></div><button class="icon-button" type="button" data-close-dialog="validationRunDialog">×</button></div>
+      <div id="validationRunDialogBody"></div>
+    </article>
+  </dialog>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>

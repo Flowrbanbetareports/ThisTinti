@@ -1,0 +1,23 @@
+[project]
+name = "thistinti"
+version = "3.4.0-alpha.3"
+description = "Document integrity and discrepancy review platform"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint.per-file-ignores]
+"tests/conftest.py" = ["E402"]
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["app/local_launcher.py"]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true

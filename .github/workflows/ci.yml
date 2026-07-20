@@ -1,0 +1,211 @@
+name: ThisTinti CI and External Proof
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: thistinti-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install document tools and dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openssl poppler-utils tesseract-ocr tesseract-ocr-eng tesseract-ocr-ita
+          pip install -r requirements-dev.txt
+      - name: Static and security gates
+        run: |
+          ruff check app tests scripts migrations
+          ruff format --check app tests scripts migrations
+          bandit -q -r app scripts -x tests
+          python -m compileall app scripts
+          node --check app/static/app.js
+          python scripts/check_dependencies.py
+          python scripts/check_legal_distribution.py
+          python scripts/check_publication_readiness.py
+      - name: SQLite migration reversibility
+        env:
+          THISTINTI_DATABASE_URL: sqlite:///./ci.db
+          THISTINTI_SECRET_KEY: ci-secret-key-more-than-thirty-two-characters
+          THISTINTI_AUTO_CREATE_SCHEMA: "false"
+        run: |
+          alembic upgrade head
+          alembic check
+          alembic downgrade base
+          alembic upgrade head
+          alembic check
+      - name: Application tests and coverage
+        run: python scripts/run_test_coverage.py
+      - name: Document regression and HTTP smoke
+        env:
+          THISTINTI_DATABASE_URL: sqlite:///./ci.db
+          THISTINTI_STORAGE_DIR: ./ci-validation-storage
+          THISTINTI_SECRET_KEY: ci-secret-key-more-than-thirty-two-characters
+          THISTINTI_AUTO_CREATE_SCHEMA: "false"
+        run: |
+          python scripts/run_validation_gate.py
+          python scripts/http_smoke.py
+          python scripts/generate_sbom.py
+
+  python-compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - run: python -m pytest -q
+
+  postgres-external-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: thistinti_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci-admin-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d thistinti_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      THISTINTI_ENV: test
+      THISTINTI_DATABASE_URL: postgresql+psycopg://thistinti_app:ci-runtime-password@127.0.0.1:5432/thistinti_ci
+      THISTINTI_SECRET_KEY: ci-secret-key-more-than-thirty-two-characters
+      THISTINTI_AUTO_CREATE_SCHEMA: "false"
+      THISTINTI_ALLOW_REGISTRATION: "true"
+      THISTINTI_SECURE_COOKIES: "false"
+      THISTINTI_CORS_ORIGINS: http://127.0.0.1:8000
+      THISTINTI_DATABASE_RATE_LIMITING: "true"
+      THISTINTI_ASYNC_INGESTION_ENABLED: "true"
+      THISTINTI_ALLOW_SYNCHRONOUS_INGESTION: "false"
+      THISTINTI_REQUIRE_MALWARE_SCANNER: "false"
+      THISTINTI_OCR_ENABLED: "false"
+      THISTINTI_STORAGE_DIR: ./external-proof-data/uploads
+      THISTINTI_QUARANTINE_DIR: ./external-proof-data/quarantine
+      THISTINTI_REJECTED_DIR: ./external-proof-data/rejected
+      THISTINTI_PROOF_URL: http://127.0.0.1:8000
+      THISTINTI_PROOF_EMAIL: proof@thistinti.example.com
+      THISTINTI_PROOF_PASSWORD: External-Proof-Password-2026!
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Create least-privilege owner and runtime roles
+        env:
+          THISTINTI_POSTGRES_ADMIN_URL: postgresql://postgres:ci-admin-password@127.0.0.1:5432/thistinti_ci
+          THISTINTI_DB_OWNER_USER: thistinti_owner
+          THISTINTI_DB_OWNER_PASSWORD: ci-owner-password
+          THISTINTI_DB_APP_USER: thistinti_app
+          THISTINTI_DB_APP_PASSWORD: ci-runtime-password
+        run: python scripts/configure_postgres_roles.py
+      - name: Apply migrations as schema owner
+        env:
+          THISTINTI_PROCESS_ROLE: migrate
+          THISTINTI_DATABASE_URL: postgresql+psycopg://thistinti_owner:ci-owner-password@127.0.0.1:5432/thistinti_ci
+        run: |
+          alembic upgrade head
+          alembic check
+          test "$(alembic current | grep -c d42a0f61be90)" -eq 1
+      - name: Prove PostgreSQL RLS and cross-tenant guards as runtime
+        env:
+          THISTINTI_PROCESS_ROLE: app
+        run: python scripts/postgres_security_smoke.py
+      - name: Start app and worker
+        run: |
+          mkdir -p external-proof-data evidence
+          cat > evidence/start-services.sh <<'SH'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          THISTINTI_PROCESS_ROLE=app python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 > evidence/app.log 2>&1 &
+          echo $! > evidence/app.pid
+          THISTINTI_PROCESS_ROLE=worker python scripts/run_worker.py --poll-seconds 0.2 --worker-id github-proof-worker > evidence/worker.log 2>&1 &
+          echo $! > evidence/worker.pid
+          SH
+          chmod +x evidence/start-services.sh
+          evidence/start-services.sh
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:8000/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat evidence/app.log
+          exit 1
+      - name: Process a Proof Graph asynchronously
+        run: python scripts/external_cloud_proof.py bootstrap --state evidence/state.json --report evidence/report.json
+      - name: Restart app and worker
+        run: |
+          kill "$(cat evidence/app.pid)" "$(cat evidence/worker.pid)"
+          wait "$(cat evidence/app.pid)" 2>/dev/null || true
+          wait "$(cat evidence/worker.pid)" 2>/dev/null || true
+          evidence/start-services.sh
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:8000/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat evidence/app.log
+          exit 1
+      - name: Verify Proof Graph, files, jobs and audit persistence
+        run: python scripts/external_cloud_proof.py verify --state evidence/state.json --report evidence/report.json
+      - name: Capture role and migration evidence
+        if: always()
+        env:
+          PGPASSWORD: ci-admin-password
+        run: |
+          psql -h 127.0.0.1 -U postgres -d thistinti_ci -Atc \
+            "SELECT rolname || ':super=' || rolsuper || ':bypassrls=' || rolbypassrls FROM pg_roles WHERE rolname IN ('thistinti_owner','thistinti_app') ORDER BY rolname" \
+            > evidence/postgres-roles.txt
+          psql -h 127.0.0.1 -U postgres -d thistinti_ci -Atc \
+            "SELECT version_num FROM alembic_version" > evidence/alembic-version.txt
+          kill "$(cat evidence/app.pid)" "$(cat evidence/worker.pid)" 2>/dev/null || true
+      - name: Upload external proof evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: thistinti-external-proof-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/
+          retention-days: 14
+
+  dependency-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install pip-audit==2.10.1
+      - run: pip-audit -r requirements-linux.lock.txt --no-deps --progress-spinner off

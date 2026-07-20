@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="ThisTinti Local: controllo documentale gratuito, locale e senza cloud obbligatorio." />
+  <title>ThisTinti — Download gratuito</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top"><span>T</span>ThisTinti</a>
+    <nav><a href="#come-funziona">Come funziona</a><a href="#self-hosted">Self-hosted</a><a href="#limiti">Limiti</a><a href="#documentazione">Documentazione</a><a href="#privacy">Dati e privacy</a><a href="legal.html">Note legali</a></nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <p class="eyebrow">Local Free Edition · alpha · nome approvato in via preliminare</p>
+      <h1>Controlla i documenti aziendali.<br />I dati restano da te.</h1>
+      <p class="lead">ThisTinti ricostruisce proposta, ordine, consegna, fattura e pagamento, segnala ciò che manca e mostra le prove. Nessun account centrale, nessuna telemetria, nessun cloud obbligatorio.</p>
+      <div class="download-legal"><label><input id="downloadRiskAcceptance" type="checkbox" /> <span>Ho letto le <a href="legal.html" target="_blank" rel="noopener">condizioni d’uso e l’avviso sui rischi</a> e comprendo che ogni risultato richiede verifica umana.</span></label></div>
+      <div class="actions">
+        <a id="downloadInstaller" class="button primary disabled" aria-disabled="true">Release in preparazione</a>
+        <a id="downloadPortable" class="button secondary hidden">Versione portable</a>
+        <a id="downloadChecksum" class="text-link hidden">Checksum SHA-256</a>
+      </div>
+      <p id="releaseStatus" class="release-status" aria-live="polite">Verifica dell'ultima release pubblica…</p>
+    </section>
+
+    <section class="trust-strip" aria-label="Caratteristiche principali">
+      <div><strong>Locale</strong><span>Database e file sul computer dell'azienda</span></div>
+      <div><strong>Gratuito</strong><span>Licenza permissiva e sorgente disponibile</span></div>
+      <div><strong>Verificabile</strong><span>Checksum e prove automatiche per ogni release</span></div>
+    </section>
+
+    <section id="come-funziona" class="section">
+      <p class="eyebrow">Molto semplice</p>
+      <h2>Installa, apri, carica.</h2>
+      <div class="steps">
+        <article><span>01</span><h3>Installa</h3><p>Un installer Windows crea il collegamento. Non serve configurare Python o database.</p></article>
+        <article><span>02</span><h3>Crea lo spazio</h3><p>Al primo avvio imposti l'azienda e l'amministratore direttamente sul computer.</p></article>
+        <article><span>03</span><h3>Analizza</h3><p>Carichi i documenti. ThisTinti li collega, individua anomalie e richiede verifica quando è incerto.</p></article>
+      </div>
+    </section>
+
+    <section id="self-hosted" class="section split">
+      <div><p class="eyebrow">Per organizzazioni con team tecnico</p><h2>Installabile anche sui server dell’azienda.</h2></div>
+      <div class="copy"><p>La Self-Hosted Reference Edition include PostgreSQL, worker scalabili, TLS, scanner malware, backup e sorgente modificabile. L’azienda può usare infrastruttura e fornitori scelti autonomamente.</p><p>Non è un servizio gestito da ThisTinti: installazione, costi, sicurezza, privacy, aggiornamenti, monitoraggio e assistenza restano a carico dell’organizzazione o dei tecnici incaricati.</p><a id="enterpriseSourceLink" class="text-link" href="#">Documentazione self-hosted →</a></div>
+    </section>
+
+
+    <section id="limiti" class="section split">
+      <div><p class="eyebrow">Stato del progetto</p><h2>Utilizzabile, ma ancora alpha.</h2></div>
+      <div class="copy"><p>La release pubblica iniziale è destinata a valutazione, pilot e adattamento tecnico. Non è certificata per autorizzare pagamenti o sostituire controlli contabili, fiscali, legali o di sicurezza.</p><p>Il nome ThisTinti è ancora un nome di progetto: dominio e marchio verranno definiti soltanto dopo la verifica formale di disponibilità.</p></div>
+    </section>
+
+    <section id="documentazione" class="section split accent">
+      <div><p class="eyebrow">Prima di installare</p><h2>Guide, limiti e prove sono pubblici.</h2></div>
+      <div class="copy"><p>La documentazione spiega uso locale, backup, pilot, self-hosting, sicurezza, assistenza non garantita e responsabilità dell'operatore.</p><p><a id="guideLink" class="text-link" href="#">Guida semplice →</a></p><p><a id="pilotLink" class="text-link" href="#">Kit per il pilot →</a></p><p><a id="launchChecklistLink" class="text-link" href="#">Checklist di pubblicazione →</a></p><p><a id="securityLink" class="text-link" href="#">Sicurezza e segnalazioni →</a></p></div>
+    </section>
+
+    <section id="privacy" class="section split">
+      <div><p class="eyebrow">Dati e privacy</p><h2>Il progetto non gestisce i tuoi documenti.</h2></div>
+      <div class="copy"><p>La Local Edition ascolta soltanto sul computer locale. Non invia file, utilizzo o statistiche all'autore. Disinstallare il programma non elimina automaticamente l'archivio aziendale.</p><p>ThisTinti è uno strumento di supporto: pagamenti, contabilità e decisioni legali devono sempre essere verificati da una persona.</p></div>
+    </section>
+
+    <section id="sorgente" class="section split accent">
+      <div><p class="eyebrow">Per i team tecnici</p><h2>Una base modificabile, non una scatola chiusa.</h2></div>
+      <div class="copy"><p>Ogni build include il sorgente corrispondente. Un'azienda può adattare parser, regole, integrazioni e interfaccia alle proprie necessità nel rispetto della licenza Apache 2.0.</p><a id="sourceLink" class="text-link" href="#">Apri il repository →</a></div>
+    </section>
+  </main>
+
+  <footer><span>ThisTinti Free Editions</span><span><a href="legal.html">Note legali</a> · Software fornito senza garanzia · revisione umana obbligatoria</span></footer>
+  <script src="config.js"></script>
+  <script src="site.js"></script>
+</body>
+</html>
