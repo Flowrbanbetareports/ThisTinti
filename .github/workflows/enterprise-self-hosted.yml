@@ -83,11 +83,16 @@ jobs:
             > ../../enterprise-acceptance-before-restart.json
       - name: Create and verify backup
         working-directory: deploy/enterprise
+        shell: bash
         run: |
+          set -o pipefail
+          : > ../../enterprise-backup.log
           docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml --profile ops run --rm backup \
-            python scripts/backup_system.py /backups/enterprise-ci.zip
+            python scripts/backup_system.py /backups/enterprise-ci.zip 2>&1 \
+            | tee -a ../../enterprise-backup.log
           docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml --profile ops run --rm backup \
-            python scripts/verify_backup.py /backups/enterprise-ci.zip
+            python scripts/verify_backup.py /backups/enterprise-ci.zip 2>&1 \
+            | tee -a ../../enterprise-backup.log
       - name: Restart runtime and verify persistence
         working-directory: deploy/enterprise
         run: docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml restart app worker
@@ -115,6 +120,7 @@ jobs:
           docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml logs --no-color > ../../enterprise-evidence/compose.log || true
           cp ../../enterprise-start-runtime.log ../../enterprise-evidence/ 2>/dev/null || true
           cp ../../enterprise-acceptance-* ../../enterprise-evidence/ 2>/dev/null || true
+          cp ../../enterprise-backup.log ../../enterprise-evidence/ 2>/dev/null || true
           cp backups/enterprise-ci.zip ../../enterprise-evidence/ 2>/dev/null || true
       - name: Upload evidence
         if: always()
