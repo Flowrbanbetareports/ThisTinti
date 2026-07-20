@@ -141,6 +141,12 @@ services:
     tmpfs:
       - /tmp:size=512m,mode=1777
     <<: *runtime_security
+    healthcheck:
+      test: ["CMD", "python", "scripts/worker_process_healthcheck.py"]
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 6
     depends_on:
       migrate:
         condition: service_completed_successfully
