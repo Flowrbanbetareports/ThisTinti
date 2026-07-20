@@ -132,9 +132,7 @@ def create_backup(output_path: Path, *, include_storage: bool = True) -> dict:
                     archive_name = f"storage/{relative}"
                     data = source.read_bytes()
                     archive.writestr(archive_name, data)
-                    manifest["entries"].append(
-                        {"path": archive_name, "size": len(data), "sha256": sha256_bytes(data)}
-                    )
+                    manifest["entries"].append({"path": archive_name, "size": len(data), "sha256": sha256_bytes(data)})
 
             manifest_bytes = json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True).encode("utf-8")
             archive.writestr("manifest.json", manifest_bytes)
