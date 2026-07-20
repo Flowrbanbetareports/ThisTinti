@@ -41,7 +41,7 @@ pluggy==1.6.0
 psycopg-binary==3.2.9
 psycopg==3.2.9
 py-serializable==2.1.0
-pydantic==2.11.7
+pydantic==2.13.4
 pydantic_core==2.33.2
 Pygments==2.20.0
 pyparsing==3.3.2
