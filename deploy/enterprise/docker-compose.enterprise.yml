@@ -43,6 +43,7 @@ x-app-environment: &app_environment
 x-runtime-security: &runtime_security
   read_only: true
   cap_drop: ["ALL"]
+  cap_add: ["CHOWN", "SETGID", "SETUID"]
   security_opt: ["no-new-privileges:true"]
   init: true
   pids_limit: 300
