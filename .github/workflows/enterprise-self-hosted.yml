@@ -79,7 +79,8 @@ jobs:
             --report /tmp/enterprise-acceptance-before-restart.json 2>&1 \
             | tee ../../enterprise-acceptance-before-restart.log
           docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml \
-            cp app:/tmp/enterprise-acceptance-before-restart.json ../../enterprise-acceptance-before-restart.json
+            exec -T --user thistinti app cat /tmp/enterprise-acceptance-before-restart.json \
+            > ../../enterprise-acceptance-before-restart.json
       - name: Create and verify backup
         working-directory: deploy/enterprise
         run: |
@@ -103,7 +104,8 @@ jobs:
             --report /tmp/enterprise-acceptance-after-restart.json 2>&1 \
             | tee ../../enterprise-acceptance-after-restart.log
           docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml \
-            cp app:/tmp/enterprise-acceptance-after-restart.json ../../enterprise-acceptance-after-restart.json
+            exec -T --user thistinti app cat /tmp/enterprise-acceptance-after-restart.json \
+            > ../../enterprise-acceptance-after-restart.json
       - name: Collect service evidence
         if: always()
         working-directory: deploy/enterprise
