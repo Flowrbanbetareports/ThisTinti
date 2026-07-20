@@ -32,19 +32,18 @@ def validate_role_name(value: str, variable: str) -> str:
 def ensure_login_role(cursor: psycopg.Cursor, role: str, password: str) -> None:
     cursor.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (role,))
     identifier = sql.Identifier(role)
+    password_literal = sql.Literal(password)
     if cursor.fetchone() is None:
         cursor.execute(
             sql.SQL(
-                "CREATE ROLE {} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS PASSWORD %s"
-            ).format(identifier),
-            (password,),
+                "CREATE ROLE {} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS PASSWORD {}"
+            ).format(identifier, password_literal)
         )
     else:
         cursor.execute(
             sql.SQL(
-                "ALTER ROLE {} WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS PASSWORD %s"
-            ).format(identifier),
-            (password,),
+                "ALTER ROLE {} WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS PASSWORD {}"
+            ).format(identifier, password_literal)
         )
 
 
