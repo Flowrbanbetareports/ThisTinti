@@ -33,6 +33,14 @@ def _sqlite_path(database_url: str) -> Path:
     raise ValueError("Not a file-based SQLite URL")
 
 
+def _libpq_url(database_url: str) -> str:
+    """Convert SQLAlchemy PostgreSQL driver URLs to a URI accepted by pg_dump."""
+    for prefix in ("postgresql+psycopg://", "postgresql+psycopg2://"):
+        if database_url.startswith(prefix):
+            return "postgresql://" + database_url[len(prefix) :]
+    return database_url
+
+
 def _snapshot_sqlite(source: Path, target: Path) -> None:
     if not source.exists():
         raise FileNotFoundError(f"SQLite database not found: {source}")
@@ -55,7 +63,15 @@ def _snapshot_postgres(database_url: str, target: Path) -> None:
     if executable is None:
         raise RuntimeError("pg_dump is required for PostgreSQL backups")
     subprocess.run(  # nosec B603
-        [executable, "--format=custom", "--no-owner", "--no-privileges", "--file", str(target), database_url],
+        [
+            executable,
+            "--format=custom",
+            "--no-owner",
+            "--no-privileges",
+            "--file",
+            str(target),
+            _libpq_url(database_url),
+        ],
         check=True,
         timeout=1800,
         env=os.environ.copy(),
@@ -116,7 +132,9 @@ def create_backup(output_path: Path, *, include_storage: bool = True) -> dict:
                     archive_name = f"storage/{relative}"
                     data = source.read_bytes()
                     archive.writestr(archive_name, data)
-                    manifest["entries"].append({"path": archive_name, "size": len(data), "sha256": sha256_bytes(data)})
+                    manifest["entries"].append(
+                        {"path": archive_name, "size": len(data), "sha256": sha256_bytes(data)}
+                    )
 
             manifest_bytes = json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True).encode("utf-8")
             archive.writestr("manifest.json", manifest_bytes)
