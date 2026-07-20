@@ -63,6 +63,34 @@ jobs:
             release/windows/*.json
           if-no-files-found: error
           retention-days: 30
+      - name: Record successful main build
+        if: github.ref == 'refs/heads/main'
+        shell: pwsh
+        run: |
+          $artifactName = "ThisTinti-Windows-$env:GITHUB_REF_NAME-$env:GITHUB_RUN_NUMBER"
+          $files = Get-ChildItem "release\windows" -File | Sort-Object Name | ForEach-Object {
+            [ordered]@{
+              name = $_.Name
+              size = $_.Length
+              sha256 = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            }
+          }
+          $metadata = [ordered]@{
+            workflow = "Build Windows Free Download"
+            run_id = [long]$env:GITHUB_RUN_ID
+            run_number = [int]$env:GITHUB_RUN_NUMBER
+            head_sha = $env:GITHUB_SHA
+            branch = $env:GITHUB_REF_NAME
+            artifact_name = $artifactName
+            files = @($files)
+          }
+          New-Item -ItemType Directory -Path "builds" -Force | Out-Null
+          $metadata | ConvertTo-Json -Depth 6 | Set-Content "builds\windows-latest.json" -Encoding utf8
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "builds/windows-latest.json"
+          git commit -m "Record successful Windows build $env:GITHUB_RUN_NUMBER"
+          git push
       - name: Publish GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         shell: pwsh
