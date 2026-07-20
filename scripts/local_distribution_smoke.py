@@ -195,7 +195,9 @@ def main() -> int:
             watched=[("server", server, logs / "server.log"), ("worker", worker, logs / "worker.log")],
         )
         if job["status"] != "completed":
-            raise RuntimeError(f"Local worker failed: {job}\n{process_diagnostics([('worker', worker, logs / 'worker.log')])}")
+            raise RuntimeError(
+                f"Local worker failed: {job}\n{process_diagnostics([('worker', worker, logs / 'worker.log')])}"
+            )
         documents = client.get("/api/documents", headers=auth)
         documents.raise_for_status()
         original_documents = documents.json()
