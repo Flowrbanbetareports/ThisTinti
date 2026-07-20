@@ -6,7 +6,9 @@ from pathlib import Path
 from scripts.container_entrypoint import stage_secret_files
 
 
-def test_stage_secret_files_rewrites_only_existing_thistinti_file_variables(tmp_path: Path, monkeypatch):
+def test_stage_secret_files_rewrites_only_existing_thistinti_file_variables(
+    tmp_path: Path, monkeypatch
+):
     source = tmp_path / "source-secret"
     source.write_text("sensitive-value\n", encoding="utf-8")
     monkeypatch.setenv("THISTINTI_SECRET_KEY_FILE", str(source))
