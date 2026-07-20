@@ -78,7 +78,18 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
       - run: pip install -r requirements-dev.txt
-      - run: python -m pytest -q
+      - name: Run compatibility tests
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest -q 2>&1 | tee "pytest-${{ matrix.python-version }}.log"
+      - name: Upload compatibility diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-${{ matrix.python-version }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: pytest-${{ matrix.python-version }}.log
+          retention-days: 14
 
   postgres-external-proof:
     runs-on: ubuntu-latest
@@ -131,7 +142,11 @@ jobs:
           THISTINTI_DB_OWNER_PASSWORD: ci-owner-password
           THISTINTI_DB_APP_USER: thistinti_app
           THISTINTI_DB_APP_PASSWORD: ci-runtime-password
-        run: python scripts/configure_postgres_roles.py
+        shell: bash
+        run: |
+          mkdir -p evidence
+          set -o pipefail
+          python scripts/configure_postgres_roles.py 2>&1 | tee evidence/configure-postgres-roles.log
       - name: Apply migrations as schema owner
         env:
           THISTINTI_PROCESS_ROLE: migrate
@@ -183,13 +198,17 @@ jobs:
         if: always()
         env:
           PGPASSWORD: ci-admin-password
+        shell: bash
         run: |
+          mkdir -p evidence
           psql -h 127.0.0.1 -U postgres -d thistinti_ci -Atc \
             "SELECT rolname || ':super=' || rolsuper || ':bypassrls=' || rolbypassrls FROM pg_roles WHERE rolname IN ('thistinti_owner','thistinti_app') ORDER BY rolname" \
-            > evidence/postgres-roles.txt
+            > evidence/postgres-roles.txt 2> evidence/postgres-roles.err || true
           psql -h 127.0.0.1 -U postgres -d thistinti_ci -Atc \
-            "SELECT version_num FROM alembic_version" > evidence/alembic-version.txt
-          kill "$(cat evidence/app.pid)" "$(cat evidence/worker.pid)" 2>/dev/null || true
+            "SELECT version_num FROM alembic_version" \
+            > evidence/alembic-version.txt 2> evidence/alembic-version.err || true
+          if [[ -f evidence/app.pid ]]; then kill "$(cat evidence/app.pid)" 2>/dev/null || true; fi
+          if [[ -f evidence/worker.pid ]]; then kill "$(cat evidence/worker.pid)" 2>/dev/null || true; fi
       - name: Upload external proof evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -208,4 +227,15 @@ jobs:
           python-version: "3.13"
           cache: pip
       - run: pip install pip-audit==2.10.1
-      - run: pip-audit -r requirements-linux.lock.txt --no-deps --progress-spinner off
+      - name: Audit locked runtime dependencies
+        shell: bash
+        run: |
+          set -o pipefail
+          pip-audit -r requirements-linux.lock.txt --no-deps --progress-spinner off 2>&1 | tee dependency-audit.log
+      - name: Upload dependency audit diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: dependency-audit.log
+          retention-days: 14
