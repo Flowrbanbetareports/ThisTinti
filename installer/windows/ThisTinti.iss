@@ -73,7 +73,6 @@ begin
   SpecificApprovalCheck.Top := 8;
   SpecificApprovalCheck.Width := SpecificApprovalPage.SurfaceWidth;
   SpecificApprovalCheck.Height := 100;
-  SpecificApprovalCheck.WordWrap := True;
   SpecificApprovalCheck.Caption :=
     'Ai sensi degli artt. 1341 e 1342 c.c., ove applicabili, approvo specificamente le clausole 3, 4, 5, 7, 8, 9, 10, 11 e 12: limiti d''uso, verifica umana, responsabilità dell''utilizzatore, sicurezza e backup, assenza di garanzie, limitazione di responsabilità, modifiche di terzi, assenza di supporto e componenti di terze parti.';
 end;
