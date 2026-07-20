@@ -45,7 +45,12 @@ jobs:
           docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml up --build --exit-code-from migrate migrate
       - name: Start application and worker
         working-directory: deploy/enterprise
-        run: docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml up -d --build app worker
+        shell: bash
+        run: |
+          set -o pipefail
+          docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml \
+            up -d --no-deps --build app worker 2>&1 \
+            | tee ../../enterprise-start-runtime.log
       - name: Create first administrator without public registration
         working-directory: deploy/enterprise
         run: |
@@ -94,6 +99,7 @@ jobs:
           mkdir -p ../../enterprise-evidence
           docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml ps -a > ../../enterprise-evidence/compose-ps.txt || true
           docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml logs --no-color > ../../enterprise-evidence/compose.log || true
+          cp ../../enterprise-start-runtime.log ../../enterprise-evidence/ 2>/dev/null || true
           cp ../../enterprise-acceptance-* ../../enterprise-evidence/ 2>/dev/null || true
           cp backups/enterprise-ci.zip ../../enterprise-evidence/ 2>/dev/null || true
       - name: Upload evidence
