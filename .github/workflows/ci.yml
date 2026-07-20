@@ -179,10 +179,15 @@ jobs:
           chmod +x evidence/start-services.sh
           evidence/start-services.sh
           for attempt in $(seq 1 60); do
+            app_pid="$(cat evidence/app.pid)"
+            worker_pid="$(cat evidence/worker.pid)"
+            if ! kill -0 "$app_pid" 2>/dev/null; then cat evidence/app.log; exit 1; fi
+            if ! kill -0 "$worker_pid" 2>/dev/null; then cat evidence/worker.log; exit 1; fi
             if curl --fail --silent http://127.0.0.1:8000/api/health >/dev/null; then exit 0; fi
             sleep 1
           done
           cat evidence/app.log
+          cat evidence/worker.log
           exit 1
       - name: Process a Proof Graph asynchronously
         shell: bash
@@ -191,16 +196,35 @@ jobs:
           python scripts/external_cloud_proof.py bootstrap --state evidence/state.json --report evidence/report.json \
             2>&1 | tee evidence/external-proof-bootstrap.log
       - name: Restart app and worker
+        shell: bash
         run: |
-          kill "$(cat evidence/app.pid)" "$(cat evidence/worker.pid)"
-          wait "$(cat evidence/app.pid)" 2>/dev/null || true
-          wait "$(cat evidence/worker.pid)" 2>/dev/null || true
-          evidence/start-services.sh
+          old_app_pid="$(cat evidence/app.pid)"
+          old_worker_pid="$(cat evidence/worker.pid)"
+          kill "$old_app_pid" "$old_worker_pid" 2>/dev/null || true
           for attempt in $(seq 1 60); do
+            app_alive=false
+            worker_alive=false
+            kill -0 "$old_app_pid" 2>/dev/null && app_alive=true
+            kill -0 "$old_worker_pid" 2>/dev/null && worker_alive=true
+            if [[ "$app_alive" == false && "$worker_alive" == false ]]; then break; fi
+            sleep 0.5
+          done
+          if kill -0 "$old_app_pid" 2>/dev/null || kill -0 "$old_worker_pid" 2>/dev/null; then
+            echo "Previous app/worker processes did not terminate" >&2
+            ps -fp "$old_app_pid" "$old_worker_pid" || true
+            exit 1
+          fi
+          evidence/start-services.sh
+          new_app_pid="$(cat evidence/app.pid)"
+          new_worker_pid="$(cat evidence/worker.pid)"
+          for attempt in $(seq 1 60); do
+            if ! kill -0 "$new_app_pid" 2>/dev/null; then cat evidence/app.log; exit 1; fi
+            if ! kill -0 "$new_worker_pid" 2>/dev/null; then cat evidence/worker.log; exit 1; fi
             if curl --fail --silent http://127.0.0.1:8000/api/health >/dev/null; then exit 0; fi
             sleep 1
           done
           cat evidence/app.log
+          cat evidence/worker.log
           exit 1
       - name: Verify Proof Graph, files, jobs and audit persistence
         shell: bash
