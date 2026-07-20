@@ -4,7 +4,7 @@ import json
 import sqlite3
 from pathlib import Path
 
-from scripts.backup_system import create_backup
+from scripts.backup_system import _libpq_url, create_backup
 from scripts.restore_backup import restore_sqlite
 from scripts.verify_backup import verify_backup
 
@@ -53,3 +53,11 @@ def test_storage_restore_is_available_for_postgres_bundles(tmp_path: Path):
     target = tmp_path / "restored-storage"
     assert restore_storage(bundle, target) == 1
     assert (target / "tenant/document.pdf").read_bytes() == b"document"
+
+
+def test_pg_dump_url_normalizes_sqlalchemy_driver_scheme():
+    assert (
+        _libpq_url("postgresql+psycopg://user:pass@db:5432/name")
+        == "postgresql://user:pass@db:5432/name"
+    )
+    assert _libpq_url("postgresql://user:pass@db/name") == "postgresql://user:pass@db/name"
