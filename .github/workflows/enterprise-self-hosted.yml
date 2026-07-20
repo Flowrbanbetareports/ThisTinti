@@ -48,9 +48,15 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
+          : > ../../enterprise-start-runtime.log
           docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml \
-            up -d --no-deps --build app worker 2>&1 \
-            | tee ../../enterprise-start-runtime.log
+            build app worker 2>&1 | tee -a ../../enterprise-start-runtime.log
+          # Initialize the shared app_data volume through one container first;
+          # concurrent first-use copy-up can race in the Docker daemon.
+          docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml \
+            up -d --no-deps --no-build app 2>&1 | tee -a ../../enterprise-start-runtime.log
+          docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml \
+            up -d --no-deps --no-build worker 2>&1 | tee -a ../../enterprise-start-runtime.log
       - name: Create first administrator without public registration
         working-directory: deploy/enterprise
         run: |
