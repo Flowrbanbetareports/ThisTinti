@@ -40,10 +40,41 @@ def stop(process: subprocess.Popen[bytes] | None) -> None:
         process.wait(timeout=5)
 
 
-def wait_json(client: httpx.Client, path: str, predicate, timeout: float = 60.0) -> dict:
+def log_tail(path: Path, max_bytes: int = 16000) -> str:
+    try:
+        data = path.read_bytes()
+    except OSError as exc:
+        return f"<log non leggibile: {exc}>"
+    if len(data) > max_bytes:
+        data = data[-max_bytes:]
+    return data.decode("utf-8", errors="replace").strip() or "<log vuoto>"
+
+
+def process_diagnostics(watched: list[tuple[str, subprocess.Popen[bytes], Path]]) -> str:
+    sections: list[str] = []
+    for label, process, path in watched:
+        sections.append(f"--- {label} pid={process.pid} exit={process.poll()} log={path} ---\n{log_tail(path)}")
+    return "\n".join(sections)
+
+
+def wait_json(
+    client: httpx.Client,
+    path: str,
+    predicate,
+    timeout: float = 60.0,
+    watched: list[tuple[str, subprocess.Popen[bytes], Path]] | None = None,
+) -> dict:
+    watched = watched or []
     deadline = time.monotonic() + timeout
     last: object = None
     while time.monotonic() < deadline:
+        for label, process, log_path in watched:
+            return_code = process.poll()
+            if return_code is not None:
+                raise RuntimeError(
+                    f"Il processo {label} si è arrestato con codice {return_code} durante l'attesa di {path}.\n"
+                    f"{process_diagnostics(watched)}"
+                )
         try:
             response = client.get(path)
             last = response.text
@@ -55,35 +86,53 @@ def wait_json(client: httpx.Client, path: str, predicate, timeout: float = 60.0)
         except (httpx.HTTPError, ValueError) as exc:
             last = str(exc)
         time.sleep(0.25)
-    raise RuntimeError(f"Timeout su {path}; ultimo risultato: {last}")
+    diagnostics = process_diagnostics(watched) if watched else "<nessun processo sorvegliato>"
+    raise RuntimeError(f"Timeout su {path}; ultimo risultato: {last}\n{diagnostics}")
 
 
 def start_pair(executable: Path | None, data_dir: Path, port: int, logs: Path):
     logs.mkdir(parents=True, exist_ok=True)
-    server_log = (logs / "server.log").open("ab", buffering=0)
-    worker_log = (logs / "worker.log").open("ab", buffering=0)
-    server = subprocess.Popen(  # nosec B603
-        child_command(executable, "server", data_dir, port),
-        cwd=ROOT,
-        stdout=server_log,
-        stderr=subprocess.STDOUT,
-    )
-    client = httpx.Client(base_url=f"http://127.0.0.1:{port}", timeout=10.0)
-    wait_json(
-        client,
-        "/api/health",
-        lambda response, payload: response.status_code == 200 and payload.get("edition") == "local",
-    )
-    worker = subprocess.Popen(  # nosec B603
-        child_command(executable, "worker", data_dir, port),
-        cwd=ROOT,
-        stdout=worker_log,
-        stderr=subprocess.STDOUT,
-    )
-    wait_json(
-        client, "/api/readiness", lambda response, payload: response.status_code == 200 and payload.get("ready") is True
-    )
-    return server, worker, client, server_log, worker_log
+    server_log_path = logs / "server.log"
+    worker_log_path = logs / "worker.log"
+    server_log = server_log_path.open("ab", buffering=0)
+    worker_log = worker_log_path.open("ab", buffering=0)
+    server = worker = None
+    client = None
+    try:
+        server = subprocess.Popen(  # nosec B603
+            child_command(executable, "server", data_dir, port),
+            cwd=ROOT,
+            stdout=server_log,
+            stderr=subprocess.STDOUT,
+        )
+        client = httpx.Client(base_url=f"http://127.0.0.1:{port}", timeout=10.0)
+        wait_json(
+            client,
+            "/api/health",
+            lambda response, payload: response.status_code == 200 and payload.get("edition") == "local",
+            watched=[("server", server, server_log_path)],
+        )
+        worker = subprocess.Popen(  # nosec B603
+            child_command(executable, "worker", data_dir, port),
+            cwd=ROOT,
+            stdout=worker_log,
+            stderr=subprocess.STDOUT,
+        )
+        wait_json(
+            client,
+            "/api/readiness",
+            lambda response, payload: response.status_code == 200 and payload.get("ready") is True,
+            watched=[("server", server, server_log_path), ("worker", worker, worker_log_path)],
+        )
+        return server, worker, client, server_log, worker_log
+    except Exception:
+        if client:
+            client.close()
+        stop(worker)
+        stop(server)
+        server_log.close()
+        worker_log.close()
+        raise
 
 
 def main() -> int:
@@ -143,9 +192,10 @@ def main() -> int:
             client,
             f"/api/jobs/{job_id}",
             lambda response, payload: response.status_code == 200 and payload.get("status") in {"completed", "failed"},
+            watched=[("server", server, logs / "server.log"), ("worker", worker, logs / "worker.log")],
         )
         if job["status"] != "completed":
-            raise RuntimeError(f"Local worker failed: {job}")
+            raise RuntimeError(f"Local worker failed: {job}\n{process_diagnostics([('worker', worker, logs / 'worker.log')])}")
         documents = client.get("/api/documents", headers=auth)
         documents.raise_for_status()
         original_documents = documents.json()
