@@ -199,6 +199,7 @@ services:
       <<: *app_environment
       THISTINTI_PROCESS_ROLE: backup
       THISTINTI_DATABASE_URL_FILE: /run/secrets/database_owner_url
+      THISTINTI_ENTRYPOINT_WRITABLE_DIRECTORIES: /backups
     secrets: [database_owner_url, app_secret_key, operator_acceptance]
     volumes:
       - app_data:/app/data:ro
