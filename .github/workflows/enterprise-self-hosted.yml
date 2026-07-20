@@ -23,7 +23,7 @@ jobs:
           python-version: "3.13"
           cache: pip
       - name: Install probe dependencies
-        run: pip install httpx PyYAML
+        run: pip install PyYAML
       - name: Generate operator-managed configuration locally
         run: |
           python scripts/enterprise_init.py \
@@ -61,16 +61,19 @@ jobs:
             --email enterprise-ci@example.com \
             --password-stdin
       - name: Run authenticated acceptance and wait for readiness
-        env:
-          THISTINTI_STAGING_URL: http://127.0.0.1:18000
-          THISTINTI_STAGING_ADMIN_EMAIL: enterprise-ci@example.com
+        working-directory: deploy/enterprise
         shell: bash
         run: |
           set -o pipefail
-          THISTINTI_STAGING_ADMIN_PASSWORD="$THISTINTI_CI_ADMIN_PASSWORD" \
-            python scripts/staging_acceptance.py --token-mode --readiness-timeout 300 \
-            --report enterprise-acceptance-before-restart.json 2>&1 \
-            | tee enterprise-acceptance-before-restart.log
+          docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml exec -T --user thistinti \
+            -e THISTINTI_STAGING_URL=http://127.0.0.1:8000 \
+            -e THISTINTI_STAGING_ADMIN_EMAIL=enterprise-ci@example.com \
+            -e THISTINTI_STAGING_ADMIN_PASSWORD="$THISTINTI_CI_ADMIN_PASSWORD" \
+            app python scripts/staging_acceptance.py --token-mode --readiness-timeout 300 \
+            --report /tmp/enterprise-acceptance-before-restart.json 2>&1 \
+            | tee ../../enterprise-acceptance-before-restart.log
+          docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml \
+            cp app:/tmp/enterprise-acceptance-before-restart.json ../../enterprise-acceptance-before-restart.json
       - name: Create and verify backup
         working-directory: deploy/enterprise
         run: |
@@ -82,16 +85,19 @@ jobs:
         working-directory: deploy/enterprise
         run: docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml restart app worker
       - name: Re-run authenticated acceptance
-        env:
-          THISTINTI_STAGING_URL: http://127.0.0.1:18000
-          THISTINTI_STAGING_ADMIN_EMAIL: enterprise-ci@example.com
+        working-directory: deploy/enterprise
         shell: bash
         run: |
           set -o pipefail
-          THISTINTI_STAGING_ADMIN_PASSWORD="$THISTINTI_CI_ADMIN_PASSWORD" \
-            python scripts/staging_acceptance.py --token-mode --readiness-timeout 300 \
-            --report enterprise-acceptance-after-restart.json 2>&1 \
-            | tee enterprise-acceptance-after-restart.log
+          docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml exec -T --user thistinti \
+            -e THISTINTI_STAGING_URL=http://127.0.0.1:8000 \
+            -e THISTINTI_STAGING_ADMIN_EMAIL=enterprise-ci@example.com \
+            -e THISTINTI_STAGING_ADMIN_PASSWORD="$THISTINTI_CI_ADMIN_PASSWORD" \
+            app python scripts/staging_acceptance.py --token-mode --readiness-timeout 300 \
+            --report /tmp/enterprise-acceptance-after-restart.json 2>&1 \
+            | tee ../../enterprise-acceptance-after-restart.log
+          docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml \
+            cp app:/tmp/enterprise-acceptance-after-restart.json ../../enterprise-acceptance-after-restart.json
       - name: Collect service evidence
         if: always()
         working-directory: deploy/enterprise
