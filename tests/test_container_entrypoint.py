@@ -3,7 +3,9 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from scripts.container_entrypoint import stage_secret_files
+import pytest
+
+from scripts.container_entrypoint import prepare_writable_directories, stage_secret_files
 
 
 def test_stage_secret_files_rewrites_only_existing_thistinti_file_variables(tmp_path: Path, monkeypatch):
@@ -21,3 +23,8 @@ def test_stage_secret_files_rewrites_only_existing_thistinti_file_variables(tmp_
     assert staged.read_text(encoding="utf-8") == "sensitive-value\n"
     assert staged.stat().st_mode & 0o777 == 0o400
     assert target_root.stat().st_mode & 0o777 == 0o700
+
+
+def test_prepare_writable_directories_rejects_paths_outside_allow_list(tmp_path: Path):
+    with pytest.raises(RuntimeError, match="not allow-listed"):
+        prepare_writable_directories(str(tmp_path), uid=os.getuid(), gid=os.getgid())
