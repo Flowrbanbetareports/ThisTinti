@@ -19,7 +19,6 @@ def stage_secret_files(target_root: Path, *, uid: int, gid: int) -> dict[str, st
     """Copy configured secret files to an app-readable, process-private directory."""
     target_root.mkdir(parents=True, exist_ok=True)
     os.chmod(target_root, 0o700)
-    os.chown(target_root, uid, gid)
     rewritten: dict[str, str] = {}
     for key, value in sorted(os.environ.items()):
         if not (key.startswith(SECRET_PREFIX) and key.endswith(SECRET_SUFFIX) and value):
@@ -37,6 +36,9 @@ def stage_secret_files(target_root: Path, *, uid: int, gid: int) -> dict[str, st
         finally:
             os.close(descriptor)
         rewritten[key] = str(target)
+    # Keep the directory root-owned while files are written, then transfer it as
+    # the final step so the unprivileged process can traverse it after setuid().
+    os.chown(target_root, uid, gid)
     return rewritten
 
 
@@ -46,11 +48,8 @@ def drop_privileges_and_exec(argv: list[str]) -> None:
     if os.geteuid() == 0:
         account = pwd.getpwnam(RUNTIME_USER)
         os.umask(0o077)
-        os.environ.update(
-            stage_secret_files(
-                Path(tempfile.gettempdir()) / "thistinti-secrets", uid=account.pw_uid, gid=account.pw_gid
-            )
-        )
+        target_root = Path(tempfile.mkdtemp(prefix="thistinti-secrets-"))
+        os.environ.update(stage_secret_files(target_root, uid=account.pw_uid, gid=account.pw_gid))
         os.initgroups(account.pw_name, account.pw_gid)
         os.setgid(account.pw_gid)
         os.setuid(account.pw_uid)
