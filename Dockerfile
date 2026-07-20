@@ -20,7 +20,7 @@ COPY --chown=thistinti:thistinti . .
 RUN mkdir -p /app/data/uploads /app/data/quarantine /app/data/rejected \
     && chown -R thistinti:thistinti /app/data
 
-USER thistinti
+ENTRYPOINT ["python", "scripts/container_entrypoint.py"]
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
