@@ -56,8 +56,5 @@ def test_storage_restore_is_available_for_postgres_bundles(tmp_path: Path):
 
 
 def test_pg_dump_url_normalizes_sqlalchemy_driver_scheme():
-    assert (
-        _libpq_url("postgresql+psycopg://user:pass@db:5432/name")
-        == "postgresql://user:pass@db:5432/name"
-    )
+    assert _libpq_url("postgresql+psycopg://user:pass@db:5432/name") == "postgresql://user:pass@db:5432/name"
     assert _libpq_url("postgresql://user:pass@db/name") == "postgresql://user:pass@db/name"
