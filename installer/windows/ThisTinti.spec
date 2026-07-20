@@ -55,6 +55,9 @@ binaries = collect_dynamic_libs("pypdfium2")
 hiddenimports = (
     collect_submodules("pypdfium2")
     + [
+        # Uvicorn receives this module as a string ("app.main:app"), so
+        # PyInstaller cannot discover it through normal static analysis.
+        "app.main",
         "uvicorn.logging",
         "uvicorn.loops.auto",
         "uvicorn.loops.asyncio",
