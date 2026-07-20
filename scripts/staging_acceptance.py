@@ -11,6 +11,26 @@ from pathlib import Path
 import httpx
 
 
+def wait_for_health(client: httpx.Client, timeout: float) -> dict[str, object]:
+    deadline = time.monotonic() + timeout
+    last_error = "no response"
+    while True:
+        try:
+            response = client.get("/api/health")
+            if response.status_code == 200:
+                payload = response.json()
+                if isinstance(payload, dict):
+                    return payload
+                last_error = f"unexpected health payload: {payload!r}"
+            else:
+                last_error = f"HTTP {response.status_code}: {response.text}"
+        except (httpx.HTTPError, ValueError) as exc:
+            last_error = str(exc)
+        if time.monotonic() > deadline:
+            raise RuntimeError(f"health timeout: {last_error}")
+        time.sleep(2)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--base-url", default=os.getenv("THISTINTI_STAGING_URL"))
@@ -38,9 +58,7 @@ def main() -> int:
         raise RuntimeError("Internal acceptance-report state is invalid")
 
     with httpx.Client(base_url=base_url, timeout=20, follow_redirects=True) as client:
-        health = client.get("/api/health")
-        health.raise_for_status()
-        checks["health"] = health.json()
+        checks["health"] = wait_for_health(client, args.readiness_timeout)
 
         if args.bootstrap:
             auth = client.post(
