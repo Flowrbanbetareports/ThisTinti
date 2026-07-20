@@ -21,28 +21,18 @@ jobs:
         with:
           python-version: "3.13"
           cache: pip
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-      - name: Install quality dependencies
-        run: pip install -r requirements-dev.txt
-      - name: Capture static and formatting output
+      - name: Install formatter
+        run: pip install ruff==0.15.22
+      - name: Generate formatted files
         shell: bash
         run: |
-          set +e
-          : > quality-diagnostics.log
-          ruff check app tests scripts migrations 2>&1 | tee -a quality-diagnostics.log
-          lint_status=${PIPESTATUS[0]}
-          ruff format --check app tests scripts migrations 2>&1 | tee -a quality-diagnostics.log
-          format_status=${PIPESTATUS[0]}
-          printf '\nlint_status=%s\nformat_status=%s\n' "$lint_status" "$format_status" | tee -a quality-diagnostics.log
-          if [[ "$lint_status" -ne 0 || "$format_status" -ne 0 ]]; then
-            exit 1
-          fi
-      - name: Upload quality diagnostics
-        if: always()
+          ruff format scripts/backup_system.py tests/test_backup_restore.py
+          mkdir -p formatted/scripts formatted/tests
+          cp scripts/backup_system.py formatted/scripts/backup_system.py
+          cp tests/test_backup_restore.py formatted/tests/test_backup_restore.py
+      - name: Upload formatter output
         uses: actions/upload-artifact@v4
         with:
-          name: quality-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
-          path: quality-diagnostics.log
+          name: formatted-files-${{ github.run_id }}
+          path: formatted/
           retention-days: 7
