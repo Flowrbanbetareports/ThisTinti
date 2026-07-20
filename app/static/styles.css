@@ -36,35 +36,3 @@
   min-width: 0;
   overflow-wrap: anywhere;
 }
-
-/* Keep a single entry per destination even if a stale browser document has
-   duplicated navigation nodes, and isolate the desktop sidebar paint area. */
-#mainNav button[data-view="dashboard"] ~ button[data-view="dashboard"],
-#mainNav button[data-view="documents"] ~ button[data-view="documents"],
-#mainNav button[data-view="chains"] ~ button[data-view="chains"],
-#mainNav button[data-view="cases"] ~ button[data-view="cases"],
-#mainNav button[data-view="discovery"] ~ button[data-view="discovery"],
-#mainNav button[data-view="validation"] ~ button[data-view="validation"],
-#mainNav button[data-view="audit"] ~ button[data-view="audit"],
-#mainNav button[data-view="users"] ~ button[data-view="users"] {
-  display: none !important;
-}
-
-@media (min-width: 761px) {
-  .sidebar {
-    overflow: hidden;
-    contain: paint;
-  }
-
-  #mainNav {
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-  }
-
-  .sidebar-footer {
-    flex: 0 0 auto;
-    margin-top: 16px;
-  }
-}
