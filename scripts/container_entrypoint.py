@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Read Docker secret files as root, then drop privileges before starting ThisTinti."""
+
 from __future__ import annotations
 
 import os
@@ -19,14 +20,18 @@ def stage_secret_files(target_root: Path, *, uid: int, gid: int) -> dict[str, st
     os.chown(target_root, uid, gid)
     rewritten: dict[str, str] = {}
     for key, value in sorted(os.environ.items()):
-        if not (key.startswith(SECRET_PREFIX) and key.endswith(SECRET_SUFFIX) and value):
+        if not (
+            key.startswith(SECRET_PREFIX) and key.endswith(SECRET_SUFFIX) and value
+        ):
             continue
         source = Path(value)
         if not source.is_file():
             continue
         target = target_root / key.lower()
         data = source.read_bytes()
-        descriptor = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW, 0o400)
+        descriptor = os.open(
+            target, os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW, 0o400
+        )
         try:
             os.write(descriptor, data)
             os.fchmod(descriptor, 0o400)
@@ -44,7 +49,9 @@ def drop_privileges_and_exec(argv: list[str]) -> None:
         account = pwd.getpwnam(RUNTIME_USER)
         os.umask(0o077)
         os.environ.update(
-            stage_secret_files(Path("/tmp/thistinti-secrets"), uid=account.pw_uid, gid=account.pw_gid)
+            stage_secret_files(
+                Path("/tmp/thistinti-secrets"), uid=account.pw_uid, gid=account.pw_gid
+            )
         )
         os.initgroups(account.pw_name, account.pw_gid)
         os.setgid(account.pw_gid)
