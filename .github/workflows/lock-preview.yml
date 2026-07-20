@@ -1,0 +1,44 @@
+name: Generate Linux Lock Preview
+
+on:
+  pull_request:
+    paths:
+      - requirements.txt
+      - requirements-dev.txt
+      - .github/workflows/lock-preview.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generate-locks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Resolve runtime lock
+        shell: bash
+        run: |
+          python -m venv .lock-runtime
+          .lock-runtime/bin/python -m pip install --upgrade pip
+          .lock-runtime/bin/python -m pip install -r requirements.txt
+          mkdir -p generated-locks
+          .lock-runtime/bin/python -m pip freeze --exclude pip --exclude setuptools --exclude wheel \
+            | LC_ALL=C sort -f > generated-locks/requirements-linux.lock.txt
+      - name: Resolve development lock
+        shell: bash
+        run: |
+          python -m venv .lock-dev
+          .lock-dev/bin/python -m pip install --upgrade pip
+          .lock-dev/bin/python -m pip install -r requirements-dev.txt
+          .lock-dev/bin/python -m pip freeze --exclude pip --exclude setuptools --exclude wheel \
+            | LC_ALL=C sort -f > generated-locks/requirements-dev-linux.lock.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: generated-linux-locks-${{ github.run_id }}
+          path: generated-locks/
+          retention-days: 7

@@ -43,6 +43,7 @@ x-app-environment: &app_environment
 x-runtime-security: &runtime_security
   read_only: true
   cap_drop: ["ALL"]
+  cap_add: ["CHOWN", "DAC_READ_SEARCH", "SETGID", "SETUID"]
   security_opt: ["no-new-privileges:true"]
   init: true
   pids_limit: 300
@@ -140,6 +141,12 @@ services:
     tmpfs:
       - /tmp:size=512m,mode=1777
     <<: *runtime_security
+    healthcheck:
+      test: ["CMD", "python", "scripts/worker_process_healthcheck.py"]
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 6
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -191,8 +198,9 @@ services:
     environment:
       <<: *app_environment
       THISTINTI_PROCESS_ROLE: backup
-      THISTINTI_DATABASE_URL_FILE: /run/secrets/database_owner_url
-    secrets: [database_owner_url, app_secret_key, operator_acceptance]
+      THISTINTI_DATABASE_URL_FILE: /run/secrets/postgres_admin_url
+      THISTINTI_ENTRYPOINT_WRITABLE_DIRECTORIES: /backups
+    secrets: [postgres_admin_url, app_secret_key, operator_acceptance]
     volumes:
       - app_data:/app/data:ro
       - ./backups:/backups

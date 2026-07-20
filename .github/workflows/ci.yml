@@ -67,6 +67,8 @@ jobs:
   python-compatibility:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      THISTINTI_OCR_ENABLED: "false"
     strategy:
       fail-fast: false
       matrix:
@@ -78,7 +80,18 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
       - run: pip install -r requirements-dev.txt
-      - run: python -m pytest -q
+      - name: Run compatibility tests
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest -q 2>&1 | tee "pytest-${{ matrix.python-version }}.log"
+      - name: Upload compatibility diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-${{ matrix.python-version }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: pytest-${{ matrix.python-version }}.log
+          retention-days: 14
 
   postgres-external-proof:
     runs-on: ubuntu-latest
@@ -131,7 +144,11 @@ jobs:
           THISTINTI_DB_OWNER_PASSWORD: ci-owner-password
           THISTINTI_DB_APP_USER: thistinti_app
           THISTINTI_DB_APP_PASSWORD: ci-runtime-password
-        run: python scripts/configure_postgres_roles.py
+        shell: bash
+        run: |
+          mkdir -p evidence
+          set -o pipefail
+          python scripts/configure_postgres_roles.py 2>&1 | tee evidence/configure-postgres-roles.log
       - name: Apply migrations as schema owner
         env:
           THISTINTI_PROCESS_ROLE: migrate
@@ -143,7 +160,11 @@ jobs:
       - name: Prove PostgreSQL RLS and cross-tenant guards as runtime
         env:
           THISTINTI_PROCESS_ROLE: app
-        run: python scripts/postgres_security_smoke.py
+        shell: bash
+        run: |
+          mkdir -p evidence
+          set -o pipefail
+          python scripts/postgres_security_smoke.py 2>&1 | tee evidence/postgres-security-smoke.log
       - name: Start app and worker
         run: |
           mkdir -p external-proof-data evidence
@@ -158,38 +179,74 @@ jobs:
           chmod +x evidence/start-services.sh
           evidence/start-services.sh
           for attempt in $(seq 1 60); do
+            app_pid="$(cat evidence/app.pid)"
+            worker_pid="$(cat evidence/worker.pid)"
+            if ! kill -0 "$app_pid" 2>/dev/null; then cat evidence/app.log; exit 1; fi
+            if ! kill -0 "$worker_pid" 2>/dev/null; then cat evidence/worker.log; exit 1; fi
             if curl --fail --silent http://127.0.0.1:8000/api/health >/dev/null; then exit 0; fi
             sleep 1
           done
           cat evidence/app.log
+          cat evidence/worker.log
           exit 1
       - name: Process a Proof Graph asynchronously
-        run: python scripts/external_cloud_proof.py bootstrap --state evidence/state.json --report evidence/report.json
-      - name: Restart app and worker
+        shell: bash
         run: |
-          kill "$(cat evidence/app.pid)" "$(cat evidence/worker.pid)"
-          wait "$(cat evidence/app.pid)" 2>/dev/null || true
-          wait "$(cat evidence/worker.pid)" 2>/dev/null || true
-          evidence/start-services.sh
+          set -o pipefail
+          python scripts/external_cloud_proof.py bootstrap --state evidence/state.json --report evidence/report.json \
+            2>&1 | tee evidence/external-proof-bootstrap.log
+      - name: Restart app and worker
+        shell: bash
+        run: |
+          old_app_pid="$(cat evidence/app.pid)"
+          old_worker_pid="$(cat evidence/worker.pid)"
+          kill "$old_app_pid" "$old_worker_pid" 2>/dev/null || true
           for attempt in $(seq 1 60); do
+            app_alive=false
+            worker_alive=false
+            kill -0 "$old_app_pid" 2>/dev/null && app_alive=true
+            kill -0 "$old_worker_pid" 2>/dev/null && worker_alive=true
+            if [[ "$app_alive" == false && "$worker_alive" == false ]]; then break; fi
+            sleep 0.5
+          done
+          if kill -0 "$old_app_pid" 2>/dev/null || kill -0 "$old_worker_pid" 2>/dev/null; then
+            echo "Previous app/worker processes did not terminate" >&2
+            ps -fp "$old_app_pid" "$old_worker_pid" || true
+            exit 1
+          fi
+          evidence/start-services.sh
+          new_app_pid="$(cat evidence/app.pid)"
+          new_worker_pid="$(cat evidence/worker.pid)"
+          for attempt in $(seq 1 60); do
+            if ! kill -0 "$new_app_pid" 2>/dev/null; then cat evidence/app.log; exit 1; fi
+            if ! kill -0 "$new_worker_pid" 2>/dev/null; then cat evidence/worker.log; exit 1; fi
             if curl --fail --silent http://127.0.0.1:8000/api/health >/dev/null; then exit 0; fi
             sleep 1
           done
           cat evidence/app.log
+          cat evidence/worker.log
           exit 1
       - name: Verify Proof Graph, files, jobs and audit persistence
-        run: python scripts/external_cloud_proof.py verify --state evidence/state.json --report evidence/report.json
+        shell: bash
+        run: |
+          set -o pipefail
+          python scripts/external_cloud_proof.py verify --state evidence/state.json --report evidence/report.json \
+            2>&1 | tee evidence/external-proof-verify.log
       - name: Capture role and migration evidence
         if: always()
         env:
           PGPASSWORD: ci-admin-password
+        shell: bash
         run: |
+          mkdir -p evidence
           psql -h 127.0.0.1 -U postgres -d thistinti_ci -Atc \
             "SELECT rolname || ':super=' || rolsuper || ':bypassrls=' || rolbypassrls FROM pg_roles WHERE rolname IN ('thistinti_owner','thistinti_app') ORDER BY rolname" \
-            > evidence/postgres-roles.txt
+            > evidence/postgres-roles.txt 2> evidence/postgres-roles.err || true
           psql -h 127.0.0.1 -U postgres -d thistinti_ci -Atc \
-            "SELECT version_num FROM alembic_version" > evidence/alembic-version.txt
-          kill "$(cat evidence/app.pid)" "$(cat evidence/worker.pid)" 2>/dev/null || true
+            "SELECT version_num FROM alembic_version" \
+            > evidence/alembic-version.txt 2> evidence/alembic-version.err || true
+          if [[ -f evidence/app.pid ]]; then kill "$(cat evidence/app.pid)" 2>/dev/null || true; fi
+          if [[ -f evidence/worker.pid ]]; then kill "$(cat evidence/worker.pid)" 2>/dev/null || true; fi
       - name: Upload external proof evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -208,4 +265,15 @@ jobs:
           python-version: "3.13"
           cache: pip
       - run: pip install pip-audit==2.10.1
-      - run: pip-audit -r requirements-linux.lock.txt --no-deps --progress-spinner off
+      - name: Audit locked runtime dependencies
+        shell: bash
+        run: |
+          set -o pipefail
+          pip-audit -r requirements-linux.lock.txt --no-deps --progress-spinner off 2>&1 | tee dependency-audit.log
+      - name: Upload dependency audit diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: dependency-audit.log
+          retention-days: 14

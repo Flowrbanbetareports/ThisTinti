@@ -32,32 +32,37 @@ def validate_role_name(value: str, variable: str) -> str:
 def ensure_login_role(cursor: psycopg.Cursor, role: str, password: str) -> None:
     cursor.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (role,))
     identifier = sql.Identifier(role)
+    password_literal = sql.Literal(password)
     if cursor.fetchone() is None:
         cursor.execute(
             sql.SQL(
-                "CREATE ROLE {} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS PASSWORD %s"
-            ).format(identifier),
-            (password,),
+                "CREATE ROLE {} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS PASSWORD {}"
+            ).format(identifier, password_literal)
         )
     else:
         cursor.execute(
             sql.SQL(
-                "ALTER ROLE {} WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS PASSWORD %s"
-            ).format(identifier),
-            (password,),
+                "ALTER ROLE {} WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS PASSWORD {}"
+            ).format(identifier, password_literal)
         )
 
 
 def main() -> int:
     admin_url = required("THISTINTI_POSTGRES_ADMIN_URL")
-    owner_user = validate_role_name(os.getenv("THISTINTI_DB_OWNER_USER", "thistinti_owner"), "THISTINTI_DB_OWNER_USER")
+    owner_user = validate_role_name(
+        os.getenv("THISTINTI_DB_OWNER_USER", "thistinti_owner"),
+        "THISTINTI_DB_OWNER_USER",
+    )
     app_user = validate_role_name(os.getenv("THISTINTI_DB_APP_USER", "thistinti_app"), "THISTINTI_DB_APP_USER")
     if owner_user == app_user:
         raise RuntimeError("Database owner and runtime roles must be different")
     owner_password = required("THISTINTI_DB_OWNER_PASSWORD")
     app_password = required("THISTINTI_DB_APP_PASSWORD")
 
-    with psycopg.connect(admin_url, autocommit=True) as connection, connection.cursor() as cursor:
+    with (
+        psycopg.connect(admin_url, autocommit=True) as connection,
+        connection.cursor() as cursor,
+    ):
         cursor.execute("SELECT current_database()")
         database = cursor.fetchone()[0]
         ensure_login_role(cursor, owner_user, owner_password)

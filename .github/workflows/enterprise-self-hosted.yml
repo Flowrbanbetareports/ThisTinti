@@ -23,7 +23,7 @@ jobs:
           python-version: "3.13"
           cache: pip
       - name: Install probe dependencies
-        run: pip install httpx PyYAML
+        run: pip install PyYAML
       - name: Generate operator-managed configuration locally
         run: |
           python scripts/enterprise_init.py \
@@ -45,7 +45,18 @@ jobs:
           docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml up --build --exit-code-from migrate migrate
       - name: Start application and worker
         working-directory: deploy/enterprise
-        run: docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml up -d --build app worker
+        shell: bash
+        run: |
+          set -o pipefail
+          : > ../../enterprise-start-runtime.log
+          docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml \
+            build app worker 2>&1 | tee -a ../../enterprise-start-runtime.log
+          # Initialize the shared app_data volume through one container first;
+          # concurrent first-use copy-up can race in the Docker daemon.
+          docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml \
+            up -d --no-deps --no-build app 2>&1 | tee -a ../../enterprise-start-runtime.log
+          docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml \
+            up -d --no-deps --no-build worker 2>&1 | tee -a ../../enterprise-start-runtime.log
       - name: Create first administrator without public registration
         working-directory: deploy/enterprise
         run: |
@@ -56,25 +67,50 @@ jobs:
             --email enterprise-ci@example.com \
             --password-stdin
       - name: Run authenticated acceptance and wait for readiness
-        env:
-          THISTINTI_STAGING_URL: http://127.0.0.1:18000
-          THISTINTI_STAGING_ADMIN_EMAIL: enterprise-ci@example.com
-        run: THISTINTI_STAGING_ADMIN_PASSWORD="$THISTINTI_CI_ADMIN_PASSWORD" python scripts/staging_acceptance.py --token-mode --readiness-timeout 300 --report enterprise-acceptance-before-restart.json
+        working-directory: deploy/enterprise
+        shell: bash
+        run: |
+          set -o pipefail
+          docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml exec -T --user thistinti \
+            -e THISTINTI_STAGING_URL=http://127.0.0.1:8000 \
+            -e THISTINTI_STAGING_ADMIN_EMAIL=enterprise-ci@example.com \
+            -e THISTINTI_STAGING_ADMIN_PASSWORD="$THISTINTI_CI_ADMIN_PASSWORD" \
+            app python scripts/staging_acceptance.py --token-mode --readiness-timeout 300 \
+            --report /tmp/enterprise-acceptance-before-restart.json 2>&1 \
+            | tee ../../enterprise-acceptance-before-restart.log
+          docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml \
+            exec -T --user thistinti app cat /tmp/enterprise-acceptance-before-restart.json \
+            > ../../enterprise-acceptance-before-restart.json
       - name: Create and verify backup
         working-directory: deploy/enterprise
+        shell: bash
         run: |
+          set -o pipefail
+          : > ../../enterprise-backup.log
           docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml --profile ops run --rm backup \
-            python scripts/backup_system.py /backups/enterprise-ci.zip
+            python scripts/backup_system.py /backups/enterprise-ci.zip 2>&1 \
+            | tee -a ../../enterprise-backup.log
           docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml --profile ops run --rm backup \
-            python scripts/verify_backup.py /backups/enterprise-ci.zip
+            python scripts/verify_backup.py /backups/enterprise-ci.zip 2>&1 \
+            | tee -a ../../enterprise-backup.log
       - name: Restart runtime and verify persistence
         working-directory: deploy/enterprise
         run: docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml restart app worker
       - name: Re-run authenticated acceptance
-        env:
-          THISTINTI_STAGING_URL: http://127.0.0.1:18000
-          THISTINTI_STAGING_ADMIN_EMAIL: enterprise-ci@example.com
-        run: THISTINTI_STAGING_ADMIN_PASSWORD="$THISTINTI_CI_ADMIN_PASSWORD" python scripts/staging_acceptance.py --token-mode --readiness-timeout 300 --report enterprise-acceptance-after-restart.json
+        working-directory: deploy/enterprise
+        shell: bash
+        run: |
+          set -o pipefail
+          docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml exec -T --user thistinti \
+            -e THISTINTI_STAGING_URL=http://127.0.0.1:8000 \
+            -e THISTINTI_STAGING_ADMIN_EMAIL=enterprise-ci@example.com \
+            -e THISTINTI_STAGING_ADMIN_PASSWORD="$THISTINTI_CI_ADMIN_PASSWORD" \
+            app python scripts/staging_acceptance.py --token-mode --readiness-timeout 300 \
+            --report /tmp/enterprise-acceptance-after-restart.json 2>&1 \
+            | tee ../../enterprise-acceptance-after-restart.log
+          docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml \
+            exec -T --user thistinti app cat /tmp/enterprise-acceptance-after-restart.json \
+            > ../../enterprise-acceptance-after-restart.json
       - name: Collect service evidence
         if: always()
         working-directory: deploy/enterprise
@@ -82,7 +118,9 @@ jobs:
           mkdir -p ../../enterprise-evidence
           docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml ps -a > ../../enterprise-evidence/compose-ps.txt || true
           docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml logs --no-color > ../../enterprise-evidence/compose.log || true
-          cp ../../enterprise-acceptance-*.json ../../enterprise-evidence/ 2>/dev/null || true
+          cp ../../enterprise-start-runtime.log ../../enterprise-evidence/ 2>/dev/null || true
+          cp ../../enterprise-acceptance-* ../../enterprise-evidence/ 2>/dev/null || true
+          cp ../../enterprise-backup.log ../../enterprise-evidence/ 2>/dev/null || true
           cp backups/enterprise-ci.zip ../../enterprise-evidence/ 2>/dev/null || true
       - name: Upload evidence
         if: always()
