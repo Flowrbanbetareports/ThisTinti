@@ -64,9 +64,16 @@ def main() -> int:
         )
         db.commit()
 
+    # Commit referenced rows before dependent rows. The database trigger validates
+    # tenant references at statement time, so relying on ORM flush ordering would
+    # make this smoke test nondeterministic even though the schema is correct.
     with SessionLocal() as db:
         set_tenant_context(db, tenant_a)
         db.add(Supplier(id=supplier_a, tenant_id=tenant_a, legal_name="Supplier A", normalized_name="supplier a"))
+        db.commit()
+
+    with SessionLocal() as db:
+        set_tenant_context(db, tenant_a)
         db.add(
             Document(
                 id=document_a,
@@ -81,6 +88,10 @@ def main() -> int:
                 confidence=1.0,
             )
         )
+        db.commit()
+
+    with SessionLocal() as db:
+        set_tenant_context(db, tenant_a)
         db.add(
             DocumentLine(
                 tenant_id=tenant_a,
