@@ -7,11 +7,18 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_current_brand_and_version_are_consistent() -> None:
-    assert RELEASE_VERSION == "3.4.0-alpha.4"
+    assert RELEASE_VERSION == "3.4.0-alpha.5"
     assert (ROOT / "run_thistinti.py").is_file()
     assert (ROOT / "installer/windows/ThisTinti.iss").is_file()
     assert (ROOT / "installer/windows/ThisTinti.spec").is_file()
-    assert (ROOT / "installer/assets/thistinti.ico").is_file()
+    assert (ROOT / "installer/assets/thistinti.ico.b64").is_file()
+
+    app_logo = (ROOT / "app/static/logo.svg").read_text(encoding="utf-8")
+    site_logo = (ROOT / "site/logo.svg").read_text(encoding="utf-8")
+    assert app_logo == site_logo
+    assert "double-T monogram" in app_logo
+    assert "#f0b64c" in app_logo
+    assert "#55b4c3" in app_logo
 
 
 def test_legacy_brand_is_absent_from_tracked_tree() -> None:
