@@ -1,6 +1,6 @@
 #define MyAppName "ThisTinti Local"
 #ifndef MyAppVersion
-  #define MyAppVersion "3.4.0-alpha.4"
+  #define MyAppVersion "3.4.0-alpha.5"
 #endif
 #define MyAppPublisher "Lorenzo Tinti"
 #define MyAppExeName "ThisTinti.exe"
@@ -29,7 +29,7 @@ WizardStyle=modern dynamic
 CloseApplications=yes
 RestartApplications=no
 ChangesAssociations=no
-VersionInfoVersion=3.4.0.4
+VersionInfoVersion=3.4.0.5
 VersionInfoProductName={#MyAppName}
 VersionInfoDescription=Local document integrity and discrepancy review platform
 VersionInfoCompany={#MyAppPublisher}
@@ -100,21 +100,18 @@ end;
 function NextButtonClick(CurPageID: Integer): Boolean;
 begin
   Result := True;
-  if (not WizardSilent) and (CurPageID = SpecificApprovalPage.ID) and (not SpecificApprovalCheck.Checked) then
+  if CurPageID = SpecificApprovalPage.ID then
   begin
-    MsgBox('Per continuare è necessaria la specifica approvazione delle clausole indicate.', mbError, MB_OK);
-    Result := False;
+    if not SpecificApprovalCheck.Checked then
+    begin
+      MsgBox('Per continuare devi approvare specificamente le clausole indicate.', mbError, MB_OK);
+      Result := False;
+    end;
   end;
 end;
 
-function InitializeUninstall(): Boolean;
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
-  Result := True;
-  SuppressibleMsgBox(
-    'La disinstallazione rimuove il programma ma conserva documenti, database e backup in %LOCALAPPDATA%\ThisTinti. ' +
-    'Questi dati possono essere eliminati manualmente soltanto dopo aver creato un backup.',
-    mbInformation,
-    MB_OK,
-    IDOK
-  );
+  if (CurUninstallStep = usPostUninstall) and (not UninstallSilent) then
+    MsgBox('ThisTinti è stato rimosso. I dati locali restano in %LOCALAPPDATA%\ThisTinti per evitare perdite involontarie. Eliminali manualmente soltanto dopo aver creato e verificato un backup.', mbInformation, MB_OK);
 end;
