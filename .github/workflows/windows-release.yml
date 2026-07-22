@@ -137,6 +137,8 @@ jobs:
         shell: pwsh
         run: throw "Baseline installation diagnostics captured"
       - name: Upgrade Windows installation silently
+        id: upgrade_install
+        continue-on-error: true
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
@@ -144,24 +146,56 @@ jobs:
           $CurrentInstaller = (Resolve-Path "release\windows\ThisTinti-Setup-$Version-x64.exe").Path
           $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\ThisTinti-Acceptance"
           $DataDir = Join-Path $env:LOCALAPPDATA "ThisTinti-Acceptance"
+          $LogPath = (Join-Path (Resolve-Path "release\windows") "upgrade-install.log")
+          $SummaryPath = (Join-Path (Resolve-Path "release\windows") "upgrade-install-summary.txt")
           $Arguments = @(
             "/VERYSILENT",
             "/SUPPRESSMSGBOXES",
             "/NORESTART",
             "/ACCEPTTHISTINTITERMS=yes",
-            "/DIR=$InstallDir"
+            "/DIR=$InstallDir",
+            "/LOG=$LogPath"
           )
+          $TimedOut = $false
           $Process = Start-Process -FilePath $CurrentInstaller -ArgumentList $Arguments -PassThru
-          if (-not $Process.WaitForExit(180000)) {
+          if (-not $Process.WaitForExit(300000)) {
+            $TimedOut = $true
             Stop-Process -Id $Process.Id -Force -ErrorAction SilentlyContinue
-            throw "Installer upgrade timed out after 180 seconds"
+            $Process.WaitForExit()
           }
-          if ($Process.ExitCode -ne 0 -or -not (Test-Path (Join-Path $InstallDir "ThisTinti.exe"))) {
+          $ExitCode = $Process.ExitCode
+          @(
+            "timed_out=$TimedOut"
+            "exit_code=$ExitCode"
+            "installer=$CurrentInstaller"
+            "install_dir=$InstallDir"
+            "exe_exists=$(Test-Path (Join-Path $InstallDir 'ThisTinti.exe'))"
+            "uninstaller_exists=$(Test-Path (Join-Path $InstallDir 'unins000.exe'))"
+            "marker_exists=$(Test-Path (Join-Path $DataDir 'upgrade-preservation-marker.txt'))"
+          ) | Set-Content $SummaryPath -Encoding utf8
+          Get-Process | Where-Object { $_.ProcessName -match 'ThisTinti|setup|unins' } |
+            Select-Object ProcessName, Id, StartTime | Format-Table -AutoSize | Out-String | Add-Content $SummaryPath
+          if ($TimedOut) { throw "Installer upgrade timed out after 300 seconds" }
+          if ($ExitCode -ne 0 -or -not (Test-Path (Join-Path $InstallDir "ThisTinti.exe"))) {
             throw "Installer upgrade failed"
           }
           if (-not (Test-Path (Join-Path $DataDir "upgrade-preservation-marker.txt"))) {
             throw "Installer upgrade did not preserve local data"
           }
+      - name: Upload upgrade installation diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ThisTinti-upgrade-install-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            release/windows/upgrade-install.log
+            release/windows/upgrade-install-summary.txt
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Stop after upgrade installation failure
+        if: steps.upgrade_install.outcome != 'success'
+        shell: pwsh
+        run: throw "Upgrade installation diagnostics captured"
       - name: Smoke-test upgraded Windows installation
         shell: pwsh
         run: |
