@@ -110,10 +110,11 @@ end;
 function InitializeUninstall(): Boolean;
 begin
   Result := True;
-  MsgBox(
+  SuppressibleMsgBox(
     'La disinstallazione rimuove il programma ma conserva documenti, database e backup in %LOCALAPPDATA%\ThisTinti. ' +
     'Questi dati possono essere eliminati manualmente soltanto dopo aver creato un backup.',
     mbInformation,
-    MB_OK
+    MB_OK,
+    IDOK
   );
 end;
