@@ -38,18 +38,28 @@
   if (pilotLink) pilotLink.href = `https://github.com/${repo}/blob/main/docs/PILOT_KIT.md`;
   if (launchChecklistLink) launchChecklistLink.href = `https://github.com/${repo}/blob/main/docs/PUBLIC_LAUNCH_CHECKLIST.md`;
   if (securityLink) securityLink.href = `https://github.com/${repo}/blob/main/SECURITY.md`;
-  fetch(`https://api.github.com/repos/${repo}/releases/latest`, { headers: { Accept: 'application/vnd.github+json' } })
+
+  fetch(`https://api.github.com/repos/${repo}/releases?per_page=10`, {
+    headers: { Accept: 'application/vnd.github+json' },
+  })
     .then(response => { if (!response.ok) throw new Error('release unavailable'); return response.json(); })
-    .then(release => {
+    .then(releases => {
+      if (!Array.isArray(releases)) throw new Error('invalid release response');
+      const release = releases.find(item => {
+        if (item.draft) return false;
+        const releaseAssets = Array.isArray(item.assets) ? item.assets : [];
+        return releaseAssets.some(asset => /ThisTinti-Setup-.*-x64\.exe$/i.test(asset.name));
+      });
+      if (!release) throw new Error('installer unavailable');
       const releaseAssets = Array.isArray(release.assets) ? release.assets : [];
       const setup = releaseAssets.find(asset => /ThisTinti-Setup-.*-x64\.exe$/i.test(asset.name));
       const zip = releaseAssets.find(asset => /ThisTinti-Portable-.*-x64\.zip$/i.test(asset.name));
       const setupHash = releaseAssets.find(asset => /ThisTinti-Setup-.*-x64\.exe\.sha256$/i.test(asset.name));
-      if (!setup) throw new Error('installer unavailable');
       assets = { setup: setup.browser_download_url, portable: zip?.browser_download_url };
       if (zip) portable.classList.remove('hidden');
       if (setupHash) { checksum.href = setupHash.browser_download_url; checksum.classList.remove('hidden'); }
-      status.textContent = `${release.tag_name} · ${setup.download_count.toLocaleString('it-IT')} download installer`;
+      const channel = release.prerelease ? 'pre-release alpha' : 'release';
+      status.textContent = `${release.tag_name} · ${channel} · ${setup.download_count.toLocaleString('it-IT')} download installer`;
       applyDownloadState();
     })
     .catch(() => {
