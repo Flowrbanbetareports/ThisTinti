@@ -1,0 +1,30 @@
+name: Dispatch ThisTinti alpha.4 release build once
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/dispatch-alpha4-release-build-once.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  dispatch-release-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: v3.4.0-alpha.4
+    steps:
+      - name: Dispatch the release workflow at the verified tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh workflow run windows-release.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$RELEASE_TAG"
+          echo "Dispatched Build Windows Free Download for $RELEASE_TAG."
