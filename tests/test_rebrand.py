@@ -11,7 +11,7 @@ def test_current_brand_and_version_are_consistent() -> None:
     assert (ROOT / "run_thistinti.py").is_file()
     assert (ROOT / "installer/windows/ThisTinti.iss").is_file()
     assert (ROOT / "installer/windows/ThisTinti.spec").is_file()
-    assert (ROOT / "installer/assets/thistinti.ico.b64").is_file()
+    assert (ROOT / "scripts/generate_brand_icon.py").is_file()
 
     app_logo = (ROOT / "app/static/logo.svg").read_text(encoding="utf-8")
     site_logo = (ROOT / "site/logo.svg").read_text(encoding="utf-8")
