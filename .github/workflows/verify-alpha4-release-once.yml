@@ -1,0 +1,87 @@
+name: Verify ThisTinti alpha.4 release once
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/verify-alpha4-release-once.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: v3.4.0-alpha.4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Wait for release and verify downloadable assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 70); do
+            if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json tagName,name,isDraft,isPrerelease,publishedAt,url,targetCommitish,assets > release-view.json 2>/dev/null; then
+              break
+            fi
+            if [[ "$attempt" -eq 70 ]]; then
+              echo "Release $RELEASE_TAG was not published within the verification window." >&2
+              exit 1
+            fi
+            sleep 30
+          done
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          data = json.loads(Path('release-view.json').read_text(encoding='utf-8'))
+          if data.get('isDraft'):
+              raise SystemExit('Release is still a draft')
+          names = {item['name'] for item in data.get('assets', [])}
+          required = {
+              'ThisTinti-Setup-3.4.0-alpha.4-x64.exe',
+              'ThisTinti-Setup-3.4.0-alpha.4-x64.exe.sha256',
+              'ThisTinti-Portable-3.4.0-alpha.4-x64.zip',
+              'ThisTinti-Portable-3.4.0-alpha.4-x64.zip.sha256',
+              'ThisTinti-3.4.0-alpha.4-self-hosted-source.zip',
+              'ThisTinti-3.4.0-alpha.4-self-hosted-source.zip.sha256',
+              'TERMS_OF_USE.md',
+              'DISCLAIMER.md',
+              'PRIVACY.md',
+              'TRADEMARKS.md',
+              'SUPPORT.md',
+          }
+          missing = sorted(required - names)
+          if missing:
+              raise SystemExit(f'Missing release assets: {missing}')
+          record = {
+              'tag': data['tagName'],
+              'name': data['name'],
+              'published_at': data['publishedAt'],
+              'url': data['url'],
+              'target_commitish': data['targetCommitish'],
+              'is_draft': data['isDraft'],
+              'is_prerelease': data['isPrerelease'],
+              'asset_count': len(data.get('assets', [])),
+              'assets': sorted(names),
+              'verified_by_workflow_run': int(__import__('os').environ['GITHUB_RUN_ID']),
+          }
+          path = Path('builds/release-latest.json')
+          path.parent.mkdir(parents=True, exist_ok=True)
+          path.write_text(json.dumps(record, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+          PY
+      - name: Record verified public release
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add builds/release-latest.json
+          git commit -m "Record verified ThisTinti alpha.4 release"
+          git push
