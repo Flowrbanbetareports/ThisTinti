@@ -1,0 +1,31 @@
+name: Enable ThisTinti GitHub Pages once
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/enable-pages-once.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+
+jobs:
+  enable-pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Enable Pages with GitHub Actions as build type
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh api "repos/$GITHUB_REPOSITORY/pages" >/dev/null 2>&1; then
+            echo "GitHub Pages is already enabled."
+            exit 0
+          fi
+          gh api --method POST "repos/$GITHUB_REPOSITORY/pages" -f build_type=workflow
+          gh api "repos/$GITHUB_REPOSITORY/pages" --jq '{status, html_url, build_type}'
