@@ -9,3 +9,4 @@ tests/.runtime/
 
 .coverage
 .coverage.*
+installer/assets/thistinti.ico
