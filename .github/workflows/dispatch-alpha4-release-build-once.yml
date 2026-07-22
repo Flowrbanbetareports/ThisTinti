@@ -10,7 +10,7 @@ on:
 
 permissions:
   actions: write
-  contents: read
+  contents: write
 
 jobs:
   dispatch-release-build:
@@ -20,6 +20,9 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       RELEASE_TAG: v3.4.0-alpha.4
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Dispatch the release workflow at the verified tag
         shell: bash
         run: |
@@ -28,3 +31,45 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --ref "$RELEASE_TAG"
           echo "Dispatched Build Windows Free Download for $RELEASE_TAG."
+      - name: Record the dispatched workflow run
+        shell: bash
+        run: |
+          set -euo pipefail
+          sleep 12
+          gh run list \
+            --repo "$GITHUB_REPOSITORY" \
+            --workflow windows-release.yml \
+            --branch "$RELEASE_TAG" \
+            --event workflow_dispatch \
+            --limit 5 \
+            --json databaseId,status,conclusion,headBranch,headSha,createdAt,url \
+            > release-dispatch-runs.json
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          runs = json.loads(Path('release-dispatch-runs.json').read_text(encoding='utf-8'))
+          if not runs:
+              raise SystemExit('The dispatched release run was not found')
+          run = runs[0]
+          record = {
+              'tag': os.environ['RELEASE_TAG'],
+              'run_id': run['databaseId'],
+              'status': run['status'],
+              'conclusion': run['conclusion'],
+              'head_branch': run['headBranch'],
+              'head_sha': run['headSha'],
+              'created_at': run['createdAt'],
+              'url': run['url'],
+              'dispatch_workflow_run': int(os.environ['GITHUB_RUN_ID']),
+          }
+          path = Path('builds/release-dispatch.json')
+          path.parent.mkdir(parents=True, exist_ok=True)
+          path.write_text(json.dumps(record, indent=2) + '\n', encoding='utf-8')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add builds/release-dispatch.json
+          git commit -m "Record dispatched alpha.4 release run"
+          git push
