@@ -36,7 +36,7 @@ REQUIRED_FILES = (
     "site/legal.html",
     "site/logo.svg",
     "app/static/logo.svg",
-    "installer/assets/thistinti.ico.b64",
+    "scripts/generate_brand_icon.py",
     ".github/workflows/windows-release.yml",
     ".github/workflows/enterprise-self-hosted.yml",
 )
