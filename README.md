@@ -12,6 +12,11 @@ Questa preview conserva il livello di intelligence 3.2 e offre due distribuzioni
 
 La release è adatta a sviluppo, dimostrazioni e **pilot controllati con documenti anonimizzati**. La dicitura `alpha` è deliberata: il motore è testato, ma deve ancora essere calibrato su documenti reali del settore e non deve autorizzare autonomamente pagamenti o registrazioni contabili.
 
+## Identità e posizionamento
+
+Il nome ufficiale del progetto è **ThisTinti**. `Flowrbanbetareports` è soltanto l'account tecnico GitHub che ospita il repository e non costituisce un secondo marchio o una parte del prodotto.
+
+Nel periodo alpha ThisTinti resta open source, gratuito, local-first e destinato a demo e pilot supervisionati. Non viene offerto come SaaS o servizio gestito. Decisioni, manutenzione, canali ufficiali e gate produttivi sono definiti in `GOVERNANCE.md` e `ROADMAP.md`.
 
 ## Download locale gratuito
 
@@ -25,7 +30,7 @@ La Local Edition è progettata per essere usata senza un servizio gestito da Thi
 - archivio portable e checksum SHA-256;
 - sorgente corrispondente incluso ed esportabile sotto licenza Apache 2.0.
 
-La build pubblica viene generata da `.github/workflows/windows-release.yml`. Prima di pubblicare un tag, il workflow esegue test, controlli di sicurezza e uno smoke test sull'eseguibile congelato che comprende caricamento, worker, arresto, riavvio e persistenza. Vedere `docs/LOCAL_EDITION.md`.
+La build pubblica viene generata da `.github/workflows/windows-release.yml`. Prima di pubblicare un tag, il workflow esegue test, controlli di sicurezza e uno smoke test sull'eseguibile congelato che comprende caricamento, worker, arresto, riavvio e persistenza. Vedere `docs/LOCAL_EDITION.md` e `docs/RELEASE_AUTHENTICITY.md`.
 
 ## Self-Hosted Reference Edition gratuita
 
@@ -124,7 +129,7 @@ python scripts/restore_backup.py /backup/thistinti-2026-07-19.zip \
   --storage-dir /restore/data
 ```
 
-Per PostgreSQL vengono usati `pg_dump` e `pg_restore`. Il backup contiene manifest, versione, hash dei componenti e copia dello storage; il restore rifiuta sovrascritture implicite.
+Per PostgreSQL vengono usati `pg_dump` e `pg_restore`. Il backup contiene manifest, versione, hash dei componenti e copia dello storage; il restore rifiuta sovrascritture implicite. Conservazione, disinstallazione e cancellazione completa sono descritte in `docs/DATA_LIFECYCLE.md`.
 
 ## Verifica del rilascio
 
@@ -154,7 +159,7 @@ Una prova PostgreSQL/RLS separata è già stata eseguita sul progetto Supabase g
 
 ## Uso responsabile e condizioni
 
-Prima dell’uso leggere `TERMS_OF_USE.md`, `DISCLAIMER.md`, `PRIVACY.md` e `TRADEMARKS.md`. La distribuzione ufficiale richiede una doppia conferma nell’installer e al primo avvio. Gli output sono indicativi e devono essere verificati sui documenti originali.
+Prima dell'uso leggere `TERMS_OF_USE.md`, `DISCLAIMER.md`, `PRIVACY.md` e `TRADEMARKS.md`. La distribuzione ufficiale richiede una doppia conferma nell'installer e al primo avvio. Gli output sono indicativi e devono essere verificati sui documenti originali.
 
 ## Confini deliberati
 
@@ -162,14 +167,20 @@ ThisTinti non invia contestazioni, non esegue o blocca pagamenti reali, non modi
 
 ## Documentazione
 
+- `GOVERNANCE.md`: identità, obiettivo, canali ufficiali e processo decisionale;
+- `ROADMAP.md`: priorità dalla alpha alla preparazione operativa;
 - `TERMS_OF_USE.md`: condizioni, rischi, responsabilità e approvazione specifica;
 - `DISCLAIMER.md`: avviso essenziale;
-- `PRIVACY.md`: dati locali e responsabilità dell’organizzazione;
+- `PRIVACY.md`: dati locali e responsabilità dell'organizzazione;
 - `TRADEMARKS.md`: uso del nome e versioni modificate;
+- `SECURITY.md`: controlli, versioni supportate e segnalazione responsabile;
 - `docs/LOCAL_EDITION.md`: installazione, dati locali, backup e distribuzione gratuita;
+- `docs/DATA_LIFECYCLE.md`: conservazione, disinstallazione e cancellazione completa;
+- `docs/RELEASE_AUTHENTICITY.md`: verifica dei download e dei checksum;
+- `docs/BRAND_STATUS.md`: stato provvisorio di nome, logo e animazioni;
 - `docs/ENTERPRISE_SELF_HOSTED.md`: deploy self-hosted e procedure operative;
 - `docs/RESPONSIBILITY_MATRIX.md`: confini tra progetto, organizzazione e fornitori;
-- `docs/ENTERPRISE_ACCEPTANCE_CHECKLIST.md`: controlli prima dell’uso aziendale;
+- `docs/ENTERPRISE_ACCEPTANCE_CHECKLIST.md`: controlli prima dell'uso aziendale;
 - `docs/CUSTOMIZATION_GUIDE.md`: punti di estensione per i team tecnici;
 - `docs/PROOF_GRAPH_SENTINEL.md`: architettura e limiti delle funzioni distintive;
 - `docs/RELEASE_VERIFICATION_3.2.0_ALPHA.1.md`: risultati conclusivi e limiti verificati della preview;
