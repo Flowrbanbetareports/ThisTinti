@@ -4,6 +4,15 @@ Set-Location (Resolve-Path "$PSScriptRoot\..\..")
 $Version = (Select-String -Path "app\version.py" -Pattern 'RELEASE_VERSION = "([^"]+)"').Matches.Groups[1].Value
 if (-not $Version) { throw "Versione non rilevata" }
 
+# Keep the binary application icon reproducible from a reviewable repository file.
+$IconBase64 = "installer\assets\thistinti.ico.b64"
+$IconTarget = "installer\assets\thistinti.ico"
+if (-not (Test-Path $IconBase64)) { throw "Sorgente Base64 dell'icona Windows assente" }
+$EncodedIcon = (Get-Content $IconBase64 -Raw).Trim()
+$IconBytes = [Convert]::FromBase64String($EncodedIcon)
+if ($IconBytes.Length -lt 4096) { throw "Icona Windows generata troppo piccola o non valida" }
+[IO.File]::WriteAllBytes((Join-Path (Get-Location) $IconTarget), $IconBytes)
+
 python -m PyInstaller --clean --noconfirm "installer\windows\ThisTinti.spec"
 if ($LASTEXITCODE -ne 0) { throw "Creazione eseguibile PyInstaller fallita" }
 
