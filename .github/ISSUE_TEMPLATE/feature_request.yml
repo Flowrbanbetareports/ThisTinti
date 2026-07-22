@@ -1,0 +1,48 @@
+name: Proposta di miglioramento
+description: Proponi una funzione, un miglioramento grafico o un cambiamento operativo.
+title: "[Proposta] "
+labels: []
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema da risolvere
+      description: Descrivi il bisogno concreto prima della soluzione.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Soluzione proposta
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Interfaccia e accessibilità
+        - Logo e identità visiva
+        - Parser e formati documentali
+        - Matching e regole
+        - Installazione e aggiornamenti
+        - Sicurezza e privacy
+        - Self-hosted e operazioni
+        - Documentazione
+        - Altro
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Rischi o effetti collaterali
+      description: Indica impatto su dati, compatibilità, prestazioni o verifica umana.
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Confini del progetto
+      options:
+        - label: La proposta non richiede pagamenti automatici o decisioni economiche senza verifica umana.
+          required: true
+        - label: Non ho inserito dati personali, credenziali o documenti riservati.
+          required: true

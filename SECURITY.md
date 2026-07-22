@@ -1,5 +1,11 @@
 # Sicurezza di ThisTinti
 
+## Versioni supportate
+
+Durante la fase alpha viene supportata soltanto la prerelease più recente pubblicata. Le versioni precedenti restano disponibili per tracciabilità, ma possono non ricevere correzioni.
+
+ThisTinti è adatto a sviluppo, dimostrazioni e pilot controllati con dati anonimizzati. Non è ancora certificato per dati sensibili o produzione.
+
 ## Controlli implementati
 
 ### Identità e sessioni
@@ -82,12 +88,23 @@ python scripts/generate_secret.py
 - audit delle dipendenze con accesso Internet;
 - piano di risposta agli incidenti.
 
-## Segnalazione vulnerabilità
+## Segnalazione responsabile di vulnerabilità
 
-Non aprire pubblicamente un issue contenente dati sensibili o exploit completi. Usare un canale privato definito dal gestore dell'installazione.
+Non aprire pubblicamente un issue contenente exploit, credenziali, documenti, dati personali o dettagli che permettano un abuso immediato.
+
+Inviare la segnalazione a `flowrbanbetareports@gmail.com` con oggetto `ThisTinti security report` e includere soltanto:
+
+- versione interessata;
+- componente e configurazione;
+- impatto plausibile;
+- passaggi minimi per riprodurre con dati fittizi;
+- eventuale hash o log già ripulito da segreti;
+- modalità sicura per ricevere ulteriori dettagli, quando necessaria.
+
+Non allegare documenti aziendali reali. Non eseguire test su installazioni o dati di terzi senza autorizzazione. La ricezione della segnalazione non costituisce promessa di ricompensa, SLA o correzione entro un termine, ma verrà valutata su base best effort.
 
 ## Self-Hosted Reference Edition
 
 La configurazione `deploy/enterprise` aggiunge separazione di rete, segreti basati su file, registrazione pubblica disabilitata, bootstrap offline del primo amministratore, PostgreSQL, worker scalabili, ClamAV e reverse proxy HTTPS.
 
-Questi controlli non costituiscono certificazione né trasferiscono la gestione all’autore. L’operatore deve verificare immagini, sistema host, firewall, TLS, firme malware, backup, monitoring, capacity, accessi e incident response. Il file locale `operator-acceptance.json` deve corrispondere alla versione e agli hash dei documenti legali; una modifica richiede nuova presa visione.
+Questi controlli non costituiscono certificazione né trasferiscono la gestione all'autore. L'operatore deve verificare immagini, sistema host, firewall, TLS, firme malware, backup, monitoring, capacity, accessi e incident response. Il file locale `operator-acceptance.json` deve corrispondere alla versione e agli hash dei documenti legali; una modifica richiede nuova presa visione.

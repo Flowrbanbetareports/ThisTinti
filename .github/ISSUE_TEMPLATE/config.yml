@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Segnalazione di sicurezza
+    url: https://github.com/Flowrbanbetareports/ThisTinti/security/policy
+    about: Non pubblicare exploit, credenziali o dati sensibili in un issue.
+  - name: Download ufficiale
+    url: https://flowrbanbetareports.github.io/ThisTinti/
+    about: Installer, portable, sorgenti e checksum ufficiali.
