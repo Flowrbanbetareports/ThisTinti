@@ -1,0 +1,107 @@
+{
+  "version": "3.4.0-alpha.4",
+  "tag": "v3.4.0-alpha.4",
+  "release_commit": "0c461acecd1394ceeabcb41a0d3ca4c2e84406db",
+  "release_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/tag/v3.4.0-alpha.4",
+  "published_at": "2026-07-22T17:37:10Z",
+  "is_draft": false,
+  "is_prerelease": true,
+  "asset_count": 18,
+  "assets": [
+    {
+      "name": "DISCLAIMER.md",
+      "size": 1223,
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.4/DISCLAIMER.md"
+    },
+    {
+      "name": "PRIVACY.md",
+      "size": 1049,
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.4/PRIVACY.md"
+    },
+    {
+      "name": "RELEASE-LEGAL-NOTICE.md",
+      "size": 652,
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.4/RELEASE-LEGAL-NOTICE.md"
+    },
+    {
+      "name": "SELF-HOSTED-ACCEPTANCE-CHECKLIST.md",
+      "size": 1706,
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.4/SELF-HOSTED-ACCEPTANCE-CHECKLIST.md"
+    },
+    {
+      "name": "SELF-HOSTED-RESPONSIBILITY-MATRIX.md",
+      "size": 1869,
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.4/SELF-HOSTED-RESPONSIBILITY-MATRIX.md"
+    },
+    {
+      "name": "SUPPORT.md",
+      "size": 1348,
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.4/SUPPORT.md"
+    },
+    {
+      "name": "TERMS_OF_USE.md",
+      "size": 10817,
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.4/TERMS_OF_USE.md"
+    },
+    {
+      "name": "TRADEMARKS.md",
+      "size": 781,
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.4/TRADEMARKS.md"
+    },
+    {
+      "name": "ThisTinti-3.4.0-alpha.4-self-hosted-source.zip",
+      "size": 433526,
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.4/ThisTinti-3.4.0-alpha.4-self-hosted-source.zip"
+    },
+    {
+      "name": "ThisTinti-3.4.0-alpha.4-self-hosted-source.zip.sha256",
+      "size": 114,
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.4/ThisTinti-3.4.0-alpha.4-self-hosted-source.zip.sha256"
+    },
+    {
+      "name": "ThisTinti-Portable-3.4.0-alpha.4-x64.zip",
+      "size": 81978299,
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.4/ThisTinti-Portable-3.4.0-alpha.4-x64.zip"
+    },
+    {
+      "name": "ThisTinti-Portable-3.4.0-alpha.4-x64.zip.sha256",
+      "size": 108,
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.4/ThisTinti-Portable-3.4.0-alpha.4-x64.zip.sha256"
+    },
+    {
+      "name": "ThisTinti-Setup-3.4.0-alpha.4-x64.exe",
+      "size": 56870969,
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.4/ThisTinti-Setup-3.4.0-alpha.4-x64.exe"
+    },
+    {
+      "name": "ThisTinti-Setup-3.4.0-alpha.4-x64.exe.sha256",
+      "size": 105,
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.4/ThisTinti-Setup-3.4.0-alpha.4-x64.exe.sha256"
+    },
+    {
+      "name": "baseline-install-summary.txt",
+      "size": 273047,
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.4/baseline-install-summary.txt"
+    },
+    {
+      "name": "baseline-install.log",
+      "size": 810659,
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.4/baseline-install.log"
+    },
+    {
+      "name": "frozen-local-smoke.json",
+      "size": 348,
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.4/frozen-local-smoke.json"
+    },
+    {
+      "name": "installed-local-smoke.json",
+      "size": 361,
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.4/installed-local-smoke.json"
+    }
+  ],
+  "pages_url": "https://flowrbanbetareports.github.io/ThisTinti/",
+  "pages_index_sha256": "1f23c0fbad4c0152aadcfa39d355ae5b53c6f1bae7fa2d2594cf2dbeebe22779",
+  "pages_script_sha256": "330f7339e5b0ec879cd29c5e84140c18de9684546dc501ef872e0c5221775e63",
+  "verified_at": "2026-07-22T21:14:43.504695+00:00",
+  "verified_by_workflow_run": 29958433049
+}
