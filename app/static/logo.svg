@@ -1,9 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
   <title id="title">ThisTinti</title>
-  <desc id="desc">Two interlocking document links with a verification diamond.</desc>
-  <rect width="256" height="256" rx="58" fill="#12171d"/>
-  <path d="M46 86c0-24 20-44 44-44h58v28H90c-9 0-16 7-16 16s7 16 16 16h54v28H90c-24 0-44-20-44-44Z" fill="#e1a43c"/>
-  <path d="M210 170c0 24-20 44-44 44h-58v-28h58c9 0 16-7 16-16s-7-16-16-16h-54v-28h54c24 0 44 20 44 44Z" fill="#6f9fad"/>
-  <rect x="108" y="108" width="40" height="40" rx="8" transform="rotate(45 128 128)" fill="#f6f8f9"/>
-  <rect x="120" y="120" width="16" height="16" rx="4" transform="rotate(45 128 128)" fill="#12171d"/>
+  <desc id="desc">A double-T monogram joined by a verification check.</desc>
+  <rect width="256" height="256" rx="58" fill="#0d1720"/>
+  <path d="M38 48c0-8 6-14 14-14h78v34h-28v144H68V68H52c-8 0-14-6-14-14v-6Z" fill="#f0b64c"/>
+  <path d="M126 34h78c8 0 14 6 14 14v6c0 8-6 14-14 14h-16v144h-34V68h-28V34Z" fill="#55b4c3"/>
+  <path d="m105 130 18 18 31-37" fill="none" stroke="#f7fafc" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
