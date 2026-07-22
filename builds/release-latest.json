@@ -1,0 +1,33 @@
+{
+  "version": "3.4.0-alpha.4",
+  "tag": "v3.4.0-alpha.4",
+  "release_commit": "0c461acecd1394ceeabcb41a0d3ca4c2e84406db",
+  "release_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/tag/v3.4.0-alpha.4",
+  "is_draft": false,
+  "is_prerelease": true,
+  "release_workflow_run": 29942596402,
+  "verification_workflow_run": 29941922580,
+  "verification": {
+    "tag_target_verified": true,
+    "title_and_notes_finalized": true,
+    "required_assets_verified": true,
+    "windows_lifecycle_passed": true,
+    "installer_sha256": "3bb228a55a4fb822a2d7cf17d4bea923f9d44e200092527c8a3c97a27280fb08",
+    "portable_sha256": "4697b17e758c1da354564c8b5ae8c3e1a240b5e76e8a1fa0be16a1f4617898a1",
+    "self_hosted_source_sha256": "954af3c2ef1fc4a0295cfa1e708ebfb7fcb0deca8f440ff82f58e5cfbfad937c"
+  },
+  "required_assets": [
+    "ThisTinti-Setup-3.4.0-alpha.4-x64.exe",
+    "ThisTinti-Setup-3.4.0-alpha.4-x64.exe.sha256",
+    "ThisTinti-Portable-3.4.0-alpha.4-x64.zip",
+    "ThisTinti-Portable-3.4.0-alpha.4-x64.zip.sha256",
+    "ThisTinti-3.4.0-alpha.4-self-hosted-source.zip",
+    "ThisTinti-3.4.0-alpha.4-self-hosted-source.zip.sha256",
+    "TERMS_OF_USE.md",
+    "DISCLAIMER.md",
+    "PRIVACY.md",
+    "TRADEMARKS.md",
+    "SUPPORT.md"
+  ],
+  "unsigned_installer": true
+}
