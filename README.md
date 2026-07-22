@@ -6,7 +6,7 @@ Il modello operativo è **autonomia supervisionata**: i controlli deterministici
 
 ## Stato del rilascio
 
-Versione: **3.4.0-alpha.3 — Local + Self-Hosted Reference Edition preview**.
+Versione: **3.4.0-alpha.4 — Local + Self-Hosted Reference Edition preview**.
 
 Questa preview conserva il livello di intelligence 3.2 e offre due distribuzioni gratuite: una Local Edition per singola postazione e una Self-Hosted Reference Edition con PostgreSQL, worker scalabili, TLS, scanner malware e strumenti operativi per team tecnici.
 
