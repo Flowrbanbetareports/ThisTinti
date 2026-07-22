@@ -1,20 +1,20 @@
 {
   "workflow": "Build Windows Free Download",
-  "run_id": 29939066690,
-  "run_number": 19,
-  "head_sha": "0c461acecd1394ceeabcb41a0d3ca4c2e84406db",
+  "run_id": 29967008827,
+  "run_number": 51,
+  "head_sha": "8f4252fd057d2f34a6ce35d0349f19979caa90cf",
   "branch": "main",
-  "artifact_name": "ThisTinti-Windows-29939066690-19",
+  "artifact_name": "ThisTinti-Windows-29967008827-51",
   "files": [
     {
       "name": "baseline-install-summary.txt",
-      "size": 273047,
-      "sha256": "a63ca1816a7e94865fe116dc34ca5a2469d705213787d000a4783026e526e670"
+      "size": 273048,
+      "sha256": "b317d672d975b41ae7a418c2805996af03a669a2d5b025e4a95d77d6f337648c"
     },
     {
       "name": "baseline-install.log",
-      "size": 810659,
-      "sha256": "0ca13553fa622f0daddfbdb108bbc334e625081fe2b8f4b8b737f34884ec69ea"
+      "size": 810661,
+      "sha256": "c97460c7c9c55d4d892a5db3f4b471e568144826043325df81f7310e59cf5791"
     },
     {
       "name": "DISCLAIMER.md",
@@ -24,12 +24,12 @@
     {
       "name": "frozen-local-smoke.json",
       "size": 348,
-      "sha256": "f32912f176cc86c5c79fd9a597d8211ff83f71bb24a5de94f6153a28c734ff65"
+      "sha256": "b464c7fa26ed3135908872ec5fb22eb20ac5ef056c00eb79bea03b3f55e4b4d5"
     },
     {
       "name": "installed-local-smoke.json",
       "size": 361,
-      "sha256": "f1fd034c16f7277fbd700b961d34da31b5ed7d56aad2aa4da021ab04f6bcafe8"
+      "sha256": "ff5e1a6826ed0802103ab12508f1765063fa912929cecdeffdfcd798ed71e0d1"
     },
     {
       "name": "PRIVACY.md",
@@ -42,39 +42,49 @@
       "sha256": "b29d072205616a8f57216446c6b48036f8fcc078b675b7590485b218b2383f6f"
     },
     {
-      "name": "ThisTinti-3.4.0-alpha.4-self-hosted-source.zip",
-      "size": 433526,
-      "sha256": "954af3c2ef1fc4a0295cfa1e708ebfb7fcb0deca8f440ff82f58e5cfbfad937c"
+      "name": "ThisTinti-3.4.0-alpha.5-self-hosted-source.zip",
+      "size": 448739,
+      "sha256": "996ab07c2c7ad01f9773f716096dc92af4e1488d0aa00b722b05d8eab41c16b8"
     },
     {
-      "name": "ThisTinti-3.4.0-alpha.4-self-hosted-source.zip.sha256",
+      "name": "ThisTinti-3.4.0-alpha.5-self-hosted-source.zip.sha256",
       "size": 114,
-      "sha256": "a331c0309e4bd2cd6b7b58467182eb6d37f980503e6731ff200ac0b99121e7f9"
+      "sha256": "7f5033d735054759bbcb77d92730b9e12c12f555f1ecc3cd3f48dc46b46f33d3"
     },
     {
-      "name": "ThisTinti-Portable-3.4.0-alpha.4-x64.zip",
-      "size": 81978700,
-      "sha256": "4697b17e758c1da354564c8b5ae8c3e1a240b5e76e8a1fa0be16a1f4617898a1"
+      "name": "ThisTinti-Portable-3.4.0-alpha.5-x64.zip",
+      "size": 82034247,
+      "sha256": "53e71ec95833534c40adb4fd49e4ec53f25570a3f3074fa09478f8aaec2e0b27"
     },
     {
-      "name": "ThisTinti-Portable-3.4.0-alpha.4-x64.zip.sha256",
+      "name": "ThisTinti-Portable-3.4.0-alpha.5-x64.zip.sha256",
       "size": 108,
-      "sha256": "9511e3880a4b0f05e7a310fb202b7eab961741c3dc8fafdcfa5eef68c9aff2ce"
+      "sha256": "43f7707169c29d7298b5a3a79cca555082e7d0178aa888058a3c9ed3ec24ecbc"
     },
     {
-      "name": "ThisTinti-Setup-3.4.0-alpha.4-x64.exe",
-      "size": 56875609,
-      "sha256": "3bb228a55a4fb822a2d7cf17d4bea923f9d44e200092527c8a3c97a27280fb08"
+      "name": "ThisTinti-Setup-3.4.0-alpha.5-x64.exe",
+      "size": 56966162,
+      "sha256": "a1b85fdf81cdf53cb43abd2c1e138e883d8c26881042e4e3e5a0768b8f37c5c9"
     },
     {
-      "name": "ThisTinti-Setup-3.4.0-alpha.4-x64.exe.sha256",
+      "name": "ThisTinti-Setup-3.4.0-alpha.5-x64.exe.sha256",
       "size": 105,
-      "sha256": "fddf832568308cf5913a081cc69d058fcf3c9437d4ad3b56e31bdde1f1477116"
+      "sha256": "832dc51f54f08a9bf29591620615f9e67727ef4480e6d7126c3612b7d0379177"
     },
     {
       "name": "TRADEMARKS.md",
-      "size": 781,
-      "sha256": "25b63b797e47317f8bf9776e559014641e84514b9cb895e6f97dcc46f279bde0"
+      "size": 1454,
+      "sha256": "99686695605070db78372b1dcbf8cc6dbffd67efff32c6ca38ba433370508dc8"
+    },
+    {
+      "name": "upgrade-install-summary.txt",
+      "size": 262,
+      "sha256": "75cd53fa8b8c1cc212a46a8f3097830f77d0258c4e93b61a07b08dab0bd3ed57"
+    },
+    {
+      "name": "upgrade-install.log",
+      "size": 1059872,
+      "sha256": "c5af634eba9e67551a1ab5bb15748a46925b1ffaa3562fe35d4159080bd5186d"
     }
   ]
 }
