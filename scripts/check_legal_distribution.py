@@ -47,7 +47,9 @@ def main() -> int:
     installer = (ROOT / "installer" / "windows" / "ThisTinti.iss").read_text(encoding="utf-8")
     spec = (ROOT / "installer" / "windows" / "ThisTinti.spec").read_text(encoding="utf-8")
     workflow = (ROOT / ".github" / "workflows" / "windows-release.yml").read_text(encoding="utf-8")
-    enterprise_compose = (ROOT / "deploy" / "enterprise" / "docker-compose.enterprise.yml").read_text(encoding="utf-8")
+    enterprise_compose = (ROOT / "deploy" / "enterprise" / "docker-compose.enterprise.yml").read_text(
+        encoding="utf-8"
+    )
     enterprise_init = (ROOT / "scripts" / "enterprise_init.py").read_text(encoding="utf-8")
     enterprise_preflight = (ROOT / "scripts" / "enterprise_preflight.py").read_text(encoding="utf-8")
 
@@ -65,6 +67,12 @@ def main() -> int:
     require(
         "SpecificApprovalCheck" in installer and "1341 e 1342" in installer,
         "Installer specific approval missing",
+        failures,
+    )
+    require(
+        "if WizardSilent and SilentTermsAccepted() then" in installer
+        and "SpecificApprovalCheck.Checked := True" in installer,
+        "Silent installer acceptance does not satisfy the explicit clause gate",
         failures,
     )
     for name in ("TERMS_OF_USE.md", "DISCLAIMER.md", "TRADEMARKS.md", "SUPPORT.md"):
