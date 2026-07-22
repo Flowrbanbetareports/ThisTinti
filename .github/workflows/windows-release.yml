@@ -88,8 +88,16 @@ jobs:
           $LogPath = (Join-Path (Resolve-Path "release\windows") "baseline-install.log")
           $SummaryPath = (Join-Path (Resolve-Path "release\windows") "baseline-install-summary.txt")
           Remove-Item $InstallDir, $DataDir -Recurse -Force -ErrorAction SilentlyContinue
-          & $BaselineInstaller /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /ACCEPTTHISTINTITERMS=yes "/DIR=$InstallDir" "/LOG=$LogPath"
-          $ExitCode = $LASTEXITCODE
+          $Arguments = @(
+            "/VERYSILENT",
+            "/SUPPRESSMSGBOXES",
+            "/NORESTART",
+            "/ACCEPTTHISTINTITERMS=yes",
+            "/DIR=$InstallDir",
+            "/LOG=$LogPath"
+          )
+          $Process = Start-Process -FilePath $BaselineInstaller -ArgumentList $Arguments -Wait -PassThru
+          $ExitCode = $Process.ExitCode
           @(
             "exit_code=$ExitCode"
             "installer=$BaselineInstaller"
@@ -126,8 +134,15 @@ jobs:
           $CurrentInstaller = (Resolve-Path "release\windows\ThisTinti-Setup-$Version-x64.exe").Path
           $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\ThisTinti-Acceptance"
           $DataDir = Join-Path $env:LOCALAPPDATA "ThisTinti-Acceptance"
-          & $CurrentInstaller /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /ACCEPTTHISTINTITERMS=yes "/DIR=$InstallDir"
-          if ($LASTEXITCODE -ne 0 -or -not (Test-Path (Join-Path $InstallDir "ThisTinti.exe"))) {
+          $Arguments = @(
+            "/VERYSILENT",
+            "/SUPPRESSMSGBOXES",
+            "/NORESTART",
+            "/ACCEPTTHISTINTITERMS=yes",
+            "/DIR=$InstallDir"
+          )
+          $Process = Start-Process -FilePath $CurrentInstaller -ArgumentList $Arguments -Wait -PassThru
+          if ($Process.ExitCode -ne 0 -or -not (Test-Path (Join-Path $InstallDir "ThisTinti.exe"))) {
             throw "Installer upgrade failed"
           }
           if (-not (Test-Path (Join-Path $DataDir "upgrade-preservation-marker.txt"))) {
@@ -152,8 +167,12 @@ jobs:
           $DataDir = Join-Path $env:LOCALAPPDATA "ThisTinti-Acceptance"
           $Uninstaller = Join-Path $InstallDir "unins000.exe"
           if (-not (Test-Path $Uninstaller)) { throw "Uninstaller not found" }
-          & $Uninstaller /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
-          if ($LASTEXITCODE -ne 0) { throw "Silent uninstall failed" }
+          $Process = Start-Process -FilePath $Uninstaller -ArgumentList @(
+            "/VERYSILENT",
+            "/SUPPRESSMSGBOXES",
+            "/NORESTART"
+          ) -Wait -PassThru
+          if ($Process.ExitCode -ne 0) { throw "Silent uninstall failed" }
           if (Test-Path (Join-Path $InstallDir "ThisTinti.exe")) { throw "Application remained after uninstall" }
           if (-not (Test-Path (Join-Path $DataDir "upgrade-preservation-marker.txt"))) {
             throw "Local data was removed during uninstall"
