@@ -60,6 +60,26 @@ var
   SpecificApprovalPage: TWizardPage;
   SpecificApprovalCheck: TNewCheckBox;
 
+function SilentTermsAccepted(): Boolean;
+begin
+  Result := CompareText(ExpandConstant('{param:ACCEPTTHISTINTITERMS|}'), 'yes') = 0;
+end;
+
+function InitializeSetup(): Boolean;
+begin
+  Result := True;
+  if WizardSilent and (not SilentTermsAccepted()) then
+  begin
+    SuppressibleMsgBox(
+      'L''installazione silenziosa richiede il parametro /ACCEPTTHISTINTITERMS=yes per confermare le condizioni d''uso e le clausole specifiche.',
+      mbError,
+      MB_OK,
+      IDOK
+    );
+    Result := False;
+  end;
+end;
+
 procedure InitializeWizard();
 begin
   SpecificApprovalPage := CreateCustomPage(
@@ -80,7 +100,7 @@ end;
 function NextButtonClick(CurPageID: Integer): Boolean;
 begin
   Result := True;
-  if (CurPageID = SpecificApprovalPage.ID) and (not SpecificApprovalCheck.Checked) then
+  if (not WizardSilent) and (CurPageID = SpecificApprovalPage.ID) and (not SpecificApprovalCheck.Checked) then
   begin
     MsgBox('Per continuare è necessaria la specifica approvazione delle clausole indicate.', mbError, MB_OK);
     Result := False;
