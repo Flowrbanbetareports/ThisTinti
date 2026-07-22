@@ -1,0 +1,66 @@
+name: Segnalazione bug
+description: Segnala un comportamento riproducibile senza allegare dati sensibili.
+title: "[Bug] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Non allegare documenti aziendali, credenziali, chiavi API, dati personali o exploit. Per vulnerabilità seguire SECURITY.md.
+  - type: input
+    id: version
+    attributes:
+      label: Versione
+      description: Numero mostrato nell'app o nome dell'installer.
+      placeholder: 3.4.0-alpha.4
+    validations:
+      required: true
+  - type: dropdown
+    id: edition
+    attributes:
+      label: Edizione
+      options:
+        - Local Edition Windows
+        - Portable Windows
+        - Self-Hosted Reference Edition
+        - Sorgente locale
+        - Sito di download
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Passaggi per riprodurre
+      description: Usa dati fittizi o anonimizzati.
+      placeholder: |
+        1. Avvio...
+        2. Carico...
+        3. Osservo...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Risultato atteso
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Risultato osservato
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Ambiente
+      description: Sistema operativo, browser, modalità di installazione e informazioni tecniche non sensibili.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Controllo dati
+      options:
+        - label: Confermo di non aver inserito documenti, credenziali, dati personali o informazioni aziendali riservate.
+          required: true
