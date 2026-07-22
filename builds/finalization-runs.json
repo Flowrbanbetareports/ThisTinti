@@ -1,0 +1,214 @@
+{
+  "verify-alpha4-release-once.yml": [
+    {
+      "conclusion": "failure",
+      "createdAt": "2026-07-22T17:20:33Z",
+      "databaseId": 29941922580,
+      "displayTitle": "Finalize alpha.4 as a verified prerelease",
+      "event": "push",
+      "headBranch": "main",
+      "headSha": "59fb43a3b2232b6411fad929dce409d4b2c425fc",
+      "status": "completed",
+      "updatedAt": "2026-07-22T17:37:19Z",
+      "url": "https://github.com/Flowrbanbetareports/ThisTinti/actions/runs/29941922580"
+    },
+    {
+      "conclusion": "failure",
+      "createdAt": "2026-07-22T17:15:54Z",
+      "databaseId": 29941601071,
+      "displayTitle": "Add one-time alpha.4 release verification",
+      "event": "push",
+      "headBranch": "main",
+      "headSha": "cc6c49f5a62415c325aca930980c1b78f0d8b5fd",
+      "status": "completed",
+      "updatedAt": "2026-07-22T17:37:17Z",
+      "url": "https://github.com/Flowrbanbetareports/ThisTinti/actions/runs/29941601071"
+    }
+  ],
+  "verify-publication-once.yml": [
+    {
+      "conclusion": "",
+      "createdAt": "2026-07-22T17:24:33Z",
+      "databaseId": 29942201518,
+      "displayTitle": "Fix publication evidence asset ordering",
+      "event": "push",
+      "headBranch": "main",
+      "headSha": "e38bfe816a597d54edbe3794edff5ae31d86df7e",
+      "status": "in_progress",
+      "updatedAt": "2026-07-22T17:24:36Z",
+      "url": "https://github.com/Flowrbanbetareports/ThisTinti/actions/runs/29942201518"
+    },
+    {
+      "conclusion": "",
+      "createdAt": "2026-07-22T17:23:39Z",
+      "databaseId": 29942138885,
+      "displayTitle": "Add one-time public release and Pages verification",
+      "event": "push",
+      "headBranch": "main",
+      "headSha": "60ec2e9f8a9b47dc0985d4246fbd7f378d820c3d",
+      "status": "in_progress",
+      "updatedAt": "2026-07-22T17:23:43Z",
+      "url": "https://github.com/Flowrbanbetareports/ThisTinti/actions/runs/29942138885"
+    }
+  ],
+  "pages.yml": [
+    {
+      "conclusion": "failure",
+      "createdAt": "2026-07-22T17:19:36Z",
+      "databaseId": 29941855174,
+      "displayTitle": "Support alpha prereleases on the download page",
+      "event": "push",
+      "headBranch": "main",
+      "headSha": "b3cce0f379ef394080139864c0264ac532c60364",
+      "status": "completed",
+      "updatedAt": "2026-07-22T17:19:48Z",
+      "url": "https://github.com/Flowrbanbetareports/ThisTinti/actions/runs/29941855174"
+    },
+    {
+      "conclusion": "failure",
+      "createdAt": "2026-07-22T16:40:48Z",
+      "databaseId": 29939066680,
+      "displayTitle": "Release ThisTinti 3.4.0-alpha.4",
+      "event": "push",
+      "headBranch": "main",
+      "headSha": "0c461acecd1394ceeabcb41a0d3ca4c2e84406db",
+      "status": "completed",
+      "updatedAt": "2026-07-22T16:40:57Z",
+      "url": "https://github.com/Flowrbanbetareports/ThisTinti/actions/runs/29939066680"
+    },
+    {
+      "conclusion": "failure",
+      "createdAt": "2026-07-20T15:02:02Z",
+      "databaseId": 29753324995,
+      "displayTitle": "Release ThisTinti 3.4.0-alpha.3",
+      "event": "push",
+      "headBranch": "main",
+      "headSha": "e2ad6389e1fcf9ef4a8a87e8ccdb7f70c9f973a7",
+      "status": "completed",
+      "updatedAt": "2026-07-20T15:03:02Z",
+      "url": "https://github.com/Flowrbanbetareports/ThisTinti/actions/runs/29753324995"
+    }
+  ],
+  "windows-release.yml": [
+    {
+      "conclusion": "success",
+      "createdAt": "2026-07-22T17:30:10Z",
+      "databaseId": 29942596402,
+      "displayTitle": "Build Windows Free Download",
+      "event": "workflow_dispatch",
+      "headBranch": "v3.4.0-alpha.4",
+      "headSha": "0c461acecd1394ceeabcb41a0d3ca4c2e84406db",
+      "status": "completed",
+      "updatedAt": "2026-07-22T17:37:15Z",
+      "url": "https://github.com/Flowrbanbetareports/ThisTinti/actions/runs/29942596402"
+    },
+    {
+      "conclusion": "cancelled",
+      "createdAt": "2026-07-22T17:27:45Z",
+      "databaseId": 29942427430,
+      "displayTitle": "Build Windows Free Download",
+      "event": "workflow_dispatch",
+      "headBranch": "v3.4.0-alpha.4",
+      "headSha": "0c461acecd1394ceeabcb41a0d3ca4c2e84406db",
+      "status": "completed",
+      "updatedAt": "2026-07-22T17:30:23Z",
+      "url": "https://github.com/Flowrbanbetareports/ThisTinti/actions/runs/29942427430"
+    },
+    {
+      "conclusion": "success",
+      "createdAt": "2026-07-22T16:43:13Z",
+      "databaseId": 29939241603,
+      "displayTitle": "Bump actions/checkout from 4 to 7",
+      "event": "pull_request",
+      "headBranch": "dependabot/github_actions/actions/checkout-7",
+      "headSha": "0b53f1ccaaddf83f84e9f2b187a2511ea7291e7c",
+      "status": "completed",
+      "updatedAt": "2026-07-22T16:48:35Z",
+      "url": "https://github.com/Flowrbanbetareports/ThisTinti/actions/runs/29939241603"
+    },
+    {
+      "conclusion": "success",
+      "createdAt": "2026-07-22T16:42:53Z",
+      "databaseId": 29939216589,
+      "displayTitle": "Bump actions/setup-python from 5 to 7",
+      "event": "pull_request",
+      "headBranch": "dependabot/github_actions/actions/setup-python-7",
+      "headSha": "be2db6856b89c1fd0846c705bd8cf288aae7fd31",
+      "status": "completed",
+      "updatedAt": "2026-07-22T16:48:57Z",
+      "url": "https://github.com/Flowrbanbetareports/ThisTinti/actions/runs/29939216589"
+    },
+    {
+      "conclusion": "success",
+      "createdAt": "2026-07-22T16:40:48Z",
+      "databaseId": 29939066690,
+      "displayTitle": "Release ThisTinti 3.4.0-alpha.4",
+      "event": "push",
+      "headBranch": "main",
+      "headSha": "0c461acecd1394ceeabcb41a0d3ca4c2e84406db",
+      "status": "completed",
+      "updatedAt": "2026-07-22T16:47:47Z",
+      "url": "https://github.com/Flowrbanbetareports/ThisTinti/actions/runs/29939066690"
+    },
+    {
+      "conclusion": "success",
+      "createdAt": "2026-07-22T16:33:53Z",
+      "databaseId": 29938555311,
+      "displayTitle": "Prepare and validate ThisTinti 3.4.0-alpha.4",
+      "event": "pull_request",
+      "headBranch": "release/v3.4.0-alpha.4",
+      "headSha": "68b2cff0612b73ece7bbaf324205d6e351e50c83",
+      "status": "completed",
+      "updatedAt": "2026-07-22T16:39:43Z",
+      "url": "https://github.com/Flowrbanbetareports/ThisTinti/actions/runs/29938555311"
+    },
+    {
+      "conclusion": "failure",
+      "createdAt": "2026-07-22T16:25:54Z",
+      "databaseId": 29937960474,
+      "displayTitle": "Prepare and validate ThisTinti 3.4.0-alpha.4",
+      "event": "pull_request",
+      "headBranch": "release/v3.4.0-alpha.4",
+      "headSha": "ad473f814507c2fd6545965f17b6af12737cc23e",
+      "status": "completed",
+      "updatedAt": "2026-07-22T16:32:19Z",
+      "url": "https://github.com/Flowrbanbetareports/ThisTinti/actions/runs/29937960474"
+    },
+    {
+      "conclusion": "cancelled",
+      "createdAt": "2026-07-22T16:17:38Z",
+      "databaseId": 29937344307,
+      "displayTitle": "Prepare and validate ThisTinti 3.4.0-alpha.4",
+      "event": "pull_request",
+      "headBranch": "release/v3.4.0-alpha.4",
+      "headSha": "c6595081c21cf7959be0944755821493dc0433ba",
+      "status": "completed",
+      "updatedAt": "2026-07-22T16:26:03Z",
+      "url": "https://github.com/Flowrbanbetareports/ThisTinti/actions/runs/29937344307"
+    },
+    {
+      "conclusion": "failure",
+      "createdAt": "2026-07-22T16:10:44Z",
+      "databaseId": 29936817083,
+      "displayTitle": "Prepare and validate ThisTinti 3.4.0-alpha.4",
+      "event": "pull_request",
+      "headBranch": "release/v3.4.0-alpha.4",
+      "headSha": "4296f5824c61c5b7444b230529abf37ba08af2e8",
+      "status": "completed",
+      "updatedAt": "2026-07-22T16:15:39Z",
+      "url": "https://github.com/Flowrbanbetareports/ThisTinti/actions/runs/29936817083"
+    },
+    {
+      "conclusion": "failure",
+      "createdAt": "2026-07-22T16:02:41Z",
+      "databaseId": 29936207052,
+      "displayTitle": "Prepare and validate ThisTinti 3.4.0-alpha.4",
+      "event": "pull_request",
+      "headBranch": "release/v3.4.0-alpha.4",
+      "headSha": "a38bc9ee0dc05aafcc482ff12bf0bc9ec9544d64",
+      "status": "completed",
+      "updatedAt": "2026-07-22T16:09:00Z",
+      "url": "https://github.com/Flowrbanbetareports/ThisTinti/actions/runs/29936207052"
+    }
+  ]
+}
