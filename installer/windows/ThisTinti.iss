@@ -95,6 +95,8 @@ begin
   SpecificApprovalCheck.Height := 100;
   SpecificApprovalCheck.Caption :=
     'Ai sensi degli artt. 1341 e 1342 c.c., ove applicabili, approvo specificamente le clausole 3, 4, 5, 7, 8, 9, 10, 11 e 12: limiti d''uso, verifica umana, responsabilità dell''utilizzatore, sicurezza e backup, assenza di garanzie, limitazione di responsabilità, modifiche di terzi, assenza di supporto e componenti di terze parti.';
+  if WizardSilent and SilentTermsAccepted() then
+    SpecificApprovalCheck.Checked := True;
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
@@ -102,6 +104,8 @@ begin
   Result := True;
   if CurPageID = SpecificApprovalPage.ID then
   begin
+    if WizardSilent and SilentTermsAccepted() then
+      Exit;
     if not SpecificApprovalCheck.Checked then
     begin
       MsgBox('Per continuare devi approvare specificamente le clausole indicate.', mbError, MB_OK);
