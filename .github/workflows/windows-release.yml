@@ -187,7 +187,7 @@ jobs:
       - name: Upload downloadable artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ThisTinti-Windows-${{ github.ref_name }}-${{ github.run_number }}
+          name: ThisTinti-Windows-${{ github.run_id }}-${{ github.run_number }}
           path: |
             release/windows/*.exe
             release/windows/*.zip
@@ -199,7 +199,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         shell: pwsh
         run: |
-          $artifactName = "ThisTinti-Windows-$env:GITHUB_REF_NAME-$env:GITHUB_RUN_NUMBER"
+          $artifactName = "ThisTinti-Windows-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_NUMBER"
           $files = Get-ChildItem "release\windows" -File | Sort-Object Name | ForEach-Object {
             [ordered]@{
               name = $_.Name
