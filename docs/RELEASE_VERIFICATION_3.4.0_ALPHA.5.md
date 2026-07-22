@@ -19,7 +19,8 @@ Il collaudo visivo viene eseguito soltanto dopo il completamento positivo dei ga
 - suite applicativa, copertura, Ruff, Bandit e audit dipendenze;
 - PostgreSQL/RLS ed Enterprise Self-Hosted Reference Proof;
 - build PyInstaller e compilazione Inno Setup;
-- installazione precedente, aggiornamento, smoke installato, disinstallazione e conservazione dati.
+- installazione del vero installer pubblicato `v3.4.0-alpha.4`, aggiornamento alla alpha.5, smoke installato, disinstallazione e conservazione dati;
+- accettazione legale silenziosa valida soltanto con il parametro esplicito `/ACCEPTTHISTINTITERMS=yes`, senza finestre bloccanti durante l'aggiornamento.
 
 ## Collaudo visivo Windows richiesto
 
