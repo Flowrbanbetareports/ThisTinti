@@ -1,0 +1,39 @@
+name: Publish ThisTinti alpha.4 once
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/publish-alpha4-once.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  create-release-tag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create verified release tag
+        shell: bash
+        env:
+          RELEASE_COMMIT: 0c461acecd1394ceeabcb41a0d3ca4c2e84406db
+          RELEASE_TAG: v3.4.0-alpha.4
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
+          if git rev-parse "$RELEASE_TAG" >/dev/null 2>&1; then
+            test "$(git rev-list -n 1 "$RELEASE_TAG")" = "$RELEASE_COMMIT"
+            echo "$RELEASE_TAG already points to the verified release commit."
+            exit 0
+          fi
+          test "$(git show "$RELEASE_COMMIT:app/version.py" | grep -F 'RELEASE_VERSION = "3.4.0-alpha.4"')" = 'RELEASE_VERSION = "3.4.0-alpha.4"'
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$RELEASE_TAG" "$RELEASE_COMMIT" -m "ThisTinti 3.4.0-alpha.4"
+          git push origin "$RELEASE_TAG"
