@@ -131,10 +131,16 @@ jobs:
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p /tmp/thistinti-publication
+          mv builds/publication-latest.json /tmp/thistinti-publication/publication-latest.json
+          git fetch origin main
+          git reset --hard origin/main
+          mkdir -p builds
+          mv /tmp/thistinti-publication/publication-latest.json builds/publication-latest.json
           git add builds/publication-latest.json
           if git diff --cached --quiet; then
             echo "Publication evidence already current."
             exit 0
           fi
           git commit -m "Record verified ThisTinti alpha.4 publication"
-          git push
+          git push origin HEAD:main
