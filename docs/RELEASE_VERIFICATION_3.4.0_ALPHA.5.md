@@ -12,7 +12,7 @@ Il collaudo visivo viene eseguito soltanto dopo il completamento positivo dei ga
 
 - logo applicazione e sito identici;
 - monogramma doppia T e palette previsti presenti nel file SVG;
-- sorgente Base64 dell'icona Windows valida e decodificabile come ICO;
+- generatore reviewable dell'icona Windows e payload ICO multi-risoluzione valido;
 - JavaScript applicazione e sito sintatticamente validi;
 - `prefers-reduced-motion` presente in app e pagina pubblica;
 - fallback senza `IntersectionObserver`;
