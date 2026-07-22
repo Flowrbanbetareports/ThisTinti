@@ -63,54 +63,80 @@ jobs:
           ./installer/windows/build_windows.ps1
           Copy-Item "..\ThisTinti-*-self-hosted-source.zip" "release\windows"
           Copy-Item "..\ThisTinti-*-self-hosted-source.zip.sha256" "release\windows"
-      - name: Exercise installer upgrade and uninstall lifecycle
+      - name: Prepare previous-version installer
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $BaselineVersion = "3.4.0-alpha.3"
+          $Iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $Iscc)) { $Iscc = "$env:ProgramFiles\Inno Setup 6\ISCC.exe" }
+          if (-not (Test-Path $Iscc)) { throw "Inno Setup compiler unavailable for lifecycle test" }
+          & $Iscc "/DMyAppVersion=$BaselineVersion" "installer\windows\ThisTinti.iss"
+          if ($LASTEXITCODE -ne 0) { throw "Baseline installer compilation failed" }
+          if (-not (Test-Path "release\windows\ThisTinti-Setup-$BaselineVersion-x64.exe")) {
+            throw "Baseline installer was not created"
+          }
+      - name: Install previous Windows alpha silently
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $BaselineInstaller = (Resolve-Path "release\windows\ThisTinti-Setup-3.4.0-alpha.3-x64.exe").Path
+          $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\ThisTinti-Acceptance"
+          $DataDir = Join-Path $env:LOCALAPPDATA "ThisTinti-Acceptance"
+          Remove-Item $InstallDir, $DataDir -Recurse -Force -ErrorAction SilentlyContinue
+          & $BaselineInstaller /VERYSILENT /SUPPRESSMSGBOXES /NORESTART "/DIR=$InstallDir"
+          if ($LASTEXITCODE -ne 0 -or -not (Test-Path (Join-Path $InstallDir "ThisTinti.exe"))) {
+            throw "Baseline silent installation failed"
+          }
+          New-Item -ItemType Directory -Path $DataDir -Force | Out-Null
+          "preserve" | Set-Content (Join-Path $DataDir "upgrade-preservation-marker.txt") -Encoding ascii
+      - name: Upgrade Windows installation silently
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
           $Version = (Select-String -Path "app\version.py" -Pattern 'RELEASE_VERSION = "([^"]+)"').Matches.Groups[1].Value
           $CurrentInstaller = (Resolve-Path "release\windows\ThisTinti-Setup-$Version-x64.exe").Path
-          $BaselineVersion = "3.4.0-alpha.3"
-          $Iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
-          if (-not (Test-Path $Iscc)) { $Iscc = "$env:ProgramFiles\Inno Setup 6\ISCC.exe" }
-          if (-not (Test-Path $Iscc)) { throw "Inno Setup compiler unavailable for lifecycle test" }
-
-          & $Iscc "/DMyAppVersion=$BaselineVersion" "installer\windows\ThisTinti.iss"
-          if ($LASTEXITCODE -ne 0) { throw "Baseline installer compilation failed" }
-          $BaselineInstaller = (Resolve-Path "release\windows\ThisTinti-Setup-$BaselineVersion-x64.exe").Path
           $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\ThisTinti-Acceptance"
           $DataDir = Join-Path $env:LOCALAPPDATA "ThisTinti-Acceptance"
-          $InstalledExe = Join-Path $InstallDir "ThisTinti.exe"
-          $SmokeDir = Join-Path $DataDir "smoke"
-          $InstalledReport = "release\windows\installed-local-smoke.json"
-          Remove-Item $InstallDir, $DataDir -Recurse -Force -ErrorAction SilentlyContinue
-
-          & $BaselineInstaller /VERYSILENT /SUPPRESSMSGBOXES /NORESTART "/DIR=$InstallDir"
-          if ($LASTEXITCODE -ne 0 -or -not (Test-Path $InstalledExe)) {
-            throw "Baseline silent installation failed"
-          }
-          New-Item -ItemType Directory -Path $DataDir -Force | Out-Null
-          $Marker = Join-Path $DataDir "upgrade-preservation-marker.txt"
-          "preserve" | Set-Content $Marker -Encoding ascii
-
           & $CurrentInstaller /VERYSILENT /SUPPRESSMSGBOXES /NORESTART "/DIR=$InstallDir"
-          if ($LASTEXITCODE -ne 0 -or -not (Test-Path $Marker)) {
-            throw "Installer upgrade did not preserve data"
+          if ($LASTEXITCODE -ne 0 -or -not (Test-Path (Join-Path $InstallDir "ThisTinti.exe"))) {
+            throw "Installer upgrade failed"
           }
+          if (-not (Test-Path (Join-Path $DataDir "upgrade-preservation-marker.txt"))) {
+            throw "Installer upgrade did not preserve local data"
+          }
+      - name: Smoke-test upgraded Windows installation
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\ThisTinti-Acceptance"
+          $DataDir = Join-Path $env:LOCALAPPDATA "ThisTinti-Acceptance"
           python scripts\local_distribution_smoke.py `
-            --executable "$InstalledExe" `
-            --data-dir "$SmokeDir" `
-            --report "$InstalledReport"
+            --executable (Join-Path $InstallDir "ThisTinti.exe") `
+            --data-dir (Join-Path $DataDir "smoke") `
+            --report "release\windows\installed-local-smoke.json"
           if ($LASTEXITCODE -ne 0) { throw "Installed application smoke test failed" }
-
+      - name: Uninstall and verify data preservation
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\ThisTinti-Acceptance"
+          $DataDir = Join-Path $env:LOCALAPPDATA "ThisTinti-Acceptance"
           $Uninstaller = Join-Path $InstallDir "unins000.exe"
           if (-not (Test-Path $Uninstaller)) { throw "Uninstaller not found" }
           & $Uninstaller /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
           if ($LASTEXITCODE -ne 0) { throw "Silent uninstall failed" }
-          if (Test-Path $InstalledExe) { throw "Application remained after uninstall" }
-          if (-not (Test-Path $Marker)) { throw "Local data was removed during uninstall" }
-
-          Remove-Item $BaselineInstaller -Force
-          Remove-Item $InstallDir, $DataDir -Recurse -Force -ErrorAction SilentlyContinue
+          if (Test-Path (Join-Path $InstallDir "ThisTinti.exe")) { throw "Application remained after uninstall" }
+          if (-not (Test-Path (Join-Path $DataDir "upgrade-preservation-marker.txt"))) {
+            throw "Local data was removed during uninstall"
+          }
+      - name: Clean installer lifecycle workspace
+        if: always()
+        shell: pwsh
+        run: |
+          Remove-Item "release\windows\ThisTinti-Setup-3.4.0-alpha.3-x64.exe" -Force -ErrorAction SilentlyContinue
+          Remove-Item (Join-Path $env:LOCALAPPDATA "Programs\ThisTinti-Acceptance") -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item (Join-Path $env:LOCALAPPDATA "ThisTinti-Acceptance") -Recurse -Force -ErrorAction SilentlyContinue
       - name: Upload downloadable artifacts
         uses: actions/upload-artifact@v4
         with:
