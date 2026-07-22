@@ -203,7 +203,28 @@ def main() -> int:
         original_documents = documents.json()
         if len(original_documents) != 1:
             raise RuntimeError(f"Expected one document, got {len(original_documents)}")
-        report["first_run"] = {"job": job["status"], "documents": len(original_documents)}
+
+        exported = client.get("/api/export", headers=auth)
+        exported.raise_for_status()
+        if len(exported.content) < 100 or "zip" not in exported.headers.get("content-type", "").lower():
+            raise RuntimeError("Local export did not return a valid ZIP archive")
+
+        demo = client.post("/api/demo/load", headers=auth)
+        demo.raise_for_status()
+        demo_loaded = int(demo.json().get("loaded", 0))
+        if demo_loaded < 1:
+            raise RuntimeError(f"Demo loader did not add documents: {demo.json()}")
+        all_documents_response = client.get("/api/documents", headers=auth)
+        all_documents_response.raise_for_status()
+        all_documents = all_documents_response.json()
+        if len(all_documents) <= len(original_documents):
+            raise RuntimeError("Demo documents were not visible after loading")
+        report["first_run"] = {
+            "job": job["status"],
+            "documents": len(all_documents),
+            "demo_loaded": demo_loaded,
+            "export_bytes": len(exported.content),
+        }
 
         client.close()
         client = None
@@ -225,9 +246,18 @@ def main() -> int:
         persisted = client.get("/api/documents", headers=auth)
         persisted.raise_for_status()
         persisted_documents = persisted.json()
-        if len(persisted_documents) != 1 or persisted_documents[0]["id"] != original_documents[0]["id"]:
+        persisted_ids = {item["id"] for item in persisted_documents}
+        if original_documents[0]["id"] not in persisted_ids or len(persisted_documents) != len(all_documents):
             raise RuntimeError("Document persistence check failed after restart")
-        report["restart"] = {"documents": len(persisted_documents), "same_document": True}
+        exported_after_restart = client.get("/api/export", headers=auth)
+        exported_after_restart.raise_for_status()
+        if len(exported_after_restart.content) < 100:
+            raise RuntimeError("Export failed after restart")
+        report["restart"] = {
+            "documents": len(persisted_documents),
+            "same_document": True,
+            "export_bytes": len(exported_after_restart.content),
+        }
         report["passed"] = True
     finally:
         if client:

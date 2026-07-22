@@ -1,6 +1,6 @@
 #define MyAppName "ThisTinti Local"
 #ifndef MyAppVersion
-  #define MyAppVersion "3.4.0-alpha.3"
+  #define MyAppVersion "3.4.0-alpha.4"
 #endif
 #define MyAppPublisher "Lorenzo Tinti"
 #define MyAppExeName "ThisTinti.exe"
@@ -29,7 +29,7 @@ WizardStyle=modern dynamic
 CloseApplications=yes
 RestartApplications=no
 ChangesAssociations=no
-VersionInfoVersion=3.4.0.3
+VersionInfoVersion=3.4.0.4
 VersionInfoProductName={#MyAppName}
 VersionInfoDescription=Local document integrity and discrepancy review platform
 VersionInfoCompany={#MyAppPublisher}
@@ -60,6 +60,26 @@ var
   SpecificApprovalPage: TWizardPage;
   SpecificApprovalCheck: TNewCheckBox;
 
+function SilentTermsAccepted(): Boolean;
+begin
+  Result := CompareText(ExpandConstant('{param:ACCEPTTHISTINTITERMS|}'), 'yes') = 0;
+end;
+
+function InitializeSetup(): Boolean;
+begin
+  Result := True;
+  if WizardSilent and (not SilentTermsAccepted()) then
+  begin
+    SuppressibleMsgBox(
+      'L''installazione silenziosa richiede il parametro /ACCEPTTHISTINTITERMS=yes per confermare le condizioni d''uso e le clausole specifiche.',
+      mbError,
+      MB_OK,
+      IDOK
+    );
+    Result := False;
+  end;
+end;
+
 procedure InitializeWizard();
 begin
   SpecificApprovalPage := CreateCustomPage(
@@ -80,7 +100,7 @@ end;
 function NextButtonClick(CurPageID: Integer): Boolean;
 begin
   Result := True;
-  if (CurPageID = SpecificApprovalPage.ID) and (not SpecificApprovalCheck.Checked) then
+  if (not WizardSilent) and (CurPageID = SpecificApprovalPage.ID) and (not SpecificApprovalCheck.Checked) then
   begin
     MsgBox('Per continuare è necessaria la specifica approvazione delle clausole indicate.', mbError, MB_OK);
     Result := False;
@@ -90,10 +110,11 @@ end;
 function InitializeUninstall(): Boolean;
 begin
   Result := True;
-  MsgBox(
+  SuppressibleMsgBox(
     'La disinstallazione rimuove il programma ma conserva documenti, database e backup in %LOCALAPPDATA%\ThisTinti. ' +
     'Questi dati possono essere eliminati manualmente soltanto dopo aver creato un backup.',
     mbInformation,
-    MB_OK
+    MB_OK,
+    IDOK
   );
 end;

@@ -1,3 +1,12 @@
+# 3.4.0-alpha.4 — Windows validation and public alpha
+
+- installer avviato e verificato su un PC Windows 11 reale, incluso il comportamento previsto di Microsoft Defender SmartScreen per un binario non firmato;
+- corretta la schermata di creazione dello spazio e verificata la creazione del primo amministratore;
+- sostituita la precedente icona a T con il marchio ThisTinti a collegamenti documentali e rombo di verifica;
+- aggiunti test automatici per caricamento dimostrativo, esportazione, persistenza dopo riavvio, installazione silenziosa, aggiornamento e disinstallazione con conservazione dei dati;
+- confermati i gate CI, PostgreSQL/RLS, Docker enterprise, backup e ripristino;
+- release ancora alpha, non firmata digitalmente e destinata a valutazione e pilot controllati con verifica umana.
+
 # 3.4.0-alpha.3 — Rebranding preliminare a ThisTinti
 
 - Ridenominazione completa del nome precedente a ThisTinti prima del lancio pubblico.

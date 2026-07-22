@@ -2,6 +2,17 @@ name: Build Windows Free Download
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/windows-release.yml"
+      - "app/**"
+      - "installer/windows/**"
+      - "migrations/**"
+      - "samples/**"
+      - "scripts/local_distribution_smoke.py"
+      - "scripts/package_self_hosted.py"
+      - "requirements*.txt"
+      - "run_thistinti.py"
   push:
     branches:
       - main
@@ -28,7 +39,7 @@ concurrency:
 jobs:
   windows-installer:
     runs-on: windows-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -52,10 +63,131 @@ jobs:
           ./installer/windows/build_windows.ps1
           Copy-Item "..\ThisTinti-*-self-hosted-source.zip" "release\windows"
           Copy-Item "..\ThisTinti-*-self-hosted-source.zip.sha256" "release\windows"
+      - name: Prepare previous-version installer
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $BaselineVersion = "3.4.0-alpha.3"
+          $Iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $Iscc)) { $Iscc = "$env:ProgramFiles\Inno Setup 6\ISCC.exe" }
+          if (-not (Test-Path $Iscc)) { throw "Inno Setup compiler unavailable for lifecycle test" }
+          & $Iscc "/DMyAppVersion=$BaselineVersion" "installer\windows\ThisTinti.iss"
+          if ($LASTEXITCODE -ne 0) { throw "Baseline installer compilation failed" }
+          if (-not (Test-Path "release\windows\ThisTinti-Setup-$BaselineVersion-x64.exe")) {
+            throw "Baseline installer was not created"
+          }
+      - name: Install previous Windows alpha silently
+        id: baseline_install
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $BaselineInstaller = (Resolve-Path "release\windows\ThisTinti-Setup-3.4.0-alpha.3-x64.exe").Path
+          $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\ThisTinti-Acceptance"
+          $DataDir = Join-Path $env:LOCALAPPDATA "ThisTinti-Acceptance"
+          $LogPath = (Join-Path (Resolve-Path "release\windows") "baseline-install.log")
+          $SummaryPath = (Join-Path (Resolve-Path "release\windows") "baseline-install-summary.txt")
+          Remove-Item $InstallDir, $DataDir -Recurse -Force -ErrorAction SilentlyContinue
+          $Arguments = @(
+            "/VERYSILENT",
+            "/SUPPRESSMSGBOXES",
+            "/NORESTART",
+            "/ACCEPTTHISTINTITERMS=yes",
+            "/DIR=$InstallDir",
+            "/LOG=$LogPath"
+          )
+          $Process = Start-Process -FilePath $BaselineInstaller -ArgumentList $Arguments -Wait -PassThru
+          $ExitCode = $Process.ExitCode
+          @(
+            "exit_code=$ExitCode"
+            "installer=$BaselineInstaller"
+            "install_dir=$InstallDir"
+            "exe_exists=$(Test-Path (Join-Path $InstallDir 'ThisTinti.exe'))"
+            "uninstaller_exists=$(Test-Path (Join-Path $InstallDir 'unins000.exe'))"
+          ) | Set-Content $SummaryPath -Encoding utf8
+          Get-ChildItem $InstallDir -Recurse -Force -ErrorAction SilentlyContinue |
+            Select-Object FullName, Length | Format-Table -AutoSize | Out-String | Add-Content $SummaryPath
+          if ($ExitCode -ne 0 -or -not (Test-Path (Join-Path $InstallDir "ThisTinti.exe"))) {
+            throw "Baseline silent installation failed"
+          }
+          New-Item -ItemType Directory -Path $DataDir -Force | Out-Null
+          "preserve" | Set-Content (Join-Path $DataDir "upgrade-preservation-marker.txt") -Encoding ascii
+      - name: Upload baseline installation diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ThisTinti-baseline-install-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            release/windows/baseline-install.log
+            release/windows/baseline-install-summary.txt
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Stop after baseline installation failure
+        if: steps.baseline_install.outcome != 'success'
+        shell: pwsh
+        run: throw "Baseline installation diagnostics captured"
+      - name: Upgrade Windows installation silently
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $Version = (Select-String -Path "app\version.py" -Pattern 'RELEASE_VERSION = "([^"]+)"').Matches.Groups[1].Value
+          $CurrentInstaller = (Resolve-Path "release\windows\ThisTinti-Setup-$Version-x64.exe").Path
+          $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\ThisTinti-Acceptance"
+          $DataDir = Join-Path $env:LOCALAPPDATA "ThisTinti-Acceptance"
+          $Arguments = @(
+            "/VERYSILENT",
+            "/SUPPRESSMSGBOXES",
+            "/NORESTART",
+            "/ACCEPTTHISTINTITERMS=yes",
+            "/DIR=$InstallDir"
+          )
+          $Process = Start-Process -FilePath $CurrentInstaller -ArgumentList $Arguments -Wait -PassThru
+          if ($Process.ExitCode -ne 0 -or -not (Test-Path (Join-Path $InstallDir "ThisTinti.exe"))) {
+            throw "Installer upgrade failed"
+          }
+          if (-not (Test-Path (Join-Path $DataDir "upgrade-preservation-marker.txt"))) {
+            throw "Installer upgrade did not preserve local data"
+          }
+      - name: Smoke-test upgraded Windows installation
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\ThisTinti-Acceptance"
+          $DataDir = Join-Path $env:LOCALAPPDATA "ThisTinti-Acceptance"
+          python scripts\local_distribution_smoke.py `
+            --executable (Join-Path $InstallDir "ThisTinti.exe") `
+            --data-dir (Join-Path $DataDir "smoke") `
+            --report "release\windows\installed-local-smoke.json"
+          if ($LASTEXITCODE -ne 0) { throw "Installed application smoke test failed" }
+      - name: Uninstall and verify data preservation
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\ThisTinti-Acceptance"
+          $DataDir = Join-Path $env:LOCALAPPDATA "ThisTinti-Acceptance"
+          $Uninstaller = Join-Path $InstallDir "unins000.exe"
+          if (-not (Test-Path $Uninstaller)) { throw "Uninstaller not found" }
+          $Process = Start-Process -FilePath $Uninstaller -ArgumentList @(
+            "/VERYSILENT",
+            "/SUPPRESSMSGBOXES",
+            "/NORESTART"
+          ) -Wait -PassThru
+          if ($Process.ExitCode -ne 0) { throw "Silent uninstall failed" }
+          if (Test-Path (Join-Path $InstallDir "ThisTinti.exe")) { throw "Application remained after uninstall" }
+          if (-not (Test-Path (Join-Path $DataDir "upgrade-preservation-marker.txt"))) {
+            throw "Local data was removed during uninstall"
+          }
+      - name: Clean installer lifecycle workspace
+        if: always()
+        shell: pwsh
+        run: |
+          Remove-Item "release\windows\ThisTinti-Setup-3.4.0-alpha.3-x64.exe" -Force -ErrorAction SilentlyContinue
+          Remove-Item (Join-Path $env:LOCALAPPDATA "Programs\ThisTinti-Acceptance") -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item (Join-Path $env:LOCALAPPDATA "ThisTinti-Acceptance") -Recurse -Force -ErrorAction SilentlyContinue
       - name: Upload downloadable artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ThisTinti-Windows-${{ github.ref_name }}-${{ github.run_number }}
+          name: ThisTinti-Windows-${{ github.run_id }}-${{ github.run_number }}
           path: |
             release/windows/*.exe
             release/windows/*.zip
@@ -67,7 +199,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         shell: pwsh
         run: |
-          $artifactName = "ThisTinti-Windows-$env:GITHUB_REF_NAME-$env:GITHUB_RUN_NUMBER"
+          $artifactName = "ThisTinti-Windows-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_NUMBER"
           $files = Get-ChildItem "release\windows" -File | Sort-Object Name | ForEach-Object {
             [ordered]@{
               name = $_.Name

@@ -1,0 +1,19 @@
+{
+  "version": "3.4.0-alpha.4",
+  "project_name": "ThisTinti",
+  "prepared_at": "2026-07-21",
+  "windows_real_installation_passed": true,
+  "windows_first_run_and_admin_creation_passed": true,
+  "smartscreen_unsigned_warning_observed": true,
+  "new_brand_mark_verified": true,
+  "registration_layout_verified": true,
+  "source_and_frozen_smoke_required": true,
+  "demo_loading_and_export_required": true,
+  "installer_upgrade_and_uninstall_required": true,
+  "postgres_rls_required": true,
+  "enterprise_reference_proof_required": true,
+  "digitally_signed": false,
+  "external_security_audit_completed": false,
+  "independent_legal_review_completed": false,
+  "real_document_pilot_completed": false
+}
