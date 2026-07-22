@@ -1,0 +1,11 @@
+{
+  "tag": "v3.4.0-alpha.4",
+  "run_id": 29942596402,
+  "status": "pending",
+  "conclusion": "",
+  "head_branch": "v3.4.0-alpha.4",
+  "head_sha": "0c461acecd1394ceeabcb41a0d3ca4c2e84406db",
+  "created_at": "2026-07-22T17:30:10Z",
+  "url": "https://github.com/Flowrbanbetareports/ThisTinti/actions/runs/29942596402",
+  "dispatch_workflow_run": 29942585688
+}
