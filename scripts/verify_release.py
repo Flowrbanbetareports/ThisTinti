@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import base64
 import json
 import os
 import re
@@ -69,6 +70,40 @@ def scan_sources() -> None:
         raise RuntimeError("\n".join(findings))
 
 
+def validate_brand_assets() -> None:
+    app_logo = (ROOT / "app/static/logo.svg").read_text(encoding="utf-8")
+    site_logo = (ROOT / "site/logo.svg").read_text(encoding="utf-8")
+    if app_logo != site_logo:
+        raise RuntimeError("Application and public-site logos differ")
+    required_logo_tokens = {
+        "double-T monogram",
+        "#f0b64c",
+        "#55b4c3",
+        "stroke-linecap=\"round\"",
+    }
+    missing_logo_tokens = sorted(token for token in required_logo_tokens if token not in app_logo)
+    if missing_logo_tokens:
+        raise RuntimeError(f"Incomplete ThisTinti identity asset: {missing_logo_tokens}")
+
+    encoded_icon = (ROOT / "installer/assets/thistinti.ico.b64").read_text(encoding="utf-8").strip()
+    try:
+        icon = base64.b64decode(encoded_icon, validate=True)
+    except ValueError as exc:
+        raise RuntimeError("Invalid Base64 Windows icon source") from exc
+    if len(icon) < 4096 or not icon.startswith(b"\x00\x00\x01\x00"):
+        raise RuntimeError("Generated Windows icon source is not a valid ICO payload")
+
+    app_css = (ROOT / "app/static/styles.css").read_text(encoding="utf-8")
+    site_css = (ROOT / "site/styles.css").read_text(encoding="utf-8")
+    site_js = (ROOT / "site/site.js").read_text(encoding="utf-8")
+    site_html = (ROOT / "site/index.html").read_text(encoding="utf-8")
+    for name, stylesheet in (("application", app_css), ("public site", site_css)):
+        if "prefers-reduced-motion" not in stylesheet:
+            raise RuntimeError(f"{name} motion does not respect reduced-motion preferences")
+    if "IntersectionObserver" not in site_js or "hero-mark" not in site_html:
+        raise RuntimeError("Public-site progressive motion or new identity entry point is missing")
+
+
 def validate_openapi() -> None:
     schema = json.loads((ROOT / "docs/openapi.json").read_text(encoding="utf-8"))
     if schema.get("info", {}).get("title") != "ThisTinti" or schema.get("info", {}).get("version") != RELEASE_VERSION:
@@ -88,6 +123,7 @@ def validate_openapi() -> None:
 
 def internal_checks() -> int:
     validate_openapi()
+    validate_brand_assets()
     scan_sources()
     return 0
 
