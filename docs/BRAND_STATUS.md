@@ -18,6 +18,8 @@ La stessa geometria viene usata per:
 - eseguibile e installer Windows;
 - varianti future chiare, scure e monocromatiche.
 
+I token principali sono sfondo `#0d1720`, prima T `#f0b64c`, seconda T `#55b4c3` e verifica `#f7fafc`. Il file SVG dell'applicazione deve restare identico a quello del sito pubblico. L'icona Windows multi-risoluzione viene rigenerata da `scripts/generate_brand_icon.py` durante il packaging, evitando un binario grafico non verificabile nel repository.
+
 Il marchio è progettato per restare leggibile a 16, 32, 64 e 256 pixel e non dipende dall'animazione per essere riconosciuto.
 
 ## Animazioni
