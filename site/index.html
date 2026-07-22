@@ -16,7 +16,8 @@
 
   <main id="top">
     <section class="hero">
-      <p class="eyebrow">Local Free Edition · alpha · nome approvato in via preliminare</p>
+      <div class="hero-mark" aria-hidden="true"><img src="logo.svg" alt="" /></div>
+      <p class="eyebrow">Local Free Edition · alpha · dati sotto il tuo controllo</p>
       <h1>Controlla i documenti aziendali.<br />I dati restano da te.</h1>
       <p class="lead">ThisTinti ricostruisce proposta, ordine, consegna, fattura e pagamento, segnala ciò che manca e mostra le prove. Nessun account centrale, nessuna telemetria, nessun cloud obbligatorio.</p>
       <div class="download-legal"><label><input id="downloadRiskAcceptance" type="checkbox" /> <span>Ho letto le <a href="legal.html" target="_blank" rel="noopener">condizioni d’uso e l’avviso sui rischi</a> e comprendo che ogni risultato richiede verifica umana.</span></label></div>
@@ -34,7 +35,7 @@
       <div><strong>Verificabile</strong><span>Checksum e prove automatiche per ogni release</span></div>
     </section>
 
-    <section id="come-funziona" class="section">
+    <section id="come-funziona" class="section reveal-section">
       <p class="eyebrow">Molto semplice</p>
       <h2>Installa, apri, carica.</h2>
       <div class="steps">
@@ -44,28 +45,27 @@
       </div>
     </section>
 
-    <section id="self-hosted" class="section split">
+    <section id="self-hosted" class="section split reveal-section">
       <div><p class="eyebrow">Per organizzazioni con team tecnico</p><h2>Installabile anche sui server dell’azienda.</h2></div>
       <div class="copy"><p>La Self-Hosted Reference Edition include PostgreSQL, worker scalabili, TLS, scanner malware, backup e sorgente modificabile. L’azienda può usare infrastruttura e fornitori scelti autonomamente.</p><p>Non è un servizio gestito da ThisTinti: installazione, costi, sicurezza, privacy, aggiornamenti, monitoraggio e assistenza restano a carico dell’organizzazione o dei tecnici incaricati.</p><a id="enterpriseSourceLink" class="text-link" href="#">Documentazione self-hosted →</a></div>
     </section>
 
-
-    <section id="limiti" class="section split">
+    <section id="limiti" class="section split reveal-section">
       <div><p class="eyebrow">Stato del progetto</p><h2>Utilizzabile, ma ancora alpha.</h2></div>
-      <div class="copy"><p>La release pubblica iniziale è destinata a valutazione, pilot e adattamento tecnico. Non è certificata per autorizzare pagamenti o sostituire controlli contabili, fiscali, legali o di sicurezza.</p><p>Il nome ThisTinti è ancora un nome di progetto: dominio e marchio verranno definiti soltanto dopo la verifica formale di disponibilità.</p></div>
+      <div class="copy"><p>La release pubblica iniziale è destinata a valutazione, pilot e adattamento tecnico. Non è certificata per autorizzare pagamenti o sostituire controlli contabili, fiscali, legali o di sicurezza.</p><p>Nome e identità visiva restano in verifica prima di una fase commerciale; ogni futura modifica verrà pubblicata con una nuova versione senza alterare le release precedenti.</p></div>
     </section>
 
-    <section id="documentazione" class="section split accent">
+    <section id="documentazione" class="section split accent reveal-section">
       <div><p class="eyebrow">Prima di installare</p><h2>Guide, limiti e prove sono pubblici.</h2></div>
       <div class="copy"><p>La documentazione spiega uso locale, backup, pilot, self-hosting, sicurezza, assistenza non garantita e responsabilità dell'operatore.</p><p><a id="guideLink" class="text-link" href="#">Guida semplice →</a></p><p><a id="pilotLink" class="text-link" href="#">Kit per il pilot →</a></p><p><a id="launchChecklistLink" class="text-link" href="#">Checklist di pubblicazione →</a></p><p><a id="securityLink" class="text-link" href="#">Sicurezza e segnalazioni →</a></p></div>
     </section>
 
-    <section id="privacy" class="section split">
+    <section id="privacy" class="section split reveal-section">
       <div><p class="eyebrow">Dati e privacy</p><h2>Il progetto non gestisce i tuoi documenti.</h2></div>
       <div class="copy"><p>La Local Edition ascolta soltanto sul computer locale. Non invia file, utilizzo o statistiche all'autore. Disinstallare il programma non elimina automaticamente l'archivio aziendale.</p><p>ThisTinti è uno strumento di supporto: pagamenti, contabilità e decisioni legali devono sempre essere verificati da una persona.</p></div>
     </section>
 
-    <section id="sorgente" class="section split accent">
+    <section id="sorgente" class="section split accent reveal-section">
       <div><p class="eyebrow">Per i team tecnici</p><h2>Una base modificabile, non una scatola chiusa.</h2></div>
       <div class="copy"><p>Ogni build include il sorgente corrispondente. Un'azienda può adattare parser, regole, integrazioni e interfaccia alle proprie necessità nel rispetto della licenza Apache 2.0.</p><a id="sourceLink" class="text-link" href="#">Apri il repository →</a></div>
     </section>
