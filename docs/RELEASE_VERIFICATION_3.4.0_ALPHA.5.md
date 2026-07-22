@@ -4,6 +4,10 @@
 
 Questa release modifica esclusivamente identità visiva, motion system, pagina pubblica, icona Windows e relativi gate di distribuzione. Motore documentale, schema dati, regole economiche e limiti operativi restano invariati.
 
+## Ordine di verifica
+
+Il collaudo visivo viene eseguito soltanto dopo il completamento positivo dei gate automatici sullo stesso commit. Un esito grafico favorevole non può compensare test applicativi, sicurezza, packaging o persistenza falliti.
+
 ## Gate automatici richiesti
 
 - logo applicazione e sito identici;
