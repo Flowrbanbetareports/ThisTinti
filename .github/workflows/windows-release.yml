@@ -84,7 +84,7 @@ jobs:
           $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\ThisTinti-Acceptance"
           $DataDir = Join-Path $env:LOCALAPPDATA "ThisTinti-Acceptance"
           Remove-Item $InstallDir, $DataDir -Recurse -Force -ErrorAction SilentlyContinue
-          & $BaselineInstaller /VERYSILENT /SUPPRESSMSGBOXES /NORESTART "/DIR=$InstallDir"
+          & $BaselineInstaller /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /ACCEPTTHISTINTITERMS=yes "/DIR=$InstallDir"
           if ($LASTEXITCODE -ne 0 -or -not (Test-Path (Join-Path $InstallDir "ThisTinti.exe"))) {
             throw "Baseline silent installation failed"
           }
@@ -98,7 +98,7 @@ jobs:
           $CurrentInstaller = (Resolve-Path "release\windows\ThisTinti-Setup-$Version-x64.exe").Path
           $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\ThisTinti-Acceptance"
           $DataDir = Join-Path $env:LOCALAPPDATA "ThisTinti-Acceptance"
-          & $CurrentInstaller /VERYSILENT /SUPPRESSMSGBOXES /NORESTART "/DIR=$InstallDir"
+          & $CurrentInstaller /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /ACCEPTTHISTINTITERMS=yes "/DIR=$InstallDir"
           if ($LASTEXITCODE -ne 0 -or -not (Test-Path (Join-Path $InstallDir "ThisTinti.exe"))) {
             throw "Installer upgrade failed"
           }
