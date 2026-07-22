@@ -38,6 +38,9 @@ def source_snapshot() -> list[tuple[str, str]]:
 
 datas = [
     (str(ROOT / "app" / "static"), "app/static"),
+    # Keep the user-facing demo available in the frozen Local Edition. The
+    # application resolves this directory relative to its bundled app package.
+    (str(ROOT / "samples"), "samples"),
     (str(ROOT / "LICENSE"), "."),
     (str(ROOT / "NOTICE"), "."),
     (str(ROOT / "PRIVACY.md"), "."),
