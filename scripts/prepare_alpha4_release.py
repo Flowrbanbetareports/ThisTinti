@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -173,10 +172,22 @@ def update_windows_workflow() -> None:
 
 def update_download_site() -> None:
     index = "site/index.html"
-    replace_exact(index, '<link rel="stylesheet" href="styles.css" />', '<link rel="icon" href="logo.svg" type="image/svg+xml" />\n  <link rel="stylesheet" href="styles.css" />')
-    replace_exact(index, '<a class="brand" href="#top"><span>T</span>ThisTinti</a>', '<a class="brand" href="#top"><img src="logo.svg" alt="" />ThisTinti</a>')
+    replace_exact(
+        index,
+        '<link rel="stylesheet" href="styles.css" />',
+        '<link rel="icon" href="logo.svg" type="image/svg+xml" />\n  <link rel="stylesheet" href="styles.css" />',
+    )
+    replace_exact(
+        index,
+        '<a class="brand" href="#top"><span>T</span>ThisTinti</a>',
+        '<a class="brand" href="#top"><img src="logo.svg" alt="" />ThisTinti</a>',
+    )
     styles = "site/styles.css"
-    replace_exact(styles, '.brand span { display:grid; place-items:center; width:34px; height:34px; border-radius:10px; color:white; background:var(--blue); }', '.brand img { display:block; width:36px; height:36px; border-radius:10px; }')
+    replace_exact(
+        styles,
+        '.brand span { display:grid; place-items:center; width:34px; height:34px; border-radius:10px; color:white; background:var(--blue); }',
+        '.brand img { display:block; width:36px; height:36px; border-radius:10px; }',
+    )
     shutil.copyfile(ROOT / "app/static/logo.svg", ROOT / "site/logo.svg")
 
 
@@ -220,7 +231,10 @@ def create_verification_files() -> None:
         "independent_legal_review_completed": False,
         "real_document_pilot_completed": False,
     }
-    write("docs/evidence/release-3.4.0-alpha.4.json", json.dumps(evidence, ensure_ascii=False, indent=2) + "\n")
+    write(
+        "docs/evidence/release-3.4.0-alpha.4.json",
+        json.dumps(evidence, ensure_ascii=False, indent=2) + "\n",
+    )
 
 
 def generate_metadata() -> None:
