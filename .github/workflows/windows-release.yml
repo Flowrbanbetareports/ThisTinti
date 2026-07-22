@@ -77,19 +77,47 @@ jobs:
             throw "Baseline installer was not created"
           }
       - name: Install previous Windows alpha silently
+        id: baseline_install
+        continue-on-error: true
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
           $BaselineInstaller = (Resolve-Path "release\windows\ThisTinti-Setup-3.4.0-alpha.3-x64.exe").Path
           $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\ThisTinti-Acceptance"
           $DataDir = Join-Path $env:LOCALAPPDATA "ThisTinti-Acceptance"
+          $LogPath = (Join-Path (Resolve-Path "release\windows") "baseline-install.log")
+          $SummaryPath = (Join-Path (Resolve-Path "release\windows") "baseline-install-summary.txt")
           Remove-Item $InstallDir, $DataDir -Recurse -Force -ErrorAction SilentlyContinue
-          & $BaselineInstaller /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /ACCEPTTHISTINTITERMS=yes "/DIR=$InstallDir"
-          if ($LASTEXITCODE -ne 0 -or -not (Test-Path (Join-Path $InstallDir "ThisTinti.exe"))) {
+          & $BaselineInstaller /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /ACCEPTTHISTINTITERMS=yes "/DIR=$InstallDir" "/LOG=$LogPath"
+          $ExitCode = $LASTEXITCODE
+          @(
+            "exit_code=$ExitCode"
+            "installer=$BaselineInstaller"
+            "install_dir=$InstallDir"
+            "exe_exists=$(Test-Path (Join-Path $InstallDir 'ThisTinti.exe'))"
+            "uninstaller_exists=$(Test-Path (Join-Path $InstallDir 'unins000.exe'))"
+          ) | Set-Content $SummaryPath -Encoding utf8
+          Get-ChildItem $InstallDir -Recurse -Force -ErrorAction SilentlyContinue |
+            Select-Object FullName, Length | Format-Table -AutoSize | Out-String | Add-Content $SummaryPath
+          if ($ExitCode -ne 0 -or -not (Test-Path (Join-Path $InstallDir "ThisTinti.exe"))) {
             throw "Baseline silent installation failed"
           }
           New-Item -ItemType Directory -Path $DataDir -Force | Out-Null
           "preserve" | Set-Content (Join-Path $DataDir "upgrade-preservation-marker.txt") -Encoding ascii
+      - name: Upload baseline installation diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ThisTinti-baseline-install-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            release/windows/baseline-install.log
+            release/windows/baseline-install-summary.txt
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Stop after baseline installation failure
+        if: steps.baseline_install.outcome != 'success'
+        shell: pwsh
+        run: throw "Baseline installation diagnostics captured"
       - name: Upgrade Windows installation silently
         shell: pwsh
         run: |
