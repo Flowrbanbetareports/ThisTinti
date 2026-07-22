@@ -11,6 +11,7 @@ on:
       - "samples/**"
       - "scripts/local_distribution_smoke.py"
       - "scripts/package_self_hosted.py"
+      - "scripts/generate_brand_icon.py"
       - "requirements*.txt"
       - "run_thistinti.py"
   push:
@@ -24,6 +25,7 @@ on:
       - "samples/**"
       - "scripts/local_distribution_smoke.py"
       - "scripts/package_self_hosted.py"
+      - "scripts/generate_brand_icon.py"
       - "requirements*.txt"
       - "run_thistinti.py"
     tags:
@@ -63,18 +65,22 @@ jobs:
           ./installer/windows/build_windows.ps1
           Copy-Item "..\ThisTinti-*-self-hosted-source.zip" "release\windows"
           Copy-Item "..\ThisTinti-*-self-hosted-source.zip.sha256" "release\windows"
-      - name: Prepare previous-version installer
+      - name: Download real previous Windows alpha
         shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference = "Stop"
-          $BaselineVersion = "3.4.0-alpha.3"
-          $Iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
-          if (-not (Test-Path $Iscc)) { $Iscc = "$env:ProgramFiles\Inno Setup 6\ISCC.exe" }
-          if (-not (Test-Path $Iscc)) { throw "Inno Setup compiler unavailable for lifecycle test" }
-          & $Iscc "/DMyAppVersion=$BaselineVersion" "installer\windows\ThisTinti.iss"
-          if ($LASTEXITCODE -ne 0) { throw "Baseline installer compilation failed" }
-          if (-not (Test-Path "release\windows\ThisTinti-Setup-$BaselineVersion-x64.exe")) {
-            throw "Baseline installer was not created"
+          $BaselineVersion = "3.4.0-alpha.4"
+          $BaselineDir = "release\baseline"
+          New-Item -ItemType Directory -Path $BaselineDir -Force | Out-Null
+          gh release download "v$BaselineVersion" `
+            --pattern "ThisTinti-Setup-$BaselineVersion-x64.exe" `
+            --dir $BaselineDir `
+            --clobber
+          $BaselineInstaller = Join-Path $BaselineDir "ThisTinti-Setup-$BaselineVersion-x64.exe"
+          if (-not (Test-Path $BaselineInstaller) -or (Get-Item $BaselineInstaller).Length -lt 1000000) {
+            throw "Published alpha.4 baseline installer unavailable"
           }
       - name: Install previous Windows alpha silently
         id: baseline_install
@@ -82,7 +88,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          $BaselineInstaller = (Resolve-Path "release\windows\ThisTinti-Setup-3.4.0-alpha.3-x64.exe").Path
+          $BaselineInstaller = (Resolve-Path "release\baseline\ThisTinti-Setup-3.4.0-alpha.4-x64.exe").Path
           $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\ThisTinti-Acceptance"
           $DataDir = Join-Path $env:LOCALAPPDATA "ThisTinti-Acceptance"
           $LogPath = (Join-Path (Resolve-Path "release\windows") "baseline-install.log")
@@ -96,7 +102,11 @@ jobs:
             "/DIR=$InstallDir",
             "/LOG=$LogPath"
           )
-          $Process = Start-Process -FilePath $BaselineInstaller -ArgumentList $Arguments -Wait -PassThru
+          $Process = Start-Process -FilePath $BaselineInstaller -ArgumentList $Arguments -PassThru
+          if (-not $Process.WaitForExit(180000)) {
+            Stop-Process -Id $Process.Id -Force -ErrorAction SilentlyContinue
+            throw "Baseline silent installation timed out after 180 seconds"
+          }
           $ExitCode = $Process.ExitCode
           @(
             "exit_code=$ExitCode"
@@ -141,7 +151,11 @@ jobs:
             "/ACCEPTTHISTINTITERMS=yes",
             "/DIR=$InstallDir"
           )
-          $Process = Start-Process -FilePath $CurrentInstaller -ArgumentList $Arguments -Wait -PassThru
+          $Process = Start-Process -FilePath $CurrentInstaller -ArgumentList $Arguments -PassThru
+          if (-not $Process.WaitForExit(180000)) {
+            Stop-Process -Id $Process.Id -Force -ErrorAction SilentlyContinue
+            throw "Installer upgrade timed out after 180 seconds"
+          }
           if ($Process.ExitCode -ne 0 -or -not (Test-Path (Join-Path $InstallDir "ThisTinti.exe"))) {
             throw "Installer upgrade failed"
           }
@@ -171,7 +185,11 @@ jobs:
             "/VERYSILENT",
             "/SUPPRESSMSGBOXES",
             "/NORESTART"
-          ) -Wait -PassThru
+          ) -PassThru
+          if (-not $Process.WaitForExit(180000)) {
+            Stop-Process -Id $Process.Id -Force -ErrorAction SilentlyContinue
+            throw "Silent uninstall timed out after 180 seconds"
+          }
           if ($Process.ExitCode -ne 0) { throw "Silent uninstall failed" }
           if (Test-Path (Join-Path $InstallDir "ThisTinti.exe")) { throw "Application remained after uninstall" }
           if (-not (Test-Path (Join-Path $DataDir "upgrade-preservation-marker.txt"))) {
@@ -181,7 +199,7 @@ jobs:
         if: always()
         shell: pwsh
         run: |
-          Remove-Item "release\windows\ThisTinti-Setup-3.4.0-alpha.3-x64.exe" -Force -ErrorAction SilentlyContinue
+          Remove-Item "release\baseline" -Recurse -Force -ErrorAction SilentlyContinue
           Remove-Item (Join-Path $env:LOCALAPPDATA "Programs\ThisTinti-Acceptance") -Recurse -Force -ErrorAction SilentlyContinue
           Remove-Item (Join-Path $env:LOCALAPPDATA "ThisTinti-Acceptance") -Recurse -Force -ErrorAction SilentlyContinue
       - name: Upload downloadable artifacts
