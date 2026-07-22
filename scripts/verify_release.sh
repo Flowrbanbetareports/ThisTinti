@@ -21,6 +21,7 @@ python -m bandit -q -r app scripts -x tests
 python -m compileall -q app scripts
 if command -v node >/dev/null 2>&1; then
   node --check app/static/app.js
+  node --check site/site.js
 fi
 bash scripts/run_test_coverage.sh
 python scripts/run_python_gate.py path scripts/check_dependencies.py
