@@ -79,7 +79,7 @@ def validate_brand_assets() -> None:
         "double-T monogram",
         "#f0b64c",
         "#55b4c3",
-        "stroke-linecap=\"round\"",
+        'stroke-linecap="round"',
     }
     missing_logo_tokens = sorted(token for token in required_logo_tokens if token not in app_logo)
     if missing_logo_tokens:
