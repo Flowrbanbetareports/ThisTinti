@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import base64
 import json
 import os
 import re
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from app.version import RELEASE_VERSION  # noqa: E402
+from scripts.generate_brand_icon import write_icon  # noqa: E402
 
 SECRET_PATTERN = re.compile(r"sk-(?:proj-)?[A-Za-z0-9_-]{20,}")
 TEXT_SUFFIXES = {
@@ -85,13 +86,12 @@ def validate_brand_assets() -> None:
     if missing_logo_tokens:
         raise RuntimeError(f"Incomplete ThisTinti identity asset: {missing_logo_tokens}")
 
-    encoded_icon = (ROOT / "installer/assets/thistinti.ico.b64").read_text(encoding="utf-8").strip()
-    try:
-        icon = base64.b64decode(encoded_icon, validate=True)
-    except ValueError as exc:
-        raise RuntimeError("Invalid Base64 Windows icon source") from exc
-    if len(icon) < 4096 or not icon.startswith(b"\x00\x00\x01\x00"):
-        raise RuntimeError("Generated Windows icon source is not a valid ICO payload")
+    with tempfile.TemporaryDirectory(prefix="thistinti-icon-") as directory:
+        generated_icon = Path(directory) / "thistinti.ico"
+        write_icon(generated_icon)
+        icon = generated_icon.read_bytes()
+        if len(icon) < 4096 or not icon.startswith(b"\x00\x00\x01\x00"):
+            raise RuntimeError("Generated Windows icon is not a valid ICO payload")
 
     app_css = (ROOT / "app/static/styles.css").read_text(encoding="utf-8")
     site_css = (ROOT / "site/styles.css").read_text(encoding="utf-8")
