@@ -95,13 +95,17 @@ jobs:
 
           release = json.loads(Path('release-api.json').read_text(encoding='utf-8'))
           assets = sorted(
-              {
-                  'name': asset['name'],
-                  'size': asset['size'],
-                  'download_url': asset['browser_download_url'],
-              }
-              for asset in release.get('assets', [])
+              [
+                  {
+                      'name': asset['name'],
+                      'size': asset['size'],
+                      'download_url': asset['browser_download_url'],
+                  }
+                  for asset in release.get('assets', [])
+              ],
+              key=lambda item: item['name'],
           )
+
           def sha256(path: str) -> str:
               return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
