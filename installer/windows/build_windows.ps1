@@ -4,6 +4,12 @@ Set-Location (Resolve-Path "$PSScriptRoot\..\..")
 $Version = (Select-String -Path "app\version.py" -Pattern 'RELEASE_VERSION = "([^"]+)"').Matches.Groups[1].Value
 if (-not $Version) { throw "Versione non rilevata" }
 
+# Generate all Windows icon resolutions from the same reviewable geometry used by the brand.
+python scripts\generate_brand_icon.py --output "installer\assets\thistinti.ico"
+if ($LASTEXITCODE -ne 0 -or -not (Test-Path "installer\assets\thistinti.ico")) {
+  throw "Generazione dell'icona Windows fallita"
+}
+
 python -m PyInstaller --clean --noconfirm "installer\windows\ThisTinti.spec"
 if ($LASTEXITCODE -ne 0) { throw "Creazione eseguibile PyInstaller fallita" }
 

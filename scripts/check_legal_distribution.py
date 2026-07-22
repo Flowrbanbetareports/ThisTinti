@@ -67,6 +67,12 @@ def main() -> int:
         "Installer specific approval missing",
         failures,
     )
+    require(
+        "if WizardSilent and SilentTermsAccepted() then" in installer
+        and "SpecificApprovalCheck.Checked := True" in installer,
+        "Silent installer acceptance does not satisfy the explicit clause gate",
+        failures,
+    )
     for name in ("TERMS_OF_USE.md", "DISCLAIMER.md", "TRADEMARKS.md", "SUPPORT.md"):
         require(name in spec, f"Frozen build does not include {name}", failures)
         require(name in workflow, f"GitHub Release does not include {name}", failures)

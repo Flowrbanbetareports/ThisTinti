@@ -1,3 +1,14 @@
+# 3.4.0-alpha.5 — Identità ThisTinti e motion system accessibile
+
+- sostituito il marchio provvisorio con un monogramma doppia T collegato a un segno di verifica;
+- unificati logo applicazione, sito pubblico, favicon e sorgente deterministico dell'icona Windows;
+- introdotto un sistema visivo più coerente per accesso, navigazione, card, pipeline, dialoghi e stati operativi;
+- aggiunte microanimazioni funzionali e transizioni di pagina comprese fra 150 e 300 ms;
+- aggiunto supporto esplicito a `prefers-reduced-motion`, focus visibile e degradazione senza `IntersectionObserver`;
+- rinnovata la pagina pubblica con navigazione glass, sezioni progressive e messaggi più precisi sullo stato alpha;
+- aggiunti gate automatici per coerenza del logo, validità ICO, JavaScript del sito e accessibilità del movimento;
+- nessuna modifica ai limiti operativi: risultati da verificare, nessuna decisione economica automatica e installer ancora non firmato.
+
 # 3.4.0-alpha.4 — Windows validation and public alpha
 
 - installer avviato e verificato su un PC Windows 11 reale, incluso il comportamento previsto di Microsoft Defender SmartScreen per un binario non firmato;
@@ -78,97 +89,3 @@ La 3.2 trasforma ThisTinti da controllore documentale reattivo a sistema prevent
 - fatture di servizi non vengono trattate come merce fisica senza evidenza positiva;
 - pagamenti dello stesso importo senza riferimento comune non sono considerati automaticamente duplicati;
 - esposizione economica non duplicata e blocco delle simulazioni senza documento oggetto;
-- interfaccia con rischio, aspettative, simulazione e red-team;
-- prova cloud aggiornata per proposta, fattura, pagamento, intelligence e persistenza.
-
-## Sicurezza e prudenza
-
-- nessuna automazione è dichiarata sicura senza pilot reale, almeno 30 scenari, motore corrente e approvazione amministrativa dello specifico run;
-- il Validation Gate sintetico non può mai autorizzare automazioni; una nuova esecuzione revoca l'approvazione precedente;
-- vincoli database impediscono dataset sintetici idonei e run approvati senza autore, data e motivazione;
-- le nuove regole restano supervisionate;
-- self-red-team non altera i documenti;
-- il pattern pack non esporta documenti, nomi, importi, date o identificativi;
-- downgrade bloccato se sono ancora presenti documenti o job incompatibili con la 3.1.
-
-## Limiti dichiarati
-
-La preview non include ancora un secondo modello multimodale indipendente né federated learning crittografico. Queste sono estensioni architetturali future, non capacità già certificate.
-
----
-
-# ThisTinti 3.1.0 — hardening e production foundation
-
-## Correzioni critiche
-
-- logout con revoca immediata della sessione bearer e cookie;
-- invalidazione delle sessioni dopo sospensione tenant, cambio ruolo, disattivazione o cambio password;
-- controllo corretto dei totali dichiarati pari a zero;
-- blocco dei collegamenti manuali tra fornitori differenti;
-- ordinamento audit canonico tramite `sequence_no`, anche con timestamp identici;
-- utilizzo della conferma d'ordine come fonte commerciale prioritaria rispetto all'ordine;
-- ricostruzione reversibile della catena audit durante la migrazione.
-
-## Motore economico
-
-- precisione `Decimal` nel parsing e nelle regole;
-- applicazione sequenziale degli sconti;
-- riferimenti FatturaPA letti dalla sezione semantica corretta;
-- quantità e prezzi canonici per unità compatibili;
-- conversioni massa, volume, lunghezza, area, tempo e unità singole;
-- anomalia esplicita `unit_mismatch` e soppressione dei confronti economici ingannevoli;
-- firme duplicate e confronti tra documenti normalizzati per unità.
-
-## Elaborazione e affidabilità
-
-- coda persistente per documento, batch, rielaborazione e rianalisi;
-- quarantena, cartella rifiutati e scansione prima dell'ingestione;
-- worker separato con lease, heartbeat, retry, backoff e recupero lavori bloccati;
-- idempotenza delle richieste asincrone;
-- retention di sessioni, job, heartbeat, contatori rate limit e file orfani;
-- disattivazione degli endpoint sincroni in produzione.
-
-## Sicurezza e multi-tenant
-
-- PostgreSQL Row-Level Security forzata sulle entità aziendali;
-- contesto tenant riapplicato a ogni nuova transazione;
-- trigger DB contro riferimenti cross-tenant;
-- chiavi API mostrate una sola volta, hashate, revocabili e limitate per scope;
-- rate limiting atomico su database per deploy multiistanza;
-- scanner malware obbligatorio e sondato con una scansione reale dalla readiness;
-- configurazione production fail-closed;
-- ruolo processo separato per app, worker e migrazioni.
-
-## Operazioni e integrazioni
-
-- backup coerente SQLite/PostgreSQL con manifest e SHA-256;
-- verifica archivio e restore protetto da sovrascrittura;
-- worker e migrazione separati nel compose;
-- endpoint worker, sessioni, chiavi API e job;
-- OpenAPI ripulito: nessuna risposta JSON di successo priva di schema;
-- readiness estesa a database, storage, OCR, scanner e heartbeat worker;
-- request ID e `Server-Timing`.
-
-## Discovery
-
-Le regole create dai dati non vengono più auto-attivate. Anche sopra soglia richiedono una decisione umana. L'auto-attivazione resta ammessa soltanto per controlli predefiniti, deterministici e sufficientemente supportati.
-
-## Compatibilità
-
-- migrazione Alembic reversibile da 3.0.0;
-- endpoint sincroni mantenuti per sviluppo e compatibilità, ma disattivabili;
-- SQLite mantenuto per test e uso locale;
-- PostgreSQL richiesto in produzione.
-
-## Zero-cost cloud proof hardening
-
-- workflow GitHub Actions separato con PostgreSQL 16 e ruoli least-privilege;
-- prova automatica app + worker, ingestione asincrona, riavvio e persistenza;
-- report JSON e log caricati come artifact temporaneo;
-- policy RLS ottimizzata con init plan per il contesto tenant;
-- runner di test/copertura e gate Python con terminazione deterministica;
-- prova RLS esterna completata sul progetto Supabase gratuito dedicato.
-
-## Gate esterni non dichiarati come superati
-
-La release non afferma di avere completato: pilot su documenti reali, test di carico sull'infrastruttura finale, scansione vulnerabilità online nell'ambiente locale, collaudo completo dell'app su PostgreSQL cloud, penetration test indipendente, revisione GDPR/contrattuale o integrazione con uno specifico ERP.

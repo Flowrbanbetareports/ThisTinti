@@ -1,6 +1,37 @@
 @import url("/styles-original.css");
 
-/* Distinct ThisTinti proof-link mark and accessible consent controls. */
+:root {
+  --bg: #f4f7f8;
+  --surface: #ffffff;
+  --surface-soft: #f7fafb;
+  --text: #101820;
+  --muted: #66727d;
+  --line: #dbe3e7;
+  --dark: #0d1720;
+  --dark-2: #172630;
+  --accent: #356f78;
+  --accent-strong: #285b63;
+  --accent-soft: #e6f1f3;
+  --brand-gold: #f0b64c;
+  --brand-cyan: #55b4c3;
+  --ok: #1f7a55;
+  --warn: #9a651d;
+  --danger: #a33f42;
+  --radius: 18px;
+  --shadow: 0 14px 42px rgba(13, 23, 32, .075);
+  --motion-fast: 160ms;
+  --motion-base: 240ms;
+  --motion-slow: 300ms;
+  --motion-ease: cubic-bezier(.2, .75, .25, 1);
+}
+
+body {
+  background:
+    radial-gradient(circle at 85% 4%, rgba(85, 180, 195, .08), transparent 24rem),
+    var(--bg);
+}
+
+/* Double-T identity: the mark remains legible from the sidebar to the installer. */
 .brand-mark {
   overflow: hidden;
   flex: 0 0 auto;
@@ -11,6 +42,186 @@
   background-position: center;
   background-repeat: no-repeat;
   background-size: 100% 100%;
+  box-shadow: 0 8px 22px rgba(5, 13, 19, .22);
+}
+
+.auth-brand {
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 17% 18%, rgba(240, 182, 76, .14), transparent 18rem),
+    radial-gradient(circle at 82% 74%, rgba(85, 180, 195, .15), transparent 25rem),
+    var(--dark);
+}
+
+.auth-brand::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: .16;
+  background-image:
+    linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: linear-gradient(135deg, #000, transparent 72%);
+}
+
+.auth-brand > *, .auth-card {
+  animation: rise-in var(--motion-slow) var(--motion-ease) both;
+}
+
+.auth-brand .eyebrow { animation-delay: 35ms; }
+.auth-brand h1 { animation-delay: 70ms; }
+.auth-brand .hero-copy { animation-delay: 105ms; }
+.auth-brand .local-edition-badge { animation-delay: 130ms; }
+.auth-brand .principles { animation-delay: 150ms; }
+.auth-card { animation-delay: 90ms; }
+
+.auth-card,
+.metric-card,
+.panel {
+  border-color: rgba(94, 116, 128, .20);
+  box-shadow: var(--shadow);
+}
+
+.segmented button,
+.nav-list button,
+.primary-button,
+.secondary-button,
+.ghost-button,
+.text-button,
+.icon-button,
+.metric-card,
+.panel,
+.case-item,
+tbody tr {
+  transition:
+    transform var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) ease,
+    background-color var(--motion-fast) ease,
+    color var(--motion-fast) ease,
+    opacity var(--motion-fast) ease;
+}
+
+.segmented button.active {
+  box-shadow: 0 5px 16px rgba(13, 23, 32, .18);
+}
+
+.primary-button {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  box-shadow: 0 8px 18px rgba(53, 111, 120, .18);
+}
+
+.primary-button:hover {
+  filter: none;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(53, 111, 120, .24);
+}
+
+.primary-button:active,
+.secondary-button:active,
+.nav-list button:active {
+  transform: translateY(0) scale(.985);
+}
+
+.secondary-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 7px 18px rgba(13, 23, 32, .07);
+}
+
+.sidebar {
+  background:
+    radial-gradient(circle at 20% 6%, rgba(240, 182, 76, .08), transparent 14rem),
+    var(--dark);
+}
+
+.nav-list button {
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-list button::after {
+  content: "";
+  position: absolute;
+  inset: 7px auto 7px 0;
+  width: 3px;
+  border-radius: 3px;
+  background: linear-gradient(var(--brand-gold), var(--brand-cyan));
+  opacity: 0;
+  transform: scaleY(.35);
+  transition: opacity var(--motion-fast) ease, transform var(--motion-fast) var(--motion-ease);
+}
+
+.nav-list button:hover { transform: translateX(2px); }
+.nav-list button.active::after { opacity: 1; transform: scaleY(1); }
+
+.topbar h2 {
+  text-wrap: balance;
+}
+
+.view-panel:not(.hidden) {
+  animation: view-enter var(--motion-base) var(--motion-ease) both;
+}
+
+.metric-card:hover,
+.panel:hover {
+  border-color: rgba(53, 111, 120, .26);
+  box-shadow: 0 17px 45px rgba(13, 23, 32, .09);
+}
+
+.metric-card:hover { transform: translateY(-2px); }
+
+.pipeline > div {
+  position: relative;
+  overflow: hidden;
+  animation: pipeline-enter var(--motion-slow) var(--motion-ease) both;
+}
+
+.pipeline > div::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--brand-gold), var(--brand-cyan));
+  opacity: .75;
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: pipeline-line 420ms var(--motion-ease) forwards;
+}
+
+.pipeline > div:nth-of-type(2) { animation-delay: 45ms; }
+.pipeline > div:nth-of-type(3) { animation-delay: 90ms; }
+.pipeline > div:nth-of-type(4) { animation-delay: 135ms; }
+.pipeline > div:nth-of-type(5) { animation-delay: 180ms; }
+.pipeline > div:nth-of-type(2)::after { animation-delay: 100ms; }
+.pipeline > div:nth-of-type(3)::after { animation-delay: 145ms; }
+.pipeline > div:nth-of-type(4)::after { animation-delay: 190ms; }
+.pipeline > div:nth-of-type(5)::after { animation-delay: 235ms; }
+
+.status-dot.ok {
+  animation: status-confirm 480ms var(--motion-ease) both;
+}
+
+.toast:not(:empty) {
+  animation: toast-in var(--motion-base) var(--motion-ease) both;
+}
+
+dialog[open] .modal-card {
+  animation: modal-in var(--motion-base) var(--motion-ease) both;
+}
+
+dialog[open]::backdrop {
+  animation: backdrop-in var(--motion-fast) ease both;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid rgba(85, 180, 195, .36);
+  outline-offset: 2px;
 }
 
 .local-consent {
@@ -35,4 +246,59 @@
 .local-consent span {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes view-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pipeline-enter {
+  from { opacity: 0; transform: translateY(8px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes pipeline-line {
+  to { transform: scaleX(1); }
+}
+
+@keyframes status-confirm {
+  0% { transform: scale(.65); opacity: .35; }
+  65% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translate(-50%, -8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(12px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 760px) {
+  .auth-brand::before { background-size: 42px 42px; }
+  .metric-card:hover, .panel:hover, .nav-list button:hover { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

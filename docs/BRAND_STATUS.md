@@ -2,30 +2,36 @@
 
 ## Decisione corrente
 
-Il nome ufficiale del progetto è **ThisTinti**. Il simbolo attuale è provvisorio e può essere sostituito senza cambiare il funzionamento o la licenza del software.
+Il nome ufficiale del progetto è **ThisTinti**. Dalla versione `3.4.0-alpha.5` l'identità usa un monogramma a doppia T unito da un segno di verifica: le due lettere collegano direttamente il simbolo al nome, mentre il segno centrale richiama il controllo documentale supervisionato.
 
 `Flowrbanbetareports` è soltanto il nome tecnico dell'account GitHub che ospita il repository. Non deve comparire nell'interfaccia, nell'installer, nella pagina di download o nella comunicazione del prodotto come marchio alternativo.
 
-## Vincoli per la prossima identità
+Il simbolo resta un'identità di progetto non registrata e può essere ulteriormente affinato prima della fase commerciale senza cambiare funzionamento o licenza del software.
 
-La revisione prevista per la successiva release grafica deve:
+## Sistema visivo alpha.5
 
-- collegare chiaramente il simbolo al nome ThisTinti;
-- richiamare documenti, collegamenti o verifica senza imitare marchi noti;
-- funzionare a 16, 32, 64 e 256 pixel;
-- avere versioni chiare, scure e monocromatiche;
-- restare leggibile come icona Windows e favicon;
-- non dipendere da animazioni per essere riconoscibile;
-- rispettare contrasto e accessibilità.
+La stessa geometria viene usata per:
+
+- applicazione e schermata di accesso;
+- barra laterale;
+- favicon e pagina pubblica;
+- eseguibile e installer Windows;
+- varianti future chiare, scure e monocromatiche.
+
+I token principali sono sfondo `#0d1720`, prima T `#f0b64c`, seconda T `#55b4c3` e verifica `#f7fafc`. Il file SVG dell'applicazione deve restare identico a quello del sito pubblico. L'icona Windows multi-risoluzione viene rigenerata da `scripts/generate_brand_icon.py` durante il packaging, evitando un binario grafico non verificabile nel repository.
+
+Il marchio è progettato per restare leggibile a 16, 32, 64 e 256 pixel e non dipende dall'animazione per essere riconosciuto.
 
 ## Animazioni
 
-Le animazioni possono essere aggiunte a sito e applicazione, ma devono essere funzionali e discrete:
+Il motion system alpha.5 applica transizioni funzionali e discrete:
 
 - durata tipica 150–300 ms;
+- ingresso una sola volta per pagine, sezioni, dialoghi e pipeline;
+- feedback chiaro su navigazione, focus, caricamento, successo ed errore;
 - nessun movimento continuo puramente decorativo;
-- feedback chiaro per caricamento, elaborazione, successo ed errore;
 - supporto a `prefers-reduced-motion`;
+- degradazione funzionale quando `IntersectionObserver` non è disponibile;
 - nessun ritardo che ostacoli inserimento dati o revisione documentale.
 
 ## Verifica del nome

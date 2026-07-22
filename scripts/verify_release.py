@@ -5,12 +5,14 @@ import json
 import os
 import re
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from app.version import RELEASE_VERSION  # noqa: E402
+from scripts.generate_brand_icon import write_icon  # noqa: E402
 
 SECRET_PATTERN = re.compile(r"sk-(?:proj-)?[A-Za-z0-9_-]{20,}")
 TEXT_SUFFIXES = {
@@ -69,6 +71,39 @@ def scan_sources() -> None:
         raise RuntimeError("\n".join(findings))
 
 
+def validate_brand_assets() -> None:
+    app_logo = (ROOT / "app/static/logo.svg").read_text(encoding="utf-8")
+    site_logo = (ROOT / "site/logo.svg").read_text(encoding="utf-8")
+    if app_logo != site_logo:
+        raise RuntimeError("Application and public-site logos differ")
+    required_logo_tokens = {
+        "double-T monogram",
+        "#f0b64c",
+        "#55b4c3",
+        'stroke-linecap="round"',
+    }
+    missing_logo_tokens = sorted(token for token in required_logo_tokens if token not in app_logo)
+    if missing_logo_tokens:
+        raise RuntimeError(f"Incomplete ThisTinti identity asset: {missing_logo_tokens}")
+
+    with tempfile.TemporaryDirectory(prefix="thistinti-icon-") as directory:
+        generated_icon = Path(directory) / "thistinti.ico"
+        write_icon(generated_icon)
+        icon = generated_icon.read_bytes()
+        if len(icon) < 4096 or not icon.startswith(b"\x00\x00\x01\x00"):
+            raise RuntimeError("Generated Windows icon is not a valid ICO payload")
+
+    app_css = (ROOT / "app/static/styles.css").read_text(encoding="utf-8")
+    site_css = (ROOT / "site/styles.css").read_text(encoding="utf-8")
+    site_js = (ROOT / "site/site.js").read_text(encoding="utf-8")
+    site_html = (ROOT / "site/index.html").read_text(encoding="utf-8")
+    for name, stylesheet in (("application", app_css), ("public site", site_css)):
+        if "prefers-reduced-motion" not in stylesheet:
+            raise RuntimeError(f"{name} motion does not respect reduced-motion preferences")
+    if "IntersectionObserver" not in site_js or "hero-mark" not in site_html:
+        raise RuntimeError("Public-site progressive motion or new identity entry point is missing")
+
+
 def validate_openapi() -> None:
     schema = json.loads((ROOT / "docs/openapi.json").read_text(encoding="utf-8"))
     if schema.get("info", {}).get("title") != "ThisTinti" or schema.get("info", {}).get("version") != RELEASE_VERSION:
@@ -88,6 +123,7 @@ def validate_openapi() -> None:
 
 def internal_checks() -> int:
     validate_openapi()
+    validate_brand_assets()
     scan_sources()
     return 0
 
