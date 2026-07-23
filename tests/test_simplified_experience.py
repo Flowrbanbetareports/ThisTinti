@@ -16,7 +16,7 @@ def test_experience_files_are_present_and_loaded_after_the_core():
     assert (STATIC / "onboarding.css").is_file()
     assert "'/app-core.js'" in loader
     assert "'/onboarding.js'" in loader
-    assert 'style.href = \'/onboarding.css\'' in loader
+    assert "style.href = '/onboarding.css'" in loader
     assert loader.index("'/app-core.js'") < loader.index("'/onboarding.js'")
 
 
