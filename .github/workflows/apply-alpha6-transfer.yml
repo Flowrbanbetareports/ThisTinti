@@ -1,0 +1,104 @@
+name: Apply Alpha.6 transfer
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/apply-alpha6-transfer.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout Alpha.6 branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: professionalization/alpha6-foundation
+          fetch-depth: 0
+          show-progress: false
+
+      - name: Reconstruct and apply verified payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import base64, hashlib, shutil, subprocess, zipfile
+
+          root = Path.cwd().resolve()
+          transfer = root / '.professionalization-transfer'
+          chunks = sorted(transfer.glob('chunk-*.txt'))
+          if not chunks:
+              raise RuntimeError('professionalization transfer chunks not found')
+
+          encoded = ''.join(path.read_text(encoding='ascii') for path in chunks)
+          payload = base64.b64decode(encoded, validate=True)
+          expected = '9ed7bcb39e0489b83d17b86408818393a24caed7074c8d71d30d7ff7e1a0be8f'
+          actual = hashlib.sha256(payload).hexdigest()
+          if actual != expected:
+              raise RuntimeError(f'payload checksum mismatch: expected={expected} actual={actual}')
+
+          source = transfer / 'transfer.zip'
+          source.write_bytes(payload)
+          usable = source
+          try:
+              with zipfile.ZipFile(usable) as archive:
+                  archive.infolist()
+          except zipfile.BadZipFile:
+              repaired = transfer / 'transfer-repaired.zip'
+              subprocess.run(['zip', '-FF', str(source), '--out', str(repaired)], input='\n', text=True, check=True)
+              usable = repaired
+
+          with zipfile.ZipFile(usable) as archive:
+              corrupt = archive.testzip()
+              if corrupt:
+                  raise RuntimeError(f'corrupt archive member: {corrupt}')
+              for member in archive.infolist():
+                  target = (root / member.filename).resolve()
+                  if target != root and root not in target.parents:
+                      raise RuntimeError(f'unsafe archive path: {member.filename}')
+              archive.extractall(root)
+
+          deletions = root / '__deletions__.txt'
+          if deletions.exists():
+              for raw in deletions.read_text(encoding='utf-8').splitlines():
+                  rel = raw.strip()
+                  if not rel:
+                      continue
+                  target = (root / rel).resolve()
+                  if target != root and root not in target.parents:
+                      raise RuntimeError(f'unsafe deletion path: {rel}')
+                  if target.is_file() or target.is_symlink():
+                      target.unlink()
+                  elif target.is_dir():
+                      shutil.rmtree(target)
+              deletions.unlink()
+          PY
+
+          rm -rf .professionalization-transfer
+          rm -f .professionalization-diagnostics.txt
+          rm -f .github/workflows/export-professionalization-transfer.yml
+          rm -f .github/workflows/professionalization-bootstrap.yml
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Apply Alpha.6 professionalization foundation'
+          git push origin HEAD:professionalization/alpha6-foundation
+
+      - name: Remove temporary bootstrap from main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout -B main origin/main
+          git rm .github/workflows/apply-alpha6-transfer.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Remove temporary Alpha.6 bootstrap'
+          git push origin HEAD:main
