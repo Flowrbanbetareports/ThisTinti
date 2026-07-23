@@ -1,0 +1,192 @@
+name: Apply Alpha.6 professionalization foundation
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/apply-alpha6-clean.yml"
+
+permissions:
+  contents: write
+  actions: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  apply-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout clean branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          ref: professionalization/alpha6-clean
+          fetch-depth: 0
+          show-progress: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24"
+
+      - name: Download and verify repaired transfer
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_INNER_SHA256: 598e24bde333ecea4c411cb162ccf5d94df3a0a66eb5acc16dc850a0d82a0aa7
+          ARTIFACT_ID: "8553475727"
+        shell: bash
+        run: |
+          set -euo pipefail
+          work="$(mktemp -d)"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > "$work/artifact.zip"
+          python - "$work/artifact.zip" "$work" "$EXPECTED_INNER_SHA256" <<'PY'
+          from __future__ import annotations
+
+          import hashlib
+          import sys
+          import zipfile
+          from pathlib import Path
+
+          outer = Path(sys.argv[1]).resolve()
+          work = Path(sys.argv[2]).resolve()
+          expected = sys.argv[3]
+
+          with zipfile.ZipFile(outer) as archive:
+              bad = archive.testzip()
+              if bad:
+                  raise SystemExit(f"Corrupt outer artifact member: {bad}")
+              archive.extractall(work / "artifact")
+
+          inner = work / "artifact" / "professionalization-transfer-repaired.zip"
+          actual = hashlib.sha256(inner.read_bytes()).hexdigest()
+          if actual != expected:
+              raise SystemExit(f"Inner transfer checksum mismatch: expected {expected}, got {actual}")
+
+          root = Path.cwd().resolve()
+          with zipfile.ZipFile(inner) as archive:
+              bad = archive.testzip()
+              if bad:
+                  raise SystemExit(f"Corrupt transfer member: {bad}")
+              for member in archive.infolist():
+                  target = (root / member.filename).resolve()
+                  if target != root and root not in target.parents:
+                      raise SystemExit(f"Unsafe transfer path: {member.filename}")
+              archive.extractall(root)
+          PY
+
+      - name: Apply deletions and hardening patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f __deletions__.txt
+          while IFS= read -r path; do
+            [ -z "$path" ] || rm -f -- "$path"
+          done < __deletions__.txt
+          rm -f __deletions__.txt
+          git apply --check .alpha6-transfer/hardening.patch
+          git apply .alpha6-transfer/hardening.patch
+          python - <<'PY'
+          from pathlib import Path
+
+          validator = Path("scripts/validate_pilot_dataset.py")
+          content = validator.read_text(encoding="utf-8")
+          content = content.replace(
+              "from pydantic import ValidationError\n",
+              "from pydantic import ValidationError  # noqa: E402\n",
+          ).replace(
+              "from app.schemas import ValidationDatasetPayload\n",
+              "from app.schemas import ValidationDatasetPayload  # noqa: E402\n",
+          )
+          validator.write_text(content, encoding="utf-8")
+
+          conftest = Path("tests/conftest.py")
+          content = conftest.read_text(encoding="utf-8")
+          marker = 'os.environ["THISTINTI_ALLOW_REGISTRATION"] = "true"\n'
+          replacement = marker + 'os.environ["THISTINTI_OCR_ENABLED"] = "false"\n'
+          if replacement not in content:
+              if marker not in content:
+                  raise SystemExit("Unable to locate test environment insertion point")
+              content = content.replace(marker, replacement, 1)
+          conftest.write_text(content, encoding="utf-8")
+          PY
+          rm -rf .alpha6-transfer
+          rm -f alpha6-normalization-diagnostics.txt alpha6-test-diagnostics.txt
+
+      - name: Install development dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-dev.txt
+
+      - name: Normalize Python sources
+        run: |
+          ruff check . --fix --unsafe-fixes
+          ruff format .
+
+      - name: Verify JavaScript, Python and publication readiness
+        run: |
+          node --check app/static/app.js
+          python -m compileall -q app scripts
+          python scripts/check_publication_readiness.py
+
+      - name: Ruff lint
+        run: ruff check .
+
+      - name: Ruff format
+        run: ruff format --check .
+
+      - name: Bandit security scan
+        run: bandit -q -r app scripts
+
+      - name: Full test suite
+        env:
+          PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
+        run: pytest -q
+
+      - name: Diff hygiene
+        run: git diff --check
+
+      - name: Restore workflows for connector-managed commit
+        run: git restore --source=HEAD -- .github/workflows
+
+      - name: Commit verified source foundation
+        id: commit_foundation
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          exec > >(tee /tmp/alpha6-commit.log) 2>&1
+          rm -f .alpha6-ruff.log .alpha6-pytest.log alpha6-normalization-diagnostics.txt alpha6-test-diagnostics.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git status --short
+          git add -A
+          git commit -m "Build alpha.6 professionalization source foundation"
+          commit_status=$?
+          if [ "$commit_status" -ne 0 ]; then
+            exit "$commit_status"
+          fi
+          git push origin HEAD:professionalization/alpha6-clean
+
+      - name: Report commit failure
+        if: steps.commit_foundation.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          {
+            echo '### Alpha.6 commit diagnostics'
+            echo '```text'
+            tail -n 80 /tmp/alpha6-commit.log
+            echo '```'
+          } > /tmp/alpha6-pr-comment.md
+          gh api --method PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/5055065439" -f body="$(cat /tmp/alpha6-pr-comment.md)"
+          exit 1
