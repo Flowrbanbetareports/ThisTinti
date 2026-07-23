@@ -106,6 +106,11 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements-dev.txt
 
+      - name: Normalize Python sources
+        run: |
+          ruff check . --fix
+          ruff format .
+
       - name: Verify JavaScript, Python and publication readiness
         run: |
           node --check app/static/app.js
