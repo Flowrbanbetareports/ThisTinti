@@ -203,7 +203,7 @@ tbody tr {
   animation: status-confirm 480ms var(--motion-ease) both;
 }
 
-.toast:not(:empty) {
+.toast.visible {
   animation: toast-in var(--motion-base) var(--motion-ease) both;
 }
 
@@ -274,8 +274,8 @@ a:focus-visible {
 }
 
 @keyframes toast-in {
-  from { opacity: 0; transform: translate(-50%, -8px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes modal-in {
@@ -286,6 +286,25 @@ a:focus-visible {
 @keyframes backdrop-in {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+@media (min-width: 761px) and (max-height: 820px) {
+  .auth-brand {
+    justify-content: flex-start;
+    padding: 24px clamp(38px, 6vw, 78px);
+    overflow-y: auto;
+  }
+
+  .auth-brand .eyebrow { margin-top: 22px; }
+  .auth-brand h1 { font-size: clamp(3.4rem, 7vw, 5.7rem); }
+  .hero-copy { margin: 22px 0 26px; line-height: 1.55; }
+  .principles { gap: 10px; }
+  .principles div { padding-top: 11px; }
+  .auth-panel { align-items: start; padding: 18px 24px; overflow-y: auto; }
+  .auth-card { margin: auto 0; padding: 26px 30px; }
+  .segmented { margin-bottom: 20px; }
+  .form-stack { gap: 14px; }
+  input, select, textarea { padding: 10px 12px; }
 }
 
 @media (max-width: 760px) {
