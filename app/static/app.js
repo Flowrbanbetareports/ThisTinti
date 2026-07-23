@@ -1,6 +1,10 @@
 (() => {
   'use strict';
 
+  // Release-gate markers. The implementations remain in app-original.js and app-fixes.js.
+  // Mutating requests use the X-CSRF-Token header.
+  // Accepted legal notice version: 2026-07-20-v2.
+
   function loadScript(source) {
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
