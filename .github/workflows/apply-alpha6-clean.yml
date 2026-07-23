@@ -106,18 +106,28 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements-dev.txt
 
-      - name: Run professional release gates
-        shell: bash
+      - name: Verify JavaScript, Python and publication readiness
         run: |
-          set -euo pipefail
           node --check app/static/app.js
           python -m compileall -q app scripts
           python scripts/check_publication_readiness.py
-          ruff check .
-          ruff format --check .
-          bandit -q -r app scripts
-          PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest -q
-          git diff --check
+
+      - name: Ruff lint
+        run: ruff check .
+
+      - name: Ruff format
+        run: ruff format --check .
+
+      - name: Bandit security scan
+        run: bandit -q -r app scripts
+
+      - name: Full test suite
+        env:
+          PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
+        run: pytest -q
+
+      - name: Diff hygiene
+        run: git diff --check
 
       - name: Commit verified foundation
         shell: bash
