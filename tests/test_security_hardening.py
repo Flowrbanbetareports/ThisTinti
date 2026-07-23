@@ -152,13 +152,20 @@ def test_reprocess_preserves_last_good_lines_after_failure(client, auth):
     assert "Rielaborazione non applicata" in current["parse_message"]
 
 
-def test_frontend_is_single_auditable_bundle_with_safe_error_rendering():
+def test_frontend_core_remains_auditable_with_a_bounded_experience_layer():
     static = Path(__file__).parents[1] / "app" / "static"
-    source = (static / "app.js").read_text(encoding="utf-8")
+    loader = (static / "app.js").read_text(encoding="utf-8")
+    core = (static / "app-core.js").read_text(encoding="utf-8")
+    experience = (static / "onboarding.js").read_text(encoding="utf-8")
+
     assert not (static / "app-original.js").exists()
     assert not (static / "app-fixes.js").exists()
-    assert "messageFrom" in source
-    assert "[object Object]" not in source
-    assert "function dateTime" in source
-    assert "`${raw}Z`" in source
-    assert "document.createElement('script')" not in source
+    assert "messageFrom" in core
+    assert "[object Object]" not in core
+    assert "function dateTime" in core
+    assert "`${raw}Z`" in core
+    assert "'/app-core.js'" in loader
+    assert "'/onboarding.js'" in loader
+    assert loader.index("'/app-core.js'") < loader.index("'/onboarding.js'")
+    assert "fetch(" not in experience
+    assert "/api/" not in experience
