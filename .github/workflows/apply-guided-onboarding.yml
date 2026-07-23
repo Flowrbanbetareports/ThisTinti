@@ -10,12 +10,22 @@ on:
       - scripts/apply_guided_onboarding.py
       - tests/test_guided_onboarding.py
       - .github/workflows/apply-guided-onboarding.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - app/static/guide.js
+      - app/static/guide.css
+      - scripts/apply_guided_onboarding.py
+      - tests/test_guided_onboarding.py
+      - .github/workflows/apply-guided-onboarding.yml
 
 permissions:
   contents: write
 
 jobs:
   apply:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
