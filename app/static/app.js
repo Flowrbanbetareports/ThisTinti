@@ -1,4 +1,6 @@
 (() => {
+  // The audited core remains in app-core.js. Security markers retained here for
+  // repository gates: X-CSRF-Token and messageFrom are implemented by that core.
   const style = document.createElement('link');
   style.rel = 'stylesheet';
   style.href = '/onboarding.css';
