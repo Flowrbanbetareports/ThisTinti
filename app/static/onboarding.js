@@ -26,6 +26,10 @@
     if (node && node.textContent !== value) node.textContent = value;
   }
 
+  function setNodeText(node, value) {
+    if (node && node.textContent !== value) node.textContent = value;
+  }
+
   function setNavLabel(view, icon, label) {
     const button = mainNav.querySelector(`[data-view="${view}"]`);
     if (!button) return null;
@@ -35,20 +39,19 @@
   }
 
   function neutralizeLanguage() {
-    const hero = $('.hero-copy');
-    if (hero) hero.textContent = 'Carica documenti collegati. ThisTinti li mette in ordine e ti mostra cosa controllare.';
+    setText('.hero-copy', 'Carica documenti collegati. ThisTinti li mette in ordine e ti mostra cosa controllare.');
 
     const principles = $$('.principles div p');
-    if (principles[0]) principles[0].textContent = 'Controlli spiegabili e collegati ai documenti.';
-    if (principles[1]) principles[1].textContent = 'Informazioni chiare, decisioni lasciate all’organizzazione.';
-    if (principles[2]) principles[2].textContent = 'Dati separati per ogni organizzazione.';
+    setNodeText(principles[0], 'Controlli spiegabili e collegati ai documenti.');
+    setNodeText(principles[1], 'Informazioni chiare, decisioni lasciate all’organizzazione.');
+    setNodeText(principles[2], 'Dati separati per ogni organizzazione.');
 
     const warning = $('.legal-warning');
-    if (warning) {
+    if (warning && warning.dataset.experienceCopy !== '1') {
       warning.innerHTML = '<strong>Risultati informativi da verificare.</strong> ThisTinti organizza, collega e segnala possibili differenze. Confronta sempre i documenti originali e applica le procedure della tua organizzazione. <a href="/legal.html" target="_blank" rel="noopener">Note legali</a>';
+      warning.dataset.experienceCopy = '1';
     }
 
-    setText('#metricCases', $('#metricCases')?.textContent || '0');
     const metricCards = $$('.metric-card');
     metricCards.forEach((card) => {
       const label = $('p', card);
@@ -59,10 +62,10 @@
     });
 
     const priorityHeading = [...$$('.panel-heading h3')].find((node) => node.textContent.includes('Anomalie prioritarie'));
-    if (priorityHeading) priorityHeading.textContent = 'Segnalazioni prioritarie';
+    setNodeText(priorityHeading, 'Segnalazioni prioritarie');
 
     const pipelineSubtitle = [...$$('.panel-heading p')].find((node) => node.textContent.includes('Dal file originale'));
-    if (pipelineSubtitle) pipelineSubtitle.textContent = 'Dal documento originale a informazioni più facili da controllare.';
+    setNodeText(pipelineSubtitle, 'Dal documento originale a informazioni più facili da controllare.');
 
     const pipelineSteps = $$('.pipeline > div');
     if (pipelineSteps[3]) {
@@ -74,18 +77,14 @@
       setText('small', 'Controllo della persona', pipelineSteps[4]);
     }
 
-    const documentHeading = $('#documentsView h3');
-    if (documentHeading) documentHeading.textContent = 'Documenti';
-    const chainHeading = $('#chainsView h3');
-    if (chainHeading) chainHeading.textContent = 'Collegamenti';
-    const casesHeading = $('#casesView h3');
-    if (casesHeading) casesHeading.textContent = 'Da controllare';
-    const casesCopy = $('#casesView .panel-heading p');
-    if (casesCopy) casesCopy.textContent = 'Possibili differenze con origine, prove e affidabilità della lettura.';
+    setText('#documentsView h3', 'Documenti');
+    setText('#chainsView h3', 'Collegamenti');
+    setText('#casesView h3', 'Da controllare');
+    setText('#casesView .panel-heading p', 'Possibili differenze con origine, prove e affidabilità della lettura.');
 
     const discoveryRuleNote = [...$$('#discoveryView small')]
       .find((node) => node.textContent.includes('attivate senza intervento'));
-    if (discoveryRuleNote) discoveryRuleNote.textContent = 'attive secondo la configurazione';
+    setNodeText(discoveryRuleNote, 'attive secondo la configurazione');
 
     const activeView = mainNav.querySelector('[data-view].active')?.dataset.view;
     const meta = {
@@ -179,7 +178,7 @@
     guide.innerHTML = `
       <section class="guide-hero panel" aria-labelledby="guideTitle">
         <p class="eyebrow">Partenza rapida</p>
-        <h3 id="guideTitle">Capire ThisTinti in tre passaggi</h3>
+        <h3 id="guideTitle" tabindex="-1">Capire ThisTinti in tre passaggi</h3>
         <p>ThisTinti mette in ordine documenti collegati, confronta le informazioni compatibili e mostra possibili differenze insieme alle prove.</p>
         <div class="guide-steps">
           <article><b>1</b><h4>Carica</h4><p>Parti dai documenti dimostrativi oppure da file autorizzati.</p></article>
@@ -231,7 +230,7 @@
     setText('#pageEyebrow', 'Aiuto');
     setText('#pageTitle', 'Guida');
     ['#exportButton', '#demoButton', '#openUploadButton', '.legal-warning'].forEach((selector) => $(selector)?.classList.add('hidden'));
-    $('#guideTitle')?.focus?.();
+    $('#guideTitle')?.focus();
   }
 
   function injectPreAuthPreview() {
@@ -382,25 +381,19 @@
   }
 
   function improveEmptyStates() {
-    const documentsEmpty = $('#documentsTable td.empty-state');
-    if (documentsEmpty && documentsEmpty.textContent.trim().startsWith('Nessun documento')) {
-      documentsEmpty.textContent = 'Nessun documento. Prova l’esempio oppure carica file autorizzati.';
-    }
-
-    const chainsEmpty = $('#chainsTable td.empty-state');
-    if (chainsEmpty && chainsEmpty.textContent.trim().startsWith('Nessuna catena')) {
-      chainsEmpty.textContent = 'Nessun collegamento. Comparirà quando due o più documenti condivideranno riferimenti compatibili.';
-    }
-
-    const casesEmpty = $('#casesTable td.empty-state');
-    if (casesEmpty && casesEmpty.textContent.trim().startsWith('Nessuna anomalia')) {
-      casesEmpty.textContent = 'Nessuna segnalazione. Non sono state trovate differenze oppure i documenti disponibili non sono ancora sufficienti.';
-    }
+    const updates = [
+      ['#documentsTable td.empty-state', 'Nessun documento. Prova l’esempio oppure carica file autorizzati.'],
+      ['#chainsTable td.empty-state', 'Nessun collegamento. Comparirà quando due o più documenti condivideranno riferimenti compatibili.'],
+      ['#casesTable td.empty-state', 'Nessuna segnalazione. Non sono state trovate differenze oppure i documenti disponibili non sono ancora sufficienti.'],
+    ];
+    updates.forEach(([selector, value]) => {
+      const node = $(selector);
+      if (node && node.textContent !== value) node.textContent = value;
+    });
 
     const priorityEmpty = $('#priorityCases.empty-state');
-    if (priorityEmpty && priorityEmpty.textContent.includes('Nessuna anomalia')) {
-      priorityEmpty.textContent = 'Nessuna segnalazione prioritaria. Carica l’esempio o altri documenti per iniziare il confronto.';
-    }
+    const priorityCopy = 'Nessuna segnalazione prioritaria. Carica l’esempio o altri documenti per iniziare il confronto.';
+    if (priorityEmpty && priorityEmpty.textContent !== priorityCopy) priorityEmpty.textContent = priorityCopy;
   }
 
   function bindExperienceCloseButtons() {
@@ -420,11 +413,9 @@
     const canUseDemo = !$('#demoButton')?.classList.contains('hidden');
     $('#welcomeDemoButton')?.classList.toggle('hidden', !canUseDemo);
     $('#welcomeUploadButton')?.classList.toggle('hidden', !canUseDemo);
+    welcomeShownThisSession = true;
     window.setTimeout(() => {
-      if (!appView.classList.contains('hidden') && !dialog.open) {
-        welcomeShownThisSession = true;
-        dialog.showModal();
-      }
+      if (!appView.classList.contains('hidden') && !dialog.open) dialog.showModal();
     }, 250);
   }
 
