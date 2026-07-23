@@ -1,5 +1,6 @@
 name: Apply Alpha.6 transfer
 
+# Second push intentionally triggers this already-registered workflow.
 on:
   push:
     branches:
