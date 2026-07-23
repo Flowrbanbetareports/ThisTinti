@@ -1,6 +1,12 @@
 name: Ruff Format Preview
 
 on:
+  pull_request:
+    paths:
+      - ".github/workflows/ruff-format-preview.yml"
+      - "tests/test_frontend_security.py"
+      - "tests/test_security_hardening.py"
+      - "tests/test_simplified_experience.py"
   push:
     branches: [ux/onboarding-simple-guide]
     paths:
