@@ -1,4 +1,4 @@
-# Threat model — ThisTinti 3.4.0-alpha.1
+# Threat model — ThisTinti 3.4.0-alpha.5
 
 ## Asset
 

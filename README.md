@@ -50,6 +50,8 @@ Vedere `docs/ENTERPRISE_SELF_HOSTED.md`, `docs/RESPONSIBILITY_MATRIX.md` e `docs
 
 ### Governance dell'automazione
 
+I dataset reali sono accettati come `anonymized_pilot` o `production` soltanto con almeno 30 scenari, autorizzazione esplicita, perimetro documentato, ground truth e due revisori distinti. Prima del caricamento possono essere controllati con `python scripts/validate_pilot_dataset.py pilot.json`; ogni run può esportare un rapporto redatto JSON o Markdown.
+
 Il Validation Gate sintetico serve soltanto alla regressione tecnica e non può abilitare automazioni. `safe_to_automate` può diventare vero soltanto quando esiste un dataset `anonymized_pilot` o `production`, composto da almeno 30 scenari, eseguito con la versione corrente del motore e approvato esplicitamente da un amministratore sullo specifico run. Ogni nuova esecuzione sul dataset revoca l'idoneità precedente fino a una nuova revisione. Vincoli equivalenti sono applicati anche dal database.
 
 ## Capacità principali
@@ -189,6 +191,9 @@ ThisTinti non invia contestazioni, non esegue o blocca pagamenti reali, non modi
 - `docs/PRODUCTION_READINESS.md`: gate interni superati e gate esterni ancora necessari;
 - `docs/THREAT_MODEL.md`: minacce, mitigazioni e rischi residui;
 - `docs/VALIDATION_PROTOCOL.md`: validazione su dataset sintetici e reali;
+- `docs/PILOT_DATASET_SPEC.md`: governance, validazione preventiva e rapporto del pilot;
+- `docs/PROFESSIONALIZATION_PROGRAM.md`: percorso interno dalla alpha alla beta;
+- `docs/SECURE_DEVELOPMENT_BASELINE.md`: standard e gate di sviluppo sicuro;
 - `docs/DATA_FORMATS.md`: formati e campi supportati;
 - `docs/openapi.json`: specifica API;
 - `docs/sbom.cdx.json`: SBOM runtime.

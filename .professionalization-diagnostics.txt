@@ -1,2 +1,0 @@
-Alpha.6 transfer retriggered after installing the trusted pull-request workflow on main.
-The previous BadZipFile result is retained only as historical diagnostic context; the repaired payload SHA-256 has already been verified independently.

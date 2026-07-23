@@ -322,12 +322,32 @@ class ValidationGate(BaseModel):
     require_all_scenarios_pass: bool = True
 
 
+class ValidationEvidenceMetadata(BaseModel):
+    authorization_reference: str = Field(min_length=3, max_length=240)
+    authorized_use_confirmed: bool = False
+    anonymization_confirmed: bool = False
+    anonymization_method: str | None = Field(default=None, min_length=3, max_length=1000)
+    reviewer_refs: list[str] = Field(min_length=2, max_length=20)
+    ground_truth_method: str = Field(min_length=10, max_length=2000)
+    scope: str = Field(min_length=10, max_length=2000)
+    prepared_at: datetime | None = None
+    notes: str | None = Field(default=None, max_length=3000)
+
+    @model_validator(mode="after")
+    def validate_reviewers(self) -> "ValidationEvidenceMetadata":
+        normalized = [item.strip().casefold() for item in self.reviewer_refs if item.strip()]
+        if len(normalized) < 2 or len(set(normalized)) < 2:
+            raise ValueError("At least two distinct reviewer references are required")
+        return self
+
+
 class ValidationDatasetPayload(BaseModel):
     name: str = Field(min_length=2, max_length=180)
     version: str = Field(min_length=1, max_length=40)
     description: str | None = Field(default=None, max_length=3000)
     evidence_level: Literal["synthetic", "anonymized_pilot", "production"] = "synthetic"
     automation_eligible: bool = False
+    evidence: ValidationEvidenceMetadata | None = None
     gate: ValidationGate = Field(default_factory=ValidationGate)
     scenarios: list[ValidationScenarioInput] = Field(min_length=1, max_length=500)
 
@@ -335,6 +355,19 @@ class ValidationDatasetPayload(BaseModel):
     def validate_automation_evidence(self) -> "ValidationDatasetPayload":
         if self.automation_eligible:
             raise ValueError("Use the audited automation approval endpoint after a successful real-data gate")
+        if self.evidence_level == "synthetic":
+            return self
+        if self.evidence is None:
+            raise ValueError("Real-evidence datasets require authorization, reviewers and ground-truth metadata")
+        if not self.evidence.authorized_use_confirmed:
+            raise ValueError("Authorized use must be explicitly confirmed for real-evidence datasets")
+        if len(self.scenarios) < 30:
+            raise ValueError("Real-evidence datasets require at least 30 independent scenarios")
+        if self.evidence_level == "anonymized_pilot":
+            if not self.evidence.anonymization_confirmed:
+                raise ValueError("Anonymization must be explicitly confirmed for an anonymized pilot")
+            if not self.evidence.anonymization_method:
+                raise ValueError("An anonymization method is required for an anonymized pilot")
         return self
 
 

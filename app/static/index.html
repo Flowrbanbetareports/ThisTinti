@@ -13,7 +13,7 @@
   <main id="authView" class="auth-shell">
     <section class="auth-brand">
       <div class="brand-mark">T</div>
-      <p class="eyebrow">Document integrity platform</p>
+      <p class="eyebrow">Piattaforma di integrità documentale</p>
       <h1>ThisTinti</h1>
       <p class="hero-copy">Confronta ordini, consegne, fatture, resi e note di credito. Ogni anomalia resta collegata alle prove originali.</p>
       <p id="localEditionBadge" class="local-edition-badge hidden">Local Edition · dati conservati su questo computer · nessuna telemetria</p>
@@ -264,7 +264,7 @@
     <form id="validationDatasetForm" class="modal-card">
       <div class="modal-heading"><div><p class="eyebrow">Validation Lab</p><h3>Nuova suite JSON</h3></div><button class="icon-button" type="button" data-close-dialog="validationDatasetDialog">×</button></div>
       <div class="form-stack">
-        <div><label for="validationDatasetJson">Definizione completa</label><textarea id="validationDatasetJson" rows="18" spellcheck="false" required placeholder='{"name":"Suite","version":"1","evidence_level":"synthetic","gate":{"min_precision":0.95,"min_recall":0.95,"min_f1":0.95,"max_amount_mae":1},"scenarios":[]}'></textarea><small>Il JSON deve contenere nome, versione, gate e almeno uno scenario con documenti strutturati.</small></div>
+        <div><label for="validationDatasetJson">Definizione completa</label><textarea id="validationDatasetJson" rows="18" spellcheck="false" required placeholder='{"name":"Suite","version":"1","evidence_level":"synthetic","gate":{"min_precision":0.95,"min_recall":0.95,"min_f1":0.95,"max_amount_mae":1},"scenarios":[]}'></textarea><small>Le suite reali richiedono almeno 30 scenari e metadati verificabili su autorizzazione, anonimizzazione, perimetro e due revisori distinti.</small></div>
       </div>
       <div class="modal-actions"><button class="secondary-button" type="button" data-close-dialog="validationDatasetDialog">Annulla</button><button class="primary-button" type="submit">Salva suite</button></div>
     </form>

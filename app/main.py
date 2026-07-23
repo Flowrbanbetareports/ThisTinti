@@ -16,7 +16,7 @@ from pathlib import Path
 
 from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Query, Request, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from starlette.background import BackgroundTask
 from sqlalchemy import func, select, text
@@ -98,6 +98,7 @@ from .services.jobs import enqueue_job, job_json
 from .services.rules import analyze_chain
 from .services.rate_limit import consume_rate_limit
 from .services.validation import ENGINE_VERSION, run_validation_dataset
+from .services.validation_reporting import build_validation_report, render_validation_report_markdown
 from .services.line_matching import alias_tokens
 from .services.comparison import build_chain_comparison
 from .services.discovery import DiscoverySettings, maybe_run_discovery, run_discovery
@@ -2392,6 +2393,39 @@ def get_validation_run(
     if not run:
         raise HTTPException(status_code=404, detail="Validation run not found")
     return _validation_run_json(run, include_details=True)
+
+
+@app.get("/api/validation/runs/{run_id}/report")
+def export_validation_run_report(
+    run_id: str,
+    format: str = Query(default="json", pattern="^(json|markdown)$"),
+    redacted: bool = Query(default=True),
+    ctx: AuthContext = Depends(require_reviewer),
+    db: Session = Depends(get_db),
+) -> Response:
+    run = db.scalar(
+        select(ValidationRun)
+        .options(selectinload(ValidationRun.dataset))
+        .where(ValidationRun.id == run_id, ValidationRun.tenant_id == ctx.tenant_id)
+    )
+    if not run:
+        raise HTTPException(status_code=404, detail="Validation run not found")
+    report = build_validation_report(run.dataset, run, redacted=redacted)
+    safe_name = "".join(character if character.isalnum() or character in "-_" else "-" for character in run.dataset.name)
+    suffix = "redacted" if redacted else "internal"
+    if format == "markdown":
+        content = render_validation_report_markdown(report)
+        media_type = "text/markdown; charset=utf-8"
+        extension = "md"
+    else:
+        content = json.dumps(report, ensure_ascii=False, indent=2, default=str)
+        media_type = "application/json"
+        extension = "json"
+    return Response(
+        content=content,
+        media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="validation-{safe_name}-{suffix}.{extension}"'},
+    )
 
 
 @app.post("/api/validation/load-default", status_code=201)
