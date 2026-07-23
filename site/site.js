@@ -4,6 +4,7 @@
   const installer = document.querySelector('#downloadInstaller');
   const portable = document.querySelector('#downloadPortable');
   const checksum = document.querySelector('#downloadChecksum');
+  const sourcePackage = document.querySelector('#downloadSourcePackage');
   const status = document.querySelector('#releaseStatus');
   const releasePill = document.querySelector('#releasePill');
   const source = document.querySelector('#sourceLink');
@@ -90,14 +91,15 @@
     whatsappShareButton.href = `https://wa.me/?text=${encodeURIComponent(shareMessage())}`;
   }
 
+  // Keep ordinary visitors inside the official ThisTinti site.
+  if (source) source.href = 'transparency.html';
+  if (enterpriseSource) enterpriseSource.href = 'self-hosted.html';
+  if (securityLink) securityLink.href = 'security.html';
+
   if (!repo || !repo.includes('/')) {
-    if (status) status.textContent = 'Repository non ancora configurato.';
+    if (status) status.textContent = 'Download temporaneamente non disponibile.';
     return;
   }
-
-  if (source) source.href = `https://github.com/${repo}`;
-  if (enterpriseSource) enterpriseSource.href = `https://github.com/${repo}/blob/main/docs/ENTERPRISE_SELF_HOSTED.md`;
-  if (securityLink) securityLink.href = `https://github.com/${repo}/blob/main/SECURITY.md`;
 
   fetch(`https://api.github.com/repos/${repo}/releases?per_page=10`, {
     headers: { Accept: 'application/vnd.github+json' },
@@ -119,15 +121,23 @@
       const setup = releaseAssets.find(asset => /ThisTinti-Setup-.*-x64\.exe$/i.test(asset.name));
       const zip = releaseAssets.find(asset => /ThisTinti-Portable-.*-x64\.zip$/i.test(asset.name));
       const setupHash = releaseAssets.find(asset => /ThisTinti-Setup-.*-x64\.exe\.sha256$/i.test(asset.name));
+      const sourceArchive = releaseAssets.find(asset => /ThisTinti-.*-self-hosted-source\.zip$/i.test(asset.name));
       assets = {
         setup: setup.browser_download_url,
         portable: zip?.browser_download_url,
+        source: sourceArchive?.browser_download_url,
       };
 
       if (zip && portable) portable.classList.remove('hidden');
       if (setupHash && checksum) {
         checksum.href = setupHash.browser_download_url;
         checksum.classList.remove('hidden');
+      }
+      if (sourceArchive && sourcePackage) {
+        sourcePackage.href = sourceArchive.browser_download_url;
+        sourcePackage.classList.remove('disabled');
+        sourcePackage.removeAttribute('aria-disabled');
+        sourcePackage.textContent = 'Scarica il pacchetto sorgente';
       }
       const channel = release.prerelease ? 'Public Preview' : 'Release';
       if (releasePill) releasePill.textContent = `${channel} · Local Edition`;
@@ -136,11 +146,11 @@
     })
     .catch(() => {
       if (installer) {
-        installer.textContent = 'Apri la pagina delle release';
-        installer.href = `https://github.com/${repo}/releases`;
-        installer.classList.remove('disabled');
-        installer.removeAttribute('aria-disabled');
+        installer.textContent = 'Download temporaneamente non disponibile';
+        installer.removeAttribute('href');
+        installer.classList.add('disabled');
+        installer.setAttribute('aria-disabled', 'true');
       }
-      if (status) status.textContent = 'La release pubblica diretta è in preparazione. Puoi controllare lo stato su GitHub.';
+      if (status) status.textContent = 'La pagina resta disponibile, ma il download non è raggiungibile in questo momento.';
     });
 })();
