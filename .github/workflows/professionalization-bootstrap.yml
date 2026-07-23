@@ -38,7 +38,7 @@ jobs:
             /repos/${GITHUB_REPOSITORY}/actions/artifacts/8553475727/zip \
             > professionalization-artifact.zip
 
-      - name: Verify and apply payload
+      - name: Verify and apply non-workflow payload
         shell: bash
         run: |
           set -euo pipefail
@@ -93,11 +93,16 @@ jobs:
               deletions.unlink()
           PY
 
+          # GitHub's ephemeral token must not rewrite workflow definitions.
+          # Those five reviewed files are applied separately through the trusted repository connector.
+          git checkout HEAD -- .github
           rm -rf .professionalization-artifact .professionalization-transfer
           rm -f professionalization-artifact.zip .professionalization-diagnostics.txt
-          rm -f .github/workflows/export-professionalization-transfer.yml
-          rm -f .github/workflows/professionalization-bootstrap.yml
 
+      - name: Commit and push application, documentation and tests
+        shell: bash
+        run: |
+          set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
