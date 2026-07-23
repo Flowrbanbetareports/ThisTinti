@@ -1,10 +1,11 @@
 name: Apply professionalization transfer
 
 on:
-  push:
+  pull_request:
     branches:
-      - professionalization/alpha6-foundation
+      - main
     paths:
+      - ".professionalization-transfer/**"
       - ".github/workflows/professionalization-bootstrap.yml"
 
 permissions:
