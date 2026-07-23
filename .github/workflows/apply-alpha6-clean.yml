@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - ".github/workflows/apply-alpha6-clean.yml"
-      - ".alpha6-transfer/**"
 
 permissions:
   contents: write
@@ -118,7 +117,7 @@ jobs:
           conftest.write_text(content, encoding="utf-8")
           PY
           rm -rf .alpha6-transfer
-          rm -f .github/workflows/apply-alpha6-clean.yml alpha6-normalization-diagnostics.txt alpha6-test-diagnostics.txt
+          rm -f alpha6-normalization-diagnostics.txt alpha6-test-diagnostics.txt
 
       - name: Install development dependencies
         shell: bash
@@ -155,7 +154,10 @@ jobs:
       - name: Diff hygiene
         run: git diff --check
 
-      - name: Commit verified foundation
+      - name: Restore workflows for connector-managed commit
+        run: git restore --source=HEAD -- .github/workflows
+
+      - name: Commit verified source foundation
         id: commit_foundation
         continue-on-error: true
         shell: bash
@@ -167,7 +169,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git status --short
           git add -A
-          git commit -m "Build alpha.6 professionalization foundation"
+          git commit -m "Build alpha.6 professionalization source foundation"
           commit_status=$?
           if [ "$commit_status" -ne 0 ]; then
             exit "$commit_status"
@@ -186,5 +188,5 @@ jobs:
             tail -n 80 /tmp/alpha6-commit.log
             echo '```'
           } > /tmp/alpha6-pr-comment.md
-          gh pr comment 25 --repo "$GITHUB_REPOSITORY" --body-file /tmp/alpha6-pr-comment.md
+          gh api --method PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/5055065439" -f body="$(cat /tmp/alpha6-pr-comment.md)"
           exit 1
