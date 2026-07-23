@@ -1,19 +1,20 @@
 name: Apply repaired professionalization transfer
 
 on:
-  push:
+  pull_request:
     branches:
-      - professionalization/alpha6-foundation
+      - main
     paths:
       - ".professionalization-transfer/**"
       - ".github/workflows/professionalization-bootstrap.yml"
-  workflow_dispatch:
+      - ".professionalization-diagnostics.txt"
 
 permissions:
   contents: write
 
 jobs:
   apply:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'professionalization/alpha6-foundation'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -34,6 +35,8 @@ jobs:
           root = Path.cwd().resolve()
           transfer = root / ".professionalization-transfer"
           chunks = sorted(transfer.glob("chunk-*.txt"))
+          if not chunks:
+              raise RuntimeError("professionalization transfer chunks not found")
           encoded = "".join(path.read_text(encoding="ascii") for path in chunks)
           payload = base64.b64decode(encoded, validate=True)
           expected = "9ed7bcb39e0489b83d17b86408818393a24caed7074c8d71d30d7ff7e1a0be8f"
@@ -53,8 +56,9 @@ jobs:
               usable = repaired
 
           with zipfile.ZipFile(usable) as archive:
-              if archive.testzip():
-                  raise RuntimeError("repaired archive is corrupt")
+              corrupt = archive.testzip()
+              if corrupt:
+                  raise RuntimeError(f"repaired archive is corrupt: {corrupt}")
               for member in archive.infolist():
                   target = (root / member.filename).resolve()
                   if target != root and root not in target.parents:
@@ -65,14 +69,15 @@ jobs:
           if deletions.exists():
               for raw in deletions.read_text(encoding="utf-8").splitlines():
                   path = raw.strip()
-                  if path:
-                      candidate = (root / path).resolve()
-                      if candidate != root and root not in candidate.parents:
-                          raise RuntimeError(f"unsafe deletion path: {path}")
-                      if candidate.is_file() or candidate.is_symlink():
-                          candidate.unlink()
-                      elif candidate.is_dir():
-                          shutil.rmtree(candidate)
+                  if not path:
+                      continue
+                  candidate = (root / path).resolve()
+                  if candidate != root and root not in candidate.parents:
+                      raise RuntimeError(f"unsafe deletion path: {path}")
+                  if candidate.is_file() or candidate.is_symlink():
+                      candidate.unlink()
+                  elif candidate.is_dir():
+                      shutil.rmtree(candidate)
               deletions.unlink()
           PY
 
@@ -84,5 +89,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          git commit -m 'Apply alpha.6 professionalization foundation'
+          git commit -m 'Apply Alpha.6 professionalization foundation'
           git push origin HEAD:professionalization/alpha6-foundation
