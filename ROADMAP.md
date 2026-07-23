@@ -1,6 +1,6 @@
 # Roadmap di ThisTinti
 
-## Stato attuale — 3.4.0-alpha.5
+## Stato attuale — 3.4.0-alpha.6-rc.1
 
 Completati:
 
@@ -12,7 +12,8 @@ Completati:
 - CI, audit dipendenze, backup e ripristino automatici;
 - identità visiva unificata, motion accessibile e collaudo Windows;
 - messaggi di errore leggibili, orari locali e azioni contestuali;
-- documentazione legale e operativa di base.
+- documentazione legale e operativa di base;
+- gate interno beta, audit accessibilità strutturale, load probe e provenienza degli artefatti.
 
 ## Alpha.6 — pilot documentale e qualità misurata
 

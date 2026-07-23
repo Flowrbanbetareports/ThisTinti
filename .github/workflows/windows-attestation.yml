@@ -1,0 +1,40 @@
+name: Attest Windows Artifacts
+
+on:
+  workflow_run:
+    workflows: ["Build Windows Free Download"]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  actions: read
+  contents: read
+  id-token: write
+  attestations: write
+
+jobs:
+  provenance:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download exact successful Windows artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          RUN_NUMBER: ${{ github.event.workflow_run.run_number }}
+          REPOSITORY: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          artifact="ThisTinti-Windows-${RUN_ID}-${RUN_NUMBER}"
+          mkdir -p attested-artifacts
+          gh run download "$RUN_ID" --repo "$REPOSITORY" --name "$artifact" --dir attested-artifacts
+          find attested-artifacts -type f -maxdepth 2 -print
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@e3fe62ef559997059fe8380e7d2b4c909e2d65f4 # immutable upstream commit
+        with:
+          subject-path: |
+            attested-artifacts/*.exe
+            attested-artifacts/*.zip
+            attested-artifacts/*.sha256
