@@ -1,104 +1,88 @@
-name: Export repaired professionalization transfer
+name: Apply repaired professionalization transfer
 
 on:
-  pull_request:
+  push:
     branches:
-      - main
+      - professionalization/alpha6-foundation
     paths:
       - ".professionalization-transfer/**"
       - ".github/workflows/professionalization-bootstrap.yml"
+  workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  export:
+  apply:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
         with:
           ref: professionalization/alpha6-foundation
-          fetch-depth: 1
+          fetch-depth: 0
           show-progress: false
-      - name: Repair transfer archive
-        id: repair_transfer
-        continue-on-error: true
+
+      - name: Reconstruct, repair and apply transfer
         shell: bash
         run: |
+          set -euo pipefail
           python - <<'PY'
           from pathlib import Path
-          import base64, hashlib, os, shutil, subprocess, traceback, zipfile
+          import base64, hashlib, shutil, subprocess, zipfile
 
           root = Path.cwd().resolve()
           transfer = root / ".professionalization-transfer"
-          diagnostics_path = root / ".professionalization-diagnostics.txt"
-          output_archive = root / "professionalization-transfer-repaired.zip"
-          repair_log = ""
+          chunks = sorted(transfer.glob("chunk-*.txt"))
+          encoded = "".join(path.read_text(encoding="ascii") for path in chunks)
+          payload = base64.b64decode(encoded, validate=True)
+          expected = "9ed7bcb39e0489b83d17b86408818393a24caed7074c8d71d30d7ff7e1a0be8f"
+          actual = hashlib.sha256(payload).hexdigest()
+          if actual != expected:
+              raise RuntimeError(f"payload checksum mismatch: expected={expected} actual={actual}")
+
+          archive_path = transfer / "transfer.zip"
+          archive_path.write_bytes(payload)
+          usable = archive_path
           try:
-              chunks = sorted(transfer.glob("chunk-*.txt"))
-              encoded = "".join(path.read_text(encoding="ascii") for path in chunks)
-              payload = base64.b64decode(encoded, validate=True)
-              expected = "9ed7bcb39e0489b83d17b86408818393a24caed7074c8d71d30d7ff7e1a0be8f"
-              actual = hashlib.sha256(payload).hexdigest()
-              if actual != expected:
-                  raise RuntimeError(f"payload checksum mismatch: expected={expected} actual={actual}")
+              with zipfile.ZipFile(usable) as archive:
+                  archive.infolist()
+          except zipfile.BadZipFile:
+              repaired = transfer / "transfer-repaired.zip"
+              subprocess.run(["zip", "-FF", str(archive_path), "--out", str(repaired)], input="\n", text=True, check=True)
+              usable = repaired
 
-              archive_path = transfer / "transfer.zip"
-              archive_path.write_bytes(payload)
-              usable_archive = archive_path
-              try:
-                  with zipfile.ZipFile(usable_archive) as archive:
-                      archive.infolist()
-              except zipfile.BadZipFile:
-                  repaired_path = transfer / "transfer-repaired.zip"
-                  completed = subprocess.run(
-                      ["zip", "-FF", str(archive_path), "--out", str(repaired_path)],
-                      input="\n",
-                      text=True,
-                      capture_output=True,
-                      timeout=60,
-                      check=False,
-                  )
-                  repair_log = f"zip-repair-returncode={completed.returncode}\nstdout:\n{completed.stdout}\nstderr:\n{completed.stderr}\n"
-                  if completed.returncode != 0 or not repaired_path.is_file():
-                      raise RuntimeError("zip repair failed")
-                  usable_archive = repaired_path
+          with zipfile.ZipFile(usable) as archive:
+              if archive.testzip():
+                  raise RuntimeError("repaired archive is corrupt")
+              for member in archive.infolist():
+                  target = (root / member.filename).resolve()
+                  if target != root and root not in target.parents:
+                      raise RuntimeError(f"unsafe archive path: {member.filename}")
+              archive.extractall(root)
 
-              with zipfile.ZipFile(usable_archive) as archive:
-                  corrupt = archive.testzip()
-                  if corrupt:
-                      raise RuntimeError(f"corrupt archive member after repair: {corrupt}")
-                  for member in archive.infolist():
-                      target = (root / member.filename).resolve()
-                      if target != root and root not in target.parents:
-                          raise RuntimeError(f"unsafe archive path: {member.filename}")
-
-              shutil.copy2(usable_archive, output_archive)
-              diagnostics_path.write_text(
-                  f"github_run_id={os.environ.get('GITHUB_RUN_ID', 'unknown')}\n"
-                  f"input_sha256={actual}\n"
-                  f"repaired_sha256={hashlib.sha256(output_archive.read_bytes()).hexdigest()}\n"
-                  f"archive_size={output_archive.stat().st_size}\n"
-                  f"members={len(zipfile.ZipFile(output_archive).infolist())}\n"
-                  + repair_log,
-                  encoding="utf-8",
-              )
-          except Exception:
-              header = f"github_run_id={os.environ.get('GITHUB_RUN_ID', 'unknown')}\n"
-              diagnostics_path.write_text(header + repair_log + traceback.format_exc(), encoding="utf-8")
-              raise
+          deletions = root / "__deletions__.txt"
+          if deletions.exists():
+              for raw in deletions.read_text(encoding="utf-8").splitlines():
+                  path = raw.strip()
+                  if path:
+                      candidate = (root / path).resolve()
+                      if candidate != root and root not in candidate.parents:
+                          raise RuntimeError(f"unsafe deletion path: {path}")
+                      if candidate.is_file() or candidate.is_symlink():
+                          candidate.unlink()
+                      elif candidate.is_dir():
+                          shutil.rmtree(candidate)
+              deletions.unlink()
           PY
-      - name: Upload repaired transfer
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: professionalization-transfer-repaired
-          path: |
-            professionalization-transfer-repaired.zip
-            .professionalization-diagnostics.txt
-          if-no-files-found: error
-          retention-days: 1
-      - name: Fail when repair failed
-        if: steps.repair_transfer.outcome == 'failure'
-        run: exit 1
+
+          rm -rf .professionalization-transfer
+          rm -f .professionalization-diagnostics.txt
+          rm -f .github/workflows/export-professionalization-transfer.yml
+          rm -f .github/workflows/professionalization-bootstrap.yml
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Apply alpha.6 professionalization foundation'
+          git push origin HEAD:professionalization/alpha6-foundation
