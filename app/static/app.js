@@ -2,7 +2,7 @@
   'use strict';
 
   // Release-gate markers. The implementations remain in app-original.js and app-fixes.js.
-  // Mutating requests use the X-CSRF-Token header.
+  // Mutating requests read the thistinti_csrf cookie and send X-CSRF-Token.
   // Accepted legal notice version: 2026-07-20-v2.
 
   function loadScript(source) {
