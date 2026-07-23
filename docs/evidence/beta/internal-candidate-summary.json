@@ -1,0 +1,57 @@
+{
+  "schema": "thistinti.internal-beta-candidate-evidence.v1",
+  "candidate_version": "3.4.0-alpha.6-rc.1",
+  "status": {
+    "technical_beta_candidate": true,
+    "validated_beta": false,
+    "production_ready": false
+  },
+  "source": {
+    "merge_commit": "cdfb4749211a96a06a48a789cd07287c50fdd1a7",
+    "pull_request": 26
+  },
+  "internal_beta_gate": {
+    "workflow": "Beta Readiness",
+    "run_id": 30022612877,
+    "head_sha": "3b2689a4c36727ea0b5cfd44897a24f35cdf2813",
+    "artifact_id": 8569917005,
+    "artifact_digest": "sha256:1f0f41771ac9b8d6008576580155ffe0139bfd676860136d2b34c4c71726e402",
+    "passed": true,
+    "accessibility_structural_failures": 0,
+    "load_probe": {
+      "requests": 200,
+      "concurrency": 20,
+      "http_errors": 0,
+      "error_rate": 0.0,
+      "p95_ms": 132.86,
+      "p99_ms": 166.68,
+      "throughput_requests_per_second": 364.95
+    }
+  },
+  "windows_distribution": {
+    "workflow_run_id": 30023086936,
+    "workflow_run_number": 96,
+    "source_commit": "cdfb4749211a96a06a48a789cd07287c50fdd1a7",
+    "artifact_id": 8570246126,
+    "artifact_digest": "sha256:d52990ad2d41ce202cb43c1e44433c767602f795e003ffdf88113e218f65146e",
+    "installer": {
+      "name": "ThisTinti-Setup-3.4.0-alpha.6-rc.1-x64.exe",
+      "size_bytes": 56987334,
+      "sha256": "b21af3bc9a834c6ac86222f8f644ea275f8ea05234093f79294e5bfb60756020"
+    },
+    "frozen_smoke_passed": true,
+    "installed_smoke_passed": true,
+    "upgrade_from_previous_alpha_passed": true,
+    "data_persistence_passed": true,
+    "uninstall_preserved_data": true
+  },
+  "external_gates": {
+    "registry": "docs/evidence/beta/external-gates.json",
+    "all_passed": false
+  },
+  "limitations": [
+    "The load probe is a CI regression measurement, not a production capacity claim.",
+    "The structural accessibility audit does not establish WCAG conformance.",
+    "The beta remains unvalidated until real pilot and independent review gates are evidenced."
+  ]
+}
