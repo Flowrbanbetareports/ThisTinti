@@ -1,7 +1,11 @@
-name: Publish Download Page
+name: Publish Official Site
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - "site/**"
+      - ".github/workflows/pages.yml"
   push:
     branches: [main]
     paths:
@@ -14,11 +18,73 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22"
+      - name: Validate JavaScript and public files
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check site/site.js
+          python - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          site = Path('site')
+          required = {
+              'index.html', 'guide.html', 'legal.html', '404.html',
+              'styles.css', 'site.js', 'config.js', 'logo.svg',
+              'social-card.svg', 'robots.txt', 'sitemap.xml',
+          }
+          missing = sorted(name for name in required if not (site / name).is_file())
+          if missing:
+              raise SystemExit(f'Missing public site files: {missing}')
+
+          class Validator(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.ids = set()
+                  self.links = []
+              def handle_starttag(self, tag, attrs):
+                  values = dict(attrs)
+                  if 'id' in values:
+                      if values['id'] in self.ids:
+                          raise ValueError(f'Duplicate id: {values["id"]}')
+                      self.ids.add(values['id'])
+                  if tag in {'a', 'link', 'script', 'img'}:
+                      target = values.get('href') or values.get('src')
+                      if target:
+                          self.links.append(target)
+
+          for name in ['index.html', 'guide.html', 'legal.html', '404.html']:
+              parser = Validator()
+              parser.feed((site / name).read_text(encoding='utf-8'))
+              parser.close()
+              for target in parser.links:
+                  if target.startswith(('http://', 'https://', '#', 'mailto:', 'tel:')):
+                      continue
+                  relative = target.split('#', 1)[0].split('?', 1)[0]
+                  if relative and not (site / relative).exists():
+                      raise SystemExit(f'{name}: missing local target {relative}')
+
+          for name in ['logo.svg', 'social-card.svg', 'sitemap.xml']:
+              ET.parse(site / name)
+          print('Official site validation passed.')
+          PY
+
   deploy:
+    if: github.event_name != 'pull_request'
+    needs: validate
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

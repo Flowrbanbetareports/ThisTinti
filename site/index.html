@@ -3,75 +3,188 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="ThisTinti Local: controllo documentale gratuito, locale e senza cloud obbligatorio." />
-  <title>ThisTinti — Download gratuito</title>
+  <meta name="description" content="ThisTinti collega e confronta documenti, mostra possibili incoerenze e lascia i dati sotto il controllo dell'organizzazione." />
+  <meta name="theme-color" content="#0d1720" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="it_IT" />
+  <meta property="og:title" content="ThisTinti — Documenti collegati, controlli spiegabili" />
+  <meta property="og:description" content="Una piattaforma locale e adattabile per organizzare, collegare e confrontare documenti." />
+  <meta property="og:image" content="logo.svg" />
+  <title>ThisTinti — Documenti collegati, controlli spiegabili</title>
   <link rel="icon" href="logo.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="#top"><img src="logo.svg" alt="" />ThisTinti</a>
-    <nav><a href="#come-funziona">Come funziona</a><a href="#self-hosted">Self-hosted</a><a href="#limiti">Limiti</a><a href="#documentazione">Documentazione</a><a href="#privacy">Dati e privacy</a><a href="legal.html">Note legali</a></nav>
+    <a class="brand" href="#top" aria-label="ThisTinti, torna all'inizio"><img src="logo.svg" alt="" />ThisTinti</a>
+    <nav aria-label="Navigazione principale">
+      <a href="#come-funziona">Come funziona</a>
+      <a href="#prima-prova">Prima prova</a>
+      <a href="#adattabile">Adattabile</a>
+      <a href="#edizioni">Edizioni</a>
+      <a href="#faq">Domande</a>
+    </nav>
+    <a class="header-cta" href="#download">Scarica</a>
   </header>
 
   <main id="top">
     <section class="hero">
-      <div class="hero-mark" aria-hidden="true"><img src="logo.svg" alt="" /></div>
-      <p class="eyebrow">Local Free Edition · alpha · dati sotto il tuo controllo</p>
-      <h1>Controlla i documenti aziendali.<br />I dati restano da te.</h1>
-      <p class="lead">ThisTinti ricostruisce proposta, ordine, consegna, fattura e pagamento, segnala ciò che manca e mostra le prove. Nessun account centrale, nessuna telemetria, nessun cloud obbligatorio.</p>
-      <div class="download-legal"><label><input id="downloadRiskAcceptance" type="checkbox" /> <span>Ho letto le <a href="legal.html" target="_blank" rel="noopener">condizioni d’uso e l’avviso sui rischi</a> e comprendo che ogni risultato richiede verifica umana.</span></label></div>
-      <div class="actions">
-        <a id="downloadInstaller" class="button primary disabled" aria-disabled="true">Release in preparazione</a>
-        <a id="downloadPortable" class="button secondary hidden">Versione portable</a>
-        <a id="downloadChecksum" class="text-link hidden">Checksum SHA-256</a>
+      <div class="hero-copy-block">
+        <div class="status-line"><span class="status-dot"></span><span id="releasePill">Public Preview · Local Edition</span></div>
+        <h1>Metti ordine nei documenti.<br /><span>Trova ciò che non combacia.</span></h1>
+        <p class="lead">ThisTinti collega documenti che parlano della stessa attività, confronta i dati e mostra possibili differenze insieme alle prove. Ogni organizzazione decide come adattarlo ai propri processi.</p>
+        <div id="download" class="download-card">
+          <label class="download-consent"><input id="downloadRiskAcceptance" type="checkbox" /> <span>Ho capito che questa è una versione sperimentale e che i risultati devono essere controllati sui documenti originali.</span></label>
+          <div class="actions">
+            <a id="downloadInstaller" class="button primary disabled" aria-disabled="true">Release in preparazione</a>
+            <a id="downloadPortable" class="button secondary hidden">Versione portable</a>
+            <a class="button quiet" href="guide.html">Leggi la guida semplice</a>
+          </div>
+          <div class="download-meta">
+            <p id="releaseStatus" aria-live="polite">Verifica dell'ultima release pubblica…</p>
+            <a id="downloadChecksum" class="text-link hidden">Checksum SHA-256</a>
+          </div>
+        </div>
       </div>
-      <p id="releaseStatus" class="release-status" aria-live="polite">Verifica dell'ultima release pubblica…</p>
+
+      <div class="product-visual" aria-label="Anteprima semplificata di ThisTinti">
+        <div class="window-bar"><span></span><span></span><span></span><b>ThisTinti</b></div>
+        <div class="mock-app">
+          <aside>
+            <img src="logo.svg" alt="" />
+            <i class="active">Panoramica</i><i>Documenti</i><i>Catene</i><i>Anomalie</i>
+          </aside>
+          <section>
+            <small>CONTROLLO DOCUMENTALE</small>
+            <h2>Panoramica</h2>
+            <div class="mock-metrics"><div><b>24</b><span>Documenti</span></div><div><b>3</b><span>Da controllare</span></div><div><b>8</b><span>Catene</span></div></div>
+            <div class="mock-alert"><b>Possibile incoerenza</b><span>Quantità diversa tra due documenti collegati.</span></div>
+            <div class="mock-flow"><span>Carica</span><em>→</em><span>Collega</span><em>→</em><span>Confronta</span><em>→</em><span>Verifica</span></div>
+          </section>
+        </div>
+      </div>
     </section>
 
     <section class="trust-strip" aria-label="Caratteristiche principali">
-      <div><strong>Locale</strong><span>Database e file sul computer dell'azienda</span></div>
-      <div><strong>Gratuito</strong><span>Licenza permissiva e sorgente disponibile</span></div>
-      <div><strong>Verificabile</strong><span>Checksum e prove automatiche per ogni release</span></div>
+      <div><strong>Locale</strong><span>La Local Edition conserva database e file sul computer dell'utente.</span></div>
+      <div><strong>Adattabile</strong><span>Regole, collegamenti e utilizzi possono seguire i processi dell'organizzazione.</span></div>
+      <div><strong>Spiegabile</strong><span>Ogni segnalazione rimane collegata ai dati e ai documenti che l'hanno generata.</span></div>
     </section>
 
     <section id="come-funziona" class="section reveal-section">
-      <p class="eyebrow">Molto semplice</p>
-      <h2>Installa, apri, carica.</h2>
-      <div class="steps">
-        <article><span>01</span><h3>Installa</h3><p>Un installer Windows crea il collegamento. Non serve configurare Python o database.</p></article>
-        <article><span>02</span><h3>Crea lo spazio</h3><p>Al primo avvio imposti l'azienda e l'amministratore direttamente sul computer.</p></article>
-        <article><span>03</span><h3>Analizza</h3><p>Carichi i documenti. ThisTinti li collega, individua anomalie e richiede verifica quando è incerto.</p></article>
+      <div class="section-heading">
+        <p class="eyebrow">Come funziona</p>
+        <h2>Quattro passaggi, senza parole difficili.</h2>
+        <p>ThisTinti non impone un risultato. Organizza le informazioni per rendere il controllo più rapido e comprensibile.</p>
+      </div>
+      <div class="steps four">
+        <article><span>01</span><h3>Carica</h3><p>Inserisci documenti singoli o un archivio ZIP con più file supportati.</p></article>
+        <article><span>02</span><h3>Collega</h3><p>Il programma riunisce i documenti che sembrano appartenere alla stessa attività.</p></article>
+        <article><span>03</span><h3>Confronta</h3><p>Applica controlli e regole definite o accettate dall'organizzazione.</p></article>
+        <article><span>04</span><h3>Verifica</h3><p>La persona apre la segnalazione, vede le prove e decide cosa significa nel proprio contesto.</p></article>
       </div>
     </section>
 
-    <section id="self-hosted" class="section split reveal-section">
-      <div><p class="eyebrow">Per organizzazioni con team tecnico</p><h2>Installabile anche sui server dell’azienda.</h2></div>
-      <div class="copy"><p>La Self-Hosted Reference Edition include PostgreSQL, worker scalabili, TLS, scanner malware, backup e sorgente modificabile. L’azienda può usare infrastruttura e fornitori scelti autonomamente.</p><p>Non è un servizio gestito da ThisTinti: installazione, costi, sicurezza, privacy, aggiornamenti, monitoraggio e assistenza restano a carico dell’organizzazione o dei tecnici incaricati.</p><a id="enterpriseSourceLink" class="text-link" href="#">Documentazione self-hosted →</a></div>
+    <section class="section example-section reveal-section">
+      <div class="example-card">
+        <div>
+          <p class="eyebrow">Esempio elementare</p>
+          <h2>Tre documenti raccontano quasi la stessa storia.</h2>
+          <p>Un documento indica <strong>10 pezzi</strong>, un altro <strong>8 pezzi</strong>, un terzo ancora <strong>10 pezzi</strong>. ThisTinti non stabilisce chi abbia ragione: evidenzia la differenza e mostra dove trovarla.</p>
+        </div>
+        <div class="document-story" aria-hidden="true">
+          <div><small>DOCUMENTO A</small><b>10 pezzi</b></div><span>≈</span><div class="different"><small>DOCUMENTO B</small><b>8 pezzi</b></div><span>≈</span><div><small>DOCUMENTO C</small><b>10 pezzi</b></div>
+        </div>
+      </div>
     </section>
 
-    <section id="limiti" class="section split reveal-section">
-      <div><p class="eyebrow">Stato del progetto</p><h2>Utilizzabile, ma ancora alpha.</h2></div>
-      <div class="copy"><p>La release pubblica iniziale è destinata a valutazione, pilot e adattamento tecnico. Non è certificata per autorizzare pagamenti o sostituire controlli contabili, fiscali, legali o di sicurezza.</p><p>Nome e identità visiva restano in verifica prima di una fase commerciale; ogni futura modifica verrà pubblicata con una nuova versione senza alterare le release precedenti.</p></div>
+    <section id="prima-prova" class="section split reveal-section">
+      <div>
+        <p class="eyebrow">Prima prova</p>
+        <h2>Installalo e capisci tutto in pochi minuti.</h2>
+      </div>
+      <div class="copy numbered-copy">
+        <div><b>1</b><p>Scarica l'installer Windows e completa l'installazione.</p></div>
+        <div><b>2</b><p>Al primo avvio inserisci un nome organizzazione, una tua email e una password di almeno 10 caratteri. Non esiste un account centrale ThisTinti.</p></div>
+        <div><b>3</b><p>Premi <strong>Carica esempio</strong> per vedere il programma senza usare documenti personali o riservati.</p></div>
+        <div><b>4</b><p>Apri Documenti, Catene e Anomalie per capire come sono collegate le informazioni.</p></div>
+        <p><a class="text-link" href="guide.html">Apri la guida passo passo →</a></p>
+      </div>
     </section>
 
-    <section id="documentazione" class="section split accent reveal-section">
-      <div><p class="eyebrow">Prima di installare</p><h2>Guide, limiti e prove sono pubblici.</h2></div>
-      <div class="copy"><p>La documentazione spiega uso locale, backup, pilot, self-hosting, sicurezza, assistenza non garantita e responsabilità dell'operatore.</p><p><a id="guideLink" class="text-link" href="#">Guida semplice →</a></p><p><a id="pilotLink" class="text-link" href="#">Kit per il pilot →</a></p><p><a id="launchChecklistLink" class="text-link" href="#">Checklist di pubblicazione →</a></p><p><a id="securityLink" class="text-link" href="#">Sicurezza e segnalazioni →</a></p></div>
+    <section id="adattabile" class="section split accent reveal-section">
+      <div>
+        <p class="eyebrow">Una base, non una gabbia</p>
+        <h2>Ogni organizzazione può modellarlo.</h2>
+      </div>
+      <div class="copy">
+        <p>ThisTinti può essere adattato a documenti e processi diversi. L'organizzazione può scegliere quali file usare, quali campi confrontare, quali tolleranze accettare, quali regole attivare e chi può revisionare i risultati.</p>
+        <div class="tag-list"><span>Campi</span><span>Regole</span><span>Tolleranze</span><span>Ruoli</span><span>Report</span><span>Integrazioni</span></div>
+        <p>Il programma fornisce informazioni organizzate e possibili segnali. Il significato operativo dipende sempre dal contesto e dalle procedure dell'utilizzatore.</p>
+      </div>
     </section>
 
-    <section id="privacy" class="section split reveal-section">
-      <div><p class="eyebrow">Dati e privacy</p><h2>Il progetto non gestisce i tuoi documenti.</h2></div>
-      <div class="copy"><p>La Local Edition ascolta soltanto sul computer locale. Non invia file, utilizzo o statistiche all'autore. Disinstallare il programma non elimina automaticamente l'archivio aziendale.</p><p>ThisTinti è uno strumento di supporto: pagamenti, contabilità e decisioni legali devono sempre essere verificati da una persona.</p></div>
+    <section id="edizioni" class="section reveal-section">
+      <div class="section-heading">
+        <p class="eyebrow">Due modalità</p>
+        <h2>Da un singolo PC a un ambiente condiviso.</h2>
+      </div>
+      <div class="edition-grid">
+        <article class="featured">
+          <span class="edition-label">Per provare subito</span>
+          <h3>Local Edition</h3>
+          <p>Si installa su Windows e apre l'interfaccia nel browser del computer. I dati restano su quella postazione e ogni installazione crea uno spazio indipendente.</p>
+          <ul><li>Nessun account centrale</li><li>Nessuna telemetria</li><li>Installer e versione portable</li><li>Ideale per demo e valutazione</li></ul>
+          <a class="button primary" href="#download">Scarica per Windows</a>
+        </article>
+        <article>
+          <span class="edition-label">Per team tecnici</span>
+          <h3>Self-Hosted Reference Edition</h3>
+          <p>Può essere installata su infrastruttura scelta dall'organizzazione per consentire accessi condivisi e account separati.</p>
+          <ul><li>PostgreSQL e worker</li><li>Ruoli e utenti</li><li>Backup e ripristino</li><li>Gestione a carico dell'organizzazione</li></ul>
+          <a id="enterpriseSourceLink" class="text-link" href="#">Documentazione self-hosted →</a>
+        </article>
+      </div>
     </section>
 
-    <section id="sorgente" class="section split accent reveal-section">
-      <div><p class="eyebrow">Per i team tecnici</p><h2>Una base modificabile, non una scatola chiusa.</h2></div>
-      <div class="copy"><p>Ogni build include il sorgente corrispondente. Un'azienda può adattare parser, regole, integrazioni e interfaccia alle proprie necessità nel rispetto della licenza Apache 2.0.</p><a id="sourceLink" class="text-link" href="#">Apri il repository →</a></div>
+    <section class="section share-section reveal-section">
+      <div>
+        <p class="eyebrow">Fallo provare</p>
+        <h2>Condividi una sola pagina, non una serie di istruzioni.</h2>
+        <p>Il link contiene download, spiegazione, primi dati da inserire e guida. Chi prova ThisTinti crea il proprio spazio locale e non usa le tue credenziali.</p>
+      </div>
+      <div class="share-actions">
+        <button id="copyShareButton" class="button secondary" type="button">Copia messaggio pronto</button>
+        <a id="whatsappShareButton" class="button whatsapp" href="#" rel="noopener">Condividi su WhatsApp</a>
+        <p id="shareFeedback" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section id="faq" class="section reveal-section">
+      <div class="section-heading"><p class="eyebrow">Domande comuni</p><h2>Le risposte essenziali.</h2></div>
+      <div class="faq-grid">
+        <details><summary>È un sito dove caricare documenti?</summary><p>No. Questa pagina serve a conoscere e scaricare il programma. La Local Edition lavora sul computer dell'utente.</p></details>
+        <details><summary>Devo usare un account fornito da ThisTinti?</summary><p>No. Al primo avvio crei localmente la tua organizzazione, la tua email di accesso e la tua password.</p></details>
+        <details><summary>Un amico può entrare nel mio spazio?</summary><p>Non nella Local Edition installata sul suo PC. Per un ambiente realmente condiviso serve una configurazione self-hosted gestita da tecnici.</p></details>
+        <details><summary>Posso adattarlo alla mia attività?</summary><p>Sì. ThisTinti è pensato come base configurabile e modificabile, non come procedura unica imposta a tutte le aziende.</p></details>
+        <details><summary>È già un prodotto definitivo?</summary><p>No. È una Public Preview: utile per demo, valutazione e adattamento controllato. Le segnalazioni devono essere verificate.</p></details>
+        <details><summary>Dove sono il codice e le note legali?</summary><p>Sono pubblici. La pagina collega repository, documentazione, checksum e condizioni d'uso.</p></details>
+      </div>
+    </section>
+
+    <section class="section final-cta reveal-section">
+      <img src="logo.svg" alt="Logo ThisTinti" />
+      <div><p class="eyebrow">Public Preview</p><h2>Prova prima con i documenti dimostrativi.</h2><p>Capisci il flusso, valuta se è adatto al tuo contesto e poi decidi come modellarlo.</p></div>
+      <a class="button primary" href="#download">Vai al download</a>
     </section>
   </main>
 
-  <footer><span>ThisTinti Free Editions</span><span><a href="legal.html">Note legali</a> · Software fornito senza garanzia · revisione umana obbligatoria</span></footer>
+  <footer>
+    <div><a class="brand footer-brand" href="#top"><img src="logo.svg" alt="" />ThisTinti</a><p>Documenti collegati, controlli spiegabili.</p></div>
+    <div class="footer-links"><a href="guide.html">Guida semplice</a><a id="sourceLink" href="#">Codice sorgente</a><a id="securityLink" href="#">Sicurezza</a><a href="legal.html">Note legali</a></div>
+    <p class="footer-note">Software sperimentale fornito senza garanzia. Gli output sono informativi e richiedono verifica sui documenti originali.</p>
+  </footer>
+
   <script src="config.js"></script>
   <script src="site.js"></script>
 </body>

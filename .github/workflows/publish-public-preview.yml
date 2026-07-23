@@ -1,0 +1,127 @@
+name: Publish Public Preview Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/publish-public-preview.yml"
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TAG: v3.4.0-alpha.6-rc.1
+      VERSION: 3.4.0-alpha.6-rc.1
+      SOURCE_SHA: cdfb4749211a96a06a48a789cd07287c50fdd1a7
+      ARTIFACT_ID: "8570246126"
+      EXPECTED_INSTALLER_SHA256: b21af3bc9a834c6ac86222f8f644ea275f8ea05234093f79294e5bfb60756020
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          fetch-depth: 0
+          show-progress: false
+
+      - name: Download verified Windows artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" \
+            > public-preview-artifact.zip
+
+      - name: Extract and verify release files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, zipfile
+
+          root = Path.cwd().resolve()
+          archive_path = root / "public-preview-artifact.zip"
+          dist = root / "dist"
+          with zipfile.ZipFile(archive_path) as archive:
+              corrupt = archive.testzip()
+              if corrupt:
+                  raise RuntimeError(f"Corrupt artifact member: {corrupt}")
+              for member in archive.infolist():
+                  target = (dist / member.filename).resolve()
+                  if target != dist and dist not in target.parents:
+                      raise RuntimeError(f"Unsafe artifact path: {member.filename}")
+              archive.extractall(dist)
+
+          installer = dist / "ThisTinti-Setup-3.4.0-alpha.6-rc.1-x64.exe"
+          required = [
+              installer,
+              dist / "ThisTinti-Setup-3.4.0-alpha.6-rc.1-x64.exe.sha256",
+              dist / "ThisTinti-Portable-3.4.0-alpha.6-rc.1-x64.zip",
+              dist / "ThisTinti-Portable-3.4.0-alpha.6-rc.1-x64.zip.sha256",
+              dist / "ThisTinti-3.4.0-alpha.6-rc.1-self-hosted-source.zip",
+              dist / "ThisTinti-3.4.0-alpha.6-rc.1-self-hosted-source.zip.sha256",
+              dist / "frozen-local-smoke.json",
+              dist / "installed-local-smoke.json",
+          ]
+          missing = [str(path.name) for path in required if not path.is_file()]
+          if missing:
+              raise RuntimeError(f"Missing release files: {missing}")
+
+          expected = "b21af3bc9a834c6ac86222f8f644ea275f8ea05234093f79294e5bfb60756020"
+          actual = hashlib.sha256(installer.read_bytes()).hexdigest()
+          if actual != expected:
+              raise RuntimeError(f"Installer checksum mismatch: expected={expected} actual={actual}")
+          PY
+
+      - name: Prepare release notes
+        shell: bash
+        run: |
+          cat > RELEASE_NOTES.md <<'EOF'
+          ## ThisTinti Public Preview
+
+          Questa è la prima distribuzione pubblica della Local Edition per Windows.
+
+          ThisTinti collega e confronta documenti, mostra possibili incoerenze e mantiene ogni segnalazione collegata alle prove. Ogni organizzazione decide come adattarlo ai propri processi.
+
+          ### Per iniziare
+
+          1. Scarica `ThisTinti-Setup-3.4.0-alpha.6-rc.1-x64.exe`.
+          2. Confronta il checksum SHA-256 allegato.
+          3. Installa e crea il tuo spazio locale con nome organizzazione, email e password.
+          4. Premi **Carica esempio** prima di usare documenti tuoi.
+
+          ### Stato
+
+          Public Preview sperimentale. Gli output sono informativi e devono essere verificati sui documenti originali. La build Windows ha superato smoke test congelato e installato, aggiornamento dalla precedente alpha, persistenza dei dati e disinstallazione con conservazione dell'archivio.
+
+          Il programma non è ancora firmato digitalmente: Windows o il browser possono mostrare un avviso di reputazione.
+          EOF
+
+      - name: Create or update GitHub prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/* --clobber
+            gh release edit "$TAG" \
+              --title "ThisTinti ${VERSION} — Public Preview" \
+              --notes-file RELEASE_NOTES.md \
+              --prerelease
+          else
+            gh release create "$TAG" dist/* \
+              --target "$SOURCE_SHA" \
+              --title "ThisTinti ${VERSION} — Public Preview" \
+              --notes-file RELEASE_NOTES.md \
+              --prerelease
+          fi

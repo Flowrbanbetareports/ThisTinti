@@ -42,12 +42,20 @@ REQUIRED_FILES = (
     "TERMS_OF_USE.md",
     "DISCLAIMER.md",
     "site/index.html",
+    "site/guide.html",
     "site/legal.html",
+    "site/404.html",
     "site/logo.svg",
+    "site/social-card.svg",
+    "site/robots.txt",
+    "site/sitemap.xml",
+    "site/site.js",
     "app/static/logo.svg",
     "scripts/generate_brand_icon.py",
     ".github/workflows/windows-release.yml",
     ".github/workflows/enterprise-self-hosted.yml",
+    ".github/workflows/pages.yml",
+    ".github/workflows/publish-public-preview.yml",
 )
 
 FORBIDDEN_MARKETING = (
@@ -96,13 +104,13 @@ def main() -> int:
     site_js = (ROOT / "site/site.js").read_text(encoding="utf-8")
     for marker in (
         "downloadRiskAcceptance",
-        "dati sotto il tuo controllo",
-        "Utilizzabile, ma ancora alpha",
-        "hero-mark",
-        "guideLink",
-        "pilotLink",
-        "launchChecklistLink",
+        "Public Preview",
+        "Metti ordine nei documenti",
+        "guide.html",
+        "copyShareButton",
+        "enterpriseSourceLink",
         "securityLink",
+        "Local Edition",
     ):
         if marker not in site and marker not in site_js:
             failures.append(f"Public site marker missing: {marker}")

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">ThisTinti</title>
+  <desc id="desc">Documenti collegati, controlli spiegabili.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d1720"/>
+      <stop offset="1" stop-color="#1a303d"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f0b64c"/>
+      <stop offset="1" stop-color="#55b4c3"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="1050" cy="70" r="290" fill="none" stroke="#55b4c3" stroke-opacity=".11" stroke-width="2"/>
+  <circle cx="1050" cy="70" r="210" fill="none" stroke="#f0b64c" stroke-opacity=".09" stroke-width="2"/>
+  <g transform="translate(90 95)">
+    <rect width="132" height="132" rx="30" fill="#0d1720" stroke="#2d404b" stroke-width="2"/>
+    <path d="M20 25c0-5 4-8 8-8h40v18H54v74H36V35h-8c-4 0-8-4-8-8v-2Z" fill="#f0b64c"/>
+    <path d="M65 17h40c4 0 8 3 8 8v2c0 4-4 8-8 8h-8v74H79V35H65V17Z" fill="#55b4c3"/>
+    <path d="m54 67 10 10 17-20" fill="none" stroke="#f7fafc" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="90" y="305" fill="#ffffff" font-family="Segoe UI, Arial, sans-serif" font-size="82" font-weight="800" letter-spacing="-4">ThisTinti</text>
+  <text x="90" y="390" fill="#ffffff" font-family="Segoe UI, Arial, sans-serif" font-size="48" font-weight="700" letter-spacing="-2">Documenti collegati.</text>
+  <text x="90" y="450" fill="#8fd2dc" font-family="Segoe UI, Arial, sans-serif" font-size="48" font-weight="700" letter-spacing="-2">Controlli spiegabili.</text>
+  <rect x="90" y="500" width="470" height="5" rx="2.5" fill="url(#line)"/>
+  <text x="90" y="555" fill="#b9c7ce" font-family="Segoe UI, Arial, sans-serif" font-size="25">Public Preview · Local Edition · dati sotto il tuo controllo</text>
+</svg>
