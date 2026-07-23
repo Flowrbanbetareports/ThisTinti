@@ -27,41 +27,26 @@
 .advanced-nav-toggle.open b { transform: rotate(180deg); }
 
 .advanced-nav-panel {
-  display: grid;
-  grid-template-rows: 0fr;
+  max-height: 0;
+  overflow: hidden;
   opacity: 0;
-  transition: grid-template-rows var(--motion-base) var(--motion-ease), opacity var(--motion-fast) ease;
-}
-
-.advanced-nav-panel::before {
-  content: "";
-  min-height: 0;
+  transition: max-height var(--motion-base) var(--motion-ease), opacity var(--motion-fast) ease;
 }
 
 .advanced-nav-panel > button {
-  min-height: 0;
-  overflow: hidden;
   opacity: 0;
   visibility: hidden;
-  padding-top: 0;
-  padding-bottom: 0;
-  transition:
-    min-height var(--motion-base) var(--motion-ease),
-    padding var(--motion-base) var(--motion-ease),
-    opacity var(--motion-fast) ease;
+  transition: opacity var(--motion-fast) ease;
 }
 
 .advanced-nav-panel.open {
-  grid-template-rows: 1fr;
+  max-height: 360px;
   opacity: 1;
 }
 
 .advanced-nav-panel.open > button {
-  min-height: 42px;
   visibility: visible;
   opacity: 1;
-  padding-top: 10px;
-  padding-bottom: 10px;
 }
 
 .guide-hero {
