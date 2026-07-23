@@ -1,4 +1,4 @@
-name: Apply professionalization transfer
+name: Export repaired professionalization transfer
 
 on:
   pull_request:
@@ -9,10 +9,10 @@ on:
       - ".github/workflows/professionalization-bootstrap.yml"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  apply:
+  export:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -21,8 +21,8 @@ jobs:
           ref: professionalization/alpha6-foundation
           fetch-depth: 1
           show-progress: false
-      - name: Apply verified transfer
-        id: apply-transfer
+      - name: Repair transfer archive
+        id: repair_transfer
         continue-on-error: true
         shell: bash
         run: |
@@ -31,10 +31,11 @@ jobs:
           import base64, hashlib, os, shutil, subprocess, traceback, zipfile
 
           root = Path.cwd().resolve()
+          transfer = root / ".professionalization-transfer"
           diagnostics_path = root / ".professionalization-diagnostics.txt"
+          output_archive = root / "professionalization-transfer-repaired.zip"
           repair_log = ""
           try:
-              transfer = root / ".professionalization-transfer"
               chunks = sorted(transfer.glob("chunk-*.txt"))
               encoded = "".join(path.read_text(encoding="ascii") for path in chunks)
               payload = base64.b64decode(encoded, validate=True)
@@ -72,44 +73,32 @@ jobs:
                       target = (root / member.filename).resolve()
                       if target != root and root not in target.parents:
                           raise RuntimeError(f"unsafe archive path: {member.filename}")
-                  archive.extractall(root)
 
-              deletions = root / "__deletions__.txt"
-              if not deletions.is_file():
-                  raise RuntimeError("transfer archive does not contain __deletions__.txt")
-              for raw in deletions.read_text(encoding="utf-8").splitlines():
-                  if raw.strip():
-                      (root / raw.strip()).unlink(missing_ok=True)
-              deletions.unlink(missing_ok=True)
-              shutil.rmtree(transfer)
-              (root / ".github/workflows/professionalization-bootstrap.yml").unlink()
-              diagnostics_path.unlink(missing_ok=True)
+              shutil.copy2(usable_archive, output_archive)
+              diagnostics_path.write_text(
+                  f"github_run_id={os.environ.get('GITHUB_RUN_ID', 'unknown')}\n"
+                  f"input_sha256={actual}\n"
+                  f"repaired_sha256={hashlib.sha256(output_archive.read_bytes()).hexdigest()}\n"
+                  f"archive_size={output_archive.stat().st_size}\n"
+                  f"members={len(zipfile.ZipFile(output_archive).infolist())}\n"
+                  + repair_log,
+                  encoding="utf-8",
+              )
           except Exception:
               header = f"github_run_id={os.environ.get('GITHUB_RUN_ID', 'unknown')}\n"
               diagnostics_path.write_text(header + repair_log + traceback.format_exc(), encoding="utf-8")
+              raise
           PY
-          if [ -f .professionalization-diagnostics.txt ]; then
-            cat .professionalization-diagnostics.txt
-            exit 1
-          fi
-          node --check app/static/app.js
-          python -m compileall -q app scripts
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "Build alpha.6 professionalization foundation"
-          git push origin HEAD:professionalization/alpha6-foundation
-      - name: Upload transfer diagnostics
+      - name: Upload repaired transfer
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: professionalization-transfer-debug
+          name: professionalization-transfer-repaired
           path: |
+            professionalization-transfer-repaired.zip
             .professionalization-diagnostics.txt
-            .professionalization-transfer/transfer.zip
-            .professionalization-transfer/transfer-repaired.zip
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 1
-      - name: Fail when transfer failed
-        if: steps.apply-transfer.outcome == 'failure'
+      - name: Fail when repair failed
+        if: steps.repair_transfer.outcome == 'failure'
         run: exit 1
