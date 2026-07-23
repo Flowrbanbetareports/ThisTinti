@@ -2411,7 +2411,9 @@ def export_validation_run_report(
     if not run:
         raise HTTPException(status_code=404, detail="Validation run not found")
     report = build_validation_report(run.dataset, run, redacted=redacted)
-    safe_name = "".join(character if character.isalnum() or character in "-_" else "-" for character in run.dataset.name)
+    safe_name = "".join(
+        character if character.isalnum() or character in "-_" else "-" for character in run.dataset.name
+    )
     suffix = "redacted" if redacted else "internal"
     if format == "markdown":
         content = render_validation_report_markdown(report)

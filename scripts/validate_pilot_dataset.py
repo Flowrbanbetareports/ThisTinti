@@ -129,7 +129,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("dataset", type=Path, help="Validation Lab dataset JSON")
     parser.add_argument("--report", type=Path, help="Write the inspection report as JSON")
-    parser.add_argument("--fail-on-warning", action="store_true", help="Return a non-zero exit code when warnings exist")
+    parser.add_argument(
+        "--fail-on-warning", action="store_true", help="Return a non-zero exit code when warnings exist"
+    )
     return parser.parse_args(argv)
 
 
