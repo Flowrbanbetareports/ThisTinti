@@ -30,16 +30,22 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y openssl poppler-utils tesseract-ocr tesseract-ocr-eng tesseract-ocr-ita
           pip install -r requirements-dev.txt
-      - name: Static and security gates
+      - name: Ruff lint
+        run: ruff check app tests scripts migrations
+      - name: Ruff formatting
+        run: ruff format --check app tests scripts migrations
+      - name: Bandit security scan
+        run: bandit -q -r app scripts -x tests
+      - name: Python and frontend syntax
         run: |
-          ruff check app tests scripts migrations
-          ruff format --check app tests scripts migrations
-          bandit -q -r app scripts -x tests
           python -m compileall app scripts
           node --check app/static/app.js
-          python scripts/check_dependencies.py
-          python scripts/check_legal_distribution.py
-          python scripts/check_publication_readiness.py
+      - name: Dependency policy
+        run: python scripts/check_dependencies.py
+      - name: Legal distribution consistency
+        run: python scripts/check_legal_distribution.py
+      - name: Publication readiness
+        run: python scripts/check_publication_readiness.py
       - name: SQLite migration reversibility
         env:
           THISTINTI_DATABASE_URL: sqlite:///./ci.db
