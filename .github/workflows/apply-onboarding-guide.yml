@@ -1,17 +1,17 @@
 name: Apply onboarding and simple guide
 
 on:
-  pull_request:
+  push:
     branches: [main]
     paths:
-      - '.ux-guide-trigger'
+      - '.github/workflows/apply-onboarding-guide.yml'
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
   apply:
-    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'ux/onboarding-simple-guide'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -68,7 +68,8 @@ jobs:
         <section class="panel guide-boundaries"><h3>Cosa fa e cosa non fa</h3><div><p><strong>Fa:</strong> organizza, collega, confronta e segnala.</p><p><strong>Non fa:</strong> non certifica, non decide e non sostituisce le procedure dell’organizzazione.</p></div></section>
       </div>
 '''
-          index = index.replace('      <div id="usersView" class="view-panel hidden">', guide_html + '\n      <div id="usersView" class="view-panel hidden">')
+          if 'id="guideView"' not in index:
+              index = index.replace('      <div id="usersView" class="view-panel hidden">', guide_html + '\n      <div id="usersView" class="view-panel hidden">')
           intro_html = '''
   <dialog id="welcomeDialog" class="modal welcome-modal">
     <article class="modal-card">
@@ -84,28 +85,33 @@ jobs:
     </article>
   </dialog>
 '''
-          index = index.replace('  <script src="/app.js" defer></script>', intro_html + '\n  <script src="/app.js" defer></script>')
+          if 'id="welcomeDialog"' not in index:
+              index = index.replace('  <script src="/app.js" defer></script>', intro_html + '\n  <script src="/app.js" defer></script>')
           index_path.write_text(index, encoding='utf-8')
 
           js = js_path.read_text(encoding='utf-8')
-          js = js.replace("  users: ['Accessi', 'Utenti e ruoli'],", "  users: ['Accessi', 'Utenti e ruoli'],\n  guide: ['Aiuto', 'Guida semplice'],")
-          js = js.replace("  if (view === 'users') await loadUsers();", "  if (view === 'users') await loadUsers();")
-          js = js.replace(
-              "function showApp() {",
-              "function showWelcomeIfNeeded() {\n  if (window.localStorage.getItem('thistinti_welcome_seen') === '1') return;\n  window.setTimeout(() => $('#welcomeDialog')?.showModal(), 250);\n}\n\nfunction rememberWelcomePreference() {\n  if ($('#welcomeDoNotShow')?.checked) window.localStorage.setItem('thistinti_welcome_seen', '1');\n}\n\nfunction functionallyEmptyMessage(kind) {\n  const messages = {\n    documents: 'Nessun documento. Carica un esempio oppure aggiungi file autorizzati per iniziare.',\n    chains: 'Nessuna catena. Le catene compaiono quando più documenti condividono riferimenti compatibili.',\n    cases: 'Nessuna anomalia. Le segnalazioni appariranno dopo il confronto dei documenti.'\n  };\n  return messages[kind];\n}\n\nfunction showApp() {"
-          )
-          js = js.replace("  updateViewChrome(currentView);\n}", "  updateViewChrome(currentView);\n  showWelcomeIfNeeded();\n}", 1)
-          js = js.replace("Nessun documento.</td>", "${functionallyEmptyMessage('documents')}</td>")
-          js = js.replace("Nessuna catena.</td>", "${functionallyEmptyMessage('chains')}</td>")
-          js = js.replace("Nessuna anomalia.</td>", "${functionallyEmptyMessage('cases')}</td>")
-          js = js.replace(
-              "$('#logoutButton').addEventListener('click', () => logout());",
-              "$('#logoutButton').addEventListener('click', () => logout());\n$('#welcomeCloseButton').addEventListener('click', () => { rememberWelcomePreference(); $('#welcomeDialog').close(); });\n$('#welcomeGuideButton').addEventListener('click', () => { rememberWelcomePreference(); $('#welcomeDialog').close(); openView('guide'); });\n$('#welcomeDemoButton').addEventListener('click', async () => { rememberWelcomePreference(); $('#welcomeDialog').close(); await loadDemo(); });\n$('#guideLoadDemoButton').addEventListener('click', loadDemo);\n$('#guideUploadButton').addEventListener('click', () => $('#uploadDialog').showModal());"
-          )
+          if "guide: ['Aiuto', 'Guida semplice']" not in js:
+              js = js.replace("  users: ['Accessi', 'Utenti e ruoli'],", "  users: ['Accessi', 'Utenti e ruoli'],\n  guide: ['Aiuto', 'Guida semplice'],")
+          if 'function showWelcomeIfNeeded()' not in js:
+              js = js.replace(
+                  'function showApp() {',
+                  "function showWelcomeIfNeeded() {\n  if (window.localStorage.getItem('thistinti_welcome_seen') === '1') return;\n  window.setTimeout(() => $('#welcomeDialog')?.showModal(), 250);\n}\n\nfunction rememberWelcomePreference() {\n  if ($('#welcomeDoNotShow')?.checked) window.localStorage.setItem('thistinti_welcome_seen', '1');\n}\n\nfunction functionallyEmptyMessage(kind) {\n  const messages = {\n    documents: 'Nessun documento. Carica un esempio oppure aggiungi file autorizzati per iniziare.',\n    chains: 'Nessuna catena. Le catene compaiono quando più documenti condividono riferimenti compatibili.',\n    cases: 'Nessuna anomalia. Le segnalazioni appariranno dopo il confronto dei documenti.'\n  };\n  return messages[kind];\n}\n\nfunction showApp() {"
+              )
+              js = js.replace('  updateViewChrome(currentView);\n}', '  updateViewChrome(currentView);\n  showWelcomeIfNeeded();\n}', 1)
+          js = js.replace('Nessun documento.</td>', "${functionallyEmptyMessage('documents')}</td>")
+          js = js.replace('Nessuna catena.</td>', "${functionallyEmptyMessage('chains')}</td>")
+          js = js.replace('Nessuna anomalia.</td>', "${functionallyEmptyMessage('cases')}</td>")
+          if "$('#welcomeCloseButton').addEventListener" not in js:
+              js = js.replace(
+                  "$('#logoutButton').addEventListener('click', () => logout());",
+                  "$('#logoutButton').addEventListener('click', () => logout());\n$('#welcomeCloseButton').addEventListener('click', () => { rememberWelcomePreference(); $('#welcomeDialog').close(); });\n$('#welcomeGuideButton').addEventListener('click', () => { rememberWelcomePreference(); $('#welcomeDialog').close(); openView('guide'); });\n$('#welcomeDemoButton').addEventListener('click', async () => { rememberWelcomePreference(); $('#welcomeDialog').close(); await loadDemo(); });\n$('#guideLoadDemoButton').addEventListener('click', loadDemo);\n$('#guideUploadButton').addEventListener('click', () => $('#uploadDialog').showModal());"
+              )
           js_path.write_text(js, encoding='utf-8')
 
           css = css_path.read_text(encoding='utf-8')
-          css += '''
+          marker = '/* First-run onboarding and simple guide */'
+          if marker not in css:
+              css += '''
 
 /* First-run onboarding and simple guide */
 .guide-hero { padding: clamp(24px, 4vw, 42px); background: linear-gradient(135deg, #fff, var(--accent-soft)); }
@@ -138,5 +144,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          git commit -m 'Add onboarding and simple guide'
+          git commit -m 'Add onboarding and simple guide' || exit 0
           git push origin HEAD:ux/onboarding-simple-guide
