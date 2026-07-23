@@ -121,14 +121,19 @@ jobs:
             exit 1
           fi
 
-      - name: Upload normalization diagnostics
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: alpha6-normalization-diagnostics
-          path: .alpha6-ruff.log
-          if-no-files-found: warn
-          retention-days: 1
+      - name: Persist normalization diagnostics
+        if: steps.normalize.outcome == 'failure'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git restore --staged . || true
+          git restore . || true
+          cp .alpha6-ruff.log alpha6-normalization-diagnostics.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add alpha6-normalization-diagnostics.txt
+          git commit -m "Record Alpha.6 normalization diagnostics"
+          git push origin HEAD:professionalization/alpha6-clean
 
       - name: Stop after normalization failure
         if: steps.normalize.outcome == 'failure'
@@ -161,7 +166,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -f .alpha6-ruff.log
+          rm -f .alpha6-ruff.log alpha6-normalization-diagnostics.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
