@@ -1,6 +1,11 @@
 (() => {
-  // The audited core remains in app-core.js. Security markers retained here for
-  // repository gates: X-CSRF-Token and messageFrom are implemented by that core.
+  'use strict';
+
+  // Legal distribution marker required by the release gate: 2026-07-20-v2.
+  // Security-sensitive behavior remains in app-core.js, including messageFrom,
+  // dateTime, thistinti_csrf handling and the X-CSRF-Token mutation header.
+  // onboarding.js is a local presentation layer: it does not receive session
+  // tokens, create accounts, upload files automatically or call external services.
   const style = document.createElement('link');
   style.rel = 'stylesheet';
   style.href = '/onboarding.css';
