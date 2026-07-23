@@ -1,0 +1,36 @@
+name: Temporary export professionalization transfer
+
+on:
+  push:
+    paths:
+      - '.github/workflows/temp-export-professionalization.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout transfer branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: professionalization/alpha6-foundation
+          fetch-depth: 0
+      - name: Upload transfer chunks
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: professionalization-transfer-chunks
+          path: .professionalization-transfer
+          if-no-files-found: error
+          retention-days: 1
+      - name: Record export run on transfer branch
+        shell: bash
+        run: |
+          mkdir -p builds
+          printf '%s\n' '${{ github.run_id }}' > builds/professionalization-transfer-export-run.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add builds/professionalization-transfer-export-run.txt
+          git commit -m 'Record professionalization transfer export run' || exit 0
+          git push origin HEAD:professionalization/alpha6-foundation
