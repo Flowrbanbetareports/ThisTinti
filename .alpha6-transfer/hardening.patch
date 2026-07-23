@@ -1,0 +1,348 @@
+diff --git a/.github/workflows/pages.yml b/.github/workflows/pages.yml
+index e8204c8..f639daa 100644
+--- a/.github/workflows/pages.yml
++++ b/.github/workflows/pages.yml
+@@ -25,10 +25,10 @@ jobs:
+     runs-on: ubuntu-latest
+     steps:
+       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+-      - uses: actions/configure-pages@v5
+-      - uses: actions/upload-pages-artifact@v4
++      - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
++      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+         with:
+           path: site
+       - name: Deploy to GitHub Pages
+         id: deployment
+-        uses: actions/deploy-pages@v4
++        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+diff --git a/app/main.py b/app/main.py
+index 2732c62..feaffa4 100644
+--- a/app/main.py
++++ b/app/main.py
+@@ -2410,8 +2410,15 @@ def export_validation_run_report(
+     )
+     if not run:
+         raise HTTPException(status_code=404, detail="Validation run not found")
++    if not redacted and ctx.role != "admin":
++        raise HTTPException(status_code=403, detail="Administrator role required for internal validation reports")
+     report = build_validation_report(run.dataset, run, redacted=redacted)
+-    safe_name = "".join(character if character.isalnum() or character in "-_" else "-" for character in run.dataset.name)
++    if redacted:
++        safe_name = report["dataset"]["reference"]
++    else:
++        safe_name = "".join(
++            character if character.isalnum() or character in "-_" else "-" for character in run.dataset.name
++        ).strip("-")[:80] or "dataset"
+     suffix = "redacted" if redacted else "internal"
+     if format == "markdown":
+         content = render_validation_report_markdown(report)
+@@ -2421,10 +2428,31 @@ def export_validation_run_report(
+         content = json.dumps(report, ensure_ascii=False, indent=2, default=str)
+         media_type = "application/json"
+         extension = "json"
++    add_audit(
++        db,
++        ctx.tenant_id,
++        "validation.report_exported",
++        ctx.user_id,
++        "validation_run",
++        run.id,
++        {
++            "dataset_id": run.dataset_id,
++            "dataset_reference": report["dataset"]["reference"],
++            "format": format,
++            "redacted": redacted,
++            "report_schema": report["schema"],
++        },
++    )
++    db.commit()
+     return Response(
+         content=content,
+         media_type=media_type,
+-        headers={"Content-Disposition": f'attachment; filename="validation-{safe_name}-{suffix}.{extension}"'},
++        headers={
++            "Content-Disposition": f'attachment; filename="validation-{safe_name}-{suffix}.{extension}"',
++            "Cache-Control": "no-store, private",
++            "Pragma": "no-cache",
++            "X-Content-Type-Options": "nosniff",
++        },
+     )
+ 
+ 
+diff --git a/app/schemas.py b/app/schemas.py
+index 49f7a48..1fe06e3 100644
+--- a/app/schemas.py
++++ b/app/schemas.py
+@@ -1,9 +1,9 @@
+ from __future__ import annotations
+ 
+-from datetime import date, datetime
++from datetime import date, datetime, timedelta, timezone
+ from typing import Any, Literal
+ 
+-from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
++from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
+ 
+ DocumentType = Literal["proposal", "order", "confirmation", "delivery", "invoice", "payment", "return", "credit_note"]
+ 
+@@ -313,6 +313,14 @@ class ValidationScenarioInput(BaseModel):
+     expected: list[ValidationExpectedFinding] = Field(default_factory=list, max_length=100)
+     ignore_unexpected_types: list[str] = Field(default_factory=list, max_length=100)
+ 
++    @field_validator("id")
++    @classmethod
++    def normalize_id(cls, value: str) -> str:
++        normalized = value.strip()
++        if not normalized:
++            raise ValueError("Scenario id cannot be blank")
++        return normalized
++
+ 
+ class ValidationGate(BaseModel):
+     min_precision: float = Field(default=0.95, ge=0, le=1)
+@@ -333,11 +341,31 @@ class ValidationEvidenceMetadata(BaseModel):
+     prepared_at: datetime | None = None
+     notes: str | None = Field(default=None, max_length=3000)
+ 
++    @field_validator("reviewer_refs", mode="before")
++    @classmethod
++    def validate_reviewer_items(cls, value: object) -> object:
++        if not isinstance(value, list):
++            return value
++        normalized: list[str] = []
++        for item in value:
++            if not isinstance(item, str):
++                raise ValueError("Reviewer references must be strings")
++            cleaned = item.strip()
++            if not 3 <= len(cleaned) <= 120:
++                raise ValueError("Each reviewer reference must contain between 3 and 120 characters")
++            normalized.append(cleaned)
++        return normalized
++
+     @model_validator(mode="after")
+     def validate_reviewers(self) -> "ValidationEvidenceMetadata":
+-        normalized = [item.strip().casefold() for item in self.reviewer_refs if item.strip()]
++        normalized = [item.casefold() for item in self.reviewer_refs]
+         if len(normalized) < 2 or len(set(normalized)) < 2:
+             raise ValueError("At least two distinct reviewer references are required")
++        if self.prepared_at is not None:
++            if self.prepared_at.tzinfo is None or self.prepared_at.utcoffset() is None:
++                raise ValueError("Evidence prepared_at must include a timezone")
++            if self.prepared_at > datetime.now(timezone.utc) + timedelta(minutes=5):
++                raise ValueError("Evidence prepared_at cannot be in the future")
+         return self
+ 
+ 
+@@ -353,6 +381,9 @@ class ValidationDatasetPayload(BaseModel):
+ 
+     @model_validator(mode="after")
+     def validate_automation_evidence(self) -> "ValidationDatasetPayload":
++        scenario_ids = [scenario.id.casefold() for scenario in self.scenarios]
++        if len(scenario_ids) != len(set(scenario_ids)):
++            raise ValueError("Scenario ids must be unique within a validation dataset")
+         if self.automation_eligible:
+             raise ValueError("Use the audited automation approval endpoint after a successful real-data gate")
+         if self.evidence_level == "synthetic":
+@@ -361,6 +392,8 @@ class ValidationDatasetPayload(BaseModel):
+             raise ValueError("Real-evidence datasets require authorization, reviewers and ground-truth metadata")
+         if not self.evidence.authorized_use_confirmed:
+             raise ValueError("Authorized use must be explicitly confirmed for real-evidence datasets")
++        if self.evidence.prepared_at is None:
++            raise ValueError("Real-evidence datasets require a timezone-aware evidence prepared_at timestamp")
+         if len(self.scenarios) < 30:
+             raise ValueError("Real-evidence datasets require at least 30 independent scenarios")
+         if self.evidence_level == "anonymized_pilot":
+diff --git a/app/services/validation_reporting.py b/app/services/validation_reporting.py
+index 1073706..7b0b9af 100644
+--- a/app/services/validation_reporting.py
++++ b/app/services/validation_reporting.py
+@@ -1,5 +1,6 @@
+ from __future__ import annotations
+ 
++import hashlib
+ import json
+ from collections import Counter
+ from datetime import datetime, timezone
+@@ -11,6 +12,11 @@ from ..version import RELEASE_VERSION
+ REPORT_SCHEMA = "thistinti.validation-report.v1"
+ 
+ 
++def _fingerprint(value: Any) -> str:
++    canonical = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=str)
++    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
++
++
+ def _details(run: ValidationRun) -> dict[str, Any]:
+     try:
+         value = json.loads(run.details_json or "{}")
+@@ -102,14 +108,23 @@ def build_validation_report(dataset: ValidationDataset, run: ValidationRun, *, r
+             summary["error"] = item.get("error")
+         scenario_summary.append(summary)
+ 
++    dataset_fingerprint = _fingerprint(schema)
++    run_fingerprint = _fingerprint(details)
++    dataset_reference = f"dataset-{dataset_fingerprint[:12]}"
++
+     return {
+         "schema": REPORT_SCHEMA,
+         "generated_at": datetime.now(timezone.utc).isoformat(),
+         "redacted": redacted,
+         "product": {"name": "ThisTinti", "version": RELEASE_VERSION},
++        "source_fingerprints": {
++            "dataset_sha256": dataset_fingerprint,
++            "run_details_sha256": run_fingerprint,
++        },
+         "dataset": {
+-            "name": dataset.name,
+-            "version": dataset.version,
++            "reference": dataset_reference,
++            "name": "Dataset redatto" if redacted else dataset.name,
++            "version": None if redacted else dataset.version,
+             "evidence_level": dataset.evidence_level,
+             "status": dataset.status,
+             "scenario_count": run.scenario_count,
+@@ -160,7 +175,12 @@ def render_validation_report_markdown(report: dict[str, Any]) -> str:
+         f"- Schema: `{report['schema']}`",
+         f"- Generato: {report['generated_at']}",
+         f"- Versione prodotto: `{report['product']['version']}`",
+-        f"- Dataset: **{dataset['name']}** · versione `{dataset['version']}`",
++        (
++            f"- Dataset: **{dataset['name']}** · versione `{dataset['version']}`"
++            if dataset.get("version")
++            else f"- Dataset: **{dataset['name']}** · riferimento `{dataset['reference']}`"
++        ),
++        f"- Impronta dataset: `{report['source_fingerprints']['dataset_sha256']}`",
+         f"- Evidenza: `{dataset['evidence_level']}`",
+         f"- Scenari: **{dataset['scenario_count']}**",
+         f"- Gate: **{'PASS' if run['gate_passed'] else 'STOP'}**",
+diff --git a/tests/test_pilot_dataset_cli.py b/tests/test_pilot_dataset_cli.py
+index 4dcf31c..1c7863d 100644
+--- a/tests/test_pilot_dataset_cli.py
++++ b/tests/test_pilot_dataset_cli.py
+@@ -19,6 +19,7 @@ def _payload(scenarios: int = 30) -> dict:
+             "reviewer_refs": ["reviewer-a", "reviewer-b"],
+             "ground_truth_method": "Two independent reviewers classify every scenario and reconcile disagreements.",
+             "scope": "Thirty anonymized order scenarios from a controlled pilot perimeter.",
++            "prepared_at": "2025-01-01T00:00:00Z",
+         },
+         "scenarios": [
+             {
+diff --git a/tests/test_proof_graph_sentinel.py b/tests/test_proof_graph_sentinel.py
+index 34fcb88..1ff80ee 100644
+--- a/tests/test_proof_graph_sentinel.py
++++ b/tests/test_proof_graph_sentinel.py
+@@ -438,6 +438,7 @@ def test_real_pilot_automation_requires_separate_audited_approval(client, auth):
+             "reviewer_refs": ["reviewer-a", "reviewer-b"],
+             "ground_truth_method": "Two independent reviewers classify each scenario and reconcile disagreements.",
+             "scope": "Thirty isolated order scenarios used to verify the audited automation gate in tests.",
++            "prepared_at": "2025-01-01T00:00:00Z",
+         },
+         "scenarios": scenarios,
+     }
+diff --git a/tests/test_validation_governance.py b/tests/test_validation_governance.py
+index fdd2d75..3d295d9 100644
+--- a/tests/test_validation_governance.py
++++ b/tests/test_validation_governance.py
+@@ -28,6 +28,7 @@ def _evidence() -> dict:
+         "reviewer_refs": ["reviewer-a", "reviewer-b"],
+         "ground_truth_method": "Two independent reviewers classify each flow and reconcile every disagreement.",
+         "scope": "Thirty anonymized order scenarios for the controlled document-validation pilot.",
++        "prepared_at": "2025-01-01T00:00:00Z",
+     }
+ 
+ 
+@@ -125,3 +126,93 @@ def test_validation_report_contains_no_raw_dataset_documents(client, auth):
+     assert "Fornitore Demo" not in serialized
+     assert "GIACCA-145" not in serialized
+     assert "INV-3921" not in serialized
++
++
++def _token(client, email: str, password: str) -> dict[str, str]:
++    response = client.post(
++        "/api/auth/login",
++        headers={"X-Session-Mode": "token"},
++        json={"email": email, "password": password},
++    )
++    assert response.status_code == 200, response.text
++    return {"Authorization": f"Bearer {response.json()['token']}"}
++
++
++def test_redacted_report_hides_dataset_identity_and_sets_security_headers(client, auth):
++    payload = {
++        "name": "ACME confidential acquisition pilot",
++        "version": "client-secret-v7",
++        "scenarios": [_scenario(1)],
++    }
++    dataset = client.post("/api/validation/datasets", headers=auth, json=payload)
++    assert dataset.status_code == 201, dataset.text
++    run = client.post(f"/api/validation/datasets/{dataset.json()['id']}/run", headers=auth)
++    assert run.status_code == 201, run.text
++
++    report = client.get(f"/api/validation/runs/{run.json()['id']}/report?redacted=true", headers=auth)
++    assert report.status_code == 200, report.text
++    serialized = report.text
++    assert "ACME confidential acquisition pilot" not in serialized
++    assert "client-secret-v7" not in serialized
++    assert "ACME" not in report.headers["content-disposition"]
++    assert report.json()["dataset"]["name"] == "Dataset redatto"
++    assert report.json()["dataset"]["version"] is None
++    assert report.json()["dataset"]["reference"].startswith("dataset-")
++    assert len(report.json()["source_fingerprints"]["dataset_sha256"]) == 64
++    assert report.headers["cache-control"] == "no-store"
++    assert report.headers["pragma"] == "no-cache"
++    assert report.headers["x-content-type-options"] == "nosniff"
++
++    audit = client.get("/api/audit", headers=auth)
++    assert audit.status_code == 200
++    exported = next(item for item in audit.json() if item["action"] == "validation.report_exported")
++    assert exported["entity_id"] == run.json()["id"]
++    assert exported["payload"]["redacted"] is True
++
++
++def test_internal_validation_report_requires_admin(client, auth):
++    loaded = client.post("/api/validation/load-default", headers=auth).json()
++    run = client.post(f"/api/validation/datasets/{loaded['id']}/run", headers=auth).json()
++    created = client.post(
++        "/api/users",
++        headers=auth,
++        json={
++            "email": "validation-reviewer@example.com",
++            "password": "ReviewerPassword123!",
++            "role": "reviewer",
++        },
++    )
++    assert created.status_code == 201, created.text
++    reviewer = _token(client, "validation-reviewer@example.com", "ReviewerPassword123!")
++
++    assert client.get(f"/api/validation/runs/{run['id']}/report?redacted=true", headers=reviewer).status_code == 200
++    blocked = client.get(f"/api/validation/runs/{run['id']}/report?redacted=false", headers=reviewer)
++    assert blocked.status_code == 403
++
++
++def test_real_evidence_requires_preparation_timestamp(client, auth):
++    evidence = _evidence()
++    evidence.pop("prepared_at")
++    payload = {
++        "name": "Missing evidence timestamp",
++        "version": "1",
++        "evidence_level": "anonymized_pilot",
++        "evidence": evidence,
++        "scenarios": [_scenario(index) for index in range(30)],
++    }
++    response = client.post("/api/validation/datasets", headers=auth, json=payload)
++    assert response.status_code == 422
++    assert "prepared_at" in response.text
++
++
++def test_validation_scenario_ids_must_be_unique_case_insensitively(client, auth):
++    first = _scenario(1)
++    second = _scenario(2)
++    second["id"] = " SCENARIO-1 "
++    response = client.post(
++        "/api/validation/datasets",
++        headers=auth,
++        json={"name": "Duplicate scenario ids", "version": "1", "scenarios": [first, second]},
++    )
++    assert response.status_code == 422
++    assert "unique" in response.text.lower()
