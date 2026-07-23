@@ -30,7 +30,7 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-          import base64, hashlib, shutil, subprocess, traceback, zipfile
+          import base64, hashlib, os, shutil, subprocess, traceback, zipfile
 
           root = Path.cwd().resolve()
           diagnostics_path = root / ".professionalization-diagnostics.txt"
@@ -63,13 +63,13 @@ jobs:
                   )
                   repair_log = f"zip-repair-returncode={completed.returncode}\nstdout:\n{completed.stdout}\nstderr:\n{completed.stderr}\n"
                   if completed.returncode != 0 or not repaired_path.is_file():
-                      raise RuntimeError("zip repair failed\n" + repair_log)
+                      raise RuntimeError("zip repair failed")
                   usable_archive = repaired_path
 
               with zipfile.ZipFile(usable_archive) as archive:
                   corrupt = archive.testzip()
                   if corrupt:
-                      raise RuntimeError(f"corrupt archive member after repair: {corrupt}\n{repair_log}")
+                      raise RuntimeError(f"corrupt archive member after repair: {corrupt}")
                   for member in archive.infolist():
                       target = (root / member.filename).resolve()
                       if target != root and root not in target.parents:
@@ -87,29 +87,34 @@ jobs:
               (root / ".github/workflows/professionalization-bootstrap.yml").unlink()
               diagnostics_path.unlink(missing_ok=True)
           except Exception:
-              diagnostics_path.write_text(repair_log + traceback.format_exc(), encoding="utf-8")
+              header = f"github_run_id={os.environ.get('GITHUB_RUN_ID', 'unknown')}\n"
+              diagnostics_path.write_text(header + repair_log + traceback.format_exc(), encoding="utf-8")
           PY
           if [ -f .professionalization-diagnostics.txt ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add .professionalization-diagnostics.txt
-            git commit -m "Record professionalization transfer diagnostics"
+            git commit -m "Record professionalization transfer diagnostics" || true
             git push origin HEAD:professionalization/alpha6-foundation
             exit 1
           fi
           if ! node --check app/static/app.js > .professionalization-diagnostics.txt 2>&1; then
+            printf 'github_run_id=%s\n' "$GITHUB_RUN_ID" | cat - .professionalization-diagnostics.txt > .professionalization-diagnostics.tmp
+            mv .professionalization-diagnostics.tmp .professionalization-diagnostics.txt
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add .professionalization-diagnostics.txt
-            git commit -m "Record professionalization JavaScript diagnostics"
+            git commit -m "Record professionalization JavaScript diagnostics" || true
             git push origin HEAD:professionalization/alpha6-foundation
             exit 1
           fi
           if ! python -m compileall -q app scripts >> .professionalization-diagnostics.txt 2>&1; then
+            printf 'github_run_id=%s\n' "$GITHUB_RUN_ID" | cat - .professionalization-diagnostics.txt > .professionalization-diagnostics.tmp
+            mv .professionalization-diagnostics.tmp .professionalization-diagnostics.txt
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add .professionalization-diagnostics.txt
-            git commit -m "Record professionalization Python diagnostics"
+            git commit -m "Record professionalization Python diagnostics" || true
             git push origin HEAD:professionalization/alpha6-foundation
             exit 1
           fi
