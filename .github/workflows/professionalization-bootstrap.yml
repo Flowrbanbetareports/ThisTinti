@@ -30,10 +30,11 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-          import base64, hashlib, shutil, traceback, zipfile
+          import base64, hashlib, shutil, subprocess, traceback, zipfile
 
           root = Path.cwd().resolve()
           diagnostics_path = root / ".professionalization-diagnostics.txt"
+          repair_log = ""
           try:
               transfer = root / ".professionalization-transfer"
               chunks = sorted(transfer.glob("chunk-*.txt"))
@@ -46,10 +47,29 @@ jobs:
 
               archive_path = transfer / "transfer.zip"
               archive_path.write_bytes(payload)
-              with zipfile.ZipFile(archive_path) as archive:
+              usable_archive = archive_path
+              try:
+                  with zipfile.ZipFile(usable_archive) as archive:
+                      archive.infolist()
+              except zipfile.BadZipFile:
+                  repaired_path = transfer / "transfer-repaired.zip"
+                  completed = subprocess.run(
+                      ["zip", "-FF", str(archive_path), "--out", str(repaired_path)],
+                      input="\n",
+                      text=True,
+                      capture_output=True,
+                      timeout=60,
+                      check=False,
+                  )
+                  repair_log = f"zip-repair-returncode={completed.returncode}\nstdout:\n{completed.stdout}\nstderr:\n{completed.stderr}\n"
+                  if completed.returncode != 0 or not repaired_path.is_file():
+                      raise RuntimeError("zip repair failed\n" + repair_log)
+                  usable_archive = repaired_path
+
+              with zipfile.ZipFile(usable_archive) as archive:
                   corrupt = archive.testzip()
                   if corrupt:
-                      raise RuntimeError(f"corrupt archive member: {corrupt}")
+                      raise RuntimeError(f"corrupt archive member after repair: {corrupt}\n{repair_log}")
                   for member in archive.infolist():
                       target = (root / member.filename).resolve()
                       if target != root and root not in target.parents:
@@ -67,7 +87,7 @@ jobs:
               (root / ".github/workflows/professionalization-bootstrap.yml").unlink()
               diagnostics_path.unlink(missing_ok=True)
           except Exception:
-              diagnostics_path.write_text(traceback.format_exc(), encoding="utf-8")
+              diagnostics_path.write_text(repair_log + traceback.format_exc(), encoding="utf-8")
           PY
           if [ -f .professionalization-diagnostics.txt ]; then
             git config user.name "github-actions[bot]"
