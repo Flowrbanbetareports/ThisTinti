@@ -1,10 +1,10 @@
 {
   "workflow": "Build Windows Free Download",
-  "run_id": 30018222703,
-  "run_number": 78,
-  "head_sha": "5ec5d930835691ffd5b0680570fa133723781864",
+  "run_id": 30023086936,
+  "run_number": 96,
+  "head_sha": "cdfb4749211a96a06a48a789cd07287c50fdd1a7",
   "branch": "main",
-  "artifact_name": "ThisTinti-Windows-30018222703-78",
+  "artifact_name": "ThisTinti-Windows-30023086936-96",
   "files": [
     {
       "name": "baseline-install-summary.txt",
@@ -14,7 +14,7 @@
     {
       "name": "baseline-install.log",
       "size": 810661,
-      "sha256": "88e9f1c3145b85f24cd2294a34916d7fbe56df4804f62c038539ef13ce19a558"
+      "sha256": "b6ba4a69a87ad184cc69ac7161347475403a0371dc3b105081f64aad35de7773"
     },
     {
       "name": "DISCLAIMER.md",
@@ -24,12 +24,12 @@
     {
       "name": "frozen-local-smoke.json",
       "size": 348,
-      "sha256": "07cffc3f4cf4cb4646331adbdd0cb372d6f5d4ae5dbfd0f52608ffdcbdd400ee"
+      "sha256": "afd7bb1d49c2f52b25b636668171b01942de82a3d499bbff4d5a38112136d74f"
     },
     {
       "name": "installed-local-smoke.json",
       "size": 361,
-      "sha256": "27a3e9cdec21785056fc8b0f17a2670df30aab1becd587e116f1549587274f9d"
+      "sha256": "d39b4cbfac47489f3c5cb050a3b6b6b2e714622e8e7d139fcc2a7be79233ecbf"
     },
     {
       "name": "PRIVACY.md",
@@ -42,34 +42,34 @@
       "sha256": "b29d072205616a8f57216446c6b48036f8fcc078b675b7590485b218b2383f6f"
     },
     {
-      "name": "ThisTinti-3.4.0-alpha.5-self-hosted-source.zip",
-      "size": 464931,
-      "sha256": "fc8ad6c0009eb82e424c1c0aedb8a2561d15e68ea4ef901ca3c8a37c04db47c4"
+      "name": "ThisTinti-3.4.0-alpha.6-rc.1-self-hosted-source.zip",
+      "size": 481985,
+      "sha256": "3507a13cf4d22db4dd581503c6e0e7dcc9b15d4dad02bfeb80e5b5a44626b676"
     },
     {
-      "name": "ThisTinti-3.4.0-alpha.5-self-hosted-source.zip.sha256",
-      "size": 114,
-      "sha256": "bae809a0eaeefd84a90d8e4c11f0ffc7e3ee2a34c27012192a62802b8043e4e7"
+      "name": "ThisTinti-3.4.0-alpha.6-rc.1-self-hosted-source.zip.sha256",
+      "size": 119,
+      "sha256": "0c2e194ceb7000516dc8580eadec07dd3f19d89bc348e04a7693227c0fed35b8"
     },
     {
-      "name": "ThisTinti-Portable-3.4.0-alpha.5-x64.zip",
-      "size": 82060845,
-      "sha256": "4b18b5efec0e45819f1607d14766530c36f41ac1bc27e01d62c8f2dd8a2578b5"
+      "name": "ThisTinti-Portable-3.4.0-alpha.6-rc.1-x64.zip",
+      "size": 82077561,
+      "sha256": "d3c04bde7d04ba81a8ec2387264a126d43a3a9abe8d14fd6b2f75d2a8fe0e68d"
     },
     {
-      "name": "ThisTinti-Portable-3.4.0-alpha.5-x64.zip.sha256",
-      "size": 108,
-      "sha256": "c4a342d76bc687e3fc13294179576c3a6aec9f2fca2c828070a2532e86a28cda"
+      "name": "ThisTinti-Portable-3.4.0-alpha.6-rc.1-x64.zip.sha256",
+      "size": 113,
+      "sha256": "bfc3e8fda4d1876363225cfa4a8e2d60309b3687ddc973bc0776e17d09da811f"
     },
     {
-      "name": "ThisTinti-Setup-3.4.0-alpha.5-x64.exe",
-      "size": 56979964,
-      "sha256": "667492fcc717791eb581d6c8cfae83be07a50310e98811443d0b7eb375610551"
+      "name": "ThisTinti-Setup-3.4.0-alpha.6-rc.1-x64.exe",
+      "size": 56987334,
+      "sha256": "b21af3bc9a834c6ac86222f8f644ea275f8ea05234093f79294e5bfb60756020"
     },
     {
-      "name": "ThisTinti-Setup-3.4.0-alpha.5-x64.exe.sha256",
-      "size": 105,
-      "sha256": "2036e9bd911912fa2ad1fd2ae389d5264bceb91d0d7645103e5b4617951bf144"
+      "name": "ThisTinti-Setup-3.4.0-alpha.6-rc.1-x64.exe.sha256",
+      "size": 110,
+      "sha256": "7c34307692052ce0faea539959cf2babea490ef0f9bb66579b483a1de8ccd65b"
     },
     {
       "name": "TRADEMARKS.md",
@@ -78,13 +78,13 @@
     },
     {
       "name": "upgrade-install-summary.txt",
-      "size": 262,
-      "sha256": "75cd53fa8b8c1cc212a46a8f3097830f77d0258c4e93b61a07b08dab0bd3ed57"
+      "size": 267,
+      "sha256": "c1b9b7d273b8b50847452d44706ba6e082be5aa13ea60f494fcf9218e961b8d1"
     },
     {
       "name": "upgrade-install.log",
-      "size": 1062568,
-      "sha256": "9f22b639032f744f947ff3ab486fa47c709085a56750cef7396804f941e8295d"
+      "size": 1066963,
+      "sha256": "026541ec3421a3f00447face6498e9c94875a410666748a673f8046cd136e022"
     }
   ]
 }
