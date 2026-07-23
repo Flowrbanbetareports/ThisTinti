@@ -83,20 +83,20 @@ end;
 procedure InitializeWizard();
 begin
   SpecificApprovalPage := CreateCustomPage(
-    wpSelectDir,
-    'Approvazione specifica',
-    'Conferma delle clausole rilevanti'
+    wpLicense,
+    'Approvazione specifica delle clausole',
+    'Conferma separata richiesta prima dell’installazione'
   );
   SpecificApprovalCheck := TNewCheckBox.Create(SpecificApprovalPage);
   SpecificApprovalCheck.Parent := SpecificApprovalPage.Surface;
   SpecificApprovalCheck.Left := 0;
-  SpecificApprovalCheck.Top := 12;
+  SpecificApprovalCheck.Top := 8;
   SpecificApprovalCheck.Width := SpecificApprovalPage.SurfaceWidth;
-  SpecificApprovalCheck.Height := 78;
-  SpecificApprovalCheck.WordWrap := True;
+  SpecificApprovalCheck.Height := 100;
   SpecificApprovalCheck.Caption :=
-    'Approvo specificamente i limiti d''uso, la verifica umana obbligatoria, l''assenza di garanzie e supporto e le limitazioni di responsabilità nei limiti di legge.';
-  SpecificApprovalCheck.Checked := False;
+    'Ai sensi degli artt. 1341 e 1342 c.c., ove applicabili, approvo specificamente le clausole 3, 4, 5, 7, 8, 9, 10, 11 e 12: limiti d''uso, verifica umana, responsabilità dell''utilizzatore, sicurezza e backup, assenza di garanzie, limitazione di responsabilità, modifiche di terzi, assenza di supporto e componenti di terze parti.';
+  if WizardSilent and SilentTermsAccepted() then
+    SpecificApprovalCheck.Checked := True;
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
@@ -104,14 +104,18 @@ begin
   Result := True;
   if CurPageID = SpecificApprovalPage.ID then
   begin
+    if WizardSilent and SilentTermsAccepted() then
+      Exit;
     if not SpecificApprovalCheck.Checked then
     begin
-      MsgBox(
-        'Per continuare devi approvare specificamente le clausole indicate.',
-        mbError,
-        MB_OK
-      );
+      MsgBox('Per continuare devi approvare specificamente le clausole indicate.', mbError, MB_OK);
       Result := False;
     end;
   end;
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if (CurUninstallStep = usPostUninstall) and (not UninstallSilent) then
+    MsgBox('ThisTinti è stato rimosso. I dati locali restano in %LOCALAPPDATA%\ThisTinti per evitare perdite involontarie. Eliminali manualmente soltanto dopo aver creato e verificato un backup.', mbInformation, MB_OK);
 end;
