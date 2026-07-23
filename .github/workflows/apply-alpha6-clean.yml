@@ -1,11 +1,6 @@
 name: Apply Alpha.6 professionalization foundation
 
 on:
-  push:
-    branches:
-      - professionalization/alpha6-clean
-    paths:
-      - ".github/workflows/apply-alpha6-clean.yml"
   pull_request:
     branches:
       - main
@@ -166,7 +161,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          exec > >(tee .alpha6-commit.log) 2>&1
+          exec > >(tee /tmp/alpha6-commit.log) 2>&1
           rm -f .alpha6-ruff.log .alpha6-pytest.log alpha6-normalization-diagnostics.txt alpha6-test-diagnostics.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -193,8 +188,8 @@ jobs:
           {
             echo '### Alpha.6 commit diagnostics'
             echo '```text'
-            tail -n 200 .alpha6-commit.log
+            tail -n 200 /tmp/alpha6-commit.log
             echo '```'
-          } > .alpha6-pr-comment.md
-          gh pr comment 25 --repo "$GITHUB_REPOSITORY" --body-file .alpha6-pr-comment.md
+          } > /tmp/alpha6-pr-comment.md
+          gh pr comment 25 --repo "$GITHUB_REPOSITORY" --body-file /tmp/alpha6-pr-comment.md
           exit 1
