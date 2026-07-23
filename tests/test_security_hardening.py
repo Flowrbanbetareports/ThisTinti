@@ -150,3 +150,15 @@ def test_reprocess_preserves_last_good_lines_after_failure(client, auth):
     assert current["parse_status"] == "parsed"
     assert len(current["lines"]) == len(document["lines"])
     assert "Rielaborazione non applicata" in current["parse_message"]
+
+
+def test_frontend_is_single_auditable_bundle_with_safe_error_rendering():
+    static = Path(__file__).parents[1] / "app" / "static"
+    source = (static / "app.js").read_text(encoding="utf-8")
+    assert not (static / "app-original.js").exists()
+    assert not (static / "app-fixes.js").exists()
+    assert "messageFrom" in source
+    assert "[object Object]" not in source
+    assert "function dateTime" in source
+    assert "`${raw}Z`" in source
+    assert "document.createElement('script')" not in source

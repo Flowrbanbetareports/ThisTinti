@@ -1,4 +1,4 @@
-# Manuale operativo — ThisTinti 3.4.0-alpha.1
+# Manuale operativo — ThisTinti 3.4.0-alpha.5
 
 ## Profili di ambiente
 

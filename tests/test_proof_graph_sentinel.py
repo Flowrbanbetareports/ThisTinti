@@ -430,6 +430,15 @@ def test_real_pilot_automation_requires_separate_audited_approval(client, auth):
         "version": "1",
         "evidence_level": "anonymized_pilot",
         "automation_eligible": False,
+        "evidence": {
+            "authorization_reference": "TEST-PILOT-AUTH-001",
+            "authorized_use_confirmed": True,
+            "anonymization_confirmed": True,
+            "anonymization_method": "Synthetic identifiers replace all business names and references in this test pilot.",
+            "reviewer_refs": ["reviewer-a", "reviewer-b"],
+            "ground_truth_method": "Two independent reviewers classify each scenario and reconcile disagreements.",
+            "scope": "Thirty isolated order scenarios used to verify the audited automation gate in tests.",
+        },
         "scenarios": scenarios,
     }
     dataset = client.post("/api/validation/datasets", headers=auth, json=dataset_payload)
