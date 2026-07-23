@@ -14,9 +14,9 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from pydantic import ValidationError
+from pydantic import ValidationError  # noqa: E402
 
-from app.schemas import ValidationDatasetPayload
+from app.schemas import ValidationDatasetPayload  # noqa: E402
 
 SENSITIVE_KEY_FRAGMENTS = {
     "address",
