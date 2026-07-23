@@ -29,6 +29,7 @@ INTERNAL_REQUIRED_FILES = (
     "scripts/validate_pilot_dataset.py",
     ".github/workflows/beta-readiness.yml",
     ".github/workflows/windows-release.yml",
+    ".github/workflows/windows-attestation.yml",
 )
 
 WORKFLOW_FILES = (
@@ -37,6 +38,7 @@ WORKFLOW_FILES = (
     ".github/workflows/lock-preview.yml",
     ".github/workflows/pages.yml",
     ".github/workflows/windows-release.yml",
+    ".github/workflows/windows-attestation.yml",
     ".github/workflows/beta-readiness.yml",
 )
 
@@ -122,7 +124,7 @@ def build_report(*, require_external: bool) -> dict[str, Any]:
         "app/schemas.py": ("authorized_use_confirmed", "anonymization_confirmed", "reviewer_refs"),
         "app/services/validation_reporting.py": ("redacted", "validation_report"),
         "scripts/validate_pilot_dataset.py": ("ready_for_controlled_pilot", "sensitive-key"),
-        ".github/workflows/windows-release.yml": ("attest-build-provenance@",),
+        ".github/workflows/windows-attestation.yml": ("workflow_run:", "attest-build-provenance@"),
     }
     for relative, markers in required_markers.items():
         path = ROOT / relative
