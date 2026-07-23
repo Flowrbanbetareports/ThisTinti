@@ -6,11 +6,11 @@ Il modello operativo è **autonomia supervisionata**: i controlli deterministici
 
 ## Stato del rilascio
 
-Versione: **3.4.0-alpha.5 — Local + Self-Hosted Reference Edition preview**.
+Versione: **3.4.0-alpha.6-rc.1 — candidata tecnica per pilot controllati**.
 
 Questa preview conserva il livello di intelligence 3.2 e offre due distribuzioni gratuite: una Local Edition per singola postazione e una Self-Hosted Reference Edition con PostgreSQL, worker scalabili, TLS, scanner malware e strumenti operativi per team tecnici.
 
-La release è adatta a sviluppo, dimostrazioni e **pilot controllati con documenti anonimizzati**. La dicitura `alpha` è deliberata: il motore è testato, ma deve ancora essere calibrato su documenti reali del settore e non deve autorizzare autonomamente pagamenti o registrazioni contabili.
+La candidata è adatta a sviluppo, dimostrazioni e **pilot controllati con documenti autorizzati e anonimizzati**. La dicitura `alpha.6-rc.1` è deliberata: i gate tecnici sono automatizzati, ma la beta validata richiede ancora pilot reale e revisioni indipendenti. Il sistema non deve autorizzare autonomamente pagamenti o registrazioni contabili.
 
 ## Identità e posizionamento
 
@@ -194,6 +194,11 @@ ThisTinti non invia contestazioni, non esegue o blocca pagamenti reali, non modi
 - `docs/PILOT_DATASET_SPEC.md`: governance, validazione preventiva e rapporto del pilot;
 - `docs/PROFESSIONALIZATION_PROGRAM.md`: percorso interno dalla alpha alla beta;
 - `docs/SECURE_DEVELOPMENT_BASELINE.md`: standard e gate di sviluppo sicuro;
+- `docs/BETA_READINESS_STATUS.md`: distinzione tra candidata tecnica e beta validata;
+- `docs/ACCESSIBILITY_CONFORMANCE_PLAN.md`: piano WCAG 2.2 AA;
+- `docs/PERFORMANCE_AND_SLO.md`: baseline prestazionale e gate sull’ambiente definitivo;
+- `docs/BETA_EXTERNAL_REVIEW_PACKET.md`: consegna strutturata ai revisori indipendenti;
+- `docs/CODE_SIGNING_RUNBOOK.md`: ciclo di firma Authenticode;
 - `docs/DATA_FORMATS.md`: formati e campi supportati;
 - `docs/openapi.json`: specifica API;
 - `docs/sbom.cdx.json`: SBOM runtime.

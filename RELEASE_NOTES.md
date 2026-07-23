@@ -1,3 +1,12 @@
+# 3.4.0-alpha.6-rc.1 — Beta readiness foundation
+
+- introdotto un gate oggettivo che distingue candidata tecnica e beta validata;
+- aggiunti audit strutturali di accessibilità con target WCAG 2.2 AA;
+- aggiunto un load probe concorrente con report p50/p95/p99 e soglie di regressione;
+- aggiunti registro dei gate esterni, pacchetto revisori, piano SLO e runbook di firma;
+- predisposta provenienza verificabile per gli artefatti Windows;
+- nessuna dichiarazione di beta validata senza pilot reale e revisioni indipendenti.
+
 # 3.4.0-alpha.5 — Identità ThisTinti e motion system accessibile
 
 - sostituito il marchio provvisorio con un monogramma doppia T collegato a un segno di verifica;
