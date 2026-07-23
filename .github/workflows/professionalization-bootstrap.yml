@@ -34,14 +34,22 @@ jobs:
 
           root = Path.cwd().resolve()
           transfer = root / ".professionalization-transfer"
-          encoded = "".join(
-              path.read_text(encoding="ascii")
-              for path in sorted(transfer.glob("chunk-*.txt"))
-          )
+          chunks = sorted(transfer.glob("chunk-*.txt"))
+          encoded = "".join(path.read_text(encoding="ascii") for path in chunks)
           payload = base64.b64decode(encoded, validate=True)
           expected = "a178fd6bef9e662725527963ea692c53ed72cf6df45c517db11eb0b4206dbdd0"
           actual = hashlib.sha256(payload).hexdigest()
           if actual != expected:
+              diagnostics = [
+                  f"expected_payload_sha256={expected}",
+                  f"actual_payload_sha256={actual}",
+                  f"encoded_length={len(encoded)}",
+              ]
+              diagnostics.extend(
+                  f"{path.name} bytes={path.stat().st_size} git_blob_sha1={hashlib.sha1(b'blob ' + str(path.stat().st_size).encode() + b'\\0' + path.read_bytes()).hexdigest()}"
+                  for path in chunks
+              )
+              (root / ".professionalization-diagnostics.txt").write_text("\n".join(diagnostics) + "\n", encoding="utf-8")
               raise SystemExit(f"Transfer checksum mismatch: {actual}")
 
           archive_path = transfer / "transfer.zip"
@@ -59,7 +67,16 @@ jobs:
           (root / "__deletions__.txt").unlink(missing_ok=True)
           shutil.rmtree(transfer)
           (root / ".github/workflows/professionalization-bootstrap.yml").unlink()
+          (root / ".professionalization-diagnostics.txt").unlink(missing_ok=True)
           PY
+          if [ -f .professionalization-diagnostics.txt ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add .professionalization-diagnostics.txt
+            git commit -m "Record professionalization transfer diagnostics"
+            git push origin HEAD:professionalization/alpha6-foundation
+            exit 1
+          fi
           node --check app/static/app.js
           python -m compileall -q app scripts
           git config user.name "github-actions[bot]"
