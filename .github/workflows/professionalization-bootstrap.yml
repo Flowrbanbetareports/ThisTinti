@@ -37,7 +37,7 @@ jobs:
           chunks = sorted(transfer.glob("chunk-*.txt"))
           encoded = "".join(path.read_text(encoding="ascii") for path in chunks)
           payload = base64.b64decode(encoded, validate=True)
-          expected = "a178fd6bef9e662725527963ea692c53ed72cf6df45c517db11eb0b4206dbdd0"
+          expected = "9ed7bcb39e0489b83d17b86408818393a24caed7074c8d71d30d7ff7e1a0be8f"
           actual = hashlib.sha256(payload).hexdigest()
           if actual != expected:
               diagnostics = [
@@ -55,6 +55,7 @@ jobs:
           archive_path = transfer / "transfer.zip"
           archive_path.write_bytes(payload)
           with zipfile.ZipFile(archive_path) as archive:
+              archive.testzip()
               for member in archive.infolist():
                   target = (root / member.filename).resolve()
                   if target != root and root not in target.parents:
