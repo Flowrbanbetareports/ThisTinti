@@ -15,7 +15,7 @@ on:
 
 permissions:
   contents: write
-  actions: read
+  actions: write
 
 jobs:
   apply-and-verify:
@@ -131,37 +131,9 @@ jobs:
           python -m pip install -r requirements-dev.txt
 
       - name: Normalize Python sources
-        id: normalize
-        continue-on-error: true
-        shell: bash
         run: |
-          set +e
-          ruff check . --fix --unsafe-fixes > .alpha6-ruff.log 2>&1
-          lint_status=$?
-          ruff format . >> .alpha6-ruff.log 2>&1
-          format_status=$?
-          cat .alpha6-ruff.log
-          if [ "$lint_status" -ne 0 ] || [ "$format_status" -ne 0 ]; then
-            exit 1
-          fi
-
-      - name: Persist normalization diagnostics
-        if: steps.normalize.outcome == 'failure'
-        shell: bash
-        run: |
-          set -euo pipefail
-          git restore --staged . || true
-          git restore . || true
-          cp .alpha6-ruff.log alpha6-normalization-diagnostics.txt
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add alpha6-normalization-diagnostics.txt
-          git commit -m "Record Alpha.6 normalization diagnostics"
-          git push origin HEAD:professionalization/alpha6-clean
-
-      - name: Stop after normalization failure
-        if: steps.normalize.outcome == 'failure'
-        run: exit 1
+          ruff check . --fix --unsafe-fixes
+          ruff format .
 
       - name: Verify JavaScript, Python and publication readiness
         run: |
@@ -179,33 +151,9 @@ jobs:
         run: bandit -q -r app scripts
 
       - name: Full test suite
-        id: tests
-        continue-on-error: true
         env:
           PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
-        shell: bash
-        run: |
-          set +e
-          pytest -q > .alpha6-pytest.log 2>&1
-          status=$?
-          cat .alpha6-pytest.log
-          exit "$status"
-
-      - name: Persist test diagnostics
-        if: steps.tests.outcome == 'failure'
-        shell: bash
-        run: |
-          set -euo pipefail
-          cp .alpha6-pytest.log alpha6-test-diagnostics.txt
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add alpha6-test-diagnostics.txt
-          git commit -m "Record Alpha.6 test diagnostics"
-          git push origin HEAD:professionalization/alpha6-clean
-
-      - name: Stop after test failure
-        if: steps.tests.outcome == 'failure'
-        run: exit 1
+        run: pytest -q
 
       - name: Diff hygiene
         run: git diff --check
@@ -219,4 +167,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "Build alpha.6 professionalization foundation"
+          git pull --rebase origin professionalization/alpha6-clean
           git push origin HEAD:professionalization/alpha6-clean
