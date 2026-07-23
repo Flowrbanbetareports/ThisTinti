@@ -16,6 +16,8 @@ on:
 permissions:
   contents: write
   actions: write
+  issues: write
+  pull-requests: write
 
 jobs:
   apply-and-verify:
@@ -159,13 +161,40 @@ jobs:
         run: git diff --check
 
       - name: Commit verified foundation
+        id: commit_foundation
+        continue-on-error: true
         shell: bash
         run: |
-          set -euo pipefail
+          set +e
+          exec > >(tee .alpha6-commit.log) 2>&1
           rm -f .alpha6-ruff.log .alpha6-pytest.log alpha6-normalization-diagnostics.txt alpha6-test-diagnostics.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git status --short
           git add -A
           git commit -m "Build alpha.6 professionalization foundation"
+          commit_status=$?
+          if [ "$commit_status" -ne 0 ]; then
+            exit "$commit_status"
+          fi
           git pull --rebase origin professionalization/alpha6-clean
+          pull_status=$?
+          if [ "$pull_status" -ne 0 ]; then
+            exit "$pull_status"
+          fi
           git push origin HEAD:professionalization/alpha6-clean
+
+      - name: Report commit failure
+        if: steps.commit_foundation.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          {
+            echo '### Alpha.6 commit diagnostics'
+            echo '```text'
+            tail -n 200 .alpha6-commit.log
+            echo '```'
+          } > .alpha6-pr-comment.md
+          gh pr comment 25 --repo "$GITHUB_REPOSITORY" --body-file .alpha6-pr-comment.md
+          exit 1
