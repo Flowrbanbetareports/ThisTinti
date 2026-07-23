@@ -177,7 +177,9 @@ def audit_file(path: Path) -> dict[str, Any]:
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run deterministic structural accessibility checks on ThisTinti HTML.")
-    parser.add_argument("files", nargs="*", type=Path, help="HTML files; defaults to the app and public site entrypoints")
+    parser.add_argument(
+        "files", nargs="*", type=Path, help="HTML files; defaults to the app and public site entrypoints"
+    )
     parser.add_argument("--report", type=Path, help="Write a JSON report")
     return parser.parse_args(argv)
 

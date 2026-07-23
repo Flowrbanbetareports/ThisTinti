@@ -128,9 +128,7 @@ def main(argv: list[str] | None = None) -> int:
         )
     )
     report["thresholds"] = {"max_p95_ms": args.max_p95_ms, "max_error_rate": args.max_error_rate}
-    report["passed"] = (
-        report["latency_ms"]["p95"] <= args.max_p95_ms and report["error_rate"] <= args.max_error_rate
-    )
+    report["passed"] = report["latency_ms"]["p95"] <= args.max_p95_ms and report["error_rate"] <= args.max_error_rate
     rendered = json.dumps(report, ensure_ascii=False, indent=2)
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)
