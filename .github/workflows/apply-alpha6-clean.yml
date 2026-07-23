@@ -172,11 +172,6 @@ jobs:
           if [ "$commit_status" -ne 0 ]; then
             exit "$commit_status"
           fi
-          git pull --rebase origin professionalization/alpha6-clean
-          pull_status=$?
-          if [ "$pull_status" -ne 0 ]; then
-            exit "$pull_status"
-          fi
           git push origin HEAD:professionalization/alpha6-clean
 
       - name: Report commit failure
@@ -188,7 +183,7 @@ jobs:
           {
             echo '### Alpha.6 commit diagnostics'
             echo '```text'
-            tail -n 200 /tmp/alpha6-commit.log
+            tail -n 80 /tmp/alpha6-commit.log
             echo '```'
           } > /tmp/alpha6-pr-comment.md
           gh pr comment 25 --repo "$GITHUB_REPOSITORY" --body-file /tmp/alpha6-pr-comment.md
