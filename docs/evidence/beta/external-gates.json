@@ -1,0 +1,37 @@
+{
+  "schema": "thistinti.beta-external-gates.v1",
+  "candidate_version": "3.4.0-alpha.6-rc.1",
+  "updated_at": null,
+  "gates": {
+    "real_pilot_30_scenarios": {
+      "passed": false,
+      "evidence": null,
+      "notes": "Richiede documenti reali autorizzati e anonimizzati con ground truth indipendente."
+    },
+    "independent_security_review": {
+      "passed": false,
+      "evidence": null,
+      "notes": "Richiede penetration test esterno e gestione formale dei rilievi."
+    },
+    "legal_privacy_trademark_review": {
+      "passed": false,
+      "evidence": null,
+      "notes": "Richiede professionisti qualificati e perimetro giuridico definito."
+    },
+    "wcag_2_2_aa_manual_review": {
+      "passed": false,
+      "evidence": null,
+      "notes": "Richiede verifica manuale con tastiera e tecnologie assistive."
+    },
+    "production_environment_load_restore": {
+      "passed": false,
+      "evidence": null,
+      "notes": "Richiede l'infrastruttura definitiva e obiettivi di servizio approvati."
+    },
+    "windows_code_signing": {
+      "passed": false,
+      "evidence": null,
+      "notes": "Richiede certificato Authenticode e custodia esterna della chiave privata."
+    }
+  }
+}
