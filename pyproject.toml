@@ -1,6 +1,6 @@
 [project]
 name = "thistinti"
-version = "3.4.0-alpha.5"
+version = "3.4.0-alpha.6-rc.1"
 description = "Document integrity and discrepancy review platform"
 requires-python = ">=3.11"
 
