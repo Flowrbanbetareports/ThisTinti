@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Trasparenza, licenza e disponibilità del codice sorgente di ThisTinti." />
+  <meta name="theme-color" content="#0d1720" />
+  <title>ThisTinti — Trasparenza e codice</title>
+  <link rel="icon" href="logo.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="guide-page">
+  <main class="guide-shell">
+    <header class="guide-header">
+      <a class="brand" href="index.html"><img src="logo.svg" alt="" />ThisTinti</a>
+      <a class="guide-back" href="index.html">← Torna alla pagina principale</a>
+    </header>
+
+    <section class="guide-hero">
+      <p class="eyebrow">Trasparenza</p>
+      <h1>Come è distribuito ThisTinti.</h1>
+      <p>Questa pagina spiega in modo semplice che cosa viene pubblicato, come si verifica una release e quali limiti restano.</p>
+    </section>
+
+    <section class="guide-content">
+      <article class="guide-card">
+        <h2>Licenza</h2>
+        <p>ThisTinti è distribuito con licenza Apache 2.0. La licenza permette di studiare, modificare e ridistribuire il software rispettando le condizioni indicate nei documenti allegati.</p>
+      </article>
+
+      <article class="guide-card">
+        <h2>Codice sorgente</h2>
+        <p>Il pacchetto sorgente della release viene pubblicato insieme all'installer. In questo modo chi deve fare una verifica tecnica può scaricarlo senza passare dalla pagina personale del manutentore.</p>
+        <p><a id="downloadSourcePackage" class="button primary disabled" aria-disabled="true">Ricerca del pacchetto sorgente…</a></p>
+      </article>
+
+      <article class="guide-card">
+        <h2>Come verificare il file</h2>
+        <p>Per ogni installer ufficiale viene pubblicato un checksum SHA-256. Il checksum serve a controllare che il file scaricato sia identico a quello prodotto dalla build ufficiale.</p>
+        <p>La Public Preview non è ancora firmata digitalmente. Per questo Windows o il browser possono mostrare un avviso di reputazione.</p>
+      </article>
+
+      <article class="guide-card">
+        <h2>Che cosa non viene nascosto</h2>
+        <ul>
+          <li>stato sperimentale della versione;</li>
+          <li>assenza attuale di firma Authenticode;</li>
+          <li>necessità di verificare i risultati sui documenti originali;</li>
+          <li>responsabilità dell'organizzazione sulle personalizzazioni e sull'uso operativo;</li>
+          <li>necessità di test esterni prima di una beta pienamente validata.</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+  <script src="config.js"></script>
+  <script src="site.js"></script>
+</body>
+</html>
