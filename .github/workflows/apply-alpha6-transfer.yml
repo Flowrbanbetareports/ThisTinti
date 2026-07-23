@@ -1,18 +1,20 @@
 name: Apply Alpha.6 transfer
 
-# Second push intentionally triggers this already-registered workflow.
 on:
-  push:
+  pull_request:
     branches:
       - main
     paths:
-      - '.github/workflows/apply-alpha6-transfer.yml'
+      - '.professionalization-transfer/**'
+      - '.github/workflows/professionalization-bootstrap.yml'
+      - '.professionalization-diagnostics.txt'
 
 permissions:
   contents: write
 
 jobs:
   apply:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'professionalization/alpha6-foundation'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -91,15 +93,3 @@ jobs:
           git add -A
           git commit -m 'Apply Alpha.6 professionalization foundation'
           git push origin HEAD:professionalization/alpha6-foundation
-
-      - name: Remove temporary bootstrap from main
-        shell: bash
-        run: |
-          set -euo pipefail
-          git fetch origin main
-          git checkout -B main origin/main
-          git rm .github/workflows/apply-alpha6-transfer.yml
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'Remove temporary Alpha.6 bootstrap'
-          git push origin HEAD:main
