@@ -96,8 +96,22 @@ jobs:
           rm -f __deletions__.txt
           git apply --check .alpha6-transfer/hardening.patch
           git apply .alpha6-transfer/hardening.patch
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("scripts/validate_pilot_dataset.py")
+          content = path.read_text(encoding="utf-8")
+          content = content.replace(
+              "from pydantic import ValidationError\n",
+              "from pydantic import ValidationError  # noqa: E402\n",
+          ).replace(
+              "from app.schemas import ValidationDatasetPayload\n",
+              "from app.schemas import ValidationDatasetPayload  # noqa: E402\n",
+          )
+          path.write_text(content, encoding="utf-8")
+          PY
           rm -rf .alpha6-transfer
-          rm -f .github/workflows/apply-alpha6-clean.yml
+          rm -f .github/workflows/apply-alpha6-clean.yml alpha6-normalization-diagnostics.txt
 
       - name: Install development dependencies
         shell: bash
