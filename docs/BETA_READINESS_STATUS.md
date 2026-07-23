@@ -21,7 +21,7 @@ ThisTinti è in preparazione come `3.4.0-alpha.6-rc.1`. La base tecnica include:
 
 ## Gate interni
 
-I gate interni sono verificati da `scripts/check_beta_readiness.py` e dal workflow `Beta Readiness`. Devono restare verdi sul commit esatto candidato alla distribuzione.
+I gate interni sono verificati da `scripts/check_beta_readiness.py` e dal workflow `Beta Readiness`. Devono restare verdi sul commit esatto candidato alla distribuzione. Le evidenze automatiche vengono conservate come artifact temporanei associati al run e al commit.
 
 ## Gate esterni non autocertificabili
 
