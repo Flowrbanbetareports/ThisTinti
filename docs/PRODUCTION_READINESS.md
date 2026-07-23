@@ -1,4 +1,4 @@
-# Production readiness — ThisTinti 3.4.0-alpha.1
+# Production readiness — ThisTinti 3.4.0-alpha.5
 
 ## Gate tecnici interni implementati
 

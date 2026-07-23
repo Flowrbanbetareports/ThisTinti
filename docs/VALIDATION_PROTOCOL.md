@@ -100,7 +100,7 @@ Il pilot deve produrre un rapporto con:
 
 ## Implementazione nel Validation Lab
 
-La versione 3.2 include un laboratorio eseguibile dall'interfaccia o da CLI. Il formato della suite contiene:
+La versione corrente include un laboratorio eseguibile dall'interfaccia o da CLI. Il formato della suite contiene:
 
 - nome e versione;
 - soglie del gate;

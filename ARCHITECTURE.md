@@ -87,21 +87,20 @@ Tenant
 
 ## Scalabilità
 
-La build è pronta per un'unica istanza o per una prima installazione PostgreSQL. Per scala orizzontale servono:
+La Local Edition usa una singola postazione. La Self-Hosted Reference Edition include PostgreSQL, coda persistente, worker replicabili, rate limiting condiviso e reverse proxy. Per una scala orizzontale oltre il deployment di riferimento restano necessari:
 
 - object storage condiviso;
-- rate limiting condiviso;
-- coda job per parsing pesante;
-- lock/distribuzione dei job;
-- log e metriche centralizzati;
-- reverse proxy e bilanciamento.
+- orchestrazione e autoscaling dei worker;
+- log, metriche e tracing centralizzati;
+- quote per tenant e capacity planning;
+- prove di concorrenza, failover e ripristino sulla piattaforma scelta.
 
 ## Confini
 
-- nessun OCR;
+- OCR esclusivamente locale, limitato e trattato come evidenza derivata;
 - nessun invio automatico al fornitore;
-- nessuna scrittura contabile;
-- nessuna API AI a pagamento;
+- nessuna scrittura contabile o esecuzione di pagamenti;
+- nessuna API AI remota obbligatoria;
 - nessun accesso diretto al database dal browser.
 
 ## Validation Lab

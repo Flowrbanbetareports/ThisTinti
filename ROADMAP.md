@@ -1,35 +1,35 @@
 # Roadmap di ThisTinti
 
-## Stato attuale — 3.4.0-alpha.4
+## Stato attuale — 3.4.0-alpha.5
 
 Completati:
 
-- Local Edition Windows installabile;
-- archivio portable;
-- pagina pubblica di download;
-- caricamento demo, esportazione e persistenza;
-- aggiornamento e disinstallazione verificati;
-- PostgreSQL con RLS;
-- Self-Hosted Reference Edition con Docker, TLS e scanner;
+- Local Edition Windows installabile, aggiornabile e disinstallabile senza rimuovere i dati;
+- archivio portable, pagina pubblica, checksum e sorgente self-hosted;
+- caricamento demo, esportazione, persistenza e smoke test dopo riavvio;
+- PostgreSQL con ruoli separati, RLS e prove cross-tenant;
+- Self-Hosted Reference Edition con Docker, TLS, scanner e procedure operative;
 - CI, audit dipendenze, backup e ripristino automatici;
+- identità visiva unificata, motion accessibile e collaudo Windows;
+- messaggi di errore leggibili, orari locali e azioni contestuali;
 - documentazione legale e operativa di base.
 
-## Alpha.5 — identità e qualità percepita
+## Alpha.6 — pilot documentale e qualità misurata
 
-Obiettivi:
+Obiettivi interni:
 
-- nuovo logo coerente con il nome ThisTinti;
-- sistema visivo unificato tra app, installer e sito;
-- microanimazioni accessibili e feedback di elaborazione;
-- verifica responsive delle schermate principali;
-- revisione di testi, gerarchie e onboarding;
-- nuovo collaudo Windows e nuova release senza modificare il tag alpha.4.
+- consolidare il frontend e rimuovere patch o bundle temporanei;
+- rendere obbligatori autorizzazione, anonimizzazione, perimetro e doppia revisione per dataset reali;
+- esportare rapporti di validazione redatti e riproducibili;
+- validare dataset pilot da CLI prima del caricamento;
+- migliorare accessibilità, onboarding e flussi end-to-end;
+- ridurre progressivamente i moduli monolitici senza modificare il comportamento verificato;
+- aggiungere provenienza verificabile agli artefatti ufficiali.
 
-## Alpha.6 — pilot documentale
+Obiettivi del pilot:
 
-Obiettivi:
-
-- almeno 30 scenari reali, anonimizzati e autorizzati;
+- almeno 30 scenari reali, anonimizzati e autorizzati per il gate minimo;
+- campione esteso secondo `docs/VALIDATION_PROTOCOL.md` per la valutazione operativa;
 - misurazione di precisione, recall, falsi positivi, falsi negativi e importo economico coinvolto;
 - classificazione degli errori per parser, matching e regole;
 - miglioramento dei formati e delle regole con test di regressione;
@@ -42,10 +42,12 @@ Gate richiesti:
 - penetration test indipendente;
 - revisione legale, privacy e del nome;
 - firma digitale degli installer;
-- test di carico e durata;
+- test di accessibilità WCAG 2.2;
+- test di carico e durata con SLO definiti;
 - piano di aggiornamento e risposta agli incidenti;
-- policy di retention e cancellazione;
-- pilot su infrastruttura reale con backup e restore provati.
+- policy di retention e cancellazione applicata all'ambiente definitivo;
+- pilot su infrastruttura reale con backup e restore provati;
+- rapporto pilot revisionato e rischi residui accettati formalmente.
 
 ## Direzione commerciale
 
@@ -67,5 +69,6 @@ Le modifiche vengono ordinate secondo:
 2. correttezza dei risultati documentali;
 3. tracciabilità e verifica umana;
 4. affidabilità dell'installazione e degli aggiornamenti;
-5. usabilità e accessibilità;
-6. estetica e funzioni non essenziali.
+5. manutenibilità e osservabilità;
+6. usabilità e accessibilità;
+7. estetica e funzioni non essenziali.

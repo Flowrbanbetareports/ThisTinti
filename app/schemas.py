@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date, datetime, timedelta, timezone
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
 
 DocumentType = Literal["proposal", "order", "confirmation", "delivery", "invoice", "payment", "return", "credit_note"]
 
@@ -313,6 +313,14 @@ class ValidationScenarioInput(BaseModel):
     expected: list[ValidationExpectedFinding] = Field(default_factory=list, max_length=100)
     ignore_unexpected_types: list[str] = Field(default_factory=list, max_length=100)
 
+    @field_validator("id")
+    @classmethod
+    def normalize_id(cls, value: str) -> str:
+        normalized = value.strip()
+        if not normalized:
+            raise ValueError("Scenario id cannot be blank")
+        return normalized
+
 
 class ValidationGate(BaseModel):
     min_precision: float = Field(default=0.95, ge=0, le=1)
@@ -322,19 +330,77 @@ class ValidationGate(BaseModel):
     require_all_scenarios_pass: bool = True
 
 
+class ValidationEvidenceMetadata(BaseModel):
+    authorization_reference: str = Field(min_length=3, max_length=240)
+    authorized_use_confirmed: bool = False
+    anonymization_confirmed: bool = False
+    anonymization_method: str | None = Field(default=None, min_length=3, max_length=1000)
+    reviewer_refs: list[str] = Field(min_length=2, max_length=20)
+    ground_truth_method: str = Field(min_length=10, max_length=2000)
+    scope: str = Field(min_length=10, max_length=2000)
+    prepared_at: datetime | None = None
+    notes: str | None = Field(default=None, max_length=3000)
+
+    @field_validator("reviewer_refs", mode="before")
+    @classmethod
+    def validate_reviewer_items(cls, value: object) -> object:
+        if not isinstance(value, list):
+            return value
+        normalized: list[str] = []
+        for item in value:
+            if not isinstance(item, str):
+                raise ValueError("Reviewer references must be strings")
+            cleaned = item.strip()
+            if not 3 <= len(cleaned) <= 120:
+                raise ValueError("Each reviewer reference must contain between 3 and 120 characters")
+            normalized.append(cleaned)
+        return normalized
+
+    @model_validator(mode="after")
+    def validate_reviewers(self) -> "ValidationEvidenceMetadata":
+        normalized = [item.casefold() for item in self.reviewer_refs]
+        if len(normalized) < 2 or len(set(normalized)) < 2:
+            raise ValueError("At least two distinct reviewer references are required")
+        if self.prepared_at is not None:
+            if self.prepared_at.tzinfo is None or self.prepared_at.utcoffset() is None:
+                raise ValueError("Evidence prepared_at must include a timezone")
+            if self.prepared_at > datetime.now(timezone.utc) + timedelta(minutes=5):
+                raise ValueError("Evidence prepared_at cannot be in the future")
+        return self
+
+
 class ValidationDatasetPayload(BaseModel):
     name: str = Field(min_length=2, max_length=180)
     version: str = Field(min_length=1, max_length=40)
     description: str | None = Field(default=None, max_length=3000)
     evidence_level: Literal["synthetic", "anonymized_pilot", "production"] = "synthetic"
     automation_eligible: bool = False
+    evidence: ValidationEvidenceMetadata | None = None
     gate: ValidationGate = Field(default_factory=ValidationGate)
     scenarios: list[ValidationScenarioInput] = Field(min_length=1, max_length=500)
 
     @model_validator(mode="after")
     def validate_automation_evidence(self) -> "ValidationDatasetPayload":
+        scenario_ids = [scenario.id.casefold() for scenario in self.scenarios]
+        if len(scenario_ids) != len(set(scenario_ids)):
+            raise ValueError("Scenario ids must be unique within a validation dataset")
         if self.automation_eligible:
             raise ValueError("Use the audited automation approval endpoint after a successful real-data gate")
+        if self.evidence_level == "synthetic":
+            return self
+        if self.evidence is None:
+            raise ValueError("Real-evidence datasets require authorization, reviewers and ground-truth metadata")
+        if not self.evidence.authorized_use_confirmed:
+            raise ValueError("Authorized use must be explicitly confirmed for real-evidence datasets")
+        if self.evidence.prepared_at is None:
+            raise ValueError("Real-evidence datasets require a timezone-aware evidence prepared_at timestamp")
+        if len(self.scenarios) < 30:
+            raise ValueError("Real-evidence datasets require at least 30 independent scenarios")
+        if self.evidence_level == "anonymized_pilot":
+            if not self.evidence.anonymization_confirmed:
+                raise ValueError("Anonymization must be explicitly confirmed for an anonymized pilot")
+            if not self.evidence.anonymization_method:
+                raise ValueError("An anonymization method is required for an anonymized pilot")
         return self
 
 

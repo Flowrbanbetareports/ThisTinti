@@ -14,6 +14,7 @@ os.environ["THISTINTI_QUARANTINE_DIR"] = str(TEST_ROOT / "quarantine")
 os.environ["THISTINTI_REJECTED_DIR"] = str(TEST_ROOT / "rejected")
 os.environ["THISTINTI_SECRET_KEY"] = "test-secret-key-not-for-production"
 os.environ["THISTINTI_ALLOW_REGISTRATION"] = "true"
+os.environ["THISTINTI_OCR_ENABLED"] = "false"
 
 import pytest
 from fastapi.testclient import TestClient
