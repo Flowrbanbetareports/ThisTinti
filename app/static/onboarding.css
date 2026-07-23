@@ -1,0 +1,58 @@
+/* First-run onboarding and permanent simple guide */
+.guide-hero {
+  padding: clamp(24px, 4vw, 42px);
+  background: linear-gradient(135deg, #fff, var(--accent-soft));
+}
+.guide-hero > p { max-width: 760px; }
+.guide-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+.guide-steps article {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+}
+.guide-steps b {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--dark);
+  color: #fff;
+}
+.guide-steps h4 { margin: 12px 0 6px; font-size: 1.05rem; }
+.guide-steps p { margin: 0; color: var(--muted); }
+.guide-steps.compact article { padding: 14px; }
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 18px 0;
+}
+.guide-grid .panel { margin: 0; }
+.guide-example { border-left: 4px solid var(--brand-gold); }
+.guide-boundaries { border-left: 4px solid var(--brand-cyan); }
+.guide-actions { justify-content: flex-start; }
+.welcome-modal .modal-card { width: min(760px, calc(100vw - 32px)); }
+.welcome-brand { display: flex; align-items: center; gap: 14px; }
+.welcome-brand h3 { margin: 2px 0 0; }
+.welcome-lead { font-size: 1.05rem; color: var(--muted); }
+.welcome-dismiss {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  color: var(--muted);
+}
+.welcome-dismiss input { width: 18px; height: 18px; accent-color: var(--accent); }
+@media (max-width: 900px) {
+  .guide-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 700px) {
+  .guide-steps, .guide-grid { grid-template-columns: 1fr; }
+}
