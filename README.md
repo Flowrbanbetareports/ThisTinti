@@ -1,16 +1,16 @@
 # ThisTinti
 
-ThisTinti è una piattaforma B2B di controllo preventivo dei flussi documentali commerciali. Acquisisce documenti, ricostruisce la storia proposta–ordine–conferma–consegna–fattura–pagamento–reso–nota di credito, confronta valori economici e mostra le prove utilizzate per ogni conclusione.
+ThisTinti è una piattaforma locale e configurabile per collegare documenti, verificarne la coerenza, evidenziare possibili differenze e mostrare le prove consultabili che hanno generato ogni segnalazione.
 
-Il modello operativo è **autonomia supervisionata**: i controlli deterministici e sufficientemente affidabili possono essere eseguiti automaticamente; regole apprese, casi incerti e decisioni con impatto economico richiedono conferma umana.
+ThisTinti non decide, non approva e non certifica nulla. Organizza informazioni e possibili incongruenze; l’organizzazione stabilisce come utilizzarle e resta responsabile delle proprie procedure.
 
 ## Stato del rilascio
 
-Versione: **3.4.0-alpha.6-rc.1 — candidata tecnica per pilot controllati**.
+Versione: **3.4.0-alpha.7-rc.1 — Public Preview con esperienza iniziale semplificata**.
 
-Questa preview conserva il livello di intelligence 3.2 e offre due distribuzioni gratuite: una Local Edition per singola postazione e una Self-Hosted Reference Edition con PostgreSQL, worker scalabili, TLS, scanner malware e strumenti operativi per team tecnici.
+Questa preview conserva il motore documentale esistente e offre due distribuzioni gratuite: una Local Edition per singola postazione e una Self-Hosted Reference Edition con PostgreSQL, worker scalabili, TLS, scanner malware e strumenti operativi per team tecnici.
 
-La candidata è adatta a sviluppo, dimostrazioni e **pilot controllati con documenti autorizzati e anonimizzati**. La dicitura `alpha.6-rc.1` è deliberata: i gate tecnici sono automatizzati, ma la beta validata richiede ancora pilot reale e revisioni indipendenti. Il sistema non deve autorizzare autonomamente pagamenti o registrazioni contabili.
+La candidata è adatta a sviluppo, dimostrazioni e **pilot controllati con documenti autorizzati e anonimizzati**. L’interfaccia iniziale presenta soltanto Inizio, Documenti, Da controllare e Guida; gli strumenti specialistici restano disponibili tramite progressive disclosure. La beta validata richiede ancora pilot reale e revisioni indipendenti.
 
 ## Identità e posizionamento
 
@@ -178,38 +178,8 @@ ThisTinti non invia contestazioni, non esegue o blocca pagamenti reali, non modi
 - `SECURITY.md`: controlli, versioni supportate e segnalazione responsabile;
 - `docs/LOCAL_EDITION.md`: installazione, dati locali, backup e distribuzione gratuita;
 - `docs/DATA_LIFECYCLE.md`: conservazione, disinstallazione e cancellazione completa;
-- `docs/RELEASE_AUTHENTICITY.md`: verifica dei download e dei checksum;
-- `docs/BRAND_STATUS.md`: stato provvisorio di nome, logo e animazioni;
-- `docs/ENTERPRISE_SELF_HOSTED.md`: deploy self-hosted e procedure operative;
-- `docs/RESPONSIBILITY_MATRIX.md`: confini tra progetto, organizzazione e fornitori;
-- `docs/ENTERPRISE_ACCEPTANCE_CHECKLIST.md`: controlli prima dell'uso aziendale;
-- `docs/CUSTOMIZATION_GUIDE.md`: punti di estensione per i team tecnici;
-- `docs/PROOF_GRAPH_SENTINEL.md`: architettura e limiti delle funzioni distintive;
-- `docs/RELEASE_VERIFICATION_3.2.0_ALPHA.1.md`: risultati conclusivi e limiti verificati della preview;
-- `docs/OPERATIONS.md`: deploy, worker, scanner, backup, monitoraggio e incidenti;
-- `docs/ZERO_COST_EXTERNAL_PROOF.md`: pubblicazione e collaudo cloud gratuito;
-- `docs/PRODUCTION_READINESS.md`: gate interni superati e gate esterni ancora necessari;
-- `docs/THREAT_MODEL.md`: minacce, mitigazioni e rischi residui;
-- `docs/VALIDATION_PROTOCOL.md`: validazione su dataset sintetici e reali;
-- `docs/PILOT_DATASET_SPEC.md`: governance, validazione preventiva e rapporto del pilot;
-- `docs/PROFESSIONALIZATION_PROGRAM.md`: percorso interno dalla alpha alla beta;
-- `docs/SECURE_DEVELOPMENT_BASELINE.md`: standard e gate di sviluppo sicuro;
-- `docs/BETA_READINESS_STATUS.md`: distinzione tra candidata tecnica e beta validata;
-- `docs/ACCESSIBILITY_CONFORMANCE_PLAN.md`: piano WCAG 2.2 AA;
-- `docs/PERFORMANCE_AND_SLO.md`: baseline prestazionale e gate sull’ambiente definitivo;
-- `docs/BETA_EXTERNAL_REVIEW_PACKET.md`: consegna strutturata ai revisori indipendenti;
-- `docs/CODE_SIGNING_RUNBOOK.md`: ciclo di firma Authenticode;
-- `docs/DATA_FORMATS.md`: formati e campi supportati;
-- `docs/openapi.json`: specifica API;
-- `docs/sbom.cdx.json`: SBOM runtime.
-
-## Preparazione al lancio pubblico
-
-- [Checklist di pubblicazione](docs/PUBLIC_LAUNCH_CHECKLIST.md)
-- [Verifica nome e dominio](docs/NAME_AND_DOMAIN_CLEARANCE.md)
-- [Guida semplice](docs/USER_GUIDE_SIMPLE.md)
-- [Kit per il pilot](docs/PILOT_KIT.md)
-- [Revisione preliminare delle licenze](docs/LICENSE_REVIEW.md)
-- [Brief legale](docs/LEGAL_REVIEW_BRIEF.md)
-- [Brief security review](docs/SECURITY_REVIEW_BRIEF.md)
-- [Configurazione dominio e GitHub Pages](docs/DOMAIN_AND_PAGES_SETUP.md)
+- `docs/PUBLIC_LAUNCH_CHECKLIST.md`: gate manuali e tecnici prima di ogni pubblicazione;
+- `docs/NAME_AND_DOMAIN_CLEARANCE.md`: stato delle verifiche preliminari su nome e dominio;
+- `docs/USER_GUIDE_SIMPLE.md`: guida essenziale destinata ai nuovi utenti;
+- `docs/PILOT_KIT.md`: perimetro e materiale per pilot controllati;
+- `docs/LICENSE_REVIEW.md`: revisione delle licenze e dei componenti distribuiti.

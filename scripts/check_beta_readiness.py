@@ -40,6 +40,8 @@ WORKFLOW_FILES = (
     ".github/workflows/windows-release.yml",
     ".github/workflows/windows-attestation.yml",
     ".github/workflows/beta-readiness.yml",
+    ".github/workflows/classify-prerelease.yml",
+    ".github/workflows/publish-alpha7-tag.yml",
 )
 
 EXTERNAL_GATES = (
@@ -49,6 +51,7 @@ EXTERNAL_GATES = (
     "wcag_2_2_aa_manual_review",
     "production_environment_load_restore",
     "windows_code_signing",
+    "untrained_user_onboarding_validation",
 )
 
 
@@ -107,8 +110,8 @@ def build_report(*, require_external: bool) -> dict[str, Any]:
         version = ""
         internal_failures.append(str(exc))
 
-    if version and not re.fullmatch(r"3\.4\.0-alpha\.6-rc\.\d+", version):
-        internal_failures.append(f"Candidate version is not an Alpha.6 release candidate: {version}")
+    if version and not re.fullmatch(r"3\.4\.0-alpha\.\d+(?:-rc\.\d+)?", version):
+        internal_failures.append(f"Candidate version is not a supported 3.4 alpha or release candidate: {version}")
 
     for relative in ("pyproject.toml", "installer/windows/ThisTinti.iss", "README.md", "RELEASE_NOTES.md"):
         path = ROOT / relative
@@ -138,6 +141,11 @@ def build_report(*, require_external: bool) -> dict[str, Any]:
 
     external_registry, registry_failures = load_external_gates()
     internal_failures.extend(registry_failures)
+    registry_version = external_registry.get("candidate_version") if isinstance(external_registry, dict) else None
+    if version and registry_version != version:
+        internal_failures.append(
+            f"External gate registry version mismatch: expected {version}, found {registry_version or 'missing'}"
+        )
     gates = external_registry.get("gates", {}) if isinstance(external_registry, dict) else {}
     external_open = [name for name in EXTERNAL_GATES if not bool(gates.get(name, {}).get("passed"))]
 
@@ -161,6 +169,7 @@ def build_report(*, require_external: bool) -> dict[str, Any]:
         "limitations": [
             "Internal automation cannot create authorised real-world pilot evidence.",
             "Internal automation cannot replace independent legal, privacy, accessibility or security review.",
+            "Internal automation cannot validate first-use comprehension with untrained people.",
             "Code signing requires an externally controlled certificate and private key.",
         ],
     }

@@ -1,6 +1,6 @@
 {
   "schema": "thistinti.beta-external-gates.v1",
-  "candidate_version": "3.4.0-alpha.6-rc.1",
+  "candidate_version": "3.4.0-alpha.7-rc.1",
   "updated_at": null,
   "gates": {
     "real_pilot_30_scenarios": {
@@ -32,6 +32,11 @@
       "passed": false,
       "evidence": null,
       "notes": "Richiede certificato Authenticode e custodia esterna della chiave privata."
+    },
+    "untrained_user_onboarding_validation": {
+      "passed": false,
+      "evidence": null,
+      "notes": "Richiede sessioni osservate con persone non istruite e risultati registrati secondo il protocollo UX, senza telemetria."
     }
   }
 }

@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_current_brand_and_version_are_consistent() -> None:
-    assert RELEASE_VERSION == "3.4.0-alpha.6-rc.1"
+    assert RELEASE_VERSION == "3.4.0-alpha.7-rc.1"
     assert (ROOT / "run_thistinti.py").is_file()
     assert (ROOT / "installer/windows/ThisTinti.iss").is_file()
     assert (ROOT / "installer/windows/ThisTinti.spec").is_file()
