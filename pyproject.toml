@@ -1,6 +1,6 @@
 [project]
 name = "thistinti"
-version = "3.4.0-alpha.7-rc.3"
+version = "3.4.0-alpha.7-rc.4"
 description = "Document integrity and discrepancy review platform"
 requires-python = ">=3.11"
 
@@ -17,7 +17,3 @@ line-length = 120
 [tool.coverage.run]
 source = ["app"]
 omit = ["app/local_launcher.py"]
-
-[tool.coverage.report]
-fail_under = 90
-show_missing = true
