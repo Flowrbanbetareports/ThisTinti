@@ -1,0 +1,46 @@
+/* Keep the application navigation usable on short desktop viewports. */
+.sidebar {
+  overflow: hidden;
+}
+
+.sidebar-brand,
+.sidebar-footer {
+  flex: 0 0 auto;
+}
+
+.nav-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+  padding-right: 5px;
+}
+
+.nav-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.nav-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.nav-list::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgba(221, 232, 237, .28);
+  background-clip: padding-box;
+}
+
+.nav-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(221, 232, 237, .46);
+  background-clip: padding-box;
+}
+
+@supports (scrollbar-color: auto) {
+  .nav-list {
+    scrollbar-color: rgba(221, 232, 237, .34) transparent;
+    scrollbar-width: thin;
+  }
+}

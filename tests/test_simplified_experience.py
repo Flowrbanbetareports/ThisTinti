@@ -14,9 +14,11 @@ def test_experience_files_are_present_and_loaded_after_the_core():
     assert (STATIC / "app-core.js").is_file()
     assert (STATIC / "onboarding.js").is_file()
     assert (STATIC / "onboarding.css").is_file()
+    assert (STATIC / "sidebar-scroll.css").is_file()
     assert "'/app-core.js'" in loader
     assert "'/onboarding.js'" in loader
-    assert "style.href = '/onboarding.css'" in loader
+    assert "'/onboarding.css'" in loader
+    assert "'/sidebar-scroll.css'" in loader
     assert loader.index("'/app-core.js'") < loader.index("'/onboarding.js'")
 
 
@@ -39,6 +41,21 @@ def test_primary_navigation_and_progressive_disclosure_are_defined():
     assert "advancedNavPanel" in source
     assert "aria-expanded" in source
     assert "aria-controls" in source
+
+
+def test_sidebar_navigation_scrolls_independently_on_short_viewports():
+    css = read("sidebar-scroll.css")
+    for marker in (
+        ".sidebar",
+        "overflow: hidden",
+        ".nav-list",
+        "flex: 1 1 auto",
+        "min-height: 0",
+        "overflow-y: auto",
+        "overscroll-behavior-y: contain",
+        "scrollbar-gutter: stable",
+    ):
+        assert marker in css
 
 
 def test_first_use_path_has_preview_welcome_guide_and_start_checklist():

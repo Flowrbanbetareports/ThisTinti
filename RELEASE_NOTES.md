@@ -1,3 +1,13 @@
+# 3.4.0-alpha.7-rc.2 — Scorrimento della navigazione laterale
+
+- corretto il menu laterale sui monitor e sulle finestre con altezza ridotta;
+- il pannello blu ora scorre indipendentemente dal contenuto principale bianco;
+- logo e riepilogo dell’account restano fermi mentre scorrono le voci di navigazione;
+- limitato il passaggio involontario della rotella alla pagina principale finché il menu può ancora scorrere;
+- aggiunta una barra di scorrimento discreta e accessibile nel pannello laterale;
+- aggiunti test strutturali dedicati alla disponibilità di tutte le voci del menu;
+- nessuna modifica al motore documentale, ai dati, ai ruoli o ai controlli di sicurezza.
+
 # 3.4.0-alpha.7-rc.1 — Esperienza iniziale semplificata
 
 - aggiunta un’anteprima visuale utilizzabile prima dell’accesso, senza creare account, caricare file o modificare il database;

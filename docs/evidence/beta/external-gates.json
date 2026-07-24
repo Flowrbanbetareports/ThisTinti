@@ -1,6 +1,6 @@
 {
   "schema": "thistinti.beta-external-gates.v1",
-  "candidate_version": "3.4.0-alpha.7-rc.1",
+  "candidate_version": "3.4.0-alpha.7-rc.2",
   "updated_at": null,
   "gates": {
     "real_pilot_30_scenarios": {
