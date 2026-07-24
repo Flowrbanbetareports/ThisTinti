@@ -1,0 +1,68 @@
+name: Publish Alpha.7 Tag
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/publish-alpha7-tag.yml"
+      - "app/version.py"
+      - "pyproject.toml"
+      - "installer/windows/ThisTinti.iss"
+      - "README.md"
+      - "RELEASE_NOTES.md"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-alpha7-tag
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      VERSION: 3.4.0-alpha.7-rc.1
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          fetch-depth: 0
+      - name: Verify release metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          expected = "3.4.0-alpha.7-rc.1"
+          checks = {
+              "app/version.py": r'RELEASE_VERSION\s*=\s*"([^"]+)"',
+              "pyproject.toml": r'^version\s*=\s*"([^"]+)"',
+              "installer/windows/ThisTinti.iss": r'#define MyAppVersion\s+"([^"]+)"',
+          }
+          for name, pattern in checks.items():
+              text = Path(name).read_text(encoding="utf-8")
+              match = re.search(pattern, text, re.MULTILINE)
+              if not match or match.group(1) != expected:
+                  raise SystemExit(f"{name}: expected {expected}, found {match.group(1) if match else 'missing'}")
+          for name in ("README.md", "RELEASE_NOTES.md", "docs/BETA_READINESS_STATUS.md"):
+              if expected not in Path(name).read_text(encoding="utf-8"):
+                  raise SystemExit(f"{name}: release version missing")
+          PY
+          python scripts/check_legal_distribution.py
+          python scripts/check_publication_readiness.py
+      - name: Create immutable release tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="v${VERSION}"
+          if git ls-remote --exit-code --tags origin "refs/tags/${tag}" >/dev/null 2>&1; then
+            echo "Tag ${tag} already exists; no action required."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$tag" -m "ThisTinti ${VERSION} — simplified Public Preview"
+          git push origin "$tag"
