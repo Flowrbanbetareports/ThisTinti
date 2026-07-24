@@ -1,25 +1,51 @@
 /* Keep the application navigation usable on short desktop viewports. */
-.sidebar {
-  overflow: hidden;
-}
+@media (min-width: 761px) {
+  .app-shell {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
 
-.sidebar-brand,
-.sidebar-footer {
-  flex: 0 0 auto;
-}
+  .sidebar {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100vh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
 
-.nav-list {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior-y: contain;
-  scrollbar-gutter: stable;
-  padding-right: 5px;
+  .sidebar-brand,
+  .sidebar-footer {
+    min-height: 0;
+  }
+
+  .sidebar-footer {
+    margin-top: 0;
+  }
+
+  .nav-list {
+    min-width: 0;
+    min-height: 0;
+    max-height: 100%;
+    align-content: start;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+    padding-right: 5px;
+  }
 }
 
 .nav-list::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 
 .nav-list::-webkit-scrollbar-track {
@@ -29,18 +55,18 @@
 .nav-list::-webkit-scrollbar-thumb {
   border: 2px solid transparent;
   border-radius: 999px;
-  background: rgba(221, 232, 237, .28);
+  background: rgba(221, 232, 237, .34);
   background-clip: padding-box;
 }
 
 .nav-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(221, 232, 237, .46);
+  background: rgba(221, 232, 237, .52);
   background-clip: padding-box;
 }
 
 @supports (scrollbar-color: auto) {
   .nav-list {
-    scrollbar-color: rgba(221, 232, 237, .34) transparent;
+    scrollbar-color: rgba(221, 232, 237, .4) transparent;
     scrollbar-width: thin;
   }
 }
