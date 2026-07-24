@@ -15,15 +15,17 @@ def test_experience_files_are_present_and_loaded_after_the_core():
     assert (STATIC / "onboarding.js").is_file()
     assert (STATIC / "onboarding.css").is_file()
     assert (STATIC / "sidebar-scroll.css").is_file()
+    assert (STATIC / "sidebar-scroll.js").is_file()
     assert (STATIC / "local-first-run.js").is_file()
     assert (STATIC / "local-first-run.css").is_file()
     assert "'/app-core.js'" in loader
     assert "'/onboarding.js'" in loader
     assert "'/onboarding.css'" in loader
     assert "'/sidebar-scroll.css'" in loader
+    assert "'/sidebar-scroll.js'" in loader
     assert "'/local-first-run.css'" in loader
     assert "'/local-first-run.js'" in loader
-    assert loader.index("'/app-core.js'") < loader.index("'/onboarding.js'")
+    assert loader.index("'/app-core.js'") < loader.index("'/onboarding.js'") < loader.index("'/sidebar-scroll.js'")
 
 
 def test_primary_navigation_and_progressive_disclosure_are_defined():
@@ -49,17 +51,31 @@ def test_primary_navigation_and_progressive_disclosure_are_defined():
 
 def test_sidebar_navigation_scrolls_independently_on_short_viewports():
     css = read("sidebar-scroll.css")
+    script = read("sidebar-scroll.js")
     for marker in (
-        ".sidebar",
-        "overflow: hidden",
-        ".nav-list",
-        "flex: 1 1 auto",
+        "@media (min-width: 761px)",
+        "grid-template-rows: auto minmax(0, 1fr) auto",
+        "height: 100dvh",
+        "max-height: 100dvh",
         "min-height: 0",
         "overflow-y: auto",
-        "overscroll-behavior-y: contain",
+        "overscroll-behavior: contain",
         "scrollbar-gutter: stable",
+        "touch-action: pan-y",
     ):
         assert marker in css
+    for marker in (
+        "addEventListener('wheel'",
+        "{ passive: false }",
+        "event.preventDefault()",
+        "nav.scrollTop = target",
+        "scrollIntoView({ block: 'nearest' })",
+        "event.key === 'Home'",
+        "event.key === 'End'",
+    ):
+        assert marker in script
+    for forbidden in ("fetch(", "XMLHttpRequest", "document.cookie", "localStorage"):
+        assert forbidden not in script
 
 
 def test_first_use_path_has_preview_welcome_guide_and_start_checklist():

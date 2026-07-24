@@ -6,11 +6,11 @@ ThisTinti non decide, non approva e non certifica nulla. Organizza informazioni 
 
 ## Stato del rilascio
 
-Versione: **3.4.0-alpha.7-rc.3 — Public Preview con primo accesso locale corretto**.
+Versione: **3.4.0-alpha.7-rc.4 — Public Preview con navigazione laterale corretta**.
 
 Questa preview conserva il motore documentale esistente e offre due distribuzioni gratuite: una Local Edition per singola postazione e una Self-Hosted Reference Edition con PostgreSQL, worker scalabili, TLS, scanner malware e strumenti operativi per team tecnici.
 
-La candidata è adatta a sviluppo, dimostrazioni e **pilot controllati con documenti autorizzati e anonimizzati**. L’interfaccia iniziale presenta soltanto Inizio, Documenti, Da controllare e Guida; gli strumenti specialistici restano disponibili tramite progressive disclosure. Nella RC3 il launcher riconosce se lo spazio locale deve essere creato o se esiste già e apre il percorso corretto; il menu laterale resta indipendentemente scorrevole sui display con altezza ridotta. La beta validata richiede ancora pilot reale e revisioni indipendenti.
+La candidata è adatta a sviluppo, dimostrazioni e **pilot controllati con documenti autorizzati e anonimizzati**. L’interfaccia iniziale presenta soltanto Inizio, Documenti, Da controllare e Guida; gli strumenti specialistici restano disponibili tramite progressive disclosure. La RC4 conserva il percorso locale corretto introdotto nella RC3 e rende il menu laterale realmente indipendente: logo e account restano separati, mentre le voci centrali usano l’altezza disponibile e intercettano la rotella sui display con altezza ridotta. La beta validata richiede ancora pilot reale e revisioni indipendenti.
 
 ## Identità e posizionamento
 

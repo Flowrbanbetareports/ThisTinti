@@ -24,6 +24,7 @@
 
   loadScript('/app-core.js')
     .then(() => loadScript('/onboarding.js'))
+    .then(() => loadScript('/sidebar-scroll.js'))
     .then(() => loadScript('/local-first-run.js'))
     .catch((error) => {
       console.error(error);
