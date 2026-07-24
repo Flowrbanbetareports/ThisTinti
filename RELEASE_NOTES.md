@@ -1,3 +1,12 @@
+# 3.4.0-alpha.7-rc.4 — Scorrimento laterale verificabile
+
+- sostituito il layout flessibile della sidebar desktop con tre aree esplicite: logo, menu scrollabile e account;
+- il menu usa l’altezza dinamica reale della finestra e non dipende più dalla riduzione implicita di un elemento flex;
+- aggiunta una gestione prudente della rotella: la pagina centrale non riceve lo scroll finché il menu può ancora muoversi;
+- aggiunti supporto Home/End, mantenimento della voce selezionata nell’area visibile e barra di scorrimento più leggibile;
+- il comportamento mobile resta invariato;
+- nessuna modifica al motore documentale, ai dati, ai ruoli o ai controlli di sicurezza.
+
 # 3.4.0-alpha.7-rc.3 — Primo accesso locale corretto
 
 - il launcher controlla il database locale senza leggere o mostrare email e apre il percorso corretto tra creazione e accesso;
