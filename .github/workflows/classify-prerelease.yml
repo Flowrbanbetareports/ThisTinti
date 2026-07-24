@@ -1,0 +1,20 @@
+name: Classify Prerelease
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  classify:
+    if: contains(github.event.release.tag_name, 'alpha') || contains(github.event.release.tag_name, 'beta') || contains(github.event.release.tag_name, 'rc')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Mark non-stable release as prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --prerelease
