@@ -8,6 +8,8 @@ on:
       - "app/static/onboarding.js"
       - "app/static/onboarding.css"
       - "app/static/sidebar-scroll.css"
+      - "app/static/local-first-run.js"
+      - "app/static/local-first-run.css"
       - "tests/test_frontend_security.py"
       - "tests/test_security_hardening.py"
       - "tests/test_simplified_experience.py"
@@ -21,6 +23,8 @@ on:
       - "app/static/onboarding.js"
       - "app/static/onboarding.css"
       - "app/static/sidebar-scroll.css"
+      - "app/static/local-first-run.js"
+      - "app/static/local-first-run.css"
       - "tests/test_frontend_security.py"
       - "tests/test_security_hardening.py"
       - "tests/test_simplified_experience.py"
@@ -53,6 +57,7 @@ jobs:
           node --check app/static/app.js
           node --check app/static/app-core.js
           node --check app/static/onboarding.js
+          node --check app/static/local-first-run.js
       - name: Install test dependencies
         run: pip install -r requirements-dev.txt
       - name: Run experience and security regressions
