@@ -40,9 +40,7 @@ def _local_setup_mode(data_root: Path) -> str:
         return "create"
     try:
         with sqlite3.connect(database) as connection:
-            table = connection.execute(
-                "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'users'"
-            ).fetchone()
+            table = connection.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'users'").fetchone()
             if not table:
                 return "create"
             users = connection.execute("SELECT COUNT(*) FROM users").fetchone()
