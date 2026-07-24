@@ -1,3 +1,15 @@
+# 3.4.0-alpha.7-rc.1 — Esperienza iniziale semplificata
+
+- aggiunta un’anteprima visuale utilizzabile prima dell’accesso, senza creare account, caricare file o modificare il database;
+- introdotta una guida permanente che spiega il flusso `Carica → Collega → Controlla` con documenti dimostrativi;
+- ridotta la navigazione principale a **Inizio**, **Documenti**, **Da controllare** e **Guida**;
+- raccolti Collegamenti, Regole proposte, Verifica delle regole, Registro attività e Utenti sotto **Strumenti avanzati**;
+- nascosti nella modalità semplice indicatori e pannelli specialistici che non servono al primo utilizzo;
+- sostituita la terminologia più tecnica con etichette comprensibili e non autoritative;
+- aggiunti test dedicati per progressive disclosure, sicurezza del frontend, piccoli schermi e riduzione del movimento;
+- verificati installer Windows, aggiornamento da una precedente alpha, persistenza, disinstallazione, PostgreSQL/RLS e Self-Hosted Reference Edition;
+- mantenuto lo stato **Public Preview alpha/RC**: gli output sono informativi e richiedono verifica sui documenti originali.
+
 # 3.4.0-alpha.6-rc.1 — Beta readiness foundation
 
 - introdotto un gate oggettivo che distingue candidata tecnica e beta validata;
