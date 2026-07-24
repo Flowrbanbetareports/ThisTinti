@@ -16,11 +16,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      TAG: v3.4.0-alpha.7-rc.4
-      VERSION: 3.4.0-alpha.7-rc.4
-      SOURCE_SHA: 13f2adbac1189e2ee9dedd818e7b1993d2b0d845
-      ARTIFACT_ID: "8602276404"
-      EXPECTED_INSTALLER_SHA256: 584d4d27e8d163f40c461f9ebcfcbeb844c0e909d35b149f3ace3b4d1a4f1faf
+      TAG: v3.4.0-alpha.7-rc.5
+      VERSION: 3.4.0-alpha.7-rc.5
+      SOURCE_SHA: 3ba42c8fd61043bd57d26fd04d937e7275818300
+      ARTIFACT_ID: "8603465283"
+      EXPECTED_INSTALLER_SHA256: 3df354de308fcc3d3aba5ea1a3ca85d05c147c9b41f6891f9499bcde458172e1
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
         with:
@@ -47,6 +47,7 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import hashlib
+          import json
           import os
           import zipfile
 
@@ -84,36 +85,41 @@ jobs:
           actual = hashlib.sha256(installer.read_bytes()).hexdigest()
           if actual != expected:
               raise RuntimeError(f"Installer checksum mismatch: expected={expected} actual={actual}")
+
+          for report_name in ("frozen-local-smoke.json", "installed-local-smoke.json"):
+              report = json.loads((dist / report_name).read_text(encoding="utf-8-sig"))
+              if report.get("passed") is not True:
+                  raise RuntimeError(f"Smoke report did not pass: {report_name}")
           PY
 
       - name: Prepare release notes
         shell: bash
         run: |
           cat > RELEASE_NOTES.md <<'EOF'
-          ## ThisTinti 3.4.0-alpha.7-rc.4 — Public Preview
+          ## ThisTinti 3.4.0-alpha.7-rc.5 — Public Preview
 
-          Questa release corregge in modo strutturale lo scorrimento della navigazione laterale osservato nel collaudo reale su Windows e Chrome, mantenendo le correzioni RC3 sul primo accesso locale.
+          Questa release corregge il difetto residuo del menu laterale riprodotto nel collaudo reale su Windows e Chrome con touchpad.
 
-          ### Correzioni principali
+          ### Correzione principale
 
-          - la sidebar desktop è suddivisa in logo, area menu realmente scorrevole e riepilogo account;
-          - la rotella resta nel menu laterale finché sono disponibili altre voci da raggiungere, senza far scorrere prematuramente la pagina bianca;
-          - tutte le voci di **Strumenti avanzati** restano raggiungibili anche su finestre con altezza ridotta;
-          - Home, Fine e la selezione da tastiera mantengono visibile la voce attiva;
-          - il comportamento mobile rimane invariato;
-          - restano attive la scelta automatica tra **Crea spazio** e **Accedi** e la visualizzazione leggibile degli errori.
+          - il pannello **Strumenti avanzati** non viene più compresso internamente e non taglia le voci inferiori;
+          - il menu genera ora un overflow reale quando le voci superano l’altezza disponibile;
+          - il gesto a due dita e la rotella funzionano sull’intera colonna blu e non spostano la pagina bianca;
+          - i delta dei dispositivi espressi in pixel, righe o pagine vengono gestiti correttamente;
+          - CSS e JavaScript usano un parametro di versione RC5 per impedire a Chrome di riutilizzare i file delle versioni precedenti dalla cache;
+          - un test con Chromium reale apre gli strumenti avanzati, misura l’overflow e verifica lo spostamento del menu.
 
           ### Per aggiornare
 
-          1. Chiudi ThisTinti.
-          2. Scarica `ThisTinti-Setup-3.4.0-alpha.7-rc.4-x64.exe`.
-          3. Confronta il checksum SHA-256 allegato: `584d4d27e8d163f40c461f9ebcfcbeb844c0e909d35b149f3ace3b4d1a4f1faf`.
-          4. Avvia l’installer sopra la versione esistente: i dati locali vengono conservati.
-          5. Dopo il riavvio, passa il puntatore sul pannello blu e usa la rotella per raggiungere tutte le voci.
+          1. Chiudi completamente ThisTinti e le relative schede del browser.
+          2. Scarica `ThisTinti-Setup-3.4.0-alpha.7-rc.5-x64.exe`.
+          3. Confronta il checksum SHA-256 allegato: `3df354de308fcc3d3aba5ea1a3ca85d05c147c9b41f6891f9499bcde458172e1`.
+          4. Avvia l’installer sopra RC4 senza disinstallare: i dati locali vengono conservati.
+          5. Riapri ThisTinti, espandi **Strumenti avanzati** e usa due dita sul touchpad mentre il puntatore è nella colonna blu.
 
           ### Verifiche superate
 
-          La build deriva dal commit `13f2adbac1189e2ee9dedd818e7b1993d2b0d845` e ha superato 178 test applicativi con copertura minima del 90%, controlli di sicurezza e dipendenze, Python 3.11–3.12, PostgreSQL/RLS, prova Self-Hosted, smoke test dell’eseguibile congelato e installato, aggiornamento da una precedente alpha, riavvio con persistenza e disinstallazione con conservazione dei dati locali.
+          La correzione è presente nel commit `3ba42c8fd61043bd57d26fd04d937e7275818300`. L’artefatto deriva dal contenuto della PR poi unito con squash nello stesso commit principale e ha superato test Chromium dell’overflow reale, test applicativi con copertura minima del 90%, controlli di sicurezza e dipendenze, Python 3.11–3.12, PostgreSQL/RLS, prova Self-Hosted, build e smoke test dell’eseguibile, aggiornamento da una precedente alpha, riavvio con persistenza e disinstallazione con conservazione dei dati locali.
 
           ### Stato e limiti
 
