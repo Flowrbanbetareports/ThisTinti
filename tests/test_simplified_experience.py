@@ -57,18 +57,23 @@ def test_sidebar_navigation_scrolls_independently_on_short_viewports():
         "grid-template-rows: auto minmax(0, 1fr) auto",
         "height: 100dvh",
         "max-height: 100dvh",
+        "display: flex",
+        "flex-direction: column",
         "min-height: 0",
         "overflow-y: auto",
+        ".nav-list > *",
+        "flex: 0 0 auto",
         "overscroll-behavior: contain",
         "scrollbar-gutter: stable",
         "touch-action: pan-y",
     ):
         assert marker in css
     for marker in (
-        "addEventListener('wheel'",
+        "sidebar.addEventListener('wheel'",
         "{ passive: false }",
         "event.preventDefault()",
-        "nav.scrollTop = target",
+        "normalizedDelta",
+        "nav.scrollTop = clamp",
         "scrollIntoView({ block: 'nearest' })",
         "event.key === 'Home'",
         "event.key === 'End'",
@@ -76,6 +81,18 @@ def test_sidebar_navigation_scrolls_independently_on_short_viewports():
         assert marker in script
     for forbidden in ("fetch(", "XMLHttpRequest", "document.cookie", "localStorage"):
         assert forbidden not in script
+
+
+def test_frontend_assets_are_versioned_and_browser_layout_check_is_present():
+    loader = read("app.js")
+    browser_check = ROOT / "scripts" / "check_sidebar_browser.py"
+    workflow = (ROOT / ".github" / "workflows" / "simplified-experience.yml").read_text(encoding="utf-8")
+    assert "UI_VERSION = '3.4.0-alpha.7-rc.5'" in loader
+    assert "versioned(href)" in loader
+    assert "versioned(src)" in loader
+    assert browser_check.is_file()
+    assert "check_sidebar_browser.py" in workflow
+    assert "playwright==1.55.0" in workflow
 
 
 def test_first_use_path_has_preview_welcome_guide_and_start_checklist():

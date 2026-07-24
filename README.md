@@ -6,11 +6,11 @@ ThisTinti non decide, non approva e non certifica nulla. Organizza informazioni 
 
 ## Stato del rilascio
 
-Versione: **3.4.0-alpha.7-rc.4 — Public Preview con navigazione laterale corretta**.
+Versione: **3.4.0-alpha.7-rc.5 — Public Preview con scorrimento laterale verificato in Chromium**.
 
 Questa preview conserva il motore documentale esistente e offre due distribuzioni gratuite: una Local Edition per singola postazione e una Self-Hosted Reference Edition con PostgreSQL, worker scalabili, TLS, scanner malware e strumenti operativi per team tecnici.
 
-La candidata è adatta a sviluppo, dimostrazioni e **pilot controllati con documenti autorizzati e anonimizzati**. L’interfaccia iniziale presenta soltanto Inizio, Documenti, Da controllare e Guida; gli strumenti specialistici restano disponibili tramite progressive disclosure. La RC4 conserva il percorso locale corretto introdotto nella RC3 e rende il menu laterale realmente indipendente: logo e account restano separati, mentre le voci centrali usano l’altezza disponibile e intercettano la rotella sui display con altezza ridotta. La beta validata richiede ancora pilot reale e revisioni indipendenti.
+La candidata è adatta a sviluppo, dimostrazioni e **pilot controllati con documenti autorizzati e anonimizzati**. L’interfaccia iniziale presenta soltanto Inizio, Documenti, Da controllare e Guida; gli strumenti specialistici restano disponibili tramite progressive disclosure. La RC5 conserva il percorso locale corretto introdotto nella RC3 e corregge il difetto residuo del menu: le sezioni interne non vengono più compresse, l’overflow è reale e i gesti verticali sull’intera colonna blu vengono instradati verso la navigazione. Il comportamento è verificato con Chromium su viewport ridotto. La beta validata richiede ancora pilot reale e revisioni indipendenti.
 
 ## Identità e posizionamento
 

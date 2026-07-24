@@ -1,27 +1,31 @@
 (() => {
   'use strict';
 
+  const sidebar = document.querySelector('.sidebar');
   const nav = document.querySelector('.nav-list');
-  if (!nav) return;
+  if (!sidebar || !nav) return;
 
   const desktop = () => window.matchMedia('(min-width: 761px)').matches;
   const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
+  const normalizedDelta = (event) => {
+    if (event.deltaMode === WheelEvent.DOM_DELTA_LINE) return event.deltaY * 18;
+    if (event.deltaMode === WheelEvent.DOM_DELTA_PAGE) return event.deltaY * nav.clientHeight;
+    return event.deltaY;
+  };
 
-  // Chrome normally scrolls an overflow container automatically. This guarded
-  // fallback prevents the main page from receiving the wheel while the menu
-  // still has content available in the requested direction.
-  nav.addEventListener('wheel', (event) => {
+  // Route precision-touchpad and mouse-wheel gestures from the entire blue
+  // sidebar to the real navigation scroller. The white workspace never steals
+  // the gesture while the pointer is over the sidebar.
+  sidebar.addEventListener('wheel', (event) => {
     if (!desktop() || event.ctrlKey) return;
 
     const maximum = Math.max(0, nav.scrollHeight - nav.clientHeight);
-    if (maximum === 0 || event.deltaY === 0) return;
-
-    const current = nav.scrollTop;
-    const target = clamp(current + event.deltaY, 0, maximum);
-    if (target === current) return;
+    if (maximum === 0) return;
 
     event.preventDefault();
-    nav.scrollTop = target;
+    const delta = normalizedDelta(event);
+    if (Math.abs(delta) < 0.01) return;
+    nav.scrollTop = clamp(nav.scrollTop + delta, 0, maximum);
   }, { passive: false });
 
   const keepVisible = (element) => {

@@ -14,6 +14,7 @@ on:
       - "tests/test_frontend_security.py"
       - "tests/test_security_hardening.py"
       - "tests/test_simplified_experience.py"
+      - "scripts/check_sidebar_browser.py"
       - "docs/SIMPLIFIED_PRODUCT_EXPERIENCE_PROGRAM.md"
       - ".github/workflows/simplified-experience.yml"
   push:
@@ -30,6 +31,7 @@ on:
       - "tests/test_frontend_security.py"
       - "tests/test_security_hardening.py"
       - "tests/test_simplified_experience.py"
+      - "scripts/check_sidebar_browser.py"
       - "docs/SIMPLIFIED_PRODUCT_EXPERIENCE_PROGRAM.md"
       - ".github/workflows/simplified-experience.yml"
   workflow_dispatch:
@@ -44,7 +46,7 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -62,7 +64,12 @@ jobs:
           node --check app/static/sidebar-scroll.js
           node --check app/static/local-first-run.js
       - name: Install test dependencies
-        run: pip install -r requirements-dev.txt
+        run: |
+          pip install -r requirements-dev.txt
+          pip install playwright==1.55.0
+          python -m playwright install chromium
+      - name: Verify sidebar layout in Chromium
+        run: python scripts/check_sidebar_browser.py
       - name: Run experience and security regressions
         run: |
           pytest -q \

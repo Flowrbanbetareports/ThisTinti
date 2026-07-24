@@ -6,16 +6,19 @@
   // dateTime, thistinti_csrf handling and the X-CSRF-Token mutation header.
   // onboarding.js is a local presentation layer: it does not receive session
   // tokens, create accounts, upload files automatically or call external services.
+  const UI_VERSION = '3.4.0-alpha.7-rc.5';
+  const versioned = (path) => `${path}?v=${encodeURIComponent(UI_VERSION)}`;
+
   for (const href of ['/onboarding.css', '/sidebar-scroll.css', '/local-first-run.css']) {
     const style = document.createElement('link');
     style.rel = 'stylesheet';
-    style.href = href;
+    style.href = versioned(href);
     document.head.appendChild(style);
   }
 
   const loadScript = (src) => new Promise((resolve, reject) => {
     const script = document.createElement('script');
-    script.src = src;
+    script.src = versioned(src);
     script.async = false;
     script.onload = resolve;
     script.onerror = () => reject(new Error(`Impossibile caricare ${src}`));
