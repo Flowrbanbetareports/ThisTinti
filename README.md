@@ -178,3 +178,8 @@ ThisTinti non invia contestazioni, non esegue o blocca pagamenti reali, non modi
 - `SECURITY.md`: controlli, versioni supportate e segnalazione responsabile;
 - `docs/LOCAL_EDITION.md`: installazione, dati locali, backup e distribuzione gratuita;
 - `docs/DATA_LIFECYCLE.md`: conservazione, disinstallazione e cancellazione completa;
+- `docs/PUBLIC_LAUNCH_CHECKLIST.md`: gate manuali e tecnici prima di ogni pubblicazione;
+- `docs/NAME_AND_DOMAIN_CLEARANCE.md`: stato delle verifiche preliminari su nome e dominio;
+- `docs/USER_GUIDE_SIMPLE.md`: guida essenziale destinata ai nuovi utenti;
+- `docs/PILOT_KIT.md`: perimetro e materiale per pilot controllati;
+- `docs/LICENSE_REVIEW.md`: revisione delle licenze e dei componenti distribuiti.
