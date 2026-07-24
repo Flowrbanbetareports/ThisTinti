@@ -6,6 +6,7 @@
   <meta name="description" content="ThisTinti — controllo documentale e anomalie commerciali." />
   <title>ThisTinti</title>
   <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/guide.css" />
 </head>
 <body>
   <div id="toast" class="toast" aria-live="polite"></div>
@@ -15,11 +16,11 @@
       <div class="brand-mark">T</div>
       <p class="eyebrow">Piattaforma di integrità documentale</p>
       <h1>ThisTinti</h1>
-      <p class="hero-copy">Confronta ordini, consegne, fatture, resi e note di credito. Ogni anomalia resta collegata alle prove originali.</p>
+      <p class="hero-copy">Collega documenti, confronta dati e mette in evidenza differenze verificabili. Ogni segnalazione resta collegata alle prove originali.</p>
       <p id="localEditionBadge" class="local-edition-badge hidden">Local Edition · dati conservati su questo computer · nessuna telemetria</p>
       <div class="principles">
-        <div><span>01</span><p>Regole verificabili prima dell'automazione.</p></div>
-        <div><span>02</span><p>Nessuna azione economica senza approvazione.</p></div>
+        <div><span>01</span><p>Controlli comprensibili e configurabili.</p></div>
+        <div><span>02</span><p>Le segnalazioni informano: l'organizzazione decide come usarle.</p></div>
         <div><span>03</span><p>Dati separati per ogni organizzazione.</p></div>
       </div>
     </section>
@@ -97,14 +98,14 @@
           <button id="openUploadButton" class="primary-button compact" data-reviewer-only type="button">＋ Nuovo documento</button>
         </div>
       </header>
-      <aside class="legal-warning" role="note"><strong>Output automatici da verificare.</strong> Confronta sempre i documenti originali. ThisTinti non autorizza pagamenti e non sostituisce controlli contabili, fiscali o legali. <a href="/legal.html" target="_blank" rel="noopener">Note legali</a></aside>
+      <aside class="legal-warning" role="note"><strong>Output informativi da verificare.</strong> Confronta sempre i documenti originali. ThisTinti non sostituisce procedure, professionisti o decisioni dell'organizzazione. <a href="/legal.html" target="_blank" rel="noopener">Note legali</a></aside>
 
       <div id="dashboardView" class="view-panel">
         <section class="metric-grid">
           <article class="metric-card"><p>Documenti</p><strong id="metricDocuments">0</strong><small>archiviati e analizzati</small></article>
           <article class="metric-card"><p>Anomalie aperte</p><strong id="metricCases">0</strong><small>da verificare</small></article>
           <article class="metric-card"><p>Catene operative</p><strong id="metricChains">0</strong><small>documenti collegati</small></article>
-          <article class="metric-card"><p>Importo potenziale</p><strong id="metricAmount">€0</strong><small>non è un importo garantito</small></article>
+          <article class="metric-card"><p>Valore segnalato</p><strong id="metricAmount">€0</strong><small>stima informativa da verificare</small></article>
         </section>
         <section class="dashboard-grid">
           <article class="panel">
@@ -122,13 +123,13 @@
           </article>
         </section>
         <section class="panel">
-          <div class="panel-heading"><div><h3>Pipeline</h3><p>Dal file originale alla decisione umana.</p></div></div>
+          <div class="panel-heading"><div><h3>Pipeline</h3><p>Dal file originale alla verifica interna.</p></div></div>
           <div class="pipeline">
             <div><b>1</b><strong>Ingestione</strong><small>Hash e archiviazione</small></div><i>→</i>
             <div><b>2</b><strong>Estrazione</strong><small>Campi e righe</small></div><i>→</i>
             <div><b>3</b><strong>Collegamento</strong><small>Ordine → fattura</small></div><i>→</i>
             <div><b>4</b><strong>Regole</strong><small>Anomalie verificabili</small></div><i>→</i>
-            <div><b>5</b><strong>Revisione</strong><small>Decisione umana</small></div>
+            <div><b>5</b><strong>Revisione</strong><small>Valutazione dell'organizzazione</small></div>
           </div>
         </section>
       </div>
@@ -289,5 +290,6 @@
   </dialog>
 
   <script src="/app.js" defer></script>
+  <script src="/guide.js" defer></script>
 </body>
 </html>
