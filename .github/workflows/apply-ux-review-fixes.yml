@@ -5,6 +5,7 @@ on:
     branches: [ux/onboarding-simple-guide]
     paths:
       - ".github/workflows/apply-ux-review-fixes.yml"
+  workflow_dispatch:
 
 permissions:
   contents: write
