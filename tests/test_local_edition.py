@@ -129,3 +129,22 @@ def test_full_backup_uses_consistent_sqlite_copy_and_excludes_secret(tmp_path: P
         assert not any("secret" in name for name in names)
         manifest = json.loads(archive.read("manifest.json"))
         assert manifest["configuration_scope"] == "data-only"
+
+
+def test_local_setup_mode_distinguishes_first_run_and_existing_space(tmp_path: Path):
+    import sqlite3
+
+    from app.local_launcher import _app_url, _local_setup_mode
+
+    assert _local_setup_mode(tmp_path) == "create"
+    database = tmp_path / "database" / "thistinti.db"
+    database.parent.mkdir(parents=True)
+    with sqlite3.connect(database) as connection:
+        connection.execute("CREATE TABLE users (id TEXT PRIMARY KEY)")
+        connection.commit()
+    assert _local_setup_mode(tmp_path) == "create"
+    with sqlite3.connect(database) as connection:
+        connection.execute("INSERT INTO users (id) VALUES ('admin')")
+        connection.commit()
+    assert _local_setup_mode(tmp_path) == "login"
+    assert _app_url(8765, tmp_path).endswith("?local_setup=login")

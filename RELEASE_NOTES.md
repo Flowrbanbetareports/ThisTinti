@@ -1,3 +1,13 @@
+# 3.4.0-alpha.7-rc.3 — Primo accesso locale corretto
+
+- il launcher controlla il database locale senza leggere o mostrare email e apre il percorso corretto tra creazione e accesso;
+- gli aggiornamenti con dati già presenti non inducono più a creare un nuovo spazio;
+- gli errori di accesso e registrazione vengono mostrati anche nella scheda con testo leggibile;
+- i pulsanti di invio vengono bloccati durante la richiesta per evitare doppi invii;
+- lo stato locale viene ricordato nel browser dopo un accesso riuscito;
+- aggiunti test per primo avvio, database vuoto e spazio già esistente;
+- mantenute le correzioni RC2 sullo scorrimento laterale.
+
 # 3.4.0-alpha.7-rc.2 — Scorrimento della navigazione laterale
 
 - corretto il menu laterale sui monitor e sulle finestre con altezza ridotta;

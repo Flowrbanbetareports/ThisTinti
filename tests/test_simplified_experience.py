@@ -15,10 +15,14 @@ def test_experience_files_are_present_and_loaded_after_the_core():
     assert (STATIC / "onboarding.js").is_file()
     assert (STATIC / "onboarding.css").is_file()
     assert (STATIC / "sidebar-scroll.css").is_file()
+    assert (STATIC / "local-first-run.js").is_file()
+    assert (STATIC / "local-first-run.css").is_file()
     assert "'/app-core.js'" in loader
     assert "'/onboarding.js'" in loader
     assert "'/onboarding.css'" in loader
     assert "'/sidebar-scroll.css'" in loader
+    assert "'/local-first-run.css'" in loader
+    assert "'/local-first-run.js'" in loader
     assert loader.index("'/app-core.js'") < loader.index("'/onboarding.js'")
 
 
@@ -121,3 +125,19 @@ def test_experience_css_supports_small_screens_and_reduced_motion():
     assert ".advanced-nav-panel" in css
     assert ".getting-started-panel" in css
     assert ".example-documents" in css
+
+
+def test_local_first_run_layer_guides_create_and_login_states():
+    source = read("local-first-run.js")
+    css = read("local-first-run.css")
+    for marker in (
+        "local_setup",
+        "_setup_complete",
+        "Su questo computer esiste già uno spazio",
+        "Primo avvio",
+        "setPending",
+        "safeMessage",
+    ):
+        assert marker in source
+    assert ".auth-status.error" in css
+    assert ".segmented.single-option" in css
