@@ -17,3 +17,7 @@ line-length = 120
 [tool.coverage.run]
 source = ["app"]
 omit = ["app/local_launcher.py"]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
