@@ -1,10 +1,10 @@
 {
   "workflow": "Build Windows Free Download",
-  "run_id": 30057556435,
-  "run_number": 133,
-  "head_sha": "713bb25e640b602754179be8b423ad6bd96e3d4a",
+  "run_id": 30089132041,
+  "run_number": 137,
+  "head_sha": "2faba5536bba75f4ef324fc7faa1d87289e2c1a3",
   "branch": "main",
-  "artifact_name": "ThisTinti-Windows-30057556435-133",
+  "artifact_name": "ThisTinti-Windows-30089132041-137",
   "files": [
     {
       "name": "baseline-install-summary.txt",
@@ -14,7 +14,7 @@
     {
       "name": "baseline-install.log",
       "size": 810661,
-      "sha256": "4fe4a0a4b2f00d11733c4ba9e2a78b7b0096a5d95f135348f11af0d3e96b6abc"
+      "sha256": "503a6dcfde6cb8ef7defd940c29ade4e92d00eed140279733958fb06bcc0cc86"
     },
     {
       "name": "DISCLAIMER.md",
@@ -24,12 +24,12 @@
     {
       "name": "frozen-local-smoke.json",
       "size": 348,
-      "sha256": "fdea4a481b07f9c0526b9296042c100b3132410c3f1374a3846fe6f6ade6ee34"
+      "sha256": "e8a3fe4d675b9a9e73f4e681042a59f2dfe1102090fd9366aa8af2f9b080e3e2"
     },
     {
       "name": "installed-local-smoke.json",
       "size": 361,
-      "sha256": "4d998375c35223def4ffc33217854a97f62f43d70100d2cb0351a020ab46b2a3"
+      "sha256": "926a50e513c037765a4e7bd6cde2967c5a0fd8929cb23391a0b7345429af7e32"
     },
     {
       "name": "PRIVACY.md",
@@ -42,34 +42,34 @@
       "sha256": "b29d072205616a8f57216446c6b48036f8fcc078b675b7590485b218b2383f6f"
     },
     {
-      "name": "ThisTinti-3.4.0-alpha.7-rc.1-self-hosted-source.zip",
-      "size": 519726,
-      "sha256": "ef1b716115d530353b23c69d56b0166d85d228e72a200430fbce16c34d8b6ae8"
+      "name": "ThisTinti-3.4.0-alpha.7-rc.2-self-hosted-source.zip",
+      "size": 521049,
+      "sha256": "39b08d6a979b15b5149f6b36b62dea8b5f58410f9a222cae5e6a29662db6b7a5"
     },
     {
-      "name": "ThisTinti-3.4.0-alpha.7-rc.1-self-hosted-source.zip.sha256",
+      "name": "ThisTinti-3.4.0-alpha.7-rc.2-self-hosted-source.zip.sha256",
       "size": 119,
-      "sha256": "5881b59f52e10e56bef7f286629839004011bcc47571471122210a28e02f94f8"
+      "sha256": "d0f9c2a9959f68470cb382b82c3c004756fa07f5587c3e739ff3dc2c2e5ae56c"
     },
     {
-      "name": "ThisTinti-Portable-3.4.0-alpha.7-rc.1-x64.zip",
-      "size": 82124940,
-      "sha256": "782d411a363ec55e30bf1854ee1d915a6808e8763148f914da0b5096965c9b21"
+      "name": "ThisTinti-Portable-3.4.0-alpha.7-rc.2-x64.zip",
+      "size": 82127387,
+      "sha256": "a3ce8aa2c2b3c2b9cd5508423a66237fca82680af5c54e3574ce17db8371e79c"
     },
     {
-      "name": "ThisTinti-Portable-3.4.0-alpha.7-rc.1-x64.zip.sha256",
+      "name": "ThisTinti-Portable-3.4.0-alpha.7-rc.2-x64.zip.sha256",
       "size": 113,
-      "sha256": "ef76401cf9396992ef6ff2f3edf440151f54cb23ba58070210a01a29b4b102c7"
+      "sha256": "16ea6f350f55b159c6cbad468a02dd8df3a596d7127f12bcb4691001e0883262"
     },
     {
-      "name": "ThisTinti-Setup-3.4.0-alpha.7-rc.1-x64.exe",
-      "size": 57021522,
-      "sha256": "f807720bd026b70ae802e40da4cba7bfd6932d7df4fb8bdad4150ab1472d62fb"
+      "name": "ThisTinti-Setup-3.4.0-alpha.7-rc.2-x64.exe",
+      "size": 57020527,
+      "sha256": "7750f2a06459764a36f252ab45c5ba2b7d133c7b92cace2c4035f8529a57fa30"
     },
     {
-      "name": "ThisTinti-Setup-3.4.0-alpha.7-rc.1-x64.exe.sha256",
+      "name": "ThisTinti-Setup-3.4.0-alpha.7-rc.2-x64.exe.sha256",
       "size": 110,
-      "sha256": "b1cae14d70eaf428b51d351936b7cbf02be4bc93afa884281a2e62ea968a561d"
+      "sha256": "059027b0abc49b80a7aa2976dda7a4f73fd139469783b1909241f394e8fb3b00"
     },
     {
       "name": "TRADEMARKS.md",
@@ -79,12 +79,12 @@
     {
       "name": "upgrade-install-summary.txt",
       "size": 267,
-      "sha256": "355156b79296967d48e350d22c250dfbc2df591b216973583f72553dc7069e7a"
+      "sha256": "6c4f4d4184c4c58b5480d8edf61094145255155cda639a30be6e5baed7a3eff1"
     },
     {
       "name": "upgrade-install.log",
-      "size": 1074506,
-      "sha256": "14d8ddc97621627c186c124e94e23631e9b0b770ed2d12bf7df6dbfab61241c2"
+      "size": 1075261,
+      "sha256": "f80f46487b2c62026fe636911906ab855d903842e9661ae1879d0deb4ce93adb"
     }
   ]
 }
