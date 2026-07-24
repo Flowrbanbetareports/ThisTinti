@@ -5,6 +5,7 @@ import json
 import os
 import signal
 import socket
+import sqlite3
 import subprocess  # nosec B404
 import sys
 import threading
@@ -30,6 +31,28 @@ APP_TITLE = "ThisTinti Local"
 
 def _health_url(port: int) -> str:
     return f"http://127.0.0.1:{port}/api/health"
+
+
+def _local_setup_mode(data_root: Path) -> str:
+    """Return the correct first screen without exposing account details."""
+    database = data_root / "database" / "thistinti.db"
+    if not database.exists() or database.stat().st_size == 0:
+        return "create"
+    try:
+        with sqlite3.connect(database) as connection:
+            table = connection.execute(
+                "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'users'"
+            ).fetchone()
+            if not table:
+                return "create"
+            users = connection.execute("SELECT COUNT(*) FROM users").fetchone()
+            return "login" if users and int(users[0]) > 0 else "create"
+    except (OSError, sqlite3.Error, TypeError, ValueError):
+        return "choose"
+
+
+def _app_url(port: int, data_root: Path) -> str:
+    return f"http://127.0.0.1:{port}/?local_setup={_local_setup_mode(data_root)}"
 
 
 def _is_healthy(port: int, timeout: float = 0.5) -> bool:
@@ -413,7 +436,7 @@ def run_gui(data_root: Path, port: int) -> int:
             messagebox.showerror(APP_TITLE, self.detail.get())
 
         def open_browser(self) -> None:
-            webbrowser.open(f"http://127.0.0.1:{port}", new=2)
+            webbrowser.open(_app_url(port, data_root), new=2)
 
         def create_backup(self) -> None:
             default_name = time.strftime("ThisTinti-backup-%Y%m%d-%H%M%S.zip")
