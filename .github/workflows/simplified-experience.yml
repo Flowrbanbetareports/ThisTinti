@@ -15,6 +15,7 @@ on:
       - "tests/test_security_hardening.py"
       - "tests/test_simplified_experience.py"
       - "scripts/check_sidebar_browser.py"
+      - "scripts/check_evidence_browser.py"
       - "docs/SIMPLIFIED_PRODUCT_EXPERIENCE_PROGRAM.md"
       - ".github/workflows/simplified-experience.yml"
   push:
@@ -32,6 +33,7 @@ on:
       - "tests/test_security_hardening.py"
       - "tests/test_simplified_experience.py"
       - "scripts/check_sidebar_browser.py"
+      - "scripts/check_evidence_browser.py"
       - "docs/SIMPLIFIED_PRODUCT_EXPERIENCE_PROGRAM.md"
       - ".github/workflows/simplified-experience.yml"
   workflow_dispatch:
@@ -70,6 +72,8 @@ jobs:
           python -m playwright install chromium
       - name: Verify sidebar layout in Chromium
         run: python scripts/check_sidebar_browser.py
+      - name: Verify evidence workflow in Chromium
+        run: python scripts/check_evidence_browser.py
       - name: Run experience and security regressions
         run: |
           pytest -q \
