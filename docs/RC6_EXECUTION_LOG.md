@@ -7,8 +7,9 @@ ancora CI o un host Windows reale. Non sostituisce release note o attestazioni.
 
 | Voce | Stato |
 | --- | --- |
-| Fase | Implementata localmente, PR remota da aprire |
-| Branch | `codex/rc6-data-integrity` |
+| Fase | Implementata; PR draft aperta, CI remota in corso |
+| Branch e PR | `codex/rc6-data-integrity`, [PR #43](https://github.com/Flowrbanbetareports/ThisTinti/pull/43) |
+| Commit remoto | `7f3bfeb3fb40ebfe8ec129ad019cbc4d01690fed` |
 | Base verificata | `428289beafdbd9fcf5bf3253d57373a5cd9fc4ff` |
 | Problema | Numeri invalidi/non finiti convertiti in zero; forme JSON non validate; campi mancanti esposti come zero |
 | Causa | Helper numerico permissivo, parser senza contratto di forma e database RC5 con colonne numeriche non nullable |
