@@ -19,7 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from starlette.background import BackgroundTask
-from sqlalchemy import func, select, text
+from sqlalchemy import case, func, select, text
 from sqlalchemy.orm import Session, selectinload
 
 from .audit import add_audit, verify_audit_chain
@@ -1925,7 +1925,16 @@ def list_cases(
         stmt = stmt.where(DiscrepancyCase.status == case_status)
     if severity:
         stmt = stmt.where(DiscrepancyCase.severity == severity)
-    cases = list(db.scalars(stmt.order_by(DiscrepancyCase.created_at.desc()).offset(offset).limit(limit)))
+    severity_rank = case(
+        (DiscrepancyCase.severity == "critical", 4),
+        (DiscrepancyCase.severity == "high", 3),
+        (DiscrepancyCase.severity == "medium", 2),
+        (DiscrepancyCase.severity == "low", 1),
+        else_=0,
+    )
+    cases = list(
+        db.scalars(stmt.order_by(severity_rank.desc(), DiscrepancyCase.created_at.desc()).offset(offset).limit(limit))
+    )
     return [_case_json(case) for case in cases]
 
 
