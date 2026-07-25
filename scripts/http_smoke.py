@@ -22,6 +22,10 @@ def free_port() -> int:
         return int(sock.getsockname()[1])
 
 
+def local_http_client(base_url: str) -> httpx.Client:
+    return httpx.Client(base_url=base_url, timeout=10.0, trust_env=False)
+
+
 def main() -> int:
     python = sys.executable
     with tempfile.TemporaryDirectory(prefix="thistinti-http-smoke-") as tmp:
@@ -70,7 +74,7 @@ def main() -> int:
             )
             try:
                 base_url = f"http://127.0.0.1:{port}"
-                with httpx.Client(base_url=base_url, timeout=10.0) as client:
+                with local_http_client(base_url) as client:
                     deadline = time.monotonic() + 30
                     while True:
                         try:

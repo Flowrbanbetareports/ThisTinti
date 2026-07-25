@@ -38,3 +38,5 @@ jobs:
             attested-artifacts/*.exe
             attested-artifacts/*.zip
             attested-artifacts/*.sha256
+            attested-artifacts/*.json
+            attested-artifacts/*.md

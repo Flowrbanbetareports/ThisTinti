@@ -105,7 +105,7 @@ def start_pair(executable: Path | None, data_dir: Path, port: int, logs: Path):
             stdout=server_log,
             stderr=subprocess.STDOUT,
         )
-        client = httpx.Client(base_url=f"http://127.0.0.1:{port}", timeout=10.0)
+        client = httpx.Client(base_url=f"http://127.0.0.1:{port}", timeout=10.0, trust_env=False)
         wait_json(
             client,
             "/api/health",

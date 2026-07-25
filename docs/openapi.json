@@ -3,7 +3,7 @@
   "info": {
     "title": "ThisTinti",
     "description": "Document integrity and discrepancy review platform.",
-    "version": "3.4.0-alpha.5"
+    "version": "3.4.0-alpha.7-rc.5"
   },
   "paths": {
     "/api/health": {
@@ -2825,6 +2825,84 @@
         }
       }
     },
+    "/api/validation/runs/{run_id}/report": {
+      "get": {
+        "summary": "Export Validation Run Report",
+        "operationId": "export_validation_run_report_api_validation_runs__run_id__report_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Run Id"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(json|markdown)$",
+              "default": "json",
+              "title": "Format"
+            }
+          },
+          {
+            "name": "redacted",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Redacted"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Validation report as JSON or Markdown attachment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationReportResponse"
+                }
+              },
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "headers": {
+              "Content-Disposition": {
+                "description": "Attachment filename selected from the dataset and redaction mode.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/validation/load-default": {
       "post": {
         "summary": "Load Default Validation Dataset",
@@ -4636,6 +4714,16 @@
             "title": "Automation Eligible",
             "default": false
           },
+          "evidence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ValidationEvidenceMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "gate": {
             "$ref": "#/components/schemas/ValidationGate"
           },
@@ -4741,6 +4829,92 @@
         ],
         "title": "ValidationError"
       },
+      "ValidationEvidenceMetadata": {
+        "properties": {
+          "authorization_reference": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 3,
+            "title": "Authorization Reference"
+          },
+          "authorized_use_confirmed": {
+            "type": "boolean",
+            "title": "Authorized Use Confirmed",
+            "default": false
+          },
+          "anonymization_confirmed": {
+            "type": "boolean",
+            "title": "Anonymization Confirmed",
+            "default": false
+          },
+          "anonymization_method": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000,
+                "minLength": 3
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anonymization Method"
+          },
+          "reviewer_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "minItems": 2,
+            "title": "Reviewer Refs"
+          },
+          "ground_truth_method": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 10,
+            "title": "Ground Truth Method"
+          },
+          "scope": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 10,
+            "title": "Scope"
+          },
+          "prepared_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prepared At"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 3000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "authorization_reference",
+          "reviewer_refs",
+          "ground_truth_method",
+          "scope"
+        ],
+        "title": "ValidationEvidenceMetadata"
+      },
       "ValidationExpectedFinding": {
         "properties": {
           "case_type": {
@@ -4818,6 +4992,483 @@
         },
         "type": "object",
         "title": "ValidationGate"
+      },
+      "ValidationReportCaseType": {
+        "properties": {
+          "case_type": {
+            "type": "string",
+            "title": "Case Type"
+          },
+          "true_positives": {
+            "type": "integer",
+            "title": "True Positives"
+          },
+          "false_positives": {
+            "type": "integer",
+            "title": "False Positives"
+          },
+          "false_negatives": {
+            "type": "integer",
+            "title": "False Negatives"
+          }
+        },
+        "type": "object",
+        "required": [
+          "case_type",
+          "true_positives",
+          "false_positives",
+          "false_negatives"
+        ],
+        "title": "ValidationReportCaseType"
+      },
+      "ValidationReportDataset": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "evidence_level": {
+            "type": "string",
+            "title": "Evidence Level"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "scenario_count": {
+            "type": "integer",
+            "title": "Scenario Count"
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ValidationReportEvidence"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "version",
+          "evidence_level",
+          "status",
+          "scenario_count"
+        ],
+        "title": "ValidationReportDataset"
+      },
+      "ValidationReportEvidence": {
+        "properties": {
+          "authorized_use_confirmed": {
+            "type": "boolean",
+            "title": "Authorized Use Confirmed"
+          },
+          "anonymization_confirmed": {
+            "type": "boolean",
+            "title": "Anonymization Confirmed"
+          },
+          "reviewer_count": {
+            "type": "integer",
+            "title": "Reviewer Count"
+          },
+          "ground_truth_method_documented": {
+            "type": "boolean",
+            "title": "Ground Truth Method Documented"
+          },
+          "scope_documented": {
+            "type": "boolean",
+            "title": "Scope Documented"
+          },
+          "prepared_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prepared At"
+          },
+          "authorization_reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authorization Reference"
+          },
+          "anonymization_method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anonymization Method"
+          },
+          "reviewer_refs": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewer Refs"
+          },
+          "ground_truth_method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ground Truth Method"
+          },
+          "scope": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scope"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "authorized_use_confirmed",
+          "anonymization_confirmed",
+          "reviewer_count",
+          "ground_truth_method_documented",
+          "scope_documented"
+        ],
+        "title": "ValidationReportEvidence"
+      },
+      "ValidationReportProduct": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "version"
+        ],
+        "title": "ValidationReportProduct"
+      },
+      "ValidationReportQualitySummary": {
+        "properties": {
+          "passed_scenarios": {
+            "type": "integer",
+            "title": "Passed Scenarios"
+          },
+          "failed_scenarios": {
+            "type": "integer",
+            "title": "Failed Scenarios"
+          },
+          "parse_failures": {
+            "type": "integer",
+            "title": "Parse Failures"
+          },
+          "all_scenarios_pass": {
+            "type": "boolean",
+            "title": "All Scenarios Pass"
+          },
+          "case_types": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationReportCaseType"
+            },
+            "type": "array",
+            "title": "Case Types"
+          }
+        },
+        "type": "object",
+        "required": [
+          "passed_scenarios",
+          "failed_scenarios",
+          "parse_failures",
+          "all_scenarios_pass",
+          "case_types"
+        ],
+        "title": "ValidationReportQualitySummary"
+      },
+      "ValidationReportResponse": {
+        "properties": {
+          "schema": {
+            "type": "string",
+            "const": "thistinti.validation-report.v1",
+            "title": "Schema"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          },
+          "redacted": {
+            "type": "boolean",
+            "title": "Redacted"
+          },
+          "product": {
+            "$ref": "#/components/schemas/ValidationReportProduct"
+          },
+          "dataset": {
+            "$ref": "#/components/schemas/ValidationReportDataset"
+          },
+          "run": {
+            "$ref": "#/components/schemas/ValidationReportRun"
+          },
+          "quality_summary": {
+            "$ref": "#/components/schemas/ValidationReportQualitySummary"
+          },
+          "gate": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Gate"
+          },
+          "scenarios": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationReportScenario"
+            },
+            "type": "array",
+            "title": "Scenarios"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "schema",
+          "generated_at",
+          "redacted",
+          "product",
+          "dataset",
+          "run",
+          "quality_summary",
+          "gate",
+          "scenarios",
+          "limitations"
+        ],
+        "title": "ValidationReportResponse"
+      },
+      "ValidationReportRun": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "engine_version": {
+            "type": "string",
+            "title": "Engine Version"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "gate_passed": {
+            "type": "boolean",
+            "title": "Gate Passed"
+          },
+          "automation_approved": {
+            "type": "boolean",
+            "title": "Automation Approved"
+          },
+          "precision": {
+            "type": "number",
+            "title": "Precision"
+          },
+          "recall": {
+            "type": "number",
+            "title": "Recall"
+          },
+          "f1_score": {
+            "type": "number",
+            "title": "F1 Score"
+          },
+          "amount_mae": {
+            "type": "number",
+            "title": "Amount Mae"
+          },
+          "true_positives": {
+            "type": "integer",
+            "title": "True Positives"
+          },
+          "false_positives": {
+            "type": "integer",
+            "title": "False Positives"
+          },
+          "false_negatives": {
+            "type": "integer",
+            "title": "False Negatives"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "engine_version",
+          "created_at",
+          "completed_at",
+          "gate_passed",
+          "automation_approved",
+          "precision",
+          "recall",
+          "f1_score",
+          "amount_mae",
+          "true_positives",
+          "false_positives",
+          "false_negatives"
+        ],
+        "title": "ValidationReportRun"
+      },
+      "ValidationReportScenario": {
+        "properties": {
+          "sequence": {
+            "type": "integer",
+            "title": "Sequence"
+          },
+          "passed": {
+            "type": "boolean",
+            "title": "Passed"
+          },
+          "expected_count": {
+            "type": "integer",
+            "title": "Expected Count"
+          },
+          "found_count": {
+            "type": "integer",
+            "title": "Found Count"
+          },
+          "false_positive_count": {
+            "type": "integer",
+            "title": "False Positive Count"
+          },
+          "false_negative_count": {
+            "type": "integer",
+            "title": "False Negative Count"
+          },
+          "parse_failure_count": {
+            "type": "integer",
+            "title": "Parse Failure Count"
+          },
+          "error_present": {
+            "type": "boolean",
+            "title": "Error Present"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sequence",
+          "passed",
+          "expected_count",
+          "found_count",
+          "false_positive_count",
+          "false_negative_count",
+          "parse_failure_count",
+          "error_present"
+        ],
+        "title": "ValidationReportScenario"
       },
       "ValidationScenarioInput": {
         "properties": {

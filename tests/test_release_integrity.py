@@ -1,0 +1,250 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+
+from scripts.check_release_consistency import validate_release_consistency
+from scripts.http_smoke import local_http_client
+from scripts.release_artifact import required_release_files
+from scripts.verify_publish_candidate import REQUIRED_WORKFLOWS, validate_candidate_payloads
+
+ROOT = Path(__file__).resolve().parents[1]
+VERSION = "3.4.0-alpha.7-rc.5"
+SOURCE_COMMIT = "a" * 40
+SOURCE_TREE = "b" * 40
+
+
+def run_script(*arguments: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [sys.executable, *arguments],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        timeout=30,
+        check=False,
+    )
+
+
+def test_release_consistency_gate_is_green_and_read_only():
+    generated = [ROOT / "docs" / "openapi.json", ROOT / "docs" / "sbom.cdx.json"]
+    before = {path: path.read_bytes() for path in generated}
+
+    assert validate_release_consistency() == []
+    result = run_script("scripts/check_release_consistency.py")
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert {path: path.read_bytes() for path in generated} == before
+
+
+def test_generators_reproduce_committed_contracts_without_rewriting_them(tmp_path):
+    openapi = tmp_path / "openapi.json"
+    sbom = tmp_path / "sbom.cdx.json"
+
+    openapi_result = run_script("scripts/generate_openapi.py", "--output", str(openapi))
+    sbom_result = run_script("scripts/generate_sbom.py", "--output", str(sbom))
+
+    assert openapi_result.returncode == 0, openapi_result.stdout + openapi_result.stderr
+    assert sbom_result.returncode == 0, sbom_result.stdout + sbom_result.stderr
+    assert openapi.read_bytes() == (ROOT / "docs" / "openapi.json").read_bytes()
+    assert sbom.read_bytes() == (ROOT / "docs" / "sbom.cdx.json").read_bytes()
+
+
+def test_local_http_smoke_does_not_depend_on_host_proxy(monkeypatch):
+    monkeypatch.setenv("ALL_PROXY", "socks5://127.0.0.1:1")
+    monkeypatch.setenv("all_proxy", "socks5://127.0.0.1:1")
+    monkeypatch.setenv("NO_PROXY", "")
+    monkeypatch.setenv("no_proxy", "")
+
+    with local_http_client("http://127.0.0.1:1") as client:
+        assert client.base_url.host == "127.0.0.1"
+
+
+def candidate_payloads() -> tuple[dict, list[dict], list[dict]]:
+    run_id = 1234
+    run_number = 88
+    windows_run = {
+        "id": run_id,
+        "name": "Build Windows Free Download",
+        "event": "push",
+        "head_branch": "main",
+        "head_sha": SOURCE_COMMIT,
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": run_number,
+    }
+    artifacts = [
+        {
+            "id": 9876,
+            "name": f"ThisTinti-Windows-{run_id}-{run_number}",
+            "expired": False,
+            "digest": "sha256:" + ("c" * 64),
+        }
+    ]
+    runs = [
+        {
+            "name": name,
+            "head_sha": SOURCE_COMMIT,
+            "status": "completed",
+            "conclusion": "success",
+        }
+        for name in REQUIRED_WORKFLOWS
+    ]
+    return windows_run, artifacts, runs
+
+
+def test_publication_candidate_requires_green_exact_commit_build():
+    windows_run, artifacts, runs = candidate_payloads()
+
+    result = validate_candidate_payloads(
+        target_sha=SOURCE_COMMIT,
+        windows_run_id=1234,
+        windows_run=windows_run,
+        artifacts=artifacts,
+        workflow_runs=runs,
+    )
+
+    assert result["artifact_id"] == 9876
+    assert result["target_sha"] == SOURCE_COMMIT
+
+
+def test_publication_candidate_rejects_artifact_from_another_commit():
+    windows_run, artifacts, runs = candidate_payloads()
+    windows_run["head_sha"] = "d" * 40
+
+    with pytest.raises(ValueError, match="does not belong"):
+        validate_candidate_payloads(
+            target_sha=SOURCE_COMMIT,
+            windows_run_id=1234,
+            windows_run=windows_run,
+            artifacts=artifacts,
+            workflow_runs=runs,
+        )
+
+
+def write_test_artifact(directory: Path) -> Path:
+    directory.mkdir()
+    for name in required_release_files(VERSION):
+        path = directory / name
+        if name in {"frozen-local-smoke.json", "installed-local-smoke.json"}:
+            path.write_text('{"passed": true}\n', encoding="utf-8")
+        elif name == "installer-lifecycle-smoke.json":
+            path.write_text(
+                json.dumps(
+                    {
+                        "passed": True,
+                        "baseline_installed": True,
+                        "upgrade_installed": True,
+                        "installed_smoke_passed": True,
+                        "uninstalled": True,
+                        "data_preserved": True,
+                    }
+                ),
+                encoding="utf-8",
+            )
+        elif not name.endswith(".sha256"):
+            path.write_bytes(f"fixture:{name}".encode())
+    for stem in (
+        f"ThisTinti-Setup-{VERSION}-x64.exe",
+        f"ThisTinti-Portable-{VERSION}-x64.zip",
+        f"ThisTinti-{VERSION}-self-hosted-source.zip",
+    ):
+        payload = directory / stem
+        digest = hashlib.sha256(payload.read_bytes()).hexdigest()
+        (directory / f"{stem}.sha256").write_text(f"{digest}  {stem}\n", encoding="ascii")
+
+    baseline = directory.parent / "baseline.json"
+    baseline.write_text(
+        json.dumps(
+            {
+                "version": VERSION,
+                "tag": f"v{VERSION}",
+                "release_commit": "c" * 40,
+                "installer": f"ThisTinti-Setup-{VERSION}-x64.exe",
+                "sha256": "d" * 64,
+            }
+        ),
+        encoding="utf-8",
+    )
+    return baseline
+
+
+def test_release_artifact_manifest_detects_binary_tampering(tmp_path):
+    directory = tmp_path / "release"
+    baseline = write_test_artifact(directory)
+    create = run_script(
+        "scripts/create_release_provenance.py",
+        "--directory",
+        str(directory),
+        "--version",
+        VERSION,
+        "--source-commit",
+        SOURCE_COMMIT,
+        "--source-tree",
+        SOURCE_TREE,
+        "--workflow-run",
+        "1234",
+        "--workflow-run-number",
+        "88",
+        "--artifact-name",
+        "ThisTinti-Windows-1234-88",
+        "--baseline-manifest",
+        str(baseline),
+    )
+    assert create.returncode == 0, create.stdout + create.stderr
+
+    verify_arguments = (
+        "scripts/verify_release_artifact.py",
+        "--directory",
+        str(directory),
+        "--expected-version",
+        VERSION,
+        "--expected-commit",
+        SOURCE_COMMIT,
+        "--expected-tree",
+        SOURCE_TREE,
+    )
+    verified = run_script(*verify_arguments)
+    assert verified.returncode == 0, verified.stdout + verified.stderr
+
+    (directory / f"ThisTinti-Setup-{VERSION}-x64.exe").write_bytes(b"tampered")
+    rejected = run_script(*verify_arguments)
+    assert rejected.returncode == 1
+    assert "checksum mismatch" in rejected.stderr.lower()
+
+
+def test_release_workflows_enforce_gates_and_immutable_publication():
+    ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    windows = (ROOT / ".github" / "workflows" / "windows-release.yml").read_text(encoding="utf-8")
+    publish = (ROOT / ".github" / "workflows" / "publish-public-preview.yml").read_text(encoding="utf-8")
+
+    assert "make verify" in ci
+    assert "needs: source-verification" in windows
+    assert "builds\\windows-upgrade-baseline.json" in windows
+    assert "Get-FileHash" in windows
+    assert "release-provenance.json" in windows
+    assert "workflow_dispatch:" in publish
+    assert "\n  push:" not in publish
+    assert "verify_publish_candidate.py" in publish
+    assert '--expected-commit "$TARGET_SHA"' in publish
+    assert "gh attestation verify" in publish
+    assert "--clobber" not in publish
+    assert "Refuse tag or release replacement" in publish
+
+
+def test_latest_release_records_describe_the_verified_rc5_publication():
+    release = json.loads((ROOT / "builds" / "release-latest.json").read_text(encoding="utf-8"))
+    publication = json.loads((ROOT / "builds" / "publication-latest.json").read_text(encoding="utf-8"))
+    baseline = json.loads((ROOT / "builds" / "windows-upgrade-baseline.json").read_text(encoding="utf-8"))
+
+    assert release["version"] == publication["version"] == baseline["version"] == VERSION
+    assert release["release_commit"] == publication["release_commit"] == baseline["release_commit"]
+    assert release["verification"]["installer_sha256"] == baseline["sha256"]
+    assert any(
+        asset["name"] == f"ThisTinti-Setup-{VERSION}-x64.exe" and asset["sha256"] == baseline["sha256"]
+        for asset in publication["assets"]
+    )

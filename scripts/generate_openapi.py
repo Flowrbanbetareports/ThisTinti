@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import sys
@@ -15,6 +16,21 @@ os.environ.setdefault("THISTINTI_AUTO_CREATE_SCHEMA", "false")
 
 from app.main import app  # noqa: E402
 
-output = ROOT / "docs" / "openapi.json"
-output.write_text(json.dumps(app.openapi(), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-print(output)
+
+def render_openapi() -> str:
+    return json.dumps(app.openapi(), indent=2, ensure_ascii=False) + "\n"
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Generate the committed ThisTinti OpenAPI contract.")
+    parser.add_argument("--output", type=Path, default=ROOT / "docs" / "openapi.json")
+    args = parser.parse_args()
+    output = args.output.resolve()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(render_openapi(), encoding="utf-8")
+    print(output)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

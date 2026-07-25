@@ -1,5 +1,8 @@
 import json
 
+from app.main import app
+from app.schemas import ValidationReportResponse
+
 
 def _scenario(index: int) -> dict:
     return {
@@ -83,6 +86,7 @@ def test_validation_report_is_downloadable_and_redacted(client, auth):
     assert report.headers["content-type"].startswith("application/json")
     assert "attachment" in report.headers["content-disposition"]
     payload = report.json()
+    ValidationReportResponse.model_validate(payload)
     assert payload["schema"] == "thistinti.validation-report.v1"
     assert payload["redacted"] is True
     assert payload["run"]["id"] is None
@@ -98,6 +102,14 @@ def test_validation_report_is_downloadable_and_redacted(client, auth):
     assert markdown.headers["content-type"].startswith("text/markdown")
     assert "# Rapporto di validazione ThisTinti" in markdown.text
     assert "Gate: **PASS**" in markdown.text
+
+
+def test_validation_report_openapi_describes_json_and_markdown():
+    operation = app.openapi()["paths"]["/api/validation/runs/{run_id}/report"]["get"]
+    content = operation["responses"]["200"]["content"]
+
+    assert content["application/json"]["schema"] == {"$ref": "#/components/schemas/ValidationReportResponse"}
+    assert content["text/markdown"]["schema"] == {"type": "string"}
 
 
 def test_report_endpoint_is_tenant_isolated(client, auth):

@@ -5,13 +5,17 @@ on:
   pull_request:
     paths:
       - ".github/workflows/windows-release.yml"
+      - ".github/workflows/publish-public-preview.yml"
+      - "Makefile"
       - "app/**"
+      - "builds/windows-upgrade-baseline.json"
+      - "docs/openapi.json"
+      - "docs/sbom.cdx.json"
       - "installer/windows/**"
       - "migrations/**"
       - "samples/**"
-      - "scripts/local_distribution_smoke.py"
-      - "scripts/package_self_hosted.py"
-      - "scripts/generate_brand_icon.py"
+      - "scripts/**"
+      - "pyproject.toml"
       - "requirements*.txt"
       - "run_thistinti.py"
   push:
@@ -19,17 +23,19 @@ on:
       - main
     paths:
       - ".github/workflows/windows-release.yml"
+      - ".github/workflows/publish-public-preview.yml"
+      - "Makefile"
       - "app/**"
+      - "builds/windows-upgrade-baseline.json"
+      - "docs/openapi.json"
+      - "docs/sbom.cdx.json"
       - "installer/windows/**"
       - "migrations/**"
       - "samples/**"
-      - "scripts/local_distribution_smoke.py"
-      - "scripts/package_self_hosted.py"
-      - "scripts/generate_brand_icon.py"
+      - "scripts/**"
+      - "pyproject.toml"
       - "requirements*.txt"
       - "run_thistinti.py"
-    tags:
-      - "v*"
 
 permissions:
   contents: write
@@ -39,7 +45,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  source-verification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.13"
+          cache: pip
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22"
+      - name: Install release-gate dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openssl poppler-utils tesseract-ocr tesseract-ocr-eng tesseract-ocr-ita
+          pip install -r requirements-dev.txt
+      - name: Require the complete release gate
+        run: make verify
+
   windows-installer:
+    needs: source-verification
     runs-on: windows-latest
     timeout-minutes: 60
     steps:
@@ -71,16 +98,20 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference = "Stop"
-          $BaselineVersion = "3.4.0-alpha.4"
+          $Baseline = Get-Content "builds\windows-upgrade-baseline.json" -Raw | ConvertFrom-Json
           $BaselineDir = "release\baseline"
           New-Item -ItemType Directory -Path $BaselineDir -Force | Out-Null
-          gh release download "v$BaselineVersion" `
-            --pattern "ThisTinti-Setup-$BaselineVersion-x64.exe" `
+          gh release download $Baseline.tag `
+            --pattern $Baseline.installer `
             --dir $BaselineDir `
             --clobber
-          $BaselineInstaller = Join-Path $BaselineDir "ThisTinti-Setup-$BaselineVersion-x64.exe"
+          $BaselineInstaller = Join-Path $BaselineDir $Baseline.installer
           if (-not (Test-Path $BaselineInstaller) -or (Get-Item $BaselineInstaller).Length -lt 1000000) {
-            throw "Published alpha.4 baseline installer unavailable"
+            throw "Published Windows upgrade baseline is unavailable"
+          }
+          $ActualHash = (Get-FileHash $BaselineInstaller -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($ActualHash -ne $Baseline.sha256) {
+            throw "Windows upgrade baseline checksum mismatch"
           }
       - name: Install previous Windows alpha silently
         id: baseline_install
@@ -88,7 +119,8 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          $BaselineInstaller = (Resolve-Path "release\baseline\ThisTinti-Setup-3.4.0-alpha.4-x64.exe").Path
+          $Baseline = Get-Content "builds\windows-upgrade-baseline.json" -Raw | ConvertFrom-Json
+          $BaselineInstaller = (Resolve-Path (Join-Path "release\baseline" $Baseline.installer)).Path
           $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\ThisTinti-Acceptance"
           $DataDir = Join-Path $env:LOCALAPPDATA "ThisTinti-Acceptance"
           $LogPath = (Join-Path (Resolve-Path "release\windows") "baseline-install.log")
@@ -229,6 +261,45 @@ jobs:
           if (-not (Test-Path (Join-Path $DataDir "upgrade-preservation-marker.txt"))) {
             throw "Local data was removed during uninstall"
           }
+      - name: Record installer lifecycle result
+        shell: pwsh
+        run: |
+          $Baseline = Get-Content "builds\windows-upgrade-baseline.json" -Raw | ConvertFrom-Json
+          $Version = (Select-String -Path "app\version.py" -Pattern 'RELEASE_VERSION = "([^"]+)"').Matches.Groups[1].Value
+          $InstalledSmoke = Get-Content "release\windows\installed-local-smoke.json" -Raw | ConvertFrom-Json
+          $Lifecycle = [ordered]@{
+            schema = "thistinti.windows-installer-lifecycle.v1"
+            version = $Version
+            baseline_version = $Baseline.version
+            baseline_sha256 = $Baseline.sha256
+            baseline_installed = $true
+            upgrade_installed = $true
+            installed_smoke_passed = ($InstalledSmoke.passed -eq $true)
+            uninstalled = $true
+            data_preserved = $true
+            passed = ($InstalledSmoke.passed -eq $true)
+          }
+          $Lifecycle | ConvertTo-Json -Depth 4 | Set-Content "release\windows\installer-lifecycle-smoke.json" -Encoding utf8
+      - name: Create and verify artifact provenance
+        shell: pwsh
+        run: |
+          $Version = (Select-String -Path "app\version.py" -Pattern 'RELEASE_VERSION = "([^"]+)"').Matches.Groups[1].Value
+          $SourceTree = (git rev-parse "$env:GITHUB_SHA`^{tree}").Trim()
+          $ArtifactName = "ThisTinti-Windows-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_NUMBER"
+          python scripts\create_release_provenance.py `
+            --directory "release\windows" `
+            --version $Version `
+            --source-commit $env:GITHUB_SHA `
+            --source-tree $SourceTree `
+            --workflow-run $env:GITHUB_RUN_ID `
+            --workflow-run-number $env:GITHUB_RUN_NUMBER `
+            --artifact-name $ArtifactName `
+            --baseline-manifest "builds\windows-upgrade-baseline.json"
+          python scripts\verify_release_artifact.py `
+            --directory "release\windows" `
+            --expected-version $Version `
+            --expected-commit $env:GITHUB_SHA `
+            --expected-tree $SourceTree
       - name: Clean installer lifecycle workspace
         if: always()
         shell: pwsh
@@ -245,50 +316,17 @@ jobs:
             release/windows/*.zip
             release/windows/*.sha256
             release/windows/*.json
+            release/windows/*.md
           if-no-files-found: error
           retention-days: 30
       - name: Record successful main build
         if: github.ref == 'refs/heads/main'
         shell: pwsh
         run: |
-          $artifactName = "ThisTinti-Windows-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_NUMBER"
-          $files = Get-ChildItem "release\windows" -File | Sort-Object Name | ForEach-Object {
-            [ordered]@{
-              name = $_.Name
-              size = $_.Length
-              sha256 = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
-            }
-          }
-          $metadata = [ordered]@{
-            workflow = "Build Windows Free Download"
-            run_id = [long]$env:GITHUB_RUN_ID
-            run_number = [int]$env:GITHUB_RUN_NUMBER
-            head_sha = $env:GITHUB_SHA
-            branch = $env:GITHUB_REF_NAME
-            artifact_name = $artifactName
-            files = @($files)
-          }
           New-Item -ItemType Directory -Path "builds" -Force | Out-Null
-          $metadata | ConvertTo-Json -Depth 6 | Set-Content "builds\windows-latest.json" -Encoding utf8
+          Copy-Item "release\windows\release-provenance.json" "builds\windows-latest.json" -Force
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "builds/windows-latest.json"
           git commit -m "Record successful Windows build $env:GITHUB_RUN_NUMBER"
           git push
-      - name: Publish GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          Copy-Item "TERMS_OF_USE.md", "DISCLAIMER.md", "PRIVACY.md", "TRADEMARKS.md", "SUPPORT.md" "release\windows"
-          Copy-Item "docs\RESPONSIBILITY_MATRIX.md" "release\windows\SELF-HOSTED-RESPONSIBILITY-MATRIX.md"
-          Copy-Item "docs\ENTERPRISE_ACCEPTANCE_CHECKLIST.md" "release\windows\SELF-HOSTED-ACCEPTANCE-CHECKLIST.md"
-          @"
-          ### Prima del download
-          ThisTinti è software libero e gratuito fornito senza garanzia, assistenza o SLA. Può produrre errori e non deve essere l’unica base per pagamenti, contabilità, adempimenti fiscali, pareri legali o decisioni verso terzi. Verificare sempre i documenti originali.
-
-          Le distribuzioni ufficiali non inviano documenti o telemetria all’autore. La Self-Hosted Reference Edition non è un servizio gestito: l’organizzazione o il fornitore scelto resta responsabile di infrastruttura, privacy, sicurezza, backup, aggiornamenti, costi, incidenti e modifiche. Leggere `TERMS_OF_USE.md`, `DISCLAIMER.md` e la documentazione allegata.
-          "@ | Set-Content "release\windows\RELEASE-LEGAL-NOTICE.md" -Encoding utf8
-          $files = Get-ChildItem "release\windows" -File | ForEach-Object { $_.FullName }
-          gh release create "$env:GITHUB_REF_NAME" $files --title "ThisTinti $env:GITHUB_REF_NAME" --notes-file "release\windows\RELEASE-LEGAL-NOTICE.md"

@@ -6,8 +6,10 @@ file. Ogni release deve contenere:
 - installer Windows x64;
 - archivio portable Windows x64;
 - checksum SHA-256 di entrambi;
+- manifesto `release-provenance.json` associato al commit e al tree Git esatti;
+- rapporti di smoke dell'eseguibile congelato, installato e del ciclo installazione/aggiornamento/disinstallazione;
 - note di rilascio;
-- licenza, NOTICE, SBOM e sorgente corrispondente.
+- documenti legali, OpenAPI, SBOM e sorgente corrispondente.
 
 Una pagina web pubblica potrà in seguito collegare la release stabile, mostrare una
 demo e spiegare i limiti. Non deve raccogliere documenti né essere necessaria per
@@ -24,16 +26,18 @@ usare il programma.
 - assenza di segreti e dati reali nel pacchetto;
 - issue note aperte per eventuali limitazioni note.
 
-## Pubblicazione iniziale
+## Pubblicazione di una nuova Public Preview
 
-Da un clone del bundle Git verificato, autenticare GitHub CLI e avviare:
+La build Windows non pubblica direttamente una release. Su ogni commit candidato di `main`:
 
-```bash
-gh auth login
-bash scripts/publish_free_download.sh ThisTinti
-```
+1. il workflow Windows dipende dal gate completo `make verify`;
+2. installa la baseline pubblicata e verificata in `builds/windows-upgrade-baseline.json`;
+3. prova aggiornamento, avvio installato, riavvio, persistenza e disinstallazione con conservazione dei dati;
+4. produce un artefatto con checksum, smoke report e provenienza;
+5. il workflow di attestazione registra la provenienza GitHub degli asset.
 
-Lo script crea un nuovo repository pubblico, pubblica `main`, invia il tag della
-versione e prova ad abilitare GitHub Pages. Il tag avvia la build Windows e la
-creazione automatica della GitHub Release. Lo script rifiuta di sovrascrivere un
-repository esistente.
+Soltanto dopo il completamento di questi passaggi si avvia manualmente **Publish Public Preview Release**, fornendo
+il commit completo e l'ID del workflow Windows corrispondente. Il workflow ripete `make verify`, richiede tutti i
+workflow obbligatori verdi sullo stesso commit, verifica checksum, smoke report e attestazioni, quindi crea un tag
+e una prerelease nuovi. Non aggiorna né sostituisce tag o release esistenti. Al termine registra l'evidenza osservata
+in `builds/release-latest.json` e `builds/publication-latest.json`.
