@@ -42,7 +42,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m ruff format \
+          ruff format \
             app/main.py \
             app/schemas.py \
             app/services/matching.py \
@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m ruff check \
+          ruff check \
             app/main.py \
             app/schemas.py \
             app/services/matching.py \
