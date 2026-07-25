@@ -84,5 +84,7 @@ jobs:
             scripts/check_chain_links_browser.py \
             tests/test_chain_link_options.py \
             tests/test_simplified_experience.py
+          git status --short
           git commit -m "RC6 Manual Links: supervised attach, detach and reanalysis"
-          git push origin HEAD:codex/rc6-manual-links
+      - name: Push verified product changes
+        run: git push origin HEAD:codex/rc6-manual-links
