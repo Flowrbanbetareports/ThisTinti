@@ -32,7 +32,9 @@ def build_document() -> str:
         for name in ("styles-original.css", "styles.css", "onboarding.css", "sidebar-scroll.css", "local-first-run.css")
     ).replace('@import url("/styles-original.css");', "")
     core = (STATIC / "app-core.js").read_text(encoding="utf-8")
-    core = "\n".join("const getCookie = () => '';" if line.startswith("const getCookie =") else line for line in core.splitlines())
+    core = "\n".join(
+        "const getCookie = () => '';" if line.startswith("const getCookie =") else line for line in core.splitlines()
+    )
     return f"<!doctype html><html><head><meta charset='utf-8'><base href='http://127.0.0.1:8765/'><style>{css}</style></head><body>{body}<script>{core}</script></body></html>"
 
 
@@ -82,7 +84,9 @@ def main() -> None:
         elif url.endswith("/api/auth/me"):
             route.fulfill(status=401, json={"detail": "not authenticated"})
         elif url.endswith("/api/dashboard"):
-            route.fulfill(json={"documents": 1, "cases_open": 0, "chains": 0, "amount_potential": 0, "parsing_failures": 1})
+            route.fulfill(
+                json={"documents": 1, "cases_open": 0, "chains": 0, "amount_potential": 0, "parsing_failures": 1}
+            )
         elif url.endswith("/api/documents"):
             route.fulfill(json=[])
         elif url.endswith("/api/chains"):
@@ -90,10 +94,31 @@ def main() -> None:
         elif url.endswith("/api/cases"):
             route.fulfill(json=[])
         elif "/api/jobs?" in url:
-            route.fulfill(json={"items": [job], "total": 1, "limit": 25, "offset": 0, "status_counts": {"queued": 0, "running": 0, "completed": 0, "failed": 1, "cancelled": 0}})
+            route.fulfill(
+                json={
+                    "items": [job],
+                    "total": 1,
+                    "limit": 25,
+                    "offset": 0,
+                    "status_counts": {"queued": 0, "running": 0, "completed": 0, "failed": 1, "cancelled": 0},
+                }
+            )
         elif url.endswith("/api/jobs/job-failed-1/retry") and method == "POST":
             requests.append({"kind": "retry"})
-            route.fulfill(status=202, json={"created": True, "job": {**job, "id": "job-retry-1", "status": "queued", "can_retry": False, "can_cancel": True, "context": {**job["context"], "retry_of": job["id"]}}})
+            route.fulfill(
+                status=202,
+                json={
+                    "created": True,
+                    "job": {
+                        **job,
+                        "id": "job-retry-1",
+                        "status": "queued",
+                        "can_retry": False,
+                        "can_cancel": True,
+                        "context": {**job["context"], "retry_of": job["id"]},
+                    },
+                },
+            )
         elif url.endswith("/api/jobs/job-failed-1"):
             route.fulfill(json=job)
         elif url.endswith("/api/documents/doc-1"):
@@ -102,7 +127,13 @@ def main() -> None:
             route.fulfill(status=200, body=b"{}", headers={"content-type": "application/json"})
         elif url.endswith("/api/jobs/documents/doc-1/reprocess") and method == "POST":
             requests.append({"kind": "reprocess", "payload": json.loads(request.post_data or "{}")})
-            route.fulfill(status=202, json={"created": True, "job": {**job, "id": "job-reprocess-1", "status": "queued", "can_retry": False, "can_cancel": True}})
+            route.fulfill(
+                status=202,
+                json={
+                    "created": True,
+                    "job": {**job, "id": "job-reprocess-1", "status": "queued", "can_retry": False, "can_cancel": True},
+                },
+            )
         else:
             route.fulfill(status=404, json={"detail": f"not mocked: {method} {url}"})
 
@@ -123,17 +154,28 @@ def main() -> None:
           await openView('jobs');
         }""")
         page.wait_for_selector("#jobsTable .job-retry-button")
-        require(page.get_by_text("Riga 2: quantity non è numerico", exact=True).is_visible(), "Persistent job error is not visible")
+        require(
+            page.get_by_text("Riga 2: quantity non è numerico", exact=True).is_visible(),
+            "Persistent job error is not visible",
+        )
         require(page.locator("#jobsFailed").inner_text() == "1", "Failed-job metric is incorrect")
         require(page.locator("#jobsTable .job-retry-button").is_visible(), "Retry action is not visible")
 
         page.locator("#jobsTable .job-document-button").click()
         page.wait_for_selector("#documentDialog[open]")
-        require(page.locator("#documentDialog .persistent-error").is_visible(), "Document parser error is not persistent")
+        require(
+            page.locator("#documentDialog .persistent-error").is_visible(), "Document parser error is not persistent"
+        )
         page.locator("#documentReprocessButton").click()
         page.wait_for_selector("#reprocessDialog[open]")
-        require(page.locator("#reprocessNumber").input_value() == "PO-ERR-1", "Reprocess form did not preserve document number")
-        require(page.locator("#reprocessSupplier").input_value() == "Fornitore prova", "Reprocess form did not preserve supplier")
+        require(
+            page.locator("#reprocessNumber").input_value() == "PO-ERR-1",
+            "Reprocess form did not preserve document number",
+        )
+        require(
+            page.locator("#reprocessSupplier").input_value() == "Fornitore prova",
+            "Reprocess form did not preserve supplier",
+        )
         page.locator("#reprocessNumber").fill("PO-CORRETTO-1")
         page.locator("#reprocessForm").evaluate("form => form.requestSubmit()")
         page.wait_for_timeout(500)
@@ -142,7 +184,13 @@ def main() -> None:
         require(reprocess["payload"]["number"] == "PO-CORRETTO-1", "Corrected document number was not submitted")
         browser.close()
 
-    print(json.dumps({"failed_metric": 1, "persistent_error": True, "reprocess_request": reprocess["payload"]}, indent=2, sort_keys=True))
+    print(
+        json.dumps(
+            {"failed_metric": 1, "persistent_error": True, "reprocess_request": reprocess["payload"]},
+            indent=2,
+            sort_keys=True,
+        )
+    )
 
 
 if __name__ == "__main__":

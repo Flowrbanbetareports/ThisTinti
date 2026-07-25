@@ -1264,9 +1264,7 @@ def list_jobs(
     jobs = list(db.scalars(stmt.order_by(ProcessingJob.created_at.desc()).offset(offset).limit(limit)))
     status_counts = {status_name: 0 for status_name in sorted(allowed_statuses)}
     for status_name, count in db.execute(
-        select(ProcessingJob.status, func.count(ProcessingJob.id))
-        .where(*base_filters)
-        .group_by(ProcessingJob.status)
+        select(ProcessingJob.status, func.count(ProcessingJob.id)).where(*base_filters).group_by(ProcessingJob.status)
     ):
         status_counts[str(status_name)] = int(count)
     return {
