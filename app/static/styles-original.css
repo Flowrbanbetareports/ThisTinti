@@ -244,3 +244,33 @@ tbody tr:hover { background: #fbfcfc; }
 .legal-warning a, .local-consent a, .sidebar-legal-link { color: inherit; font-weight: 700; }
 .sidebar-legal-link { display: block; margin: 0 0 10px; font-size: .76rem; opacity: .8; text-decoration: none; }
 .local-consent { align-items: flex-start; line-height: 1.45; }
+
+/* Persistent processing and recovery center. */
+.jobs-heading { align-items: flex-start; }
+.jobs-filter-row { flex-wrap: wrap; justify-content: flex-end; }
+.jobs-filter-row input { width: min(290px, 100%); min-width: 210px; padding: 8px 10px; }
+.jobs-filter-row button { margin: 0; }
+.jobs-pagination { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 18px; }
+.jobs-pagination p { margin: 0; color: var(--muted); font-size: .84rem; }
+.job-actions, .document-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+.document-actions { margin: 16px 0; }
+.job-actions button { white-space: nowrap; }
+.job-progress { width: 110px; height: 10px; overflow: hidden; border-radius: 999px; background: #e7ecef; }
+.job-progress span { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+.job-error-cell { max-width: 260px; color: var(--danger); overflow-wrap: anywhere; }
+.job-result { max-height: 280px; overflow: auto; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-soft); white-space: pre-wrap; overflow-wrap: anywhere; font-size: .78rem; }
+.persistent-error { margin: 16px 0; padding: 14px 16px; border: 1px solid #e4aaa5; border-left: 4px solid var(--danger); border-radius: 12px; background: #fff2f0; color: #6f1717; }
+.persistent-error strong { display: block; }
+.persistent-error p { margin: 5px 0 0; overflow-wrap: anywhere; }
+.reprocess-message { padding: 12px 14px; border-radius: 12px; background: var(--surface-soft); color: var(--muted); }
+.badge.queued { color: #5d4a06; background: #fff2c9; }
+.badge.running { color: var(--accent); background: var(--accent-soft); }
+.badge.completed { color: var(--ok); background: #e6f2ec; }
+.badge.cancelled { color: var(--muted); background: #edf0f2; }
+#jobsTable tr { cursor: default; }
+
+@media (max-width: 760px) {
+  .jobs-filter-row { display: grid; grid-template-columns: 1fr; }
+  .jobs-filter-row input, .jobs-filter-row select, .jobs-filter-row button { width: 100%; min-width: 0; }
+  .jobs-pagination { flex-wrap: wrap; }
+}

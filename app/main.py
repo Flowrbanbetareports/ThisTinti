@@ -19,7 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from starlette.background import BackgroundTask
-from sqlalchemy import case, func, select, text
+from sqlalchemy import case, func, or_, select, text
 from sqlalchemy.orm import Session, selectinload
 
 from .audit import add_audit, verify_audit_chain
@@ -67,6 +67,7 @@ from .schemas import (
     OkResponse,
     PasswordChangeRequest,
     ProcessingJobEnvelopeResponse,
+    ProcessingJobListResponse,
     ReadinessResponse,
     RegisterRequest,
     ReprocessRequest,
@@ -1221,22 +1222,58 @@ def enqueue_tenant_red_team(
     return JSONResponse(status_code=202, content={"job": job_json(job), "created": created})
 
 
-@app.get("/api/jobs")
+@app.get("/api/jobs", response_model=ProcessingJobListResponse)
 def list_jobs(
     job_status: str | None = Query(default=None, alias="status"),
+    job_type: str | None = Query(default=None),
+    query: str | None = Query(default=None, max_length=120),
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0, le=100000),
     ctx: AuthContext = Depends(current_user),
     db: Session = Depends(get_db),
 ) -> dict:
-    stmt = select(ProcessingJob).where(ProcessingJob.tenant_id == ctx.tenant_id)
-    count_stmt = select(func.count(ProcessingJob.id)).where(ProcessingJob.tenant_id == ctx.tenant_id)
+    allowed_statuses = {"queued", "running", "completed", "failed", "cancelled"}
+    allowed_types = {"ingest_document", "ingest_batch", "reprocess_document", "reanalyze_tenant", "red_team_tenant"}
+    if job_status and job_status not in allowed_statuses:
+        raise HTTPException(status_code=422, detail="Invalid job status")
+    if job_type and job_type not in allowed_types:
+        raise HTTPException(status_code=422, detail="Invalid job type")
+
+    base_filters = [ProcessingJob.tenant_id == ctx.tenant_id]
+    if job_type:
+        base_filters.append(ProcessingJob.job_type == job_type)
+    normalized_query = (query or "").strip()
+    if normalized_query:
+        pattern = f"%{normalized_query}%"
+        base_filters.append(
+            or_(
+                ProcessingJob.id.ilike(pattern),
+                ProcessingJob.job_type.ilike(pattern),
+                ProcessingJob.input_json.ilike(pattern),
+                ProcessingJob.result_json.ilike(pattern),
+                ProcessingJob.error_message.ilike(pattern),
+            )
+        )
+
+    stmt = select(ProcessingJob).where(*base_filters)
+    count_stmt = select(func.count(ProcessingJob.id)).where(*base_filters)
     if job_status:
         stmt = stmt.where(ProcessingJob.status == job_status)
         count_stmt = count_stmt.where(ProcessingJob.status == job_status)
     total = int(db.scalar(count_stmt) or 0)
     jobs = list(db.scalars(stmt.order_by(ProcessingJob.created_at.desc()).offset(offset).limit(limit)))
-    return {"items": [job_json(job) for job in jobs], "total": total, "limit": limit, "offset": offset}
+    status_counts = {status_name: 0 for status_name in sorted(allowed_statuses)}
+    for status_name, count in db.execute(
+        select(ProcessingJob.status, func.count(ProcessingJob.id)).where(*base_filters).group_by(ProcessingJob.status)
+    ):
+        status_counts[str(status_name)] = int(count)
+    return {
+        "items": [job_json(job) for job in jobs],
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "status_counts": status_counts,
+    }
 
 
 @app.get("/api/jobs/{job_id}")
@@ -1265,6 +1302,68 @@ def cancel_job(job_id: str, ctx: AuthContext = Depends(require_reviewer), db: Se
     add_audit(db, ctx.tenant_id, "job.cancelled", ctx.user_id, "processing_job", job.id)
     db.commit()
     return {"ok": True, "job": job_json(job)}
+
+
+def _retry_job_payload(job: ProcessingJob) -> dict:
+    try:
+        payload = json.loads(job.input_json or "{}")
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=409, detail="I dati del processo non sono recuperabili") from exc
+    if not isinstance(payload, dict):
+        raise HTTPException(status_code=409, detail="I dati del processo non sono recuperabili")
+    if job.job_type not in {"ingest_document", "ingest_batch"}:
+        payload["retry_of"] = job.id
+        return payload
+
+    source_value = payload.get("rejected_path") or payload.get("staged_path")
+    if not source_value:
+        raise HTTPException(status_code=409, detail="Il file originale non è più disponibile")
+    source = Path(source_value).resolve()
+    allowed_roots = (settings.rejected_dir.resolve(), settings.quarantine_dir.resolve())
+    if not source.is_file() or not any(source == root or root in source.parents for root in allowed_roots):
+        raise HTTPException(status_code=409, detail="Il file originale non è più disponibile")
+    target = settings.quarantine_dir / f"{secrets.token_hex(16)}{source.suffix.lower()}"
+    try:
+        shutil.copy2(source, target)
+    except OSError as exc:
+        raise HTTPException(status_code=409, detail="Il file originale non può essere ripristinato") from exc
+    payload["staged_path"] = str(target)
+    payload.pop("rejected_path", None)
+    payload["retry_of"] = job.id
+    return payload
+
+
+@app.post("/api/jobs/{job_id}/retry", status_code=202, response_model=ProcessingJobEnvelopeResponse)
+def retry_job(
+    job_id: str,
+    ctx: AuthContext = Depends(require_reviewer),
+    db: Session = Depends(get_db),
+) -> JSONResponse:
+    job = db.scalar(select(ProcessingJob).where(ProcessingJob.id == job_id, ProcessingJob.tenant_id == ctx.tenant_id))
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    if job.status not in {"failed", "cancelled"}:
+        raise HTTPException(status_code=409, detail="Si possono riprovare soltanto processi falliti o annullati")
+    payload = _retry_job_payload(job)
+    retried, _ = enqueue_job(
+        db,
+        tenant_id=ctx.tenant_id,
+        **_job_requester(ctx),
+        job_type=job.job_type,
+        input_payload=payload,
+        priority=job.priority,
+    )
+    add_audit(
+        db,
+        ctx.tenant_id,
+        "job.retried",
+        ctx.user_id,
+        "processing_job",
+        retried.id,
+        {"retry_of": job.id, "job_type": job.job_type},
+    )
+    db.commit()
+    return JSONResponse(status_code=202, content={"job": job_json(retried), "created": True})
 
 
 @app.post("/api/documents/upload", status_code=201)

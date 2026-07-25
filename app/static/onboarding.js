@@ -137,6 +137,7 @@
     const dashboard = setNavLabel('dashboard', '⌂', 'Inizio');
     const documents = setNavLabel('documents', '▤', 'Documenti');
     const cases = setNavLabel('cases', '△', 'Da controllare');
+    const jobs = setNavLabel('jobs', '↻', 'Attività');
     const chains = setNavLabel('chains', '⌘', 'Collegamenti');
     const discovery = setNavLabel('discovery', '✦', 'Regole proposte');
     const validation = setNavLabel('validation', '✓', 'Verifica delle regole');
@@ -168,7 +169,7 @@
     advancedPanel.id = 'advancedNavPanel';
     advancedPanel.className = 'advanced-nav-panel';
 
-    [chains, discovery, validation, audit, users].filter(Boolean).forEach((button) => advancedPanel.appendChild(button));
+    [jobs, chains, discovery, validation, audit, users].filter(Boolean).forEach((button) => advancedPanel.appendChild(button));
     mainNav.appendChild(advancedToggle);
     mainNav.appendChild(advancedPanel);
 
@@ -180,7 +181,7 @@
       if (remember) safeStorage.set(ADVANCED_KEY, open ? '1' : '0');
     };
 
-    const activeAdvanced = ['chains', 'discovery', 'validation', 'audit', 'users']
+    const activeAdvanced = ['jobs', 'chains', 'discovery', 'validation', 'audit', 'users']
       .includes(mainNav.querySelector('[data-view].active')?.dataset.view);
     setAdvancedOpen(activeAdvanced || safeStorage.get(ADVANCED_KEY) === '1', false);
 
@@ -235,6 +236,7 @@
         <article class="panel"><h3>Inizio</h3><p>Riepilogo e prossimo passo consigliato.</p></article>
         <article class="panel"><h3>Documenti</h3><p>File caricati e informazioni riconosciute.</p></article>
         <article class="panel"><h3>Da controllare</h3><p>Possibili differenze collegate alle prove.</p></article>
+        <article class="panel"><h3>Attività</h3><p>Caricamenti, rielaborazioni ed errori che restano consultabili e recuperabili.</p></article>
         <article class="panel"><h3>Collegamenti</h3><p>Documenti che sembrano appartenere alla stessa attività.</p></article>
         <article class="panel"><h3>Regole proposte</h3><p>Controlli suggeriti che possono essere accettati, corretti o disattivati.</p></article>
         <article class="panel"><h3>Strumenti amministrativi</h3><p>Verifica delle regole, registro attività e utenti.</p></article>

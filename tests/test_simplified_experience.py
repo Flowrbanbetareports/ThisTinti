@@ -174,3 +174,30 @@ def test_local_first_run_layer_guides_create_and_login_states():
         assert marker in source
     assert ".auth-status.error" in css
     assert ".segmented.single-option" in css
+
+
+def test_recovery_center_is_available_without_external_services():
+    index = read("index.html")
+    source = read("app-core.js")
+    onboarding = read("onboarding.js")
+    for marker in (
+        'data-view="jobs"',
+        'id="jobsView"',
+        'id="jobsTable"',
+        'id="reprocessDialog"',
+        'id="reprocessForm"',
+    ):
+        assert marker in index
+    for marker in (
+        "async function loadJobs",
+        "async function retryJob",
+        "async function cancelJob",
+        "async function submitReprocess",
+        "`/api/jobs/${id}/retry`",
+        "Correggi e rielabora",
+    ):
+        assert marker in source
+    assert "setNavLabel('jobs', '↻', 'Attività')" in onboarding
+    assert "scripts/check_job_recovery_browser.py" in (
+        ROOT / ".github" / "workflows" / "simplified-experience.yml"
+    ).read_text(encoding="utf-8")

@@ -98,6 +98,54 @@ def job_actor_id(job: ProcessingJob) -> str | None:
     return job.created_by or job.created_by_api_credential
 
 
+def _job_payload(job: ProcessingJob) -> dict:
+    try:
+        value = json.loads(job.input_json or "{}")
+    except (TypeError, ValueError):
+        return {}
+    return value if isinstance(value, dict) else {}
+
+
+def _job_result(job: ProcessingJob) -> dict:
+    try:
+        value = json.loads(job.result_json or "{}")
+    except (TypeError, ValueError):
+        return {}
+    return value if isinstance(value, dict) else {}
+
+
+def job_context(job: ProcessingJob) -> dict:
+    input_payload = _job_payload(job)
+    result = _job_result(job)
+    return {
+        "filename": input_payload.get("original_filename"),
+        "document_id": input_payload.get("document_id") or result.get("document_id"),
+        "retry_of": input_payload.get("retry_of"),
+    }
+
+
+def job_can_retry(job: ProcessingJob) -> bool:
+    if job.status not in {"failed", "cancelled"}:
+        return False
+    if job.job_type in {"reprocess_document", "reanalyze_tenant", "red_team_tenant"}:
+        return True
+    if job.job_type not in {"ingest_document", "ingest_batch"}:
+        return False
+    input_payload = _job_payload(job)
+    for key, root in (("rejected_path", settings.rejected_dir), ("staged_path", settings.quarantine_dir)):
+        value = input_payload.get(key)
+        if not value:
+            continue
+        try:
+            path = Path(value).resolve()
+            resolved_root = root.resolve()
+            if path.is_file() and (path == resolved_root or resolved_root in path.parents):
+                return True
+        except OSError:
+            continue
+    return False
+
+
 def job_json(job: ProcessingJob, include_result: bool = True) -> dict:
     payload = {
         "id": job.id,
@@ -111,9 +159,12 @@ def job_json(job: ProcessingJob, include_result: bool = True) -> dict:
         "created_at": job.created_at.isoformat(),
         "started_at": job.started_at.isoformat() if job.started_at else None,
         "completed_at": job.completed_at.isoformat() if job.completed_at else None,
+        "context": job_context(job),
+        "can_cancel": job.status == "queued",
+        "can_retry": job_can_retry(job),
     }
     if include_result:
-        payload["result"] = json.loads(job.result_json or "{}")
+        payload["result"] = _job_result(job)
     return payload
 
 

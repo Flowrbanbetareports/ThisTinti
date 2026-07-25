@@ -46,3 +46,24 @@ titolare del sistema.
 
 Il progetto non garantisce supporto. Un'organizzazione può usare la documentazione,
 aprire una segnalazione pubblica priva di dati sensibili o incaricare tecnici propri.
+
+## Attività ed errori recuperabili
+
+La pagina **Attività** conserva lo stato dei caricamenti, delle rielaborazioni e delle
+analisi anche dopo la chiusura di un messaggio temporaneo. Da questa pagina è possibile:
+
+- filtrare e cercare le elaborazioni;
+- leggere l'errore completo e il numero di tentativi;
+- annullare un'attività ancora in attesa;
+- riprovare un'attività fallita quando il file o il documento sono ancora disponibili;
+- aprire direttamente il documento collegato.
+
+Un errore non va considerato risolto soltanto perché viene riprovato. Verificare il nuovo
+risultato e confrontarlo con il file originale.
+
+## Correzione e rielaborazione
+
+Nel dettaglio di un documento, un amministratore o revisore può usare **Correggi e
+rielabora** per indicare tipo, numero, fornitore e data corretti. La rielaborazione viene
+messa nella coda persistente. Se il nuovo tentativo fallisce, l'ultima estrazione valida
+non viene distrutta e l'errore resta consultabile nella pagina Attività.
