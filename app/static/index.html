@@ -73,6 +73,7 @@
         <button data-view="documents" type="button"><span>▤</span> Documenti</button>
         <button data-view="chains" type="button"><span>⌘</span> Catene</button>
         <button data-view="cases" type="button"><span>△</span> Anomalie</button>
+        <button data-view="jobs" type="button"><span>↻</span> Attività</button>
         <button data-view="discovery" type="button"><span>✦</span> Autopilota</button>
         <button data-view="validation" type="button"><span>✓</span> Validation Lab</button>
         <button data-view="audit" data-admin-only type="button"><span>◎</span> Audit</button>
@@ -151,6 +152,28 @@
         <section class="panel table-panel">
           <div class="panel-heading"><div><h3>Anomalie</h3><p>Ogni caso include origine, prova e livello di affidabilità.</p></div><div class="filter-row"><select id="caseStatusFilter" aria-label="Filtra anomalie per stato"><option value="">Tutti gli stati</option><option value="open">Aperte</option><option value="needs_review">Da rivedere</option><option value="confirmed">Confermate</option><option value="dismissed">Scartate</option><option value="resolved">Risolte</option></select><select id="caseSeverityFilter" aria-label="Filtra anomalie per gravità"><option value="">Tutte le gravità</option><option value="critical">Critica</option><option value="high">Alta</option><option value="medium">Media</option><option value="low">Bassa</option></select></div></div>
           <div class="table-wrap"><table><thead><tr><th>Caso</th><th>Gravità</th><th>Importo</th><th>Confidenza</th><th>Stato</th></tr></thead><tbody id="casesTable"></tbody></table></div>
+        </section>
+      </div>
+
+      <div id="jobsView" class="view-panel hidden">
+        <section class="metric-grid jobs-metrics" aria-label="Riepilogo attività">
+          <article class="metric-card"><p>In attesa</p><strong id="jobsQueued">0</strong><small>processi ancora da avviare</small></article>
+          <article class="metric-card"><p>In corso</p><strong id="jobsRunning">0</strong><small>elaborazioni attive</small></article>
+          <article class="metric-card"><p>Da recuperare</p><strong id="jobsFailed">0</strong><small>errori consultabili e riprovabili</small></article>
+          <article class="metric-card"><p>Completate</p><strong id="jobsCompleted">0</strong><small>attività concluse</small></article>
+        </section>
+        <section class="panel table-panel">
+          <div class="panel-heading jobs-heading">
+            <div><h3>Attività di elaborazione</h3><p>Stato, errori e azioni restano consultabili anche dopo la chiusura di un messaggio.</p></div>
+            <div class="filter-row jobs-filter-row">
+              <input id="jobSearchInput" type="search" maxlength="120" placeholder="Cerca file, documento o errore" aria-label="Cerca nelle attività" />
+              <select id="jobStatusFilter" aria-label="Filtra attività per stato"><option value="">Tutti gli stati</option><option value="queued">In attesa</option><option value="running">In corso</option><option value="failed">Fallite</option><option value="cancelled">Annullate</option><option value="completed">Completate</option></select>
+              <select id="jobTypeFilter" aria-label="Filtra attività per tipo"><option value="">Tutte le attività</option><option value="ingest_document">Caricamento documento</option><option value="ingest_batch">Caricamento archivio</option><option value="reprocess_document">Rielaborazione documento</option><option value="reanalyze_tenant">Rianalisi collegamenti</option><option value="red_team_tenant">Verifica capacità</option></select>
+              <button id="refreshJobsButton" class="secondary-button compact" type="button">Aggiorna</button>
+            </div>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>Data</th><th>Attività</th><th>Oggetto</th><th>Stato</th><th>Tentativi</th><th>Avanzamento</th><th>Errore</th><th>Azioni</th></tr></thead><tbody id="jobsTable"></tbody></table></div>
+          <div class="jobs-pagination"><button id="jobsPreviousButton" class="secondary-button compact" type="button">Precedenti</button><p id="jobsPageText">0 attività</p><button id="jobsNextButton" class="secondary-button compact" type="button">Successive</button></div>
         </section>
       </div>
 
@@ -245,6 +268,28 @@
       <div class="modal-heading"><div><p class="eyebrow">Documento</p><h3 id="documentDialogTitle">Dettaglio</h3></div><button class="icon-button" type="button" data-close-dialog="documentDialog">×</button></div>
       <div id="documentDialogBody"></div>
     </article>
+  </dialog>
+
+  <dialog id="jobDialog" class="modal wide">
+    <article class="modal-card">
+      <div class="modal-heading"><div><p class="eyebrow">Attività</p><h3 id="jobDialogTitle">Dettaglio elaborazione</h3></div><button class="icon-button" type="button" data-close-dialog="jobDialog">×</button></div>
+      <div id="jobDialogBody"></div>
+    </article>
+  </dialog>
+
+  <dialog id="reprocessDialog" class="modal">
+    <form id="reprocessForm" class="modal-card">
+      <div class="modal-heading"><div><p class="eyebrow">Correzione controllata</p><h3>Correggi e rielabora</h3></div><button class="icon-button" type="button" data-close-dialog="reprocessDialog">×</button></div>
+      <input id="reprocessDocumentId" type="hidden" />
+      <p id="reprocessMessage" class="reprocess-message">I campi indicati vengono usati per rileggere il file originale. L’ultima estrazione valida resta disponibile se il nuovo tentativo fallisce.</p>
+      <div class="form-grid">
+        <div><label for="reprocessDocumentType">Tipo documento</label><select id="reprocessDocumentType"><option value="proposal">Proposta</option><option value="order">Ordine</option><option value="confirmation">Conferma ordine</option><option value="delivery">DDT / consegna</option><option value="invoice">Fattura</option><option value="payment">Pagamento</option><option value="return">Reso</option><option value="credit_note">Nota di credito</option></select></div>
+        <div><label for="reprocessNumber">Numero</label><input id="reprocessNumber" type="text" maxlength="120" /></div>
+        <div><label for="reprocessSupplier">Fornitore</label><input id="reprocessSupplier" type="text" maxlength="255" /></div>
+        <div><label for="reprocessDate">Data documento</label><input id="reprocessDate" type="date" /></div>
+      </div>
+      <div class="modal-actions"><button class="secondary-button" type="button" data-close-dialog="reprocessDialog">Annulla</button><button id="reprocessSubmitButton" class="primary-button" type="submit">Metti in coda</button></div>
+    </form>
   </dialog>
 
   <dialog id="userDialog" class="modal">

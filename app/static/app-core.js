@@ -8,7 +8,14 @@ const state = {
   validationRuns: [],
   discoveryProfile: null,
   discoveryRules: [],
+  jobs: [],
+  jobsTotal: 0,
+  jobsOffset: 0,
+  jobsLimit: 25,
+  jobsTimer: null,
   selectedCase: null,
+  selectedDocument: null,
+  selectedJob: null,
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -132,7 +139,7 @@ function showApp() {
   updateViewChrome(currentView);
 }
 
-const operationalViews = new Set(['dashboard', 'documents', 'chains', 'cases', 'discovery']);
+const operationalViews = new Set(['dashboard', 'documents', 'chains', 'cases', 'jobs', 'discovery']);
 
 function updateViewChrome(view) {
   const role = state.user?.role || 'viewer';
@@ -149,6 +156,7 @@ const viewMeta = {
   documents: ['Archivio', 'Documenti'],
   chains: ['Operazioni', 'Catene documentali'],
   cases: ['Revisione', 'Anomalie'],
+  jobs: ['Elaborazione', 'Attività'],
   discovery: ['Adattamento', 'Autopilota'],
   validation: ['Qualità', 'Validation Lab'],
   audit: ['Governance', 'Audit log'],
@@ -165,6 +173,7 @@ async function openView(view) {
   if (view === 'documents') await loadDocuments();
   if (view === 'chains') await loadChains();
   if (view === 'cases') await loadCases();
+  if (view === 'jobs') await loadJobs();
   if (view === 'discovery') await loadDiscovery();
   if (view === 'validation') await loadValidation();
   if (view === 'audit') await loadAudit();
@@ -270,6 +279,148 @@ async function loadCases() {
   if (!state.cases.length) { body.innerHTML = `<tr><td colspan="5" class="empty-state">Nessuna anomalia.</td></tr>`; return; }
   body.innerHTML = state.cases.map(c => `<tr data-case-id="${c.id}"><td><strong>${escapeHtml(c.title)}</strong><small>${escapeHtml(c.case_type)}</small></td><td><span class="badge ${c.severity}">${labelSeverity(c.severity)}</span></td><td>${money(c.amount_estimate)}</td><td>${Math.round(c.confidence * 100)}%</td><td><span class="badge ${c.status}">${labelStatus(c.status)}</span></td></tr>`).join('');
   body.querySelectorAll('[data-case-id]').forEach(row => row.addEventListener('click', () => openCase(row.dataset.caseId)));
+}
+
+function jobTypeLabel(value) {
+  return ({
+    ingest_document: 'Caricamento documento',
+    ingest_batch: 'Caricamento archivio',
+    reprocess_document: 'Rielaborazione documento',
+    reanalyze_tenant: 'Rianalisi collegamenti',
+    red_team_tenant: 'Verifica capacità',
+  })[value] || value || 'Attività';
+}
+
+function jobObjectLabel(job) {
+  if (job.context?.filename) return job.context.filename;
+  if (job.context?.document_id) return `Documento ${job.context.document_id.slice(0, 8)}`;
+  if (job.context?.retry_of) return `Nuovo tentativo di ${job.context.retry_of.slice(0, 8)}`;
+  return job.id.slice(0, 8);
+}
+
+function jobStatusLabel(value) {
+  return ({ queued: 'In attesa', running: 'In corso', completed: 'Completata', failed: 'Fallita', cancelled: 'Annullata' })[value] || value;
+}
+
+function renderJobActions(job) {
+  const canReview = ['admin', 'reviewer'].includes(state.user?.role);
+  const actions = [`<button class="secondary-button compact job-detail-button" data-job-id="${escapeHtml(job.id)}" type="button">Dettagli</button>`];
+  if (job.context?.document_id) actions.push(`<button class="secondary-button compact job-document-button" data-document-id="${escapeHtml(job.context.document_id)}" type="button">Documento</button>`);
+  if (canReview && job.can_retry) actions.push(`<button class="primary-button compact job-retry-button" data-job-id="${escapeHtml(job.id)}" type="button">Riprova</button>`);
+  if (canReview && job.can_cancel) actions.push(`<button class="secondary-button compact job-cancel-button" data-job-id="${escapeHtml(job.id)}" type="button">Annulla</button>`);
+  return `<div class="job-actions">${actions.join('')}</div>`;
+}
+
+async function loadJobs(resetOffset = false) {
+  if (resetOffset) state.jobsOffset = 0;
+  clearTimeout(state.jobsTimer);
+  const qs = new URLSearchParams({ limit: String(state.jobsLimit), offset: String(state.jobsOffset) });
+  const status = $('#jobStatusFilter')?.value || '';
+  const type = $('#jobTypeFilter')?.value || '';
+  const query = $('#jobSearchInput')?.value.trim() || '';
+  if (status) qs.set('status', status);
+  if (type) qs.set('job_type', type);
+  if (query) qs.set('query', query);
+  const data = await api(`/api/jobs?${qs}`);
+  state.jobs = data.items;
+  state.jobsTotal = data.total;
+  $('#jobsQueued').textContent = data.status_counts.queued || 0;
+  $('#jobsRunning').textContent = data.status_counts.running || 0;
+  $('#jobsFailed').textContent = data.status_counts.failed || 0;
+  $('#jobsCompleted').textContent = data.status_counts.completed || 0;
+  const body = $('#jobsTable');
+  if (!state.jobs.length) {
+    body.innerHTML = '<tr><td colspan="8" class="empty-state">Nessuna attività corrisponde ai filtri.</td></tr>';
+  } else {
+    body.innerHTML = state.jobs.map(job => `<tr data-job-row="${escapeHtml(job.id)}"><td>${dateTime(job.created_at)}</td><td><strong>${escapeHtml(jobTypeLabel(job.job_type))}</strong><small>${escapeHtml(job.id.slice(0, 8))}</small></td><td>${escapeHtml(jobObjectLabel(job))}</td><td><span class="badge ${escapeHtml(job.status)}">${escapeHtml(jobStatusLabel(job.status))}</span></td><td>${job.attempts}/${job.max_attempts}</td><td><div class="job-progress" aria-label="Avanzamento ${Number(job.progress || 0)} percento"><span style="width:${Math.max(0, Math.min(100, Number(job.progress || 0)))}%"></span></div><small>${Number(job.progress || 0)}%</small></td><td class="job-error-cell">${job.error_message ? escapeHtml(job.error_message) : '<span class="muted-dash">—</span>'}</td><td>${renderJobActions(job)}</td></tr>`).join('');
+    body.querySelectorAll('.job-detail-button').forEach(button => button.addEventListener('click', () => openJob(button.dataset.jobId)));
+    body.querySelectorAll('.job-document-button').forEach(button => button.addEventListener('click', () => openDocument(button.dataset.documentId)));
+    body.querySelectorAll('.job-retry-button').forEach(button => button.addEventListener('click', () => retryJob(button.dataset.jobId, button)));
+    body.querySelectorAll('.job-cancel-button').forEach(button => button.addEventListener('click', () => cancelJob(button.dataset.jobId, button)));
+  }
+  const first = state.jobsTotal ? state.jobsOffset + 1 : 0;
+  const last = Math.min(state.jobsOffset + state.jobsLimit, state.jobsTotal);
+  $('#jobsPageText').textContent = `${first}–${last} di ${state.jobsTotal} attività`;
+  $('#jobsPreviousButton').disabled = state.jobsOffset <= 0;
+  $('#jobsNextButton').disabled = state.jobsOffset + state.jobsLimit >= state.jobsTotal;
+  if (state.jobs.some(job => ['queued', 'running'].includes(job.status)) && !$('#jobsView').classList.contains('hidden')) {
+    state.jobsTimer = window.setTimeout(() => loadJobs(false).catch(error => toast(error.message, true)), 3000);
+  }
+}
+
+async function openJob(id) {
+  try {
+    const job = await api(`/api/jobs/${id}`);
+    state.selectedJob = job;
+    $('#jobDialogTitle').textContent = `${jobTypeLabel(job.job_type)} · ${job.id.slice(0, 8)}`;
+    const result = job.result && Object.keys(job.result).length ? `<pre class="job-result">${escapeHtml(JSON.stringify(job.result, null, 2))}</pre>` : '<p class="empty-state">Nessun risultato disponibile.</p>';
+    $('#jobDialogBody').innerHTML = `<div class="detail-grid"><div class="detail-card"><p>Stato</p><strong><span class="badge ${escapeHtml(job.status)}">${escapeHtml(jobStatusLabel(job.status))}</span></strong></div><div class="detail-card"><p>Tentativi</p><strong>${job.attempts}/${job.max_attempts}</strong></div><div class="detail-card"><p>Avanzamento</p><strong>${Number(job.progress || 0)}%</strong></div></div>${job.error_message ? `<div class="persistent-error" role="alert"><strong>Errore registrato</strong><p>${escapeHtml(job.error_message)}</p></div>` : ''}<div class="detail-grid detail-spaced"><div class="detail-card"><p>Creata</p><strong>${dateTime(job.created_at)}</strong></div><div class="detail-card"><p>Avviata</p><strong>${dateTime(job.started_at)}</strong></div><div class="detail-card"><p>Completata</p><strong>${dateTime(job.completed_at)}</strong></div></div><section class="detail-section"><h4>Risultato tecnico</h4>${result}</section><div class="modal-actions">${renderJobActions(job)}</div>`;
+    $('#jobDialogBody').querySelectorAll('.job-document-button').forEach(button => button.addEventListener('click', () => openDocument(button.dataset.documentId)));
+    $('#jobDialogBody').querySelectorAll('.job-retry-button').forEach(button => button.addEventListener('click', () => retryJob(button.dataset.jobId, button)));
+    $('#jobDialogBody').querySelectorAll('.job-cancel-button').forEach(button => button.addEventListener('click', () => cancelJob(button.dataset.jobId, button)));
+    $('#jobDialogBody').querySelectorAll('.job-detail-button').forEach(button => button.remove());
+    $('#jobDialog').showModal();
+  } catch (error) { toast(error.message, true); }
+}
+
+async function retryJob(id, button) {
+  if (button) button.disabled = true;
+  try {
+    const result = await api(`/api/jobs/${id}/retry`, { method: 'POST' });
+    $('#jobDialog')?.close();
+    toast(`Nuovo tentativo creato: ${result.job.id.slice(0, 8)}.`);
+    await loadJobs(false);
+  } catch (error) { toast(error.message, true); }
+  finally { if (button) button.disabled = false; }
+}
+
+async function cancelJob(id, button) {
+  if (button) button.disabled = true;
+  try {
+    await api(`/api/jobs/${id}`, { method: 'DELETE' });
+    $('#jobDialog')?.close();
+    toast('Attività annullata.');
+    await loadJobs(false);
+  } catch (error) { toast(error.message, true); }
+  finally { if (button) button.disabled = false; }
+}
+
+function openReprocessDialog(document) {
+  state.selectedDocument = document;
+  $('#reprocessDocumentId').value = document.id;
+  $('#reprocessDocumentType').value = document.document_type;
+  $('#reprocessNumber').value = document.number || '';
+  $('#reprocessSupplier').value = document.supplier || '';
+  $('#reprocessDate').value = document.document_date || '';
+  $('#reprocessMessage').textContent = document.parse_message
+    ? `Errore corrente: ${document.parse_message}`
+    : 'La rielaborazione usa il file originale e conserva l’ultima estrazione valida se il nuovo tentativo fallisce.';
+  $('#reprocessDialog').showModal();
+}
+
+async function submitReprocess(event) {
+  event.preventDefault();
+  const button = $('#reprocessSubmitButton');
+  button.disabled = true;
+  try {
+    const documentId = $('#reprocessDocumentId').value;
+    const payload = {
+      document_type: $('#reprocessDocumentType').value || null,
+      number: $('#reprocessNumber').value.trim() || null,
+      supplier_name: $('#reprocessSupplier').value.trim() || null,
+      document_date: $('#reprocessDate').value || null,
+    };
+    const result = await api(`/api/jobs/documents/${documentId}/reprocess`, {
+      method: 'POST',
+      headers: { 'Idempotency-Key': window.crypto?.randomUUID?.() || `reprocess-${Date.now()}` },
+      body: JSON.stringify(payload),
+    });
+    $('#reprocessDialog').close();
+    $('#documentDialog').close();
+    toast(`Rielaborazione in coda: ${result.job.id.slice(0, 8)}.`);
+    await openView('jobs');
+  } catch (error) { toast(error.message, true); }
+  finally { button.disabled = false; }
 }
 
 async function loadAudit() {
@@ -654,8 +805,14 @@ async function openCase(id) {
 async function openDocument(id, lineId = null) {
   try {
     const d = await api(`/api/documents/${id}`);
+    state.selectedDocument = d;
     $('#documentDialogTitle').textContent = d.number || d.source_filename;
-    $('#documentDialogBody').innerHTML = `<div class="detail-grid"><div class="detail-card"><p>Tipo</p><strong>${labelType(d.document_type)}</strong></div><div class="detail-card"><p>Fornitore</p><strong>${escapeHtml(d.supplier || '—')}</strong></div><div class="detail-card"><p>Stato</p><strong>${labelStatus(d.parse_status)}</strong></div></div>${d.parse_message ? `<div class="detail-card detail-spaced"><p>Messaggio parser</p><strong>${escapeHtml(d.parse_message)}</strong></div>` : ''}<div class="lines-table"><table><thead><tr><th>Riga</th><th>Articolo</th><th>Variante</th><th>Quantità</th><th>Prezzo</th><th>Sconto</th></tr></thead><tbody>${d.lines.length ? d.lines.map(l => `<tr data-line-id="${escapeHtml(l.id)}" class="${lineId === l.id ? 'document-row-highlight' : ''}"><td>${l.line_no}</td><td><strong>${escapeHtml(l.sku || '—')}</strong><small>${escapeHtml(l.description || '')}</small></td><td>${escapeHtml([l.color,l.size,l.lot].filter(Boolean).join(' / ') || '—')}</td><td>${numberOrDash(l.quantity)}</td><td>${moneyOrDash(l.unit_price)}</td><td>${percentOrDash(l.discount_rate)}</td></tr>`).join('') : `<tr><td colspan="6" class="empty-state">Nessuna riga estratta.</td></tr>`}</tbody></table></div>`;
+    const canReview = ['admin', 'reviewer'].includes(state.user?.role);
+    const errorPanel = d.parse_message ? `<div class="persistent-error" role="alert"><strong>${d.parse_status === 'failed' ? 'Il documento richiede intervento' : 'Messaggio di elaborazione'}</strong><p>${escapeHtml(d.parse_message)}</p></div>` : '';
+    const actions = `<div class="document-actions"><button id="documentOriginalButton" class="secondary-button" type="button">Apri originale</button>${canReview ? '<button id="documentReprocessButton" class="primary-button" type="button">Correggi e rielabora</button>' : ''}</div>`;
+    $('#documentDialogBody').innerHTML = `<div class="detail-grid"><div class="detail-card"><p>Tipo</p><strong>${labelType(d.document_type)}</strong></div><div class="detail-card"><p>Fornitore</p><strong>${escapeHtml(d.supplier || '—')}</strong></div><div class="detail-card"><p>Stato</p><strong>${labelStatus(d.parse_status)}</strong></div></div>${errorPanel}${actions}<div class="lines-table"><table><thead><tr><th>Riga</th><th>Articolo</th><th>Variante</th><th>Quantità</th><th>Prezzo</th><th>Sconto</th></tr></thead><tbody>${d.lines.length ? d.lines.map(l => `<tr data-line-id="${escapeHtml(l.id)}" class="${lineId === l.id ? 'document-row-highlight' : ''}"><td>${l.line_no}</td><td><strong>${escapeHtml(l.sku || '—')}</strong><small>${escapeHtml(l.description || '')}</small></td><td>${escapeHtml([l.color,l.size,l.lot].filter(Boolean).join(' / ') || '—')}</td><td>${numberOrDash(l.quantity)}</td><td>${moneyOrDash(l.unit_price)}</td><td>${percentOrDash(l.discount_rate)}</td></tr>`).join('') : `<tr><td colspan="6" class="empty-state">Nessuna riga estratta.</td></tr>`}</tbody></table></div>`;
+    $('#documentOriginalButton')?.addEventListener('click', event => openOriginalDocument(d.id, event.currentTarget));
+    $('#documentReprocessButton')?.addEventListener('click', () => openReprocessDialog(d));
     $('#documentDialog').showModal();
     if (lineId) {
       const selected = $('#documentDialogBody').querySelector(`[data-line-id="${CSS.escape(lineId)}"]`);
@@ -709,6 +866,7 @@ async function uploadDocument(event) {
   progressText.textContent = 'Caricamento nella coda persistente…';
   progressRow.classList.remove('hidden');
   form.querySelector('button[type="submit"]').disabled = true;
+  let queuedJobId = null;
   try {
     const idempotencyKey = window.crypto?.randomUUID?.() || `upload-${Date.now()}-${Math.random()}`;
     const queued = await api(isBatch ? '/api/jobs/batches' : '/api/jobs/documents', {
@@ -716,7 +874,8 @@ async function uploadDocument(event) {
       body: data,
       headers: { 'Idempotency-Key': idempotencyKey },
     });
-    const completed = await waitForJob(queued.job.id, progressText);
+    queuedJobId = queued.job.id;
+    const completed = await waitForJob(queuedJobId, progressText);
     $('#uploadDialog').close();
     form.reset();
     if (!completed) {
@@ -733,7 +892,13 @@ async function uploadDocument(event) {
       toast('Documento analizzato e collegato.');
     }
     await refreshAll();
-  } catch (error) { toast(error.message, true); }
+  } catch (error) {
+    toast(error.message, true);
+    if (queuedJobId) {
+      $('#uploadDialog').close();
+      await openView('jobs');
+    }
+  }
   finally {
     progressText.textContent = 'Analisi in corso…';
     progressRow.classList.add('hidden');
@@ -756,7 +921,7 @@ function labelType(value) { return ({proposal:'Proposta',order:'Ordine',confirma
 function labelSeverity(value) { return ({critical:'Critica',high:'Alta',medium:'Media',low:'Bassa'})[value] || value; }
 function severitySymbol(value) { return ({critical:'!!',high:'!',medium:'·',low:'i'})[value] || '?'; }
 function labelRole(value) { return ({admin:'Amministratore',reviewer:'Revisore',viewer:'Sola lettura'})[value] || value; }
-function labelStatus(value) { return ({parsed:'Letto',review_required:'Da rivedere',failed:'Fallito',open:'Aperta',needs_review:'Da rivedere',confirmed:'Confermata',dismissed:'Scartata',resolved:'Risolta',superseded:'Superata',review:'In revisione',clear:'Regolare',processing:'In elaborazione'})[value] || value || '—'; }
+function labelStatus(value) { return ({queued:'In attesa',running:'In corso',completed:'Completata',cancelled:'Annullata',parsed:'Letto',review_required:'Da rivedere',failed:'Fallito',open:'Aperta',needs_review:'Da rivedere',confirmed:'Confermata',dismissed:'Scartata',resolved:'Risolta',superseded:'Superata',review:'In revisione',clear:'Regolare',processing:'In elaborazione'})[value] || value || '—'; }
 function markList(values) { const count = Array.isArray(values) ? values.length : 0; return count ? `<span class="badge parsed">${count}</span>` : '<span class="muted-dash">—</span>'; }
 
 $('#loginTab').addEventListener('click', () => switchAuth('login'));
@@ -768,6 +933,7 @@ $('#mainNav').addEventListener('click', (e) => { const button = e.target.closest
 $$('[data-go]').forEach(el => el.addEventListener('click', () => openView(el.dataset.go)));
 $('#openUploadButton').addEventListener('click', () => $('#uploadDialog').showModal());
 $('#uploadForm').addEventListener('submit', uploadDocument);
+$('#reprocessForm').addEventListener('submit', submitReprocess);
 $('#demoButton').addEventListener('click', loadDemo);
 $('#exportButton').addEventListener('click', exportData);
 $('#runDiscoveryButton').addEventListener('click', runDiscovery);
@@ -785,6 +951,13 @@ $('#documentTypeFilter').addEventListener('change', loadDocuments);
 $('#documentStatusFilter').addEventListener('change', loadDocuments);
 $('#caseStatusFilter').addEventListener('change', loadCases);
 $('#caseSeverityFilter').addEventListener('change', loadCases);
+$('#jobStatusFilter').addEventListener('change', () => loadJobs(true));
+$('#jobTypeFilter').addEventListener('change', () => loadJobs(true));
+$('#refreshJobsButton').addEventListener('click', () => loadJobs(false));
+$('#jobsPreviousButton').addEventListener('click', () => { state.jobsOffset = Math.max(0, state.jobsOffset - state.jobsLimit); loadJobs(false); });
+$('#jobsNextButton').addEventListener('click', () => { state.jobsOffset += state.jobsLimit; loadJobs(false); });
+let jobSearchTimer = null;
+$('#jobSearchInput').addEventListener('input', () => { clearTimeout(jobSearchTimer); jobSearchTimer = window.setTimeout(() => loadJobs(true), 300); });
 
 (async function boot() {
   try {

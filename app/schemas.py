@@ -50,6 +50,12 @@ class ReadinessResponse(BaseModel):
     details: dict[str, Any] = Field(default_factory=dict)
 
 
+class ProcessingJobContextResponse(BaseModel):
+    filename: str | None = None
+    document_id: str | None = None
+    retry_of: str | None = None
+
+
 class ProcessingJobResponse(BaseModel):
     id: str
     job_type: str
@@ -63,6 +69,17 @@ class ProcessingJobResponse(BaseModel):
     started_at: datetime | None = None
     completed_at: datetime | None = None
     result: dict[str, Any] = Field(default_factory=dict)
+    context: ProcessingJobContextResponse = Field(default_factory=ProcessingJobContextResponse)
+    can_cancel: bool = False
+    can_retry: bool = False
+
+
+class ProcessingJobListResponse(BaseModel):
+    items: list[ProcessingJobResponse]
+    total: int
+    limit: int
+    offset: int
+    status_counts: dict[str, int] = Field(default_factory=dict)
 
 
 class ProcessingJobEnvelopeResponse(BaseModel):
