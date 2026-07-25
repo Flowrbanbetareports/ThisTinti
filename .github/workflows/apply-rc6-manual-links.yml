@@ -1,3 +1,4 @@
+# Temporary transport workflow; product changes are applied by the guarded main workflow.
 name: Apply RC6 Manual Links Patch
 
 on:
