@@ -1,22 +1,21 @@
 name: Apply RC6 Evidence Workflow Patch
 
 on:
-  push:
-    branches:
-      - codex/rc6-evidence-critical
-    paths:
-      - ".automation/rc6-evidence.patch.gz.b64"
-      - ".github/workflows/apply-rc6-evidence.yml"
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: apply-rc6-evidence-${{ github.ref }}
+  group: apply-rc6-evidence-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: false
 
 jobs:
   apply:
+    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/rc6-evidence-critical'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
