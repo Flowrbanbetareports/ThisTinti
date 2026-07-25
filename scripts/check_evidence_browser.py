@@ -111,6 +111,11 @@ def route_api(route: Route) -> None:
         route.fulfill(status=404, json={"detail": "not mocked"})
 
 
+def require(condition: bool, message: str) -> None:
+    if not condition:
+        raise RuntimeError(message)
+
+
 def main() -> None:
     executable = browser_executable()
     with sync_playwright() as playwright:
@@ -127,16 +132,22 @@ def main() -> None:
           await window.openCase('case-critical');
         }""")
         page.wait_for_selector("#caseDialog[open]")
-        assert page.locator("#caseDialogBody .badge.critical").is_visible()
-        assert page.get_by_role("button", name="Apri riga estratta").is_visible()
-        assert page.get_by_role("button", name="Apri originale").is_visible()
+        require(page.locator("#caseDialogBody .badge.critical").is_visible(), "Critical severity badge is not visible")
+        require(
+            page.get_by_role("button", name="Apri riga estratta").is_visible(),
+            "Extracted-line action is not visible",
+        )
+        require(page.get_by_role("button", name="Apri originale").is_visible(), "Original-file action is not visible")
 
         page.get_by_role("button", name="Apri riga estratta").click()
         page.wait_for_selector("#documentDialog[open]")
         highlighted = page.locator('tr[data-line-id="line-2"]')
-        assert highlighted.is_visible()
-        assert "document-row-highlight" in (highlighted.get_attribute("class") or "")
-        assert page.get_by_text("Riga sorgente", exact=True).is_visible()
+        require(highlighted.is_visible(), "Source row line-2 is not visible")
+        require(
+            "document-row-highlight" in (highlighted.get_attribute("class") or ""),
+            "Source row line-2 is not highlighted",
+        )
+        require(page.get_by_text("Riga sorgente", exact=True).is_visible(), "Source-row label is not visible")
 
         result = {
             "critical_label": True,
