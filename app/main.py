@@ -1933,9 +1933,7 @@ def list_cases(
         else_=0,
     )
     cases = list(
-        db.scalars(
-            stmt.order_by(severity_rank.desc(), DiscrepancyCase.created_at.desc()).offset(offset).limit(limit)
-        )
+        db.scalars(stmt.order_by(severity_rank.desc(), DiscrepancyCase.created_at.desc()).offset(offset).limit(limit))
     )
     return [_case_json(case) for case in cases]
 

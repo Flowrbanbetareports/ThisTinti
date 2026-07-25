@@ -39,12 +39,23 @@ def test_evidence_references_real_document_and_line(client, auth):
         "document_type": "order",
         "number": "ORDER-EVIDENCE",
         "supplier_name": "Line Evidence Supplier",
-        "lines": [{"sku": "E-1", "description": "Riga da evidenziare", "quantity": 3, "unit_price": 10, "discount_rate": 0, "line_total": 40}],
+        "lines": [
+            {
+                "sku": "E-1",
+                "description": "Riga da evidenziare",
+                "quantity": 3,
+                "unit_price": 10,
+                "discount_rate": 0,
+                "line_total": 40,
+            }
+        ],
     }
     response = upload(client, auth, "line-evidence.json", payload)
     assert response.status_code == 201, response.text
 
-    case = next(item for item in client.get("/api/cases", headers=auth).json() if item["case_type"] == "line_total_mismatch")
+    case = next(
+        item for item in client.get("/api/cases", headers=auth).json() if item["case_type"] == "line_total_mismatch"
+    )
     evidence = case["evidence"][0]
     assert evidence["document_id"]
     assert evidence["document_line_id"]
