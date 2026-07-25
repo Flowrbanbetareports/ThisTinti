@@ -66,15 +66,23 @@ jobs:
           pytest -q tests/test_chain_link_options.py tests/test_simplified_experience.py
           node --check app/static/app-core.js
           git diff --check
-      - name: Commit product changes and remove transport files
+      - name: Commit verified product changes
         shell: bash
         run: |
           set -euo pipefail
-          rm -f .automation/rc6-manual-links.patch.gz.b64
-          rm -f .automation/rc6-manual-links.patch.gz.b64.part*
-          rm -f .github/workflows/apply-rc6-manual-links.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
+          git add \
+            .github/workflows/simplified-experience.yml \
+            app/main.py \
+            app/schemas.py \
+            app/services/matching.py \
+            app/static/app-core.js \
+            app/static/styles-original.css \
+            docs/USER_GUIDE_SIMPLE.md \
+            docs/openapi.json \
+            scripts/check_chain_links_browser.py \
+            tests/test_chain_link_options.py \
+            tests/test_simplified_experience.py
           git commit -m "RC6 Manual Links: supervised attach, detach and reanalysis"
           git push origin HEAD:codex/rc6-manual-links
