@@ -38,23 +38,24 @@ jobs:
           git apply /tmp/rc6-manual-links.patch
       - name: Install locked development dependencies
         run: pip install -r requirements-dev.txt
-      - name: Normalize Python and generated contracts
+      - name: Format changed Python files
         shell: bash
         run: |
           set -euo pipefail
-          ruff format \
+          python -m ruff format \
             app/main.py \
             app/schemas.py \
             app/services/matching.py \
             scripts/check_chain_links_browser.py \
             tests/test_chain_link_options.py \
             tests/test_simplified_experience.py
-          python scripts/generate_openapi.py
+      - name: Regenerate OpenAPI contract
+        run: python scripts/generate_openapi.py
       - name: Verify focused regressions
         shell: bash
         run: |
           set -euo pipefail
-          ruff check \
+          python -m ruff check \
             app/main.py \
             app/schemas.py \
             app/services/matching.py \
