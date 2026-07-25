@@ -10,8 +10,8 @@ from .base import (
     ParseError,
     effective_discount_rate,
     parse_date,
-    safe_decimal,
-    safe_float,
+    parse_decimal_field,
+    parse_integer_field,
 )
 
 ROOT_TYPES = {
@@ -137,16 +137,31 @@ def parse_ubl_root(root: etree._Element, overrides: dict) -> ParsedDocument:
         line_items = node.xpath("./*[local-name()='LineItem']")
         if line_items:
             line_node = line_items[0]
-        quantity = Decimal("0")
+        line_id = _direct_text(node, "ID") or str(index)
+        line_no = (
+            parse_integer_field(line_id, field="line_no", line=index, default=index, minimum=1)
+            if line_id.strip().isdigit()
+            else index
+        )
+        provenance: dict[str, str] = {}
+        quantity_text = None
         unit_of_measure = None
         for quantity_name in QUANTITY_NAMES:
             quantity_node = _direct_node(line_node, quantity_name)
             if quantity_node is None:
                 quantity_node = _direct_node(node, quantity_name)
             if quantity_node is not None and quantity_node.text is not None:
-                quantity = safe_decimal(quantity_node.text)
+                quantity_text = quantity_node.text
                 unit_of_measure = quantity_node.get("unitCode")
                 break
+        quantity = parse_decimal_field(
+            quantity_text,
+            field="quantity",
+            line=line_no,
+            required=True,
+            provenance=provenance,
+            max_decimal_places=8,
+        )
         item = line_node.xpath("./*[local-name()='Item']") or node.xpath("./*[local-name()='Item']")
         item_node = item[0] if item else line_node
         sku = _first_text(
@@ -161,40 +176,95 @@ def parse_ubl_root(root: etree._Element, overrides: dict) -> ParsedDocument:
         if price_node is None:
             price_node = _direct_node(node, "Price")
         price = _direct_text(price_node, "PriceAmount") if price_node is not None else None
-        unit_price = safe_decimal(price)
-        base_qty = safe_decimal(_direct_text(price_node, "BaseQuantity") if price_node is not None else None, 1)
-        if base_qty == 0:
-            base_qty = Decimal("1")
-        tax = safe_decimal(
+        unit_price = parse_decimal_field(
+            price,
+            field="unit_price",
+            line=line_no,
+            required=detected not in {"delivery"},
+            provenance=provenance,
+            max_decimal_places=10,
+        )
+        base_qty = parse_decimal_field(
+            _direct_text(price_node, "BaseQuantity") if price_node is not None else None,
+            field="price_base_quantity",
+            line=line_no,
+            default=1,
+            provenance=provenance,
+            missing_provenance="defaulted",
+            max_decimal_places=8,
+            exclusive_minimum=0,
+        )
+        tax = parse_decimal_field(
             _first_text(
                 line_node,
                 ".//*[local-name()='ClassifiedTaxCategory']/*[local-name()='Percent']/text()",
             )
-            or _first_text(node, ".//*[local-name()='TaxCategory']/*[local-name()='Percent']/text()")
+            or _first_text(node, ".//*[local-name()='TaxCategory']/*[local-name()='Percent']/text()"),
+            field="tax_rate",
+            line=line_no,
+            provenance=provenance,
+            max_decimal_places=8,
+            minimum=0,
+            maximum=100,
         )
         discounts: list[Decimal] = []
         charges: list[Decimal] = []
         allowance_details: list[dict] = []
+        unsupported_allowance_amount = False
         for allowance in line_node.xpath("./*[local-name()='AllowanceCharge']"):
             charge = (_direct_text(allowance, "ChargeIndicator") or "false").lower() == "true"
-            percent = safe_decimal(_direct_text(allowance, "MultiplierFactorNumeric"))
+            percent_text = _direct_text(allowance, "MultiplierFactorNumeric")
+            amount_text = _direct_text(allowance, "Amount")
+            percent = parse_decimal_field(
+                percent_text,
+                field="charge_rate" if charge else "discount_rate",
+                line=line_no,
+                max_decimal_places=8,
+                minimum=0,
+            )
             if Decimal("0") < percent <= Decimal("1"):
                 percent *= Decimal("100")
-            amount = safe_decimal(_direct_text(allowance, "Amount"))
+            if percent > Decimal("100"):
+                raise ParseError(
+                    f"Valore numerico fuori intervallo nel campo {'charge_rate' if charge else 'discount_rate'}: {percent_text}",
+                    code="invalid_numeric_value",
+                    line=line_no,
+                    field="charge_rate" if charge else "discount_rate",
+                    value=percent_text,
+                    reason="Il valore percentuale deve essere compreso tra 0 e 100",
+                )
+            amount = parse_decimal_field(
+                amount_text,
+                field="charge_amount" if charge else "discount_amount",
+                line=line_no,
+                max_decimal_places=8,
+                minimum=0,
+            )
             if percent:
                 (charges if charge else discounts).append(percent)
+            elif amount:
+                unsupported_allowance_amount = True
             allowance_details.append({"charge": charge, "percent": str(percent), "amount": str(amount)})
         discount = effective_discount_rate(discounts, charges)
+        provenance["discount_rate"] = "derived" if discounts or charges else "missing"
         expected_total = quantity * unit_price / base_qty * (Decimal("1") - discount / Decimal("100"))
-        line_total = safe_decimal(
-            _direct_text(line_node, "LineExtensionAmount") or _direct_text(node, "LineExtensionAmount"),
-            expected_total,
-        )
+        line_total_text = _direct_text(line_node, "LineExtensionAmount") or _direct_text(node, "LineExtensionAmount")
+        if line_total_text in (None, ""):
+            line_total = expected_total
+            provenance["line_total"] = "derived" if provenance.get("unit_price") == "source" else "missing"
+        else:
+            line_total = parse_decimal_field(
+                line_total_text,
+                field="line_total",
+                line=line_no,
+                required=True,
+                provenance=provenance,
+                max_decimal_places=8,
+            )
         color, size, lot = _item_properties(item_node)
-        line_id = _direct_text(node, "ID") or str(index)
         doc.lines.append(
             ParsedLine(
-                line_no=int(safe_float(line_id, index)),
+                line_no=line_no,
                 sku=sku,
                 description=description,
                 color=color,
@@ -214,9 +284,17 @@ def parse_ubl_root(root: etree._Element, overrides: dict) -> ParsedDocument:
                     "discount_components": [str(value) for value in discounts],
                     "charge_components": [str(value) for value in charges],
                     "allowance_details": allowance_details,
+                    "ubl_line_id": line_id,
+                    "numeric_provenance": provenance,
+                    "requires_allowance_review": unsupported_allowance_amount,
                 },
             )
         )
+        if unsupported_allowance_amount:
+            doc.message = (
+                "Sono presenti sconti o maggiorazioni UBL espressi soltanto come importo: "
+                "verificare manualmente il calcolo della riga."
+            )
 
     if not doc.lines:
         doc.confidence = 0.55

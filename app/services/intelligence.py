@@ -25,6 +25,7 @@ from ..models import (
 )
 from ..version import MIN_AUTOMATION_VALIDATION_SCENARIOS, RELEASE_VERSION
 from .normalizer import normalize_code, normalize_text
+from .numeric_fields import all_numeric_available
 
 ROLE_ORDER = (
     "proposal",
@@ -193,9 +194,10 @@ def _likely_physical_goods(documents: list[Document]) -> bool:
 
 
 def _document_total(document: Document) -> Decimal:
-    line_total = sum((_decimal(line.line_total) for line in document.lines), Decimal("0"))
-    if line_total:
-        return _money(abs(line_total))
+    if all_numeric_available(document.lines, "line_total"):
+        line_total = sum((_decimal(line.line_total) for line in document.lines), Decimal("0"))
+        if line_total:
+            return _money(abs(line_total))
     for source in (document.metadata_json, document.references_json):
         try:
             payload = json.loads(source or "{}")

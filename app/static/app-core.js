@@ -14,6 +14,9 @@ const state = {
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 const money = (value) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(Number(value || 0));
+const moneyOrDash = (value) => value === null || value === undefined ? '—' : money(value);
+const numberOrDash = (value) => value === null || value === undefined ? '—' : value;
+const percentOrDash = (value) => value === null || value === undefined ? '—' : `${value}%`;
 function messageFrom(value, fallback = 'Operazione non riuscita.') {
   if (value === null || value === undefined || value === '') return fallback;
   if (value instanceof Error) return messageFrom(value.message, fallback);
@@ -217,7 +220,7 @@ async function loadChains() {
 
 function comparisonCell(value) {
   if (!value) return '<span class="muted-dash">—</span>';
-  return `<strong>${value.quantity}</strong><small>${money(value.unit_price)} · sconto ${value.discount_rate}%</small>`;
+  return `<strong>${numberOrDash(value.quantity)}</strong><small>${moneyOrDash(value.unit_price)} · sconto ${percentOrDash(value.discount_rate)}</small>`;
 }
 
 async function openChain(id) {
@@ -607,7 +610,7 @@ async function openCase(id) {
 async function openDocument(id) {
   const d = await api(`/api/documents/${id}`);
   $('#documentDialogTitle').textContent = d.number || d.source_filename;
-  $('#documentDialogBody').innerHTML = `<div class="detail-grid"><div class="detail-card"><p>Tipo</p><strong>${labelType(d.document_type)}</strong></div><div class="detail-card"><p>Fornitore</p><strong>${escapeHtml(d.supplier || '—')}</strong></div><div class="detail-card"><p>Stato</p><strong>${labelStatus(d.parse_status)}</strong></div></div>${d.parse_message ? `<div class="detail-card detail-spaced"><p>Messaggio parser</p><strong>${escapeHtml(d.parse_message)}</strong></div>` : ''}<div class="lines-table"><table><thead><tr><th>Riga</th><th>Articolo</th><th>Variante</th><th>Quantità</th><th>Prezzo</th><th>Sconto</th></tr></thead><tbody>${d.lines.length ? d.lines.map(l => `<tr><td>${l.line_no}</td><td><strong>${escapeHtml(l.sku || '—')}</strong><small>${escapeHtml(l.description || '')}</small></td><td>${escapeHtml([l.color,l.size,l.lot].filter(Boolean).join(' / ') || '—')}</td><td>${l.quantity}</td><td>${money(l.unit_price)}</td><td>${l.discount_rate}%</td></tr>`).join('') : `<tr><td colspan="6" class="empty-state">Nessuna riga estratta.</td></tr>`}</tbody></table></div>`;
+  $('#documentDialogBody').innerHTML = `<div class="detail-grid"><div class="detail-card"><p>Tipo</p><strong>${labelType(d.document_type)}</strong></div><div class="detail-card"><p>Fornitore</p><strong>${escapeHtml(d.supplier || '—')}</strong></div><div class="detail-card"><p>Stato</p><strong>${labelStatus(d.parse_status)}</strong></div></div>${d.parse_message ? `<div class="detail-card detail-spaced"><p>Messaggio parser</p><strong>${escapeHtml(d.parse_message)}</strong></div>` : ''}<div class="lines-table"><table><thead><tr><th>Riga</th><th>Articolo</th><th>Variante</th><th>Quantità</th><th>Prezzo</th><th>Sconto</th></tr></thead><tbody>${d.lines.length ? d.lines.map(l => `<tr><td>${l.line_no}</td><td><strong>${escapeHtml(l.sku || '—')}</strong><small>${escapeHtml(l.description || '')}</small></td><td>${escapeHtml([l.color,l.size,l.lot].filter(Boolean).join(' / ') || '—')}</td><td>${numberOrDash(l.quantity)}</td><td>${moneyOrDash(l.unit_price)}</td><td>${percentOrDash(l.discount_rate)}</td></tr>`).join('') : `<tr><td colspan="6" class="empty-state">Nessuna riga estratta.</td></tr>`}</tbody></table></div>`;
   $('#documentDialog').showModal();
 }
 

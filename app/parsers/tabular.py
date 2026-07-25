@@ -1,12 +1,20 @@
 from __future__ import annotations
 
 import csv
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
 from openpyxl import load_workbook
 
-from .base import ParsedDocument, ParsedLine, ParseError, parse_date, safe_decimal, safe_float
+from .base import (
+    ParsedDocument,
+    ParsedLine,
+    ParseError,
+    parse_date,
+    parse_decimal_field,
+    parse_integer_field,
+)
 from ..services.normalizer import normalize_text
 
 ALIASES = {
@@ -80,17 +88,67 @@ def parse_tabular(path: Path, overrides: dict) -> ParsedDocument:
             pos = mapping.get(field)
             return row[pos] if pos is not None and pos < len(row) else None
 
-        qty = safe_decimal(val("quantity"))
-        unit_price = safe_decimal(val("unit_price"))
-        discount = safe_decimal(val("discount_rate"))
-        base_qty = safe_decimal(val("price_base_quantity"), 1)
-        if base_qty == 0:
-            base_qty = safe_decimal(1)
-        expected = qty * unit_price / base_qty * (safe_decimal(1) - discount / safe_decimal(100))
-        total = safe_decimal(val("line_total"), expected)
+        line_number = parse_integer_field(val("line_no"), field="line_no", line=idx, default=idx - 1, minimum=1)
+        provenance: dict[str, str] = {}
+        qty = parse_decimal_field(
+            val("quantity"),
+            field="quantity",
+            line=idx,
+            required=True,
+            provenance=provenance,
+            max_decimal_places=4,
+        )
+        unit_price = parse_decimal_field(
+            val("unit_price"),
+            field="unit_price",
+            line=idx,
+            provenance=provenance,
+            max_decimal_places=6,
+        )
+        discount = parse_decimal_field(
+            val("discount_rate"),
+            field="discount_rate",
+            line=idx,
+            provenance=provenance,
+            max_decimal_places=6,
+            minimum=0,
+            maximum=100,
+        )
+        base_qty = parse_decimal_field(
+            val("price_base_quantity"),
+            field="price_base_quantity",
+            line=idx,
+            default=1,
+            provenance=provenance,
+            missing_provenance="defaulted",
+            max_decimal_places=4,
+            exclusive_minimum=0,
+        )
+        tax = parse_decimal_field(
+            val("tax_rate"),
+            field="tax_rate",
+            line=idx,
+            provenance=provenance,
+            max_decimal_places=6,
+            minimum=0,
+            maximum=100,
+        )
+        expected = qty * unit_price / base_qty * (Decimal("1") - discount / Decimal("100"))
+        if val("line_total") in (None, ""):
+            total = expected
+            provenance["line_total"] = "derived" if provenance.get("unit_price") == "source" else "missing"
+        else:
+            total = parse_decimal_field(
+                val("line_total"),
+                field="line_total",
+                line=idx,
+                required=True,
+                provenance=provenance,
+                max_decimal_places=2,
+            )
         doc.lines.append(
             ParsedLine(
-                line_no=int(safe_float(val("line_no"), idx - 1)),
+                line_no=line_number,
                 sku=str(val("sku")).strip() if val("sku") not in (None, "") else None,
                 description=str(val("description")).strip() if val("description") not in (None, "") else None,
                 color=str(val("color")).strip() if val("color") not in (None, "") else None,
@@ -103,10 +161,10 @@ def parse_tabular(path: Path, overrides: dict) -> ParsedDocument:
                 unit_price=unit_price,
                 price_base_quantity=base_qty,
                 discount_rate=discount,
-                tax_rate=safe_decimal(val("tax_rate")),
+                tax_rate=tax,
                 line_total=total,
                 confidence=0.94,
-                raw={"row": idx},
+                raw={"row": idx, "numeric_provenance": provenance},
             )
         )
     if not doc.lines:

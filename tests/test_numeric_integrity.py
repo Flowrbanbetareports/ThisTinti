@@ -1,12 +1,57 @@
 import json
+from datetime import date
+from decimal import Decimal
 
-from app.parsers.base import safe_float
+import pytest
+
+from app.parsers.base import (
+    ParseError,
+    parse_date,
+    parse_decimal_field,
+    parse_file,
+    parse_integer_field,
+    safe_decimal,
+    safe_float,
+)
 
 
 def test_non_finite_numbers_are_rejected_by_parser_helper():
-    assert safe_float("NaN", 7.0) == 7.0
-    assert safe_float("Infinity", 8.0) == 8.0
-    assert safe_float("-Infinity", 9.0) == 9.0
+    for value in ("NaN", "Infinity", "-Infinity"):
+        with pytest.raises(ParseError, match="finito"):
+            safe_float(value, 7.0)
+
+
+def test_decimal_helper_preserves_locale_values_and_explicit_defaults():
+    assert safe_decimal("1.234,50") == Decimal("1234.50")
+    assert safe_decimal("12,5") == Decimal("12.5")
+    assert safe_decimal(None, Decimal("7")) == Decimal("7")
+    assert safe_decimal(Decimal("2.5")) == Decimal("2.5")
+
+
+def test_decimal_helper_rejects_boolean_range_and_precision_errors():
+    with pytest.raises(ParseError) as boolean_error:
+        safe_decimal(True)
+    assert "booleani" in boolean_error.value.reason
+    with pytest.raises(ParseError, match="fuori intervallo"):
+        parse_decimal_field("123456789", field="amount", max_integral_digits=8)
+    with pytest.raises(ParseError, match="fuori intervallo"):
+        parse_decimal_field("-1", field="rate", minimum=0)
+    with pytest.raises(ParseError, match="fuori intervallo"):
+        parse_decimal_field("101", field="rate", maximum=100)
+    with pytest.raises(ParseError, match="mancante"):
+        parse_integer_field(None, field="line_no")
+    with pytest.raises(ParseError, match="intero"):
+        parse_integer_field(-1, field="line_no", minimum=1)
+
+
+def test_parser_helpers_cover_dates_and_unsupported_formats(tmp_path):
+    expected = date(2026, 7, 25)
+    assert parse_date(expected) is expected
+    assert parse_date("not-a-date") is None
+    unsupported = tmp_path / "document.txt"
+    unsupported.write_text("text", encoding="utf-8")
+    with pytest.raises(ParseError, match="non supportato"):
+        parse_file(unsupported, unsupported.name, "text/plain", {})
 
 
 def test_decimal_storage_avoids_binary_money_false_positive(client, auth):

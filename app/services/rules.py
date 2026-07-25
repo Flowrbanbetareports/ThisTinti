@@ -20,6 +20,7 @@ from ..models import (
 )
 from .line_matching import group_chain_lines
 from .normalizer import normalize_text
+from .numeric_fields import all_numeric_available, numeric_available
 from .units import canonical_unit_price, profiles_compatible, quantity_profile
 
 
@@ -138,7 +139,9 @@ def _money(value: Decimal | int | float | str) -> Decimal:
     return _decimal(value).quantize(MONEY_QUANTUM, rounding=ROUND_HALF_UP)
 
 
-def _document_total(document: Document) -> Decimal:
+def _document_total(document: Document) -> Decimal | None:
+    if not all_numeric_available(document.lines, "line_total"):
+        return None
     return _money(sum((abs(_decimal(line.line_total)) for line in document.lines), ZERO))
 
 
@@ -351,6 +354,8 @@ def analyze_chain(db: Session, chain: OperationChain) -> list[DiscrepancyCase]:
                 )
             )
         for line in document.lines:
+            if not all(numeric_available(line, field) for field in ("quantity", "unit_price", "line_total")):
+                continue
             observed_total = _decimal(line.line_total)
             expected_total = (
                 _decimal(line.quantity) * _source_unit_price(line) * (ONE - _decimal(line.discount_rate) / ONE_HUNDRED)
@@ -383,6 +388,12 @@ def analyze_chain(db: Session, chain: OperationChain) -> list[DiscrepancyCase]:
         cp, ip = _weighted_price(c), _weighted_price(i)
         cd, idis = _discount(c), _discount(i)
         ctax, itax = _tax(c), _tax(i)
+        commercial_price_available = all_numeric_available(c, "unit_price")
+        invoice_price_available = all_numeric_available(i, "unit_price")
+        commercial_discount_available = all_numeric_available(c, "discount_rate")
+        invoice_discount_available = all_numeric_available(i, "discount_rate")
+        commercial_tax_available = all_numeric_available(c, "tax_rate")
+        invoice_tax_available = all_numeric_available(i, "tax_rate")
         exemplar = (i or d or c)[0]
         label = exemplar.sku or exemplar.description or key
 
@@ -471,7 +482,7 @@ def analyze_chain(db: Session, chain: OperationChain) -> list[DiscrepancyCase]:
                 )
             )
 
-        if c_i_compatible and ip > cp + PRICE_EPSILON:
+        if c_i_compatible and commercial_price_available and invoice_price_available and ip > cp + PRICE_EPSILON:
             delta = ip - cp
             findings.append(
                 Finding(
@@ -490,7 +501,7 @@ def analyze_chain(db: Session, chain: OperationChain) -> list[DiscrepancyCase]:
                 )
             )
 
-        if i and c and cd > idis + RATE_EPSILON:
+        if i and c and commercial_discount_available and invoice_discount_available and cd > idis + RATE_EPSILON:
             gross = (iq or cq) * ip
             findings.append(
                 Finding(
@@ -509,7 +520,7 @@ def analyze_chain(db: Session, chain: OperationChain) -> list[DiscrepancyCase]:
                 )
             )
 
-        if i and c and abs(ctax - itax) > RATE_EPSILON:
+        if i and c and commercial_tax_available and invoice_tax_available and abs(ctax - itax) > RATE_EPSILON:
             findings.append(
                 Finding(
                     "tax_rate_mismatch",
@@ -573,17 +584,33 @@ def analyze_chain(db: Session, chain: OperationChain) -> list[DiscrepancyCase]:
             else:
                 seen[signature] = line
 
-    invoice_total = sum((_document_total(document) for document in invoices), ZERO)
-    payment_total = sum((_document_total(document) for document in payments), ZERO)
+    invoice_totals = [_document_total(document) for document in invoices]
+    payment_totals = [_document_total(document) for document in payments]
+    invoice_total = (
+        sum((total for total in invoice_totals if total is not None), ZERO)
+        if all(total is not None for total in invoice_totals)
+        else None
+    )
+    payment_total = (
+        sum((total for total in payment_totals if total is not None), ZERO)
+        if all(total is not None for total in payment_totals)
+        else None
+    )
     if payments and not invoices:
+        known_payment_total = payment_total or ZERO
         findings.append(
             Finding(
                 "payment_without_invoice",
                 "critical",
-                payment_total,
+                known_payment_total,
                 0.99,
                 "Pagamento senza fattura collegata",
-                f"Sono presenti pagamenti per €{payment_total:.2f} senza una fattura nella stessa catena.",
+                (
+                    f"Sono presenti pagamenti per €{known_payment_total:.2f} senza una fattura nella stessa catena."
+                    if payment_total is not None
+                    else "Sono presenti pagamenti senza una fattura nella stessa catena; "
+                    "l'importo non è determinabile dai dati disponibili."
+                ),
                 "Bloccare la riconciliazione e identificare la fattura o la causale corretta.",
                 "payment-without-invoice",
                 [
@@ -591,14 +618,20 @@ def analyze_chain(db: Session, chain: OperationChain) -> list[DiscrepancyCase]:
                         "document_id": payments[0].id,
                         "document_line_id": None,
                         "field_name": "payment_total",
-                        "observed_value": f"{payment_total:.2f}",
+                        "observed_value": f"{payment_total:.2f}" if payment_total is not None else None,
                         "expected_value": "fattura collegata",
                         "note": None,
                     }
                 ],
             )
         )
-    if invoices and payments and payment_total > invoice_total + Decimal("0.02"):
+    if (
+        invoices
+        and payments
+        and payment_total is not None
+        and invoice_total is not None
+        and payment_total > invoice_total + Decimal("0.02")
+    ):
         findings.append(
             Finding(
                 "payment_over_invoice",
@@ -634,7 +667,10 @@ def analyze_chain(db: Session, chain: OperationChain) -> list[DiscrepancyCase]:
         if not reference:
             # Equal amounts alone are not sufficient evidence of a duplicate payment.
             continue
-        signature = (reference, _document_total(payment))
+        total = _document_total(payment)
+        if total is None:
+            continue
+        signature = (reference, total)
         previous = payment_signatures.get(signature)
         if previous and signature[1] > ZERO:
             findings.append(

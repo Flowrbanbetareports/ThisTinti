@@ -87,12 +87,13 @@ class DocumentLineResponse(BaseModel):
     size: str | None
     lot: str | None
     unit_of_measure: str | None = None
-    quantity: float
-    unit_price: float
-    price_base_quantity: float = 1.0
-    discount_rate: float
-    tax_rate: float
-    line_total: float
+    quantity: float | None
+    unit_price: float | None
+    price_base_quantity: float | None = 1.0
+    discount_rate: float | None
+    tax_rate: float | None
+    line_total: float | None
+    numeric_provenance: dict[str, str] = Field(default_factory=dict)
     canonical_key: str | None
     confidence: float
 

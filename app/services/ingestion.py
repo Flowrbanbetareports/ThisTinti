@@ -21,6 +21,30 @@ from .normalizer import canonical_item_key, normalize_text
 from .rules import analyze_chain
 
 
+def document_parse_error_detail(document: Document) -> dict[str, Any]:
+    try:
+        metadata = json.loads(document.metadata_json or "{}")
+    except (TypeError, json.JSONDecodeError):
+        metadata = {}
+    detail = metadata.get("parse_error") if isinstance(metadata, dict) else None
+    if isinstance(detail, dict):
+        return {
+            **detail,
+            "document_id": document.id,
+            "document": detail.get("document") or document.source_filename,
+        }
+    return {
+        "code": "parse_error",
+        "message": document.parse_message or "Il documento non è stato interpretato",
+        "document_id": document.id,
+        "document": document.source_filename,
+        "line": None,
+        "field": None,
+        "value": None,
+        "reason": document.parse_message or "Il documento non è stato interpretato",
+    }
+
+
 def _hash_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -151,14 +175,17 @@ def ingest_path(
                     raw_json=json.dumps(line.raw, ensure_ascii=False, default=str),
                 )
             )
-        document.parse_status = "parsed" if parsed.lines else "review_required"
+        document.parse_status = "review_required" if parsed.message or not parsed.lines else "parsed"
         db.flush()
         chain = attach_document_to_chain(db, document)
         analyze_chain(db, chain)
         return document, None
     except ParseError as exc:
+        exc.with_document(original_name)
+        detail = exc.as_detail(document_id=document.id, document=original_name)
         document.parse_status = "failed"
         document.parse_message = str(exc)
+        document.metadata_json = json.dumps({"parse_error": detail}, ensure_ascii=False, default=str)
         document.confidence = 0.0
         db.flush()
         return document, "parse_failed"
@@ -249,7 +276,7 @@ def reprocess_document(db: Session, document: Document, overrides: dict[str, Any
                 raw_json=json.dumps(line.raw, ensure_ascii=False, default=str),
             )
         )
-    document.parse_status = "parsed" if parsed.lines else "review_required"
+    document.parse_status = "review_required" if parsed.message or not parsed.lines else "parsed"
     db.flush()
 
     # Re-evaluate old chains after detachment, then place the corrected document.

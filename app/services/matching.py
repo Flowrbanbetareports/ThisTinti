@@ -23,8 +23,9 @@ PRIMARY_FIELD_BY_TYPE = {
 
 def _references(document: Document) -> dict:
     try:
-        return json.loads(document.references_json or "{}")
-    except json.JSONDecodeError:
+        value = json.loads(document.references_json or "{}")
+        return value if isinstance(value, dict) else {}
+    except (TypeError, json.JSONDecodeError):
         return {}
 
 

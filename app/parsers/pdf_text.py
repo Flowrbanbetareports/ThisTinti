@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import re
+from decimal import Decimal
 from pathlib import Path
 
 from pypdf import PdfReader
 
-from .base import ParsedDocument, ParsedLine, ParseError, parse_date, safe_decimal
+from .base import ParsedDocument, ParsedLine, ParseError, parse_date, parse_decimal_field
 
 
 def _extract_text(path: Path) -> tuple[str, dict[str, object], bool]:
@@ -34,7 +35,12 @@ def _extract_payment_amount(text: str):
     candidates = []
     for pattern in patterns:
         for match in re.finditer(pattern, text, re.I):
-            value = safe_decimal(match.group(1))
+            value = parse_decimal_field(
+                match.group(1),
+                field="payment_amount",
+                required=True,
+                max_decimal_places=2,
+            )
             if value > 0:
                 candidates.append(value)
         if candidates:
@@ -60,31 +66,68 @@ def parse_pdf(path: Path, overrides: dict) -> ParsedDocument:
         raise ParseError("Per i PDF è necessario indicare il tipo documento")
 
     # Formato testuale supportato: SKU ; Descrizione ; Qta ; Prezzo ; Sconto ; Colore ; Taglia
-    line_re = re.compile(
-        r"^\s*([A-Z0-9][A-Z0-9._/-]{1,})\s*[;|\t]\s*(.*?)\s*[;|\t]\s*([\d.,]+)\s*[;|\t]\s*([\d.,]+)(?:\s*[;|\t]\s*([\d.,]+))?(?:\s*[;|\t]\s*([^;|\t]+))?(?:\s*[;|\t]\s*([^;|\t]+))?\s*$",
-        re.I,
-    )
     for idx, line in enumerate(text.splitlines(), start=1):
-        match = line_re.match(line)
-        if not match:
+        parts = [part.strip() for part in re.split(r"\s*(?:;|\||\t)\s*", line.strip())]
+        if len(parts) < 4 or len(parts) > 7:
             continue
-        sku, desc, qty, price, discount, color, size = match.groups()
-        q = safe_decimal(qty)
-        p = safe_decimal(price)
-        disc = safe_decimal(discount)
+        sku, desc, quantity_text, price_text, *optional = parts
+        if not re.fullmatch(r"[A-Z0-9][A-Z0-9._/-]{1,}", sku, re.I):
+            continue
+        if quantity_text.strip().upper() in {"QTA", "QTY", "QUANTITA", "QUANTITY"}:
+            continue
+        discount_text = optional[0] if optional else None
+        color = optional[1] if len(optional) > 1 else None
+        size = optional[2] if len(optional) > 2 else None
+        provenance: dict[str, str] = {}
+        quantity = parse_decimal_field(
+            quantity_text,
+            field="quantity",
+            line=idx,
+            required=True,
+            provenance=provenance,
+            max_decimal_places=4,
+        )
+        price = parse_decimal_field(
+            price_text,
+            field="unit_price",
+            line=idx,
+            required=True,
+            provenance=provenance,
+            max_decimal_places=6,
+        )
+        discount = parse_decimal_field(
+            discount_text,
+            field="discount_rate",
+            line=idx,
+            provenance=provenance,
+            max_decimal_places=6,
+            minimum=0,
+            maximum=100,
+        )
+        provenance.update(
+            {
+                "price_base_quantity": "defaulted",
+                "tax_rate": "missing",
+                "line_total": "derived",
+            }
+        )
         doc.lines.append(
             ParsedLine(
                 line_no=idx,
                 sku=sku,
                 description=desc,
-                quantity=q,
-                unit_price=p,
-                discount_rate=disc,
-                color=color.strip() if color else None,
-                size=size.strip() if size else None,
-                line_total=q * p * (safe_decimal(1) - disc / safe_decimal(100)),
+                quantity=quantity,
+                unit_price=price,
+                discount_rate=discount,
+                color=color or None,
+                size=size or None,
+                line_total=quantity * price * (Decimal("1") - discount / Decimal("100")),
                 confidence=0.58 if used_ocr else 0.72,
-                raw={"source_line": line, "extraction_method": extraction_metadata["extraction_method"]},
+                raw={
+                    "source_line": line,
+                    "extraction_method": extraction_metadata["extraction_method"],
+                    "numeric_provenance": provenance,
+                },
             )
         )
     if not doc.lines and doc.document_type == "payment":
@@ -95,13 +138,21 @@ def parse_pdf(path: Path, overrides: dict) -> ParsedDocument:
                     line_no=1,
                     sku="PAYMENT",
                     description="Pagamento rilevato dalla ricevuta",
-                    quantity=safe_decimal(1),
+                    quantity=Decimal("1"),
                     unit_price=payment_amount,
                     line_total=payment_amount,
                     confidence=0.56 if used_ocr else 0.76,
                     raw={
                         "extraction_method": extraction_metadata["extraction_method"],
                         "evidence": "receipt_total",
+                        "numeric_provenance": {
+                            "quantity": "defaulted",
+                            "unit_price": "source",
+                            "price_base_quantity": "defaulted",
+                            "discount_rate": "missing",
+                            "tax_rate": "missing",
+                            "line_total": "source",
+                        },
                     },
                 )
             )

@@ -52,11 +52,14 @@ def test_invalid_pdf_signature_rejected(client, auth):
 def test_failed_csv_can_be_reprocessed(client, auth):
     csv_content = "Codice;Descrizione;Quantità;Prezzo unitario\nA-1;Giacca;10;20\n".encode()
     uploaded = _upload_bytes(client, auth, "order.csv", csv_content, "text/csv", {"supplier_name": "Supplier"})
-    assert uploaded.status_code == 201
-    doc = uploaded.json()["document"]
+    assert uploaded.status_code == 422
+    detail = uploaded.json()["detail"]
+    assert detail["document"] == "order.csv"
+    document_id = detail["document_id"]
+    doc = client.get(f"/api/documents/{document_id}", headers=auth).json()
     assert doc["parse_status"] == "failed"
     reprocessed = client.post(
-        f"/api/documents/{doc['id']}/reprocess",
+        f"/api/documents/{document_id}/reprocess",
         headers=auth,
         json={"document_type": "order", "supplier_name": "Supplier", "number": "PO-1", "document_date": "2026-07-01"},
     )

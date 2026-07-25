@@ -93,7 +93,7 @@ from .security import (
     verify_password,
 )
 from .services.file_security import probe_malware_scanner
-from .services.ingestion import ingest_path, reprocess_document
+from .services.ingestion import document_parse_error_detail, ingest_path, reprocess_document
 from .services.jobs import enqueue_job, job_json
 from .services.rules import analyze_chain
 from .services.rate_limit import consume_rate_limit
@@ -101,6 +101,7 @@ from .services.validation import ENGINE_VERSION, run_validation_dataset
 from .services.validation_reporting import build_validation_report, render_validation_report_markdown
 from .services.line_matching import alias_tokens
 from .services.comparison import build_chain_comparison
+from .services.numeric_fields import numeric_or_none, numeric_provenance
 from .services.discovery import DiscoverySettings, maybe_run_discovery, run_discovery
 from .services.intelligence import (
     assess_risk,
@@ -402,27 +403,36 @@ def _doc_json(document: Document, supplier: Supplier | None = None, include_line
         "line_count": len(document.lines),
     }
     if include_lines:
-        payload["lines"] = [
-            {
-                "id": line.id,
-                "line_no": line.line_no,
-                "sku": line.sku,
-                "description": line.description,
-                "color": line.color,
-                "size": line.size,
-                "lot": line.lot,
-                "unit_of_measure": line.unit_of_measure,
-                "quantity": float(line.quantity),
-                "unit_price": float(line.unit_price),
-                "price_base_quantity": float(line.price_base_quantity),
-                "discount_rate": float(line.discount_rate),
-                "tax_rate": float(line.tax_rate),
-                "line_total": float(line.line_total),
-                "canonical_key": line.canonical_key,
-                "confidence": line.confidence,
-            }
-            for line in document.lines
-        ]
+        lines = []
+        for line in document.lines:
+            provenance = numeric_provenance(line)
+
+            def numeric_value(field: str):
+                value = numeric_or_none(line, field)
+                return float(value) if value is not None else None
+
+            lines.append(
+                {
+                    "id": line.id,
+                    "line_no": line.line_no,
+                    "sku": line.sku,
+                    "description": line.description,
+                    "color": line.color,
+                    "size": line.size,
+                    "lot": line.lot,
+                    "unit_of_measure": line.unit_of_measure,
+                    "quantity": numeric_value("quantity"),
+                    "unit_price": numeric_value("unit_price"),
+                    "price_base_quantity": numeric_value("price_base_quantity"),
+                    "discount_rate": numeric_value("discount_rate"),
+                    "tax_rate": numeric_value("tax_rate"),
+                    "line_total": numeric_value("line_total"),
+                    "numeric_provenance": provenance,
+                    "canonical_key": line.canonical_key,
+                    "confidence": line.confidence,
+                }
+            )
+        payload["lines"] = lines
     return payload
 
 
@@ -1316,6 +1326,10 @@ async def upload_document(
             document.id,
             {"outcome": outcome, "filename": file.filename},
         )
+        if document.parse_status == "failed":
+            detail = document_parse_error_detail(document)
+            db.commit()
+            raise HTTPException(status_code=422, detail=detail)
         discovery_run = maybe_run_discovery(db, ctx.tenant_id, ctx.user_id)
         reanalyzed = _reanalyze_tenant_chains(db, ctx.tenant_id) if discovery_run else 0
         db.commit()
@@ -1409,6 +1423,9 @@ async def upload_document_batch(
                             "parse_status": document.parse_status,
                             "outcome": outcome or "ingested",
                             "message": document.parse_message,
+                            "error": (
+                                document_parse_error_detail(document) if document.parse_status == "failed" else None
+                            ),
                         }
                     )
                 except Exception as exc:
@@ -1517,12 +1534,28 @@ def reprocess_existing_document(
             },
         )
     except ParseError as exc:
+        exc.with_document(document.source_filename)
+        detail = exc.as_detail(document_id=document.id, document=document.source_filename)
         document.parse_message = f"Rielaborazione non applicata: {exc}"
+        try:
+            metadata = json.loads(document.metadata_json or "{}")
+        except (TypeError, json.JSONDecodeError):
+            metadata = {}
+        if not isinstance(metadata, dict):
+            metadata = {}
+        metadata["last_reprocess_error"] = detail
+        document.metadata_json = json.dumps(metadata, ensure_ascii=False, default=str)
         add_audit(
-            db, ctx.tenant_id, "document.reprocess_failed", ctx.user_id, "document", document.id, {"error": str(exc)}
+            db,
+            ctx.tenant_id,
+            "document.reprocess_failed",
+            ctx.user_id,
+            "document",
+            document.id,
+            {"error": detail},
         )
         db.commit()
-        raise HTTPException(status_code=422, detail=str(exc)) from exc
+        raise HTTPException(status_code=422, detail=detail) from exc
     add_audit(db, ctx.tenant_id, "document.reprocessed", ctx.user_id, "document", document.id)
     db.commit()
     document = db.scalar(
