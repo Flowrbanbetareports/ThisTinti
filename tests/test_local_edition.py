@@ -82,6 +82,7 @@ def test_invalid_persisted_secret_is_rejected(tmp_path: Path):
 def test_bundled_ocr_directory_is_added_to_environment(monkeypatch, tmp_path: Path):
     from app import local_runtime
 
+    monkeypatch.setattr(os, "environ", os.environ.copy())
     root = tmp_path / "bundle"
     tesseract = root / "ocr" / "tesseract"
     tesseract.mkdir(parents=True)

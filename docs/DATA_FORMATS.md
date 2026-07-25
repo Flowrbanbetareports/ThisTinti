@@ -26,19 +26,21 @@ Valori ammessi:
 
 ## JSON strutturato
 
-Esempio minimo:
+Esempio canonico (eseguito anche dalla suite di test):
 
 ```json
 {
-  "document_type": "order",
-  "number": "PO-1001",
+  "document_type": "invoice",
+  "number": "INV-1001",
   "document_date": "2026-07-19",
   "currency": "EUR",
   "supplier": {
     "name": "Fornitore Demo",
     "vat_id": "IT00000000000"
   },
-  "references": ["PO-1001"],
+  "references": {
+    "order_numbers": ["PO-1001"]
+  },
   "lines": [
     {
       "line_no": 1,
@@ -56,6 +58,22 @@ Esempio minimo:
   ]
 }
 ```
+
+Sono accettati anche `supplier_name` e `supplier_vat` al primo livello. La vecchia forma
+`"references": ["PO-1001"]` resta leggibile per compatibilità, ma per i nuovi file va
+usato l'oggetto esplicito mostrato sopra. Le chiavi di riferimento riconosciute dal
+collegamento automatico sono `order_numbers`, `invoice_numbers` e `delivery_numbers`.
+
+Ogni riga JSON richiede `quantity`. `unit_price` è richiesto per proposta, ordine,
+conferma, fattura, pagamento e nota di credito; può mancare in consegne e resi. Un
+`line_total` omesso viene calcolato soltanto quando quantità e prezzo sono disponibili
+ed è marcato come `derived`. Sconto e aliquota mancanti sono restituiti come `null`,
+non come valori osservati pari a zero.
+
+Una struttura non valida o un numero mancante/non convertibile produce HTTP `422`
+nel caricamento sincrono. La risposta riporta ID e nome documento, riga, campo,
+valore ricevuto e motivo; il documento resta disponibile con stato `failed` per
+diagnosi e rielaborazione.
 
 I file completi di esempio sono in `samples/`.
 
@@ -108,12 +126,22 @@ ART-145 ; Giacca blu ; blu ; 48 ; 10 ; 42.00 ; 8 ; 386.40
 
 ## Numeri
 
-- separatore decimale `.` o `,` nei formati tabellari;
-- valori non finiti (`NaN`, `Infinity`) rifiutati;
-- importi salvati con precisione decimale;
-- quantità con massimo quattro decimali;
-- prezzi unitari con massimo sei decimali;
-- totali con massimo due decimali.
+- separatore decimale `.` o `,` nei formati JSON, CSV e XLSX;
+- valori booleani, non convertibili o non finiti (`NaN`, `Infinity`) rifiutati;
+- nessun valore non valido viene sostituito con zero;
+- importi salvati senza passare dalla rappresentazione binaria `float`;
+- JSON, CSV, XLSX e PDF controllato: quantità fino a quattro decimali, prezzi unitari
+  fino a sei e totali dichiarati fino a due;
+- FatturaPA e UBL: vengono rispettate le scale più ampie dei formati sorgente,
+  entro otto decimali per quantità/totali e dieci per il prezzo unitario;
+- `price_base_quantity` deve essere strettamente maggiore di zero;
+- percentuali di sconto e imposta devono essere comprese tra 0 e 100.
+
+Per ogni riga l'API espone `numeric_provenance`: `source` indica un valore letto,
+`derived` un calcolo esplicito, `defaulted` una convenzione del formato (per esempio
+quantità base prezzo pari a 1) e `missing` un campo non presente. I campi `missing`
+sono serializzati come `null`; il valore tecnico usato per compatibilità con i
+database RC5 non costituisce un'evidenza e viene escluso dai confronti pertinenti.
 
 ## Duplicati
 

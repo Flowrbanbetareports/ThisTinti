@@ -20,7 +20,7 @@ from ..models import AuthSession, Document, OperationChain, ProcessingJob, RateL
 from ..parsers import ParseError
 from ..version import RELEASE_VERSION
 from .discovery import maybe_run_discovery
-from .ingestion import ingest_path, reprocess_document
+from .ingestion import document_parse_error_detail, ingest_path, reprocess_document
 from .rules import analyze_chain
 from .intelligence import run_self_red_team
 
@@ -273,12 +273,13 @@ def _process_document(db: Session, job: ProcessingJob, payload: dict) -> dict:
         document.id,
         {"outcome": outcome or "ingested", "filename": payload["original_filename"], "job_id": job.id},
     )
-    discovery = maybe_run_discovery(db, job.tenant_id, job_actor_id(job))
+    discovery = maybe_run_discovery(db, job.tenant_id, job_actor_id(job)) if document.parse_status != "failed" else None
     reanalyzed = _reanalyze_tenant(db, job.tenant_id) if discovery else 0
     return {
         "document_id": document.id,
         "parse_status": document.parse_status,
         "outcome": outcome or "ingested",
+        "error": document_parse_error_detail(document) if document.parse_status == "failed" else None,
         "reanalyzed_chains": reanalyzed,
         "discovery_run_id": discovery.id if discovery else None,
     }
@@ -340,6 +341,7 @@ def _process_batch(db: Session, job: ProcessingJob, payload: dict) -> dict:
                         "document_id": document.id,
                         "parse_status": document.parse_status,
                         "outcome": outcome or "ingested",
+                        "error": (document_parse_error_detail(document) if document.parse_status == "failed" else None),
                     }
                 )
             except Exception as exc:

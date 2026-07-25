@@ -146,6 +146,10 @@ def test_reprocess_preserves_last_good_lines_after_failure(client, auth):
         json={"document_type": "order"},
     )
     assert failed.status_code == 422
+    detail = failed.json()["detail"]
+    assert detail["code"] == "invalid_document_structure"
+    assert detail["document_id"] == document["id"]
+    assert detail["document"] == "order.json"
     current = client.get(f"/api/documents/{document['id']}", headers=auth).json()
     assert current["parse_status"] == "parsed"
     assert len(current["lines"]) == len(document["lines"])

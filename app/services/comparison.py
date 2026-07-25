@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from ..models import ChainDocument, Document, DocumentLine, OperationChain
 from .line_matching import group_chain_lines
+from .numeric_fields import all_numeric_available
 from .units import canonical_unit_price, quantity_profile
 
 ROLES = ("proposal", "order", "confirmation", "delivery", "invoice", "payment", "return", "credit_note")
@@ -59,27 +60,36 @@ def _aggregate(lines: list[DocumentLine]) -> dict | None:
         for line in lines
     ]
     absolute_qty = sum(weights, Decimal("0"))
-    normalized_prices = [
-        canonical_unit_price(line.unit_price, line.price_base_quantity, line.unit_of_measure) for line in lines
-    ]
+    price_available = all_numeric_available(lines, "unit_price")
+    discount_available = all_numeric_available(lines, "discount_rate")
+    total_available = all_numeric_available(lines, "line_total")
+    normalized_prices = (
+        [canonical_unit_price(line.unit_price, line.price_base_quantity, line.unit_of_measure) for line in lines]
+        if price_available
+        else []
+    )
     unit_price = (
         sum((weight * price for weight, price in zip(weights, normalized_prices, strict=True)), Decimal("0"))
         / absolute_qty
-        if absolute_qty
-        else Decimal("0")
+        if absolute_qty and price_available
+        else None
     )
     discount = (
         sum((weight * _decimal(line.discount_rate) for weight, line in zip(weights, lines, strict=True)), Decimal("0"))
         / absolute_qty
-        if absolute_qty
-        else Decimal("0")
+        if absolute_qty and discount_available
+        else None
     )
     units = list(profile.source_units)
     return {
         "quantity": _display(profile.quantity if profile.compatible else raw_quantity, "0.0001"),
-        "unit_price": _display(unit_price, "0.000001"),
-        "discount_rate": _display(discount, "0.0001"),
-        "line_total": _display(sum((_decimal(line.line_total) for line in lines), Decimal("0")), "0.01"),
+        "unit_price": _display(unit_price, "0.000001") if unit_price is not None else None,
+        "discount_rate": _display(discount, "0.0001") if discount is not None else None,
+        "line_total": (
+            _display(sum((_decimal(line.line_total) for line in lines), Decimal("0")), "0.01")
+            if total_available
+            else None
+        ),
         "unit_of_measure": profile.unit if profile.compatible else (units[0] if len(units) == 1 else (units or None)),
         "source_units": units,
         "dimension": profile.dimension,
@@ -138,10 +148,18 @@ def build_chain_comparison(db: Session, chain: OperationChain) -> dict:
                 status = "issue"
                 if "unità di misura incompatibili" not in reasons:
                     reasons.append("unità di misura incompatibili")
-            elif invoice["unit_price"] > commercial["unit_price"] + 0.005:
+            elif (
+                invoice["unit_price"] is not None
+                and commercial["unit_price"] is not None
+                and invoice["unit_price"] > commercial["unit_price"] + 0.005
+            ):
                 status = "issue"
                 reasons.append("prezzo superiore")
-            if commercial["discount_rate"] > invoice["discount_rate"] + 0.01:
+            if (
+                commercial["discount_rate"] is not None
+                and invoice["discount_rate"] is not None
+                and commercial["discount_rate"] > invoice["discount_rate"] + 0.01
+            ):
                 status = "issue"
                 reasons.append("sconto inferiore")
         if invoice and not commercial and not delivery:

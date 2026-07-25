@@ -11,8 +11,8 @@ from .base import (
     ParseError,
     effective_discount_rate,
     parse_date,
-    safe_decimal,
-    safe_float,
+    parse_decimal_field,
+    parse_integer_field,
 )
 
 
@@ -148,22 +148,84 @@ def parse_xml(path: Path, overrides: dict) -> ParsedDocument:
         codes = node.xpath("./*[local-name()='CodiceArticolo']/*[local-name()='CodiceValore']/text()")
         sku = str(codes[0]).strip() if codes else None
         description = _direct_text(node, "Descrizione")
-        qty = safe_decimal(_direct_text(node, "Quantita"), 1)
-        unit_price = safe_decimal(_direct_text(node, "PrezzoUnitario"))
-        tax = safe_decimal(_direct_text(node, "AliquotaIVA"))
+        line_no = parse_integer_field(
+            _direct_text(node, "NumeroLinea"),
+            field="line_no",
+            line=index,
+            default=index,
+            minimum=1,
+        )
+        provenance: dict[str, str] = {}
+        qty = parse_decimal_field(
+            _direct_text(node, "Quantita"),
+            field="quantity",
+            line=line_no,
+            default=1,
+            provenance=provenance,
+            missing_provenance="defaulted",
+            max_decimal_places=8,
+        )
+        unit_price = parse_decimal_field(
+            _direct_text(node, "PrezzoUnitario"),
+            field="unit_price",
+            line=line_no,
+            required=True,
+            provenance=provenance,
+            max_decimal_places=10,
+        )
+        tax = parse_decimal_field(
+            _direct_text(node, "AliquotaIVA"),
+            field="tax_rate",
+            line=line_no,
+            provenance=provenance,
+            max_decimal_places=8,
+            minimum=0,
+            maximum=100,
+        )
         discounts: list[Decimal] = []
         charges: list[Decimal] = []
         allowance_details: list[dict] = []
+        unsupported_allowance_amount = False
         for allowance in node.xpath("./*[local-name()='ScontoMaggiorazione']"):
             kind = (_direct_text(allowance, "Tipo") or "SC").upper()
-            percent = safe_decimal(_direct_text(allowance, "Percentuale"))
-            amount = safe_decimal(_direct_text(allowance, "Importo"))
+            percent_text = _direct_text(allowance, "Percentuale")
+            amount_text = _direct_text(allowance, "Importo")
+            percent = parse_decimal_field(
+                percent_text,
+                field="discount_rate" if kind != "MG" else "charge_rate",
+                line=line_no,
+                max_decimal_places=8,
+                minimum=0,
+                maximum=100,
+            )
+            amount = parse_decimal_field(
+                amount_text,
+                field="discount_amount" if kind != "MG" else "charge_amount",
+                line=line_no,
+                max_decimal_places=8,
+                minimum=0,
+            )
             if percent:
                 (charges if kind == "MG" else discounts).append(percent)
+            elif amount:
+                unsupported_allowance_amount = True
             allowance_details.append({"type": kind, "percent": str(percent), "amount": str(amount)})
         discount = effective_discount_rate(discounts, charges)
+        provenance["discount_rate"] = "derived" if discounts or charges else "missing"
         expected_total = qty * unit_price * (Decimal("1") - discount / Decimal("100"))
-        total = safe_decimal(_direct_text(node, "PrezzoTotale"), expected_total)
+        total_text = _direct_text(node, "PrezzoTotale")
+        if total_text in (None, ""):
+            total = expected_total
+            provenance["line_total"] = "derived"
+        else:
+            total = parse_decimal_field(
+                total_text,
+                field="line_total",
+                line=line_no,
+                required=True,
+                provenance=provenance,
+                max_decimal_places=8,
+            )
         color = None
         size = None
         lot = None
@@ -181,7 +243,7 @@ def parse_xml(path: Path, overrides: dict) -> ParsedDocument:
                 lot = value
         doc.lines.append(
             ParsedLine(
-                line_no=int(safe_float(_direct_text(node, "NumeroLinea"), index)),
+                line_no=line_no,
                 sku=sku,
                 description=description,
                 color=color,
@@ -200,9 +262,16 @@ def parse_xml(path: Path, overrides: dict) -> ParsedDocument:
                     "charge_components": [str(value) for value in charges],
                     "allowance_details": allowance_details,
                     "other_data": other_data,
+                    "numeric_provenance": provenance,
+                    "requires_allowance_review": unsupported_allowance_amount,
                 },
             )
         )
+        if unsupported_allowance_amount:
+            doc.message = (
+                "Sono presenti sconti o maggiorazioni espressi soltanto come importo: "
+                "verificare manualmente il calcolo della riga."
+            )
 
     if not doc.lines:
         doc.confidence = 0.55
