@@ -13,8 +13,8 @@ Ogni installer e archivio portable ufficiale è accompagnato da un file `.sha256
 Aprire PowerShell nella cartella del download ed eseguire, adattando il nome della versione:
 
 ```powershell
-Get-FileHash .\ThisTinti-Setup-3.4.0-alpha.4-x64.exe -Algorithm SHA256
-Get-Content .\ThisTinti-Setup-3.4.0-alpha.4-x64.exe.sha256
+Get-FileHash .\ThisTinti-Setup-3.4.0-alpha.7-rc.5-x64.exe -Algorithm SHA256
+Get-Content .\ThisTinti-Setup-3.4.0-alpha.7-rc.5-x64.exe.sha256
 ```
 
 La sequenza esadecimale mostrata da `Get-FileHash` deve coincidere esattamente con quella contenuta nel file `.sha256`.
@@ -22,8 +22,8 @@ La sequenza esadecimale mostrata da `Get-FileHash` deve coincidere esattamente c
 Per il portable:
 
 ```powershell
-Get-FileHash .\ThisTinti-Portable-3.4.0-alpha.4-x64.zip -Algorithm SHA256
-Get-Content .\ThisTinti-Portable-3.4.0-alpha.4-x64.zip.sha256
+Get-FileHash .\ThisTinti-Portable-3.4.0-alpha.7-rc.5-x64.zip -Algorithm SHA256
+Get-Content .\ThisTinti-Portable-3.4.0-alpha.7-rc.5-x64.zip.sha256
 ```
 
 In caso di differenza non eseguire il file e scaricarlo nuovamente dal canale ufficiale.
@@ -40,6 +40,11 @@ Il checksum prova che il file coincide con quello pubblicato dal progetto, ma no
 - una correzione genera una nuova versione;
 - il numero mostrato nell'applicazione deve coincidere con installer, release e checksum;
 - le evidenze di pubblicazione sono registrate in `builds/release-latest.json` e `builds/publication-latest.json`.
+
+Ogni nuova candidata include inoltre `release-provenance.json`, con commit e tree Git esatti, inventario degli
+artefatti, checksum e riferimenti al workflow Windows. La pubblicazione automatizzata rifiuta artefatti provenienti
+da un commit diverso, workflow obbligatori non verdi, tag già esistenti o asset privi di attestazione GitHub.
+OpenAPI e SBOM inclusi nell'artefatto devono essere identici ai file versionati nel commit indicato.
 
 ## Segnalazione di un file sospetto
 

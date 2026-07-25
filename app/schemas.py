@@ -389,6 +389,94 @@ class ValidationAutomationApprovalResponse(BaseModel):
     validation_run_id: str | None = None
 
 
+class ValidationReportProduct(BaseModel):
+    name: str
+    version: str
+
+
+class ValidationReportEvidence(BaseModel):
+    authorized_use_confirmed: bool
+    anonymization_confirmed: bool
+    reviewer_count: int
+    ground_truth_method_documented: bool
+    scope_documented: bool
+    prepared_at: datetime | None = None
+    authorization_reference: str | None = None
+    anonymization_method: str | None = None
+    reviewer_refs: list[str] | None = None
+    ground_truth_method: str | None = None
+    scope: str | None = None
+    notes: str | None = None
+
+
+class ValidationReportDataset(BaseModel):
+    name: str
+    version: str
+    evidence_level: str
+    status: str
+    scenario_count: int
+    evidence: ValidationReportEvidence | None = None
+
+
+class ValidationReportRun(BaseModel):
+    id: str | None
+    status: str
+    engine_version: str
+    created_at: datetime
+    completed_at: datetime | None
+    gate_passed: bool
+    automation_approved: bool
+    precision: float
+    recall: float
+    f1_score: float
+    amount_mae: float
+    true_positives: int
+    false_positives: int
+    false_negatives: int
+
+
+class ValidationReportCaseType(BaseModel):
+    case_type: str
+    true_positives: int
+    false_positives: int
+    false_negatives: int
+
+
+class ValidationReportQualitySummary(BaseModel):
+    passed_scenarios: int
+    failed_scenarios: int
+    parse_failures: int
+    all_scenarios_pass: bool
+    case_types: list[ValidationReportCaseType]
+
+
+class ValidationReportScenario(BaseModel):
+    sequence: int
+    passed: bool
+    expected_count: int
+    found_count: int
+    false_positive_count: int
+    false_negative_count: int
+    parse_failure_count: int
+    error_present: bool
+    id: str | None = None
+    description: str | None = None
+    error: str | None = None
+
+
+class ValidationReportResponse(BaseModel):
+    schema_name: Literal["thistinti.validation-report.v1"] = Field(alias="schema")
+    generated_at: datetime
+    redacted: bool
+    product: ValidationReportProduct
+    dataset: ValidationReportDataset
+    run: ValidationReportRun
+    quality_summary: ValidationReportQualitySummary
+    gate: dict[str, Any]
+    scenarios: list[ValidationReportScenario]
+    limitations: list[str]
+
+
 class ItemAliasConfirmRequest(BaseModel):
     canonical_line_id: str = Field(min_length=1, max_length=36)
     alias_line_id: str = Field(min_length=1, max_length=36)

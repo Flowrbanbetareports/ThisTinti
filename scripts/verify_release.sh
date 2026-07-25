@@ -26,6 +26,7 @@ fi
 bash scripts/run_test_coverage.sh
 python scripts/run_python_gate.py path scripts/check_dependencies.py
 python scripts/run_python_gate.py path scripts/check_legal_distribution.py
+python scripts/run_python_gate.py path scripts/check_publication_readiness.py
 python scripts/run_python_gate.py module alembic.__main__ upgrade head
 python scripts/run_python_gate.py module alembic.__main__ check
 python scripts/run_python_gate.py module alembic.__main__ downgrade base
@@ -38,8 +39,7 @@ python scripts/run_python_gate.py path scripts/backup_system.py "$BACKUP" --data
 python scripts/run_python_gate.py path scripts/verify_backup.py "$BACKUP"
 python scripts/run_python_gate.py path scripts/restore_backup.py "$BACKUP" \
   --sqlite-database "$TMP/restored.db" --storage-dir "$TMP/restored-storage"
-python scripts/run_python_gate.py path scripts/generate_sbom.py
-python scripts/run_python_gate.py path scripts/generate_openapi.py
+python scripts/run_python_gate.py path scripts/check_release_consistency.py
 python scripts/verify_release.py --internal-checks
 
 echo "Release verification passed"

@@ -75,7 +75,12 @@ if (-not (Test-Path $Iscc)) { throw "Compilatore Inno Setup non trovato" }
 & $Iscc "/DMyAppVersion=$Version" "installer\windows\ThisTinti.iss"
 if ($LASTEXITCODE -ne 0) { throw "Compilazione installer fallita" }
 
-Copy-Item "TERMS_OF_USE.md", "DISCLAIMER.md", "PRIVACY.md", "TRADEMARKS.md" "release\windows" -Force
+Copy-Item "TERMS_OF_USE.md", "DISCLAIMER.md", "PRIVACY.md", "TRADEMARKS.md", "SUPPORT.md" "release\windows" -Force
+Copy-Item "docs\RESPONSIBILITY_MATRIX.md" "release\windows\SELF-HOSTED-RESPONSIBILITY-MATRIX.md" -Force
+Copy-Item "docs\ENTERPRISE_ACCEPTANCE_CHECKLIST.md" "release\windows\SELF-HOSTED-ACCEPTANCE-CHECKLIST.md" -Force
+Copy-Item "docs\sbom.cdx.json" "release\windows\SBOM.cdx.json" -Force
+Copy-Item "docs\openapi.json" "release\windows\OPENAPI.json" -Force
+Copy-Item "RELEASE_NOTES.md" "release\windows\RELEASE_NOTES.md" -Force
 
 Get-ChildItem "release\windows\*.exe", "release\windows\*.zip" | ForEach-Object {
   $Hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()

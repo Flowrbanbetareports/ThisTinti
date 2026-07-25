@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from app.version import RELEASE_VERSION  # noqa: E402
+from scripts.check_release_consistency import validate_release_consistency  # noqa: E402
 from scripts.generate_brand_icon import write_icon  # noqa: E402
 
 SECRET_PATTERN = re.compile(r"sk-(?:proj-)?[A-Za-z0-9_-]{20,}")
@@ -100,8 +101,9 @@ def validate_brand_assets() -> None:
     for name, stylesheet in (("application", app_css), ("public site", site_css)):
         if "prefers-reduced-motion" not in stylesheet:
             raise RuntimeError(f"{name} motion does not respect reduced-motion preferences")
-    if "IntersectionObserver" not in site_js or "hero-mark" not in site_html:
-        raise RuntimeError("Public-site progressive motion or new identity entry point is missing")
+    identity_markers = ('class="brand"', '<section class="hero">', 'class="product-visual"')
+    if "IntersectionObserver" not in site_js or not all(marker in site_html for marker in identity_markers):
+        raise RuntimeError("Public-site progressive motion or identity entry point is missing")
 
 
 def validate_openapi() -> None:
@@ -123,6 +125,9 @@ def validate_openapi() -> None:
 
 def internal_checks() -> int:
     validate_openapi()
+    consistency_failures = validate_release_consistency()
+    if consistency_failures:
+        raise RuntimeError("\n".join(consistency_failures))
     validate_brand_assets()
     scan_sources()
     return 0

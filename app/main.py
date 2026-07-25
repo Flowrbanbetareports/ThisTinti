@@ -79,6 +79,7 @@ from .schemas import (
     ValidationAutomationApprovalResponse,
     ValidationDatasetPayload,
     ValidationDatasetStatusRequest,
+    ValidationReportResponse,
 )
 from .security import (
     AuthContext,
@@ -2428,7 +2429,22 @@ def get_validation_run(
     return _validation_run_json(run, include_details=True)
 
 
-@app.get("/api/validation/runs/{run_id}/report")
+@app.get(
+    "/api/validation/runs/{run_id}/report",
+    response_model=ValidationReportResponse,
+    responses={
+        200: {
+            "description": "Validation report as JSON or Markdown attachment.",
+            "content": {"text/markdown": {"schema": {"type": "string"}}},
+            "headers": {
+                "Content-Disposition": {
+                    "description": "Attachment filename selected from the dataset and redaction mode.",
+                    "schema": {"type": "string"},
+                }
+            },
+        }
+    },
+)
 def export_validation_run_report(
     run_id: str,
     format: str = Query(default="json", pattern="^(json|markdown)$"),

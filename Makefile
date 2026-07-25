@@ -1,4 +1,4 @@
-.PHONY: install migrate run test coverage lint security validation check verify package
+.PHONY: install migrate run test coverage lint security validation check verify release-metadata package
 
 install:
 	python -m pip install -r requirements-dev.txt
@@ -32,6 +32,11 @@ check: lint security
 	python scripts/check_dependencies.py
 	python scripts/check_legal_distribution.py
 	python scripts/check_publication_readiness.py
+
+release-metadata:
+	python scripts/generate_openapi.py
+	python scripts/generate_sbom.py
+	python scripts/check_release_consistency.py
 
 verify:
 	python scripts/verify_release.py

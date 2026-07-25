@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import sys
@@ -37,7 +38,7 @@ def components() -> list[dict[str, str]]:
     return sorted(result, key=lambda item: item["name"])
 
 
-def main() -> int:
+def render_sbom() -> str:
     items = components()
     fingerprint = hashlib.sha256(LOCK.read_bytes()).hexdigest()
     application_ref = f"pkg:generic/thistinti@{VERSION}"
@@ -65,8 +66,17 @@ def main() -> int:
         "components": items,
         "dependencies": [{"ref": application_ref, "dependsOn": [item["bom-ref"] for item in items]}],
     }
-    OUTPUT.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"{OUTPUT} ({len(items)} components)")
+    return json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Generate the committed CycloneDX SBOM.")
+    parser.add_argument("--output", type=Path, default=OUTPUT)
+    args = parser.parse_args()
+    output = args.output.resolve()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(render_sbom(), encoding="utf-8")
+    print(f"{output} ({len(components())} components)")
     return 0
 
 

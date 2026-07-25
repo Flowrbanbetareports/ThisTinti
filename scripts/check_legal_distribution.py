@@ -46,7 +46,9 @@ def main() -> int:
     site_js = (ROOT / "site" / "site.js").read_text(encoding="utf-8")
     installer = (ROOT / "installer" / "windows" / "ThisTinti.iss").read_text(encoding="utf-8")
     spec = (ROOT / "installer" / "windows" / "ThisTinti.spec").read_text(encoding="utf-8")
+    build_script = (ROOT / "installer" / "windows" / "build_windows.ps1").read_text(encoding="utf-8")
     workflow = (ROOT / ".github" / "workflows" / "windows-release.yml").read_text(encoding="utf-8")
+    publish_workflow = (ROOT / ".github" / "workflows" / "publish-public-preview.yml").read_text(encoding="utf-8")
     enterprise_compose = (ROOT / "deploy" / "enterprise" / "docker-compose.enterprise.yml").read_text(encoding="utf-8")
     enterprise_init = (ROOT / "scripts" / "enterprise_init.py").read_text(encoding="utf-8")
     enterprise_preflight = (ROOT / "scripts" / "enterprise_preflight.py").read_text(encoding="utf-8")
@@ -75,9 +77,23 @@ def main() -> int:
     )
     for name in ("TERMS_OF_USE.md", "DISCLAIMER.md", "TRADEMARKS.md", "SUPPORT.md"):
         require(name in spec, f"Frozen build does not include {name}", failures)
-        require(name in workflow, f"GitHub Release does not include {name}", failures)
-    require("RESPONSIBILITY_MATRIX.md" in workflow, "Self-hosted responsibility matrix missing from release", failures)
-    require("ENTERPRISE_ACCEPTANCE_CHECKLIST.md" in workflow, "Self-hosted checklist missing from release", failures)
+        require(name in build_script, f"Windows artifact does not include {name}", failures)
+    require(
+        "RESPONSIBILITY_MATRIX.md" in build_script,
+        "Self-hosted responsibility matrix missing from release artifact",
+        failures,
+    )
+    require(
+        "ENTERPRISE_ACCEPTANCE_CHECKLIST.md" in build_script,
+        "Self-hosted checklist missing from release artifact",
+        failures,
+    )
+    require("make verify" in workflow, "Windows workflow does not require the complete release gate", failures)
+    require(
+        "verify_release_artifact.py" in publish_workflow and "gh attestation verify" in publish_workflow,
+        "Public Preview publication does not verify artifact integrity and provenance",
+        failures,
+    )
 
     for marker in (
         'THISTINTI_SELF_HOSTED_REFERENCE: "true"',

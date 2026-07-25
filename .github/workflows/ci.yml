@@ -30,45 +30,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y openssl poppler-utils tesseract-ocr tesseract-ocr-eng tesseract-ocr-ita
           pip install -r requirements-dev.txt
-      - name: Ruff lint
-        run: ruff check app tests scripts migrations
-      - name: Ruff formatting
-        run: ruff format --check app tests scripts migrations
-      - name: Bandit security scan
-        run: bandit -q -r app scripts -x tests
-      - name: Python and frontend syntax
+      - name: Complete release gate
+        shell: bash
         run: |
-          python -m compileall app scripts
-          node --check app/static/app.js
-      - name: Dependency policy
-        run: python scripts/check_dependencies.py
-      - name: Legal distribution consistency
-        run: python scripts/check_legal_distribution.py
-      - name: Publication readiness
-        run: python scripts/check_publication_readiness.py
-      - name: SQLite migration reversibility
-        env:
-          THISTINTI_DATABASE_URL: sqlite:///./ci.db
-          THISTINTI_SECRET_KEY: ci-secret-key-more-than-thirty-two-characters
-          THISTINTI_AUTO_CREATE_SCHEMA: "false"
-        run: |
-          alembic upgrade head
-          alembic check
-          alembic downgrade base
-          alembic upgrade head
-          alembic check
-      - name: Application tests and coverage
-        run: python scripts/run_test_coverage.py
-      - name: Document regression and HTTP smoke
-        env:
-          THISTINTI_DATABASE_URL: sqlite:///./ci.db
-          THISTINTI_STORAGE_DIR: ./ci-validation-storage
-          THISTINTI_SECRET_KEY: ci-secret-key-more-than-thirty-two-characters
-          THISTINTI_AUTO_CREATE_SCHEMA: "false"
-        run: |
-          python scripts/run_validation_gate.py
-          python scripts/http_smoke.py
-          python scripts/generate_sbom.py
+          set -o pipefail
+          make verify 2>&1 | tee release-verification.log
+      - name: Upload release-gate diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-verification-${{ github.run_id }}-${{ github.run_attempt }}
+          path: release-verification.log
+          retention-days: 14
 
   python-compatibility:
     runs-on: ubuntu-latest
