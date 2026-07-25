@@ -185,14 +185,16 @@ async function loadDashboard() {
   $('#parserStatus').textContent = data.parsing_failures ? `${data.parsing_failures} file richiedono intervento` : 'Nessun errore rilevato';
   const cases = await api('/api/cases');
   state.cases = cases;
-  renderPriorityCases(cases.filter(c => ['open','needs_review','confirmed'].includes(c.status)).slice(0, 5));
+  const activeCases = cases.filter(c => ['open','needs_review','confirmed'].includes(c.status));
+  $('#metricCriticalCases').textContent = activeCases.filter(c => c.severity === 'critical').length;
+  renderPriorityCases(activeCases.slice(0, 5));
 }
 
 function renderPriorityCases(cases) {
   const target = $('#priorityCases');
   if (!cases.length) { target.className = 'list-stack empty-state'; target.textContent = 'Nessuna anomalia disponibile.'; return; }
   target.className = 'list-stack';
-  target.innerHTML = cases.map(c => `<div class="case-item" data-case-id="${c.id}"><span class="severity-icon ${c.severity}">${c.severity === 'high' ? '!' : c.severity === 'medium' ? '·' : 'i'}</span><div><strong>${escapeHtml(c.title)}</strong><small>${escapeHtml(c.explanation)}</small></div><span class="case-amount">${money(c.amount_estimate)}</span></div>`).join('');
+  target.innerHTML = cases.map(c => `<div class="case-item" data-case-id="${c.id}"><span class="severity-icon ${c.severity}">${severitySymbol(c.severity)}</span><div><strong>${escapeHtml(c.title)}</strong><small>${escapeHtml(c.explanation)}</small></div><span class="case-amount">${money(c.amount_estimate)}</span></div>`).join('');
   target.querySelectorAll('[data-case-id]').forEach(el => el.addEventListener('click', () => openCase(el.dataset.caseId)));
 }
 
@@ -598,20 +600,69 @@ async function exportData() {
   } catch (error) { toast(error.message, true); }
 }
 
-async function openCase(id) {
-  const c = await api(`/api/cases/${id}`);
-  state.selectedCase = c;
-  $('#caseDialogTitle').textContent = c.title;
-  $('#caseDialogBody').innerHTML = `<div class="detail-grid"><div class="detail-card"><p>Gravità</p><strong>${labelSeverity(c.severity)}</strong></div><div class="detail-card"><p>Importo stimato</p><strong>${money(c.amount_estimate)}</strong></div><div class="detail-card"><p>Confidenza</p><strong>${Math.round(c.confidence * 100)}%</strong></div></div><div class="detail-card detail-spaced"><p>Spiegazione</p><strong>${escapeHtml(c.explanation)}</strong></div><div class="detail-card detail-spaced"><p>Azione proposta</p><strong>${escapeHtml(c.recommended_action)}</strong></div><div class="evidence-list"><h4>Prove collegate</h4>${c.evidence.length ? c.evidence.map(e => `<div class="evidence-item"><p><strong>${escapeHtml(e.field_name)}</strong></p><p>Osservato: ${escapeHtml(e.observed_value || '—')}</p><p>Atteso: ${escapeHtml(e.expected_value || '—')}</p>${e.note ? `<small>${escapeHtml(e.note)}</small>` : ''}</div>`).join('') : '<p class="empty-state">Nessuna prova strutturata.</p>'}</div>`;
-  $('#reviewNote').value = '';
-  $('#caseDialog').showModal();
+function evidenceActions(evidence) {
+  if (!evidence.document_id) return '<p class="empty-state">Documento sorgente non più disponibile.</p>';
+  const lineAction = evidence.document_line_id
+    ? `<button class="secondary-button evidence-line-button" data-document-id="${escapeHtml(evidence.document_id)}" data-line-id="${escapeHtml(evidence.document_line_id)}" type="button">Apri riga estratta</button>`
+    : `<button class="secondary-button evidence-line-button" data-document-id="${escapeHtml(evidence.document_id)}" type="button">Apri documento</button>`;
+  return `<div class="evidence-actions">${lineAction}<button class="secondary-button evidence-original-button" data-document-id="${escapeHtml(evidence.document_id)}" type="button">Apri originale</button></div>`;
 }
 
-async function openDocument(id) {
-  const d = await api(`/api/documents/${id}`);
-  $('#documentDialogTitle').textContent = d.number || d.source_filename;
-  $('#documentDialogBody').innerHTML = `<div class="detail-grid"><div class="detail-card"><p>Tipo</p><strong>${labelType(d.document_type)}</strong></div><div class="detail-card"><p>Fornitore</p><strong>${escapeHtml(d.supplier || '—')}</strong></div><div class="detail-card"><p>Stato</p><strong>${labelStatus(d.parse_status)}</strong></div></div>${d.parse_message ? `<div class="detail-card detail-spaced"><p>Messaggio parser</p><strong>${escapeHtml(d.parse_message)}</strong></div>` : ''}<div class="lines-table"><table><thead><tr><th>Riga</th><th>Articolo</th><th>Variante</th><th>Quantità</th><th>Prezzo</th><th>Sconto</th></tr></thead><tbody>${d.lines.length ? d.lines.map(l => `<tr><td>${l.line_no}</td><td><strong>${escapeHtml(l.sku || '—')}</strong><small>${escapeHtml(l.description || '')}</small></td><td>${escapeHtml([l.color,l.size,l.lot].filter(Boolean).join(' / ') || '—')}</td><td>${numberOrDash(l.quantity)}</td><td>${moneyOrDash(l.unit_price)}</td><td>${percentOrDash(l.discount_rate)}</td></tr>`).join('') : `<tr><td colspan="6" class="empty-state">Nessuna riga estratta.</td></tr>`}</tbody></table></div>`;
-  $('#documentDialog').showModal();
+async function openOriginalDocument(documentId, button) {
+  const originalLabel = button?.textContent || 'Apri originale';
+  if (button) { button.disabled = true; button.textContent = 'Apertura…'; }
+  const preview = window.open('about:blank', '_blank');
+  if (preview) preview.opener = null;
+  try {
+    const response = await fetch(`/api/documents/${encodeURIComponent(documentId)}/file`, { credentials: 'same-origin' });
+    if (!response.ok) {
+      const payload = response.headers.get('content-type')?.includes('application/json') ? await response.json() : await response.text();
+      throw new Error(messageFrom(payload, `Documento non disponibile (${response.status})`));
+    }
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    if (preview) preview.location.replace(url);
+    else {
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.click();
+    }
+    window.setTimeout(() => URL.revokeObjectURL(url), 60000);
+  } catch (error) {
+    if (preview) preview.close();
+    toast(error.message, true);
+  } finally {
+    if (button) { button.disabled = false; button.textContent = originalLabel; }
+  }
+}
+
+async function openCase(id) {
+  try {
+    const c = await api(`/api/cases/${id}`);
+    state.selectedCase = c;
+    $('#caseDialogTitle').textContent = c.title;
+    $('#caseDialogBody').innerHTML = `<div class="detail-grid"><div class="detail-card"><p>Gravità</p><strong><span class="badge ${c.severity}">${labelSeverity(c.severity)}</span></strong></div><div class="detail-card"><p>Importo stimato</p><strong>${money(c.amount_estimate)}</strong></div><div class="detail-card"><p>Confidenza</p><strong>${Math.round(c.confidence * 100)}%</strong></div></div><div class="detail-card detail-spaced"><p>Spiegazione</p><strong>${escapeHtml(c.explanation)}</strong></div><div class="detail-card detail-spaced"><p>Azione proposta</p><strong>${escapeHtml(c.recommended_action)}</strong></div><div class="evidence-list"><h4>Prove collegate</h4>${c.evidence.length ? c.evidence.map(e => `<div class="evidence-item"><p><strong>${escapeHtml(e.field_name)}</strong></p><p>Osservato: ${escapeHtml(e.observed_value || '—')}</p><p>Atteso: ${escapeHtml(e.expected_value || '—')}</p>${e.note ? `<small>${escapeHtml(e.note)}</small>` : ''}${evidenceActions(e)}</div>`).join('') : '<p class="empty-state">Nessuna prova strutturata.</p>'}</div>`;
+    $('#caseDialogBody').querySelectorAll('.evidence-line-button').forEach(button => button.addEventListener('click', () => openDocument(button.dataset.documentId, button.dataset.lineId || null)));
+    $('#caseDialogBody').querySelectorAll('.evidence-original-button').forEach(button => button.addEventListener('click', () => openOriginalDocument(button.dataset.documentId, button)));
+    $('#reviewNote').value = '';
+    $('#caseDialog').showModal();
+  } catch (error) { toast(error.message, true); }
+}
+
+async function openDocument(id, lineId = null) {
+  try {
+    const d = await api(`/api/documents/${id}`);
+    $('#documentDialogTitle').textContent = d.number || d.source_filename;
+    $('#documentDialogBody').innerHTML = `<div class="detail-grid"><div class="detail-card"><p>Tipo</p><strong>${labelType(d.document_type)}</strong></div><div class="detail-card"><p>Fornitore</p><strong>${escapeHtml(d.supplier || '—')}</strong></div><div class="detail-card"><p>Stato</p><strong>${labelStatus(d.parse_status)}</strong></div></div>${d.parse_message ? `<div class="detail-card detail-spaced"><p>Messaggio parser</p><strong>${escapeHtml(d.parse_message)}</strong></div>` : ''}<div class="lines-table"><table><thead><tr><th>Riga</th><th>Articolo</th><th>Variante</th><th>Quantità</th><th>Prezzo</th><th>Sconto</th></tr></thead><tbody>${d.lines.length ? d.lines.map(l => `<tr data-line-id="${escapeHtml(l.id)}" class="${lineId === l.id ? 'document-row-highlight' : ''}"><td>${l.line_no}</td><td><strong>${escapeHtml(l.sku || '—')}</strong><small>${escapeHtml(l.description || '')}</small></td><td>${escapeHtml([l.color,l.size,l.lot].filter(Boolean).join(' / ') || '—')}</td><td>${numberOrDash(l.quantity)}</td><td>${moneyOrDash(l.unit_price)}</td><td>${percentOrDash(l.discount_rate)}</td></tr>`).join('') : `<tr><td colspan="6" class="empty-state">Nessuna riga estratta.</td></tr>`}</tbody></table></div>`;
+    $('#documentDialog').showModal();
+    if (lineId) {
+      const selected = $('#documentDialogBody').querySelector(`[data-line-id="${CSS.escape(lineId)}"]`);
+      if (selected) window.requestAnimationFrame(() => selected.scrollIntoView({ block: 'center' }));
+      else toast('La riga collegata non è più disponibile nel documento corrente.', true);
+    }
+  } catch (error) { toast(error.message, true); }
 }
 
 async function submitDecision(decision) {
@@ -702,7 +753,8 @@ async function loadDemo() {
 }
 
 function labelType(value) { return ({proposal:'Proposta',order:'Ordine',confirmation:'Conferma',delivery:'Consegna',invoice:'Fattura',payment:'Pagamento',return:'Reso',credit_note:'Nota credito'})[value] || value || '—'; }
-function labelSeverity(value) { return ({high:'Alta',medium:'Media',low:'Bassa'})[value] || value; }
+function labelSeverity(value) { return ({critical:'Critica',high:'Alta',medium:'Media',low:'Bassa'})[value] || value; }
+function severitySymbol(value) { return ({critical:'!!',high:'!',medium:'·',low:'i'})[value] || '?'; }
 function labelRole(value) { return ({admin:'Amministratore',reviewer:'Revisore',viewer:'Sola lettura'})[value] || value; }
 function labelStatus(value) { return ({parsed:'Letto',review_required:'Da rivedere',failed:'Fallito',open:'Aperta',needs_review:'Da rivedere',confirmed:'Confermata',dismissed:'Scartata',resolved:'Risolta',superseded:'Superata',review:'In revisione',clear:'Regolare',processing:'In elaborazione'})[value] || value || '—'; }
 function markList(values) { const count = Array.isArray(values) ? values.length : 0; return count ? `<span class="badge parsed">${count}</span>` : '<span class="muted-dash">—</span>'; }

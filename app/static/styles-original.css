@@ -88,6 +88,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
 .case-item { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 13px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface-soft); cursor: pointer; }
 .case-item:hover { border-color: #b8c1c8; background: white; }
 .severity-icon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 11px; font-size: .86rem; font-weight: 800; }
+.severity-icon.critical { color: #7b1010; background: #ffe0dc; border: 1px solid #d55a4e; }
 .severity-icon.high { color: var(--danger); background: #faeaea; }
 .severity-icon.medium { color: var(--warn); background: #fff3df; }
 .severity-icon.low { color: var(--accent); background: var(--accent-soft); }
@@ -115,6 +116,7 @@ th { color: var(--muted); background: var(--surface-soft); font-size: .75rem; te
 tbody tr { cursor: pointer; }
 tbody tr:hover { background: #fbfcfc; }
 .badge { display: inline-flex; align-items: center; border-radius: 999px; padding: 5px 8px; font-size: .72rem; font-weight: 750; }
+.badge.critical { color: #7b1010; background: #ffe0dc; border: 1px solid #d55a4e; }
 .badge.high, .badge.failed { color: var(--danger); background: #faeaea; }
 .badge.medium, .badge.review_required, .badge.needs_review { color: var(--warn); background: #fff3df; }
 .badge.low, .badge.open { color: var(--accent); background: var(--accent-soft); }
@@ -139,6 +141,9 @@ tbody tr:hover { background: #fbfcfc; }
 .evidence-list { display: grid; gap: 10px; margin-top: 18px; }
 .evidence-item { padding: 13px; border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; background: var(--surface-soft); }
 .evidence-item p { margin: 3px 0; font-size: .84rem; }
+.evidence-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.evidence-actions button { padding: 8px 10px; }
+.document-row-highlight { outline: 3px solid rgba(27, 113, 122, .42); outline-offset: -3px; background: #eef9fa; }
 .review-box { margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--line); }
 .lines-table { margin-top: 18px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
 .toast { position: fixed; z-index: 100; right: 22px; bottom: 22px; max-width: 400px; opacity: 0; transform: translateY(12px); pointer-events: none; padding: 13px 16px; border-radius: 13px; color: white; background: var(--dark); box-shadow: var(--shadow); transition: .2s ease; }

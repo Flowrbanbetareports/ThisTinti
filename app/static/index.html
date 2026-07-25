@@ -102,7 +102,7 @@
       <div id="dashboardView" class="view-panel">
         <section class="metric-grid">
           <article class="metric-card"><p>Documenti</p><strong id="metricDocuments">0</strong><small>archiviati e analizzati</small></article>
-          <article class="metric-card"><p>Anomalie aperte</p><strong id="metricCases">0</strong><small>da verificare</small></article>
+          <article class="metric-card"><p>Anomalie aperte</p><strong id="metricCases">0</strong><small><span id="metricCriticalCases">0</span> critiche da trattare per prime</small></article>
           <article class="metric-card"><p>Catene operative</p><strong id="metricChains">0</strong><small>documenti collegati</small></article>
           <article class="metric-card"><p>Importo potenziale</p><strong id="metricAmount">€0</strong><small>non è un importo garantito</small></article>
         </section>
@@ -149,7 +149,7 @@
 
       <div id="casesView" class="view-panel hidden">
         <section class="panel table-panel">
-          <div class="panel-heading"><div><h3>Anomalie</h3><p>Ogni caso include origine, prova e livello di affidabilità.</p></div><div class="filter-row"><select id="caseStatusFilter" aria-label="Filtra anomalie per stato"><option value="">Tutti gli stati</option><option value="open">Aperte</option><option value="needs_review">Da rivedere</option><option value="confirmed">Confermate</option><option value="dismissed">Scartate</option><option value="resolved">Risolte</option></select><select id="caseSeverityFilter" aria-label="Filtra anomalie per gravità"><option value="">Tutte le gravità</option><option value="high">Alta</option><option value="medium">Media</option><option value="low">Bassa</option></select></div></div>
+          <div class="panel-heading"><div><h3>Anomalie</h3><p>Ogni caso include origine, prova e livello di affidabilità.</p></div><div class="filter-row"><select id="caseStatusFilter" aria-label="Filtra anomalie per stato"><option value="">Tutti gli stati</option><option value="open">Aperte</option><option value="needs_review">Da rivedere</option><option value="confirmed">Confermate</option><option value="dismissed">Scartate</option><option value="resolved">Risolte</option></select><select id="caseSeverityFilter" aria-label="Filtra anomalie per gravità"><option value="">Tutte le gravità</option><option value="critical">Critica</option><option value="high">Alta</option><option value="medium">Media</option><option value="low">Bassa</option></select></div></div>
           <div class="table-wrap"><table><thead><tr><th>Caso</th><th>Gravità</th><th>Importo</th><th>Confidenza</th><th>Stato</th></tr></thead><tbody id="casesTable"></tbody></table></div>
         </section>
       </div>
