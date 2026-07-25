@@ -2,14 +2,14 @@
   "schema": "thistinti.release-provenance.v1",
   "version": "3.4.0-alpha.7-rc.5",
   "source": {
-    "commit": "7d6c54017c748d02dc8c49047419a6a77159f945",
-    "tree": "303fd4da1b266ea5a40ee468a8054aa42b8c92bf"
+    "commit": "8820742efbce46c636af3bf7a2ffbf5f6490514d",
+    "tree": "798f5133437e7be6b1c2390f35acdcdb8d9037e4"
   },
   "build": {
     "workflow": "Build Windows Free Download",
-    "run_id": 30166221958,
-    "run_number": 160,
-    "artifact_name": "ThisTinti-Windows-30166221958-160"
+    "run_id": 30169648083,
+    "run_number": 172,
+    "artifact_name": "ThisTinti-Windows-30169648083-172"
   },
   "upgrade_baseline": {
     "version": "3.4.0-alpha.7-rc.5",
@@ -77,43 +77,43 @@
     },
     {
       "name": "ThisTinti-3.4.0-alpha.7-rc.5-self-hosted-source.zip",
-      "size": 557169,
-      "sha256": "7b9b1076def2ffd5a8e459c462da8993e1185c34a7d6d028094d3bf2de637525"
+      "size": 562041,
+      "sha256": "5e8008057d8e905b46e2276247cd55bf8011d74d513b16829179e5c0b4b72ad1"
     },
     {
       "name": "ThisTinti-3.4.0-alpha.7-rc.5-self-hosted-source.zip.sha256",
       "size": 119,
-      "sha256": "8387e5aad9398e78bcda73dd49c3c4e20094fe43f5bd008c4ec3f05195146bb1"
+      "sha256": "027bd5dfcac902ded305a17d5d44d3d085d22068df6d25d3ff5e5c65093c917c"
     },
     {
       "name": "ThisTinti-Portable-3.4.0-alpha.7-rc.5-x64.zip",
-      "size": 82181180,
-      "sha256": "8e82f2c7ba21ec8e39252d264c73f7888021d1d9c8b9112d39db5c71676f2fc6"
+      "size": 82186861,
+      "sha256": "c83e53304c7d6a90bf0f19f750b587283a991e0c2f6e313fc88c62fd3cdedfc9"
     },
     {
       "name": "ThisTinti-Portable-3.4.0-alpha.7-rc.5-x64.zip.sha256",
       "size": 113,
-      "sha256": "4930556fc316dc6fa4d4bfbb0419c00fdf71ebbf28f9e1570c132db07eb8e12a"
+      "sha256": "76f48c7aebc91e4519b461ed165f63855e5c83f6d7f1e5799ad166f45db1bc28"
     },
     {
       "name": "ThisTinti-Setup-3.4.0-alpha.7-rc.5-x64.exe",
-      "size": 57053949,
-      "sha256": "2cd4e60648629370e1ee0f4b366427106b688247096df60d134de0803f742725"
+      "size": 57056573,
+      "sha256": "b990b3bebfe116c917c75d7c87940357a05d3f3b8c5984d9f0f67d840bb9baa8"
     },
     {
       "name": "ThisTinti-Setup-3.4.0-alpha.7-rc.5-x64.exe.sha256",
       "size": 110,
-      "sha256": "72f45e4db469d0d956bfb64b2f1cd367e5fface63217fdd1ee23bad05d359d95"
+      "sha256": "7a39dd7a904e96409c8d2717a01d87c661a7b764b4c362f381b9aa236cf5b4d7"
     },
     {
       "name": "frozen-local-smoke.json",
       "size": 348,
-      "sha256": "edc6cb78bae8e87f17ec1703d0d013c818deb70f99a85e643f5b9f54f5e5bd45"
+      "sha256": "e68d5817cb02f1f98ed1d71b45c9967132892f0856f9f26f530abc00fe188ff8"
     },
     {
       "name": "installed-local-smoke.json",
       "size": 361,
-      "sha256": "e26210b82f4efdc935052ffc8910d68e1b75127ecea3abbaa3d32914d09261e2"
+      "sha256": "f31742dec77ab2b686375a9d5f5a52aa9581450463c770a6b2da019ce6692fae"
     },
     {
       "name": "installer-lifecycle-smoke.json",
@@ -121,5 +121,5 @@
       "sha256": "5c061bce61defa1db41e4725aeb9ab284a100b75c0fe6596684d1b4ad4632415"
     }
   ],
-  "generated_at": "2026-07-25T16:52:11.400888+00:00"
+  "generated_at": "2026-07-25T18:35:10.224806+00:00"
 }
