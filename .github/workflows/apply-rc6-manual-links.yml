@@ -5,6 +5,7 @@ on:
     types: [opened, synchronize, reopened]
     paths:
       - ".automation/rc6-manual-links.patch.gz.b64"
+      - ".automation/rc6-manual-links.patch.gz.b64.part*"
       - ".github/workflows/apply-rc6-manual-links.yml"
   workflow_dispatch:
 
@@ -29,11 +30,11 @@ jobs:
         with:
           python-version: "3.13"
           cache: pip
-      - name: Apply verified patch
+      - name: Reassemble and apply verified patch
         shell: bash
         run: |
           set -euo pipefail
-          base64 --decode .automation/rc6-manual-links.patch.gz.b64 | gzip -dc > /tmp/rc6-manual-links.patch
+          cat .automation/rc6-manual-links.patch.gz.b64.part* | base64 --decode | gzip -dc > /tmp/rc6-manual-links.patch
           git apply --check /tmp/rc6-manual-links.patch
           git apply /tmp/rc6-manual-links.patch
       - name: Install locked development dependencies
@@ -70,6 +71,7 @@ jobs:
         run: |
           set -euo pipefail
           rm -f .automation/rc6-manual-links.patch.gz.b64
+          rm -f .automation/rc6-manual-links.patch.gz.b64.part*
           rm -f .github/workflows/apply-rc6-manual-links.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
