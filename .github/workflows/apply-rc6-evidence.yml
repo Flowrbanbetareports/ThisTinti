@@ -28,7 +28,7 @@ jobs:
         run: |
           set -euo pipefail
           base64 --decode .automation/rc6-evidence.patch.gz.b64 | gzip --decompress > /tmp/rc6-evidence.patch
-          git apply --index --whitespace=nowarn /tmp/rc6-evidence.patch
+          git apply --index --ignore-space-change --ignore-whitespace --whitespace=nowarn /tmp/rc6-evidence.patch
           rm -f .automation/rc6-evidence.patch.gz.b64 .github/workflows/apply-rc6-evidence.yml
           rmdir .automation 2>/dev/null || true
           git add -A
