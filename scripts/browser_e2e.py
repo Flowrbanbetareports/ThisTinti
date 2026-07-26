@@ -179,10 +179,17 @@ def authenticated_page(browser, admin: RegisteredAdmin, app: LiveApp):
         """
     )
     page = context.new_page()
-    page.goto(app.base_url, wait_until="load")
+    with page.expect_response(lambda response: response.url.endswith("/api/auth/me")):
+        page.goto(app.base_url, wait_until="load")
     page.locator("#loginEmail").fill(admin.email)
     page.locator("#loginPassword").fill(admin.password)
-    page.locator('#loginForm button[type="submit"]').click()
+    with page.expect_response(
+        lambda response: response.url.endswith("/api/auth/login") and response.request.method == "POST"
+    ) as login_exchange:
+        page.locator('#loginForm button[type="submit"]').click()
+    login_response = login_exchange.value
+    if login_response.status != 200:
+        raise RuntimeError(f"Browser login failed: HTTP {login_response.status}: {login_response.text()}")
     page.wait_for_selector("#appView:not(.hidden)")
     cookie_names = {cookie["name"] for cookie in context.cookies(app.base_url)}
     required = {"thistinti_session", "thistinti_csrf"}
