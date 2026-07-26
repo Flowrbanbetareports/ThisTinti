@@ -21,6 +21,12 @@ ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE_DIR = ROOT / "browser-evidence"
 LEGAL_NOTICE_VERSION = "2026-07-20-v2"
 
+# When these checks are launched as ``python scripts/check_*.py``, Python places
+# ``scripts/`` (not the repository root) on sys.path. Keep the real application
+# importable without depending on a developer-specific PYTHONPATH.
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 
 @dataclass(frozen=True)
 class LiveApp:
