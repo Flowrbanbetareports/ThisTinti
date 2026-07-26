@@ -11,6 +11,7 @@ from release_artifact import (
     load_json,
     required_release_files,
     sha256_file,
+    validate_portable_identity,
     validate_smoke_reports,
     validate_source_identity,
     verify_checksum_sidecar,
@@ -42,6 +43,15 @@ def main() -> int:
         f"ThisTinti-{args.version}-self-hosted-source.zip",
     ):
         verify_checksum_sidecar(directory / stem, directory / f"{stem}.sha256")
+    validate_portable_identity(
+        directory / f"ThisTinti-Portable-{args.version}-x64.zip",
+        expected_version=args.version,
+        expected_commit=args.source_commit,
+        expected_tree=args.source_tree,
+        expected_workflow_run=args.workflow_run,
+        expected_workflow_run_number=args.workflow_run_number,
+        expected_artifact_name=args.artifact_name,
+    )
     validate_smoke_reports(directory)
 
     files = [
@@ -67,6 +77,7 @@ def main() -> int:
         },
         "verification": {
             "checksums_verified": True,
+            "portable_identity_verified": True,
             "frozen_smoke_passed": True,
             "installed_smoke_passed": True,
             "installer_lifecycle_passed": True,
