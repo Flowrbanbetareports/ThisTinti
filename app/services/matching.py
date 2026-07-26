@@ -4,7 +4,7 @@ import json
 from collections import Counter
 
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from ..models import ChainDocument, Document, OperationChain
 from .normalizer import item_similarity, normalize_code
@@ -87,6 +87,87 @@ def _anchor_documents(db: Session, chain: OperationChain) -> list[Document]:
         )
     )
     return list(db.scalars(select(Document).where(Document.id.in_(ids)))) if ids else []
+
+
+def rank_chain_link_candidates(
+    db: Session,
+    chain: OperationChain,
+    *,
+    limit: int = 50,
+) -> list[dict]:
+    """Rank currently unlinked documents for supervised attachment to one chain.
+
+    Scores are explanatory suggestions only. The user must explicitly attach a
+    document, and the normal tenant/supplier/role guards still apply.
+    """
+    linked_document_ids = set(
+        db.scalars(
+            select(ChainDocument.document_id).where(
+                ChainDocument.tenant_id == chain.tenant_id,
+            )
+        )
+    )
+    stmt = (
+        select(Document)
+        .options(selectinload(Document.lines))
+        .where(
+            Document.tenant_id == chain.tenant_id,
+            Document.archived.is_(False),
+            Document.parse_status == "parsed",
+        )
+        .order_by(Document.created_at.desc())
+        .limit(500)
+    )
+    if chain.supplier_id:
+        stmt = stmt.where(Document.supplier_id == chain.supplier_id)
+    documents = [document for document in db.scalars(stmt) if document.id not in linked_document_ids]
+    anchors = _anchor_documents(db, chain)
+    normalized_numbers = {
+        normalized
+        for normalized in [
+            normalize_code(chain.reference_key or ""),
+            *[normalize_code(anchor.number or "") for anchor in anchors],
+        ]
+        if normalized
+    }
+
+    ranked: list[dict] = []
+    for document in documents:
+        reference = _candidate_reference(document)
+        reason = "same_supplier" if chain.supplier_id and document.supplier_id == chain.supplier_id else "available"
+        score = 0.35 if reason == "same_supplier" else 0.2
+        if reference and reference in normalized_numbers:
+            reason = "explicit_reference"
+            score = 1.0
+        elif anchors:
+            overlap = max((_line_overlap(document, anchor) for anchor in anchors), default=0.0)
+            dated = [anchor for anchor in anchors if anchor.document_date and document.document_date]
+            if dated:
+                days = min(abs((document.document_date - anchor.document_date).days) for anchor in dated)
+                if days <= 60:
+                    overlap += 0.08
+                elif days > 180:
+                    overlap -= 0.2
+            if overlap > score:
+                score = overlap
+                reason = "line_overlap"
+        ranked.append(
+            {
+                "document": document,
+                "role": document.document_type,
+                "confidence": max(0.0, min(1.0, score)),
+                "reason": reason,
+            }
+        )
+
+    ranked.sort(
+        key=lambda item: (
+            item["confidence"],
+            item["document"].created_at,
+        ),
+        reverse=True,
+    )
+    return ranked[:limit]
 
 
 def attach_document_to_chain(db: Session, document: Document) -> OperationChain:

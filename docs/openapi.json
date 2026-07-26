@@ -1925,6 +1925,62 @@
         }
       }
     },
+    "/api/chains/{chain_id}/link-options": {
+      "get": {
+        "summary": "Get Chain Link Options",
+        "operationId": "get_chain_link_options_api_chains__chain_id__link_options_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "chain_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Chain Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChainLinkOptionsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/chains/{chain_id}/attach": {
       "post": {
         "summary": "Attach Chain Document",
@@ -3779,6 +3835,199 @@
           "learning"
         ],
         "title": "ChainIntelligenceResponse"
+      },
+      "ChainLinkCandidateResponse": {
+        "properties": {
+          "document_id": {
+            "type": "string",
+            "title": "Document Id"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "proposal",
+              "order",
+              "confirmation",
+              "delivery",
+              "invoice",
+              "payment",
+              "return",
+              "credit_note"
+            ],
+            "title": "Role"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Number"
+          },
+          "source_filename": {
+            "type": "string",
+            "title": "Source Filename"
+          },
+          "document_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Date"
+          },
+          "supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplier"
+          },
+          "line_count": {
+            "type": "integer",
+            "title": "Line Count",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "document_id",
+          "role",
+          "confidence",
+          "reason",
+          "source_filename"
+        ],
+        "title": "ChainLinkCandidateResponse"
+      },
+      "ChainLinkOptionsResponse": {
+        "properties": {
+          "chain_id": {
+            "type": "string",
+            "title": "Chain Id"
+          },
+          "linked": {
+            "items": {
+              "$ref": "#/components/schemas/ChainLinkedDocumentResponse"
+            },
+            "type": "array",
+            "title": "Linked"
+          },
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/ChainLinkCandidateResponse"
+            },
+            "type": "array",
+            "title": "Candidates"
+          }
+        },
+        "type": "object",
+        "required": [
+          "chain_id",
+          "linked",
+          "candidates"
+        ],
+        "title": "ChainLinkOptionsResponse"
+      },
+      "ChainLinkedDocumentResponse": {
+        "properties": {
+          "document_id": {
+            "type": "string",
+            "title": "Document Id"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "proposal",
+              "order",
+              "confirmation",
+              "delivery",
+              "invoice",
+              "payment",
+              "return",
+              "credit_note"
+            ],
+            "title": "Role"
+          },
+          "sequence_no": {
+            "type": "integer",
+            "title": "Sequence No"
+          },
+          "match_confidence": {
+            "type": "number",
+            "title": "Match Confidence"
+          },
+          "match_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Match Reason"
+          },
+          "number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Number"
+          },
+          "source_filename": {
+            "type": "string",
+            "title": "Source Filename"
+          },
+          "document_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Date"
+          },
+          "parse_status": {
+            "type": "string",
+            "title": "Parse Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "document_id",
+          "role",
+          "sequence_no",
+          "match_confidence",
+          "source_filename",
+          "parse_status"
+        ],
+        "title": "ChainLinkedDocumentResponse"
       },
       "DashboardResponse": {
         "properties": {

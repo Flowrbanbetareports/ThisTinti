@@ -201,3 +201,22 @@ def test_recovery_center_is_available_without_external_services():
     assert "scripts/check_job_recovery_browser.py" in (
         ROOT / ".github" / "workflows" / "simplified-experience.yml"
     ).read_text(encoding="utf-8")
+
+
+def test_supervised_chain_link_controls_are_visible_and_browser_verified():
+    source = read("app-core.js")
+    css = read("styles-original.css")
+    workflow = (ROOT / ".github" / "workflows" / "simplified-experience.yml").read_text(encoding="utf-8")
+    for marker in (
+        "renderChainLinkManagement",
+        "Collegamenti proposti",
+        "attach-candidate-document",
+        "detach-linked-document",
+        "linkReasonLabel",
+        "/link-options",
+    ):
+        assert marker in source
+    assert ".chain-link-section" in css
+    assert ".link-document-row" in css
+    assert (ROOT / "scripts" / "check_chain_links_browser.py").is_file()
+    assert "scripts/check_chain_links_browser.py" in workflow

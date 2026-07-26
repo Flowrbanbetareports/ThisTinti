@@ -281,6 +281,36 @@ class ChainAttachRequest(BaseModel):
     role: DocumentType
 
 
+class ChainLinkedDocumentResponse(BaseModel):
+    document_id: str
+    role: DocumentType
+    sequence_no: int
+    match_confidence: float
+    match_reason: str | None = None
+    number: str | None = None
+    source_filename: str
+    document_date: date | None = None
+    parse_status: str
+
+
+class ChainLinkCandidateResponse(BaseModel):
+    document_id: str
+    role: DocumentType
+    confidence: float
+    reason: str
+    number: str | None = None
+    source_filename: str
+    document_date: date | None = None
+    supplier: str | None = None
+    line_count: int = 0
+
+
+class ChainLinkOptionsResponse(BaseModel):
+    chain_id: str
+    linked: list[ChainLinkedDocumentResponse]
+    candidates: list[ChainLinkCandidateResponse]
+
+
 class UserCreateRequest(BaseModel):
     email: EmailStr
     password: str = Field(min_length=10, max_length=256)

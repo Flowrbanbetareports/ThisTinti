@@ -67,3 +67,14 @@ Nel dettaglio di un documento, un amministratore o revisore può usare **Corregg
 rielabora** per indicare tipo, numero, fornitore e data corretti. La rielaborazione viene
 messa nella coda persistente. Se il nuovo tentativo fallisce, l'ultima estrazione valida
 non viene distrutta e l'errore resta consultabile nella pagina Attività.
+
+## Verifica e correzione dei collegamenti
+
+Nel dettaglio di una catena, la sezione **Documenti collegati** mostra per ogni file il
+ruolo, l'affidabilità e il motivo del collegamento. **Collegamenti proposti** elenca
+separatamente documenti non ancora collegati e li ordina per compatibilità.
+
+Le percentuali sono indicazioni tecniche, non approvazioni. Prima di usare **Collega** o
+**Scollega**, aprire il documento e confrontare il file originale. Ogni modifica manuale
+viene registrata nell'audit e provoca una nuova analisi della catena; le segnalazioni
+possono quindi cambiare.
