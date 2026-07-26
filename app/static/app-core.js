@@ -234,9 +234,35 @@ function comparisonCell(value) {
   return `<strong>${numberOrDash(value.quantity)}</strong><small>${moneyOrDash(value.unit_price)} · sconto ${percentOrDash(value.discount_rate)}</small>`;
 }
 
+function linkReasonLabel(value) {
+  return ({
+    manual: 'Collegamento confermato manualmente',
+    explicit_reference: 'Riferimento esplicito',
+    line_overlap: 'Righe compatibili',
+    same_supplier: 'Stesso fornitore',
+    available: 'Documento disponibile',
+    new_chain: 'Catena creata dal documento',
+  })[value] || 'Motivo non specificato';
+}
+
+function renderChainLinkManagement(options, canReview) {
+  const linked = options.linked || [];
+  const candidates = options.candidates || [];
+  const linkedHtml = linked.length
+    ? linked.map(item => `<div class="link-document-row" data-linked-document-id="${item.document_id}"><div><span class="badge parsed">${labelType(item.role)}</span><strong>${escapeHtml(item.number || item.source_filename)}</strong><small>${escapeHtml(item.source_filename)} · ${Math.round(Number(item.match_confidence || 0) * 100)}% · ${escapeHtml(linkReasonLabel(item.match_reason))}</small></div><div class="row-actions"><button class="secondary-button open-linked-document" type="button" data-document-id="${item.document_id}">Apri</button>${canReview ? `<button class="secondary-button detach-linked-document" type="button" data-document-id="${item.document_id}">Scollega</button>` : ''}</div></div>`).join('')
+    : '<div class="empty-state">Nessun documento collegato.</div>';
+  const candidateHtml = candidates.length
+    ? candidates.map(item => `<div class="link-document-row candidate" data-candidate-document-id="${item.document_id}"><div><span class="badge ${item.confidence >= .8 ? 'parsed' : item.confidence >= .5 ? 'medium' : 'open'}">${Math.round(Number(item.confidence || 0) * 100)}%</span><strong>${escapeHtml(item.number || item.source_filename)}</strong><small>${labelType(item.role)} · ${escapeHtml(item.supplier || 'Fornitore non indicato')} · ${escapeHtml(linkReasonLabel(item.reason))}</small></div><div class="row-actions"><button class="secondary-button open-candidate-document" type="button" data-document-id="${item.document_id}">Apri</button>${canReview ? `<button class="primary-button attach-candidate-document" type="button" data-document-id="${item.document_id}" data-role="${item.role}">Collega</button>` : ''}</div></div>`).join('')
+    : '<div class="empty-state">Nessun documento non collegato compatibile.</div>';
+  return `<section class="detail-section chain-link-section"><div class="panel-heading"><div><h3>Documenti collegati</h3><p>Ogni collegamento mostra origine e affidabilità. Puoi verificarlo sull’originale prima di modificarlo.</p></div></div><div class="link-document-list">${linkedHtml}</div><details class="candidate-links"><summary>Collegamenti proposti (${candidates.length})</summary><p class="section-helper">Sono suggerimenti ordinati per compatibilità, non decisioni automatiche.</p><div class="link-document-list">${candidateHtml}</div></details></section>`;
+}
+
 async function openChain(id) {
   try {
-    const chain = await api(`/api/chains/${id}`);
+    const [chain, linkOptions] = await Promise.all([
+      api(`/api/chains/${id}`),
+      api(`/api/chains/${id}/link-options`),
+    ]);
     const comparison = chain.comparison;
     $('#chainDialogTitle').textContent = chain.reference_key || chain.id.slice(0, 8);
     const rows = comparison.rows || [];
@@ -249,7 +275,7 @@ async function openChain(id) {
       : '<div class="empty-state">Nessun documento fondamentale mancante.</div>';
     const canReview = ['admin', 'reviewer'].includes(state.user?.role);
     const actionButtons = canReview ? `<div class="modal-actions intelligence-actions"><button id="simulateChainButton" class="secondary-button" type="button">Simula approvazione</button><button id="redTeamChainButton" class="secondary-button" type="button">Prova a ingannare ThisTinti</button></div>` : '';
-    $('#chainDialogBody').innerHTML = `<div class="detail-grid"><div class="detail-card"><p>Stato</p><strong>${labelStatus(chain.status)}</strong></div><div class="detail-card"><p>Rischio preventivo</p><strong id="chainRiskValue">${risk.score}/100 · ${escapeHtml(risk.decision)}</strong><small id="chainRiskAmount">${money(risk.amount_at_risk)} potenzialmente coinvolti</small></div><div class="detail-card"><p>Tripla verifica</p><strong>${escapeHtml(intelligence.triangulation?.status || '—')}</strong><small>estrazione · calcoli · grafo</small></div><div class="detail-card"><p>Conformità processo</p><strong>${Math.round((intelligence.process_conformance?.score || 0) * 100)}%</strong><small>${escapeHtml(intelligence.process_conformance?.baseline_source || 'baseline prudenziale')}</small></div></div>${actionButtons}<div id="chainIntelligenceResult" aria-live="polite"></div><section class="detail-section"><div class="panel-heading"><div><h3>Sentinel Twin</h3><p>Cosa manca o dovrebbe accadere dopo.</p></div></div><div class="list-stack">${expectationHtml}</div></section><div class="lines-table comparison-table"><table><thead><tr><th>Articolo</th><th>Riferimento commerciale</th><th>Consegna</th><th>Fattura</th><th>Reso</th><th>Nota credito</th><th>Esito</th></tr></thead><tbody>${rows.length ? rows.map(row => `<tr><td><strong>${escapeHtml(row.sku || row.description || row.key)}</strong><small>${escapeHtml([row.description,row.color,row.size,row.lot].filter(Boolean).join(' · '))}</small></td><td>${comparisonCell(row.values.confirmation || row.values.order || row.values.proposal)}</td><td>${comparisonCell(row.values.delivery)}</td><td>${comparisonCell(row.values.invoice)}</td><td>${comparisonCell(row.values.return)}</td><td>${comparisonCell(row.values.credit_note)}</td><td><span class="badge ${row.status === 'ok' ? 'parsed' : row.status === 'issue' ? 'high' : 'medium'}">${row.status === 'ok' ? 'Coerente' : escapeHtml(row.reasons.join(', ') || 'Da verificare')}</span></td></tr>`).join('') : '<tr><td colspan="7" class="empty-state">Nessuna riga confrontabile.</td></tr>'}</tbody></table></div>`;
+    $('#chainDialogBody').innerHTML = `<div class="detail-grid"><div class="detail-card"><p>Stato</p><strong>${labelStatus(chain.status)}</strong></div><div class="detail-card"><p>Rischio preventivo</p><strong id="chainRiskValue">${risk.score}/100 · ${escapeHtml(risk.decision)}</strong><small id="chainRiskAmount">${money(risk.amount_at_risk)} potenzialmente coinvolti</small></div><div class="detail-card"><p>Tripla verifica</p><strong>${escapeHtml(intelligence.triangulation?.status || '—')}</strong><small>estrazione · calcoli · grafo</small></div><div class="detail-card"><p>Conformità processo</p><strong>${Math.round((intelligence.process_conformance?.score || 0) * 100)}%</strong><small>${escapeHtml(intelligence.process_conformance?.baseline_source || 'baseline prudenziale')}</small></div></div>${actionButtons}<div id="chainIntelligenceResult" aria-live="polite"></div>${renderChainLinkManagement(linkOptions, canReview)}<section class="detail-section"><div class="panel-heading"><div><h3>Sentinel Twin</h3><p>Cosa manca o dovrebbe accadere dopo.</p></div></div><div class="list-stack">${expectationHtml}</div></section><div class="lines-table comparison-table"><table><thead><tr><th>Articolo</th><th>Riferimento commerciale</th><th>Consegna</th><th>Fattura</th><th>Reso</th><th>Nota credito</th><th>Esito</th></tr></thead><tbody>${rows.length ? rows.map(row => `<tr><td><strong>${escapeHtml(row.sku || row.description || row.key)}</strong><small>${escapeHtml([row.description,row.color,row.size,row.lot].filter(Boolean).join(' · '))}</small></td><td>${comparisonCell(row.values.confirmation || row.values.order || row.values.proposal)}</td><td>${comparisonCell(row.values.delivery)}</td><td>${comparisonCell(row.values.invoice)}</td><td>${comparisonCell(row.values.return)}</td><td>${comparisonCell(row.values.credit_note)}</td><td><span class="badge ${row.status === 'ok' ? 'parsed' : row.status === 'issue' ? 'high' : 'medium'}">${row.status === 'ok' ? 'Coerente' : escapeHtml(row.reasons.join(', ') || 'Da verificare')}</span></td></tr>`).join('') : '<tr><td colspan="7" class="empty-state">Nessuna riga confrontabile.</td></tr>'}</tbody></table></div>`;
     $('#simulateChainButton')?.addEventListener('click', async () => {
       try {
         const result = await api(`/api/chains/${id}/simulate`, { method: 'POST', body: JSON.stringify({ action: 'approve_invoice' }) });
@@ -264,7 +290,30 @@ async function openChain(id) {
         $('#chainIntelligenceResult').innerHTML = `<div class="intelligence-callout"><strong>Self-red-team: ${Math.round(result.coverage * 100)}%</strong><p>${result.detected}/${result.applicable || result.total} scenari applicabili intercettati; ${result.total} famiglie disponibili. Stato: ${escapeHtml(result.status)}.</p></div>`;
       } catch (error) { toast(error.message, true); }
     });
-    $('#chainDialog').showModal();
+    $$('.open-linked-document, .open-candidate-document').forEach(button => button.addEventListener('click', () => {
+      $('#chainDialog').close();
+      openDocument(button.dataset.documentId);
+    }));
+    $$('.attach-candidate-document').forEach(button => button.addEventListener('click', async () => {
+      button.disabled = true;
+      try {
+        await api(`/api/chains/${id}/attach`, { method: 'POST', body: JSON.stringify({ document_id: button.dataset.documentId, role: button.dataset.role }) });
+        toast('Documento collegato. La catena è stata rianalizzata.');
+        await Promise.allSettled([loadChains(), loadDashboard()]);
+        await openChain(id);
+      } catch (error) { toast(error.message, true); } finally { button.disabled = false; }
+    }));
+    $$('.detach-linked-document').forEach(button => button.addEventListener('click', async () => {
+      if (!window.confirm('Scollegare questo documento dalla catena? Le segnalazioni verranno ricalcolate.')) return;
+      button.disabled = true;
+      try {
+        await api(`/api/chains/${id}/documents/${button.dataset.documentId}`, { method: 'DELETE' });
+        toast('Documento scollegato. La catena è stata rianalizzata.');
+        await Promise.allSettled([loadChains(), loadDashboard()]);
+        await openChain(id);
+      } catch (error) { toast(error.message, true); } finally { button.disabled = false; }
+    }));
+    if (!$('#chainDialog').open) $('#chainDialog').showModal();
   } catch (error) { toast(error.message, true); }
 }
 

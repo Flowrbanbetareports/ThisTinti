@@ -187,7 +187,7 @@ tbody tr:hover { background: #fbfcfc; }
 
 .compact-select {
   min-width: 9rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
   border-radius: 0.7rem;
   background: var(--surface);
   color: var(--text);
@@ -273,4 +273,80 @@ tbody tr:hover { background: #fbfcfc; }
   .jobs-filter-row { display: grid; grid-template-columns: 1fr; }
   .jobs-filter-row input, .jobs-filter-row select, .jobs-filter-row button { width: 100%; min-width: 0; }
   .jobs-pagination { flex-wrap: wrap; }
+}
+
+.chain-link-section {
+  display: grid;
+  gap: 14px;
+}
+
+.link-document-list {
+  display: grid;
+  gap: 10px;
+}
+
+.link-document-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-soft);
+}
+
+.link-document-row.candidate {
+  border-style: dashed;
+}
+
+.link-document-row > div:first-child {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 4px 10px;
+  min-width: 0;
+}
+
+.link-document-row strong,
+.link-document-row small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.link-document-row small {
+  grid-column: 2;
+}
+
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.candidate-links {
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.candidate-links summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.section-helper {
+  margin: 8px 0 12px;
+  color: var(--muted);
+}
+
+@media (max-width: 700px) {
+  .link-document-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .row-actions {
+    justify-content: flex-start;
+  }
 }

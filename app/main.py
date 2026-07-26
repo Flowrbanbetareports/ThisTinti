@@ -56,6 +56,7 @@ from .schemas import (
     AuthResponse,
     ActivityProfileDecisionRequest,
     ChainAttachRequest,
+    ChainLinkOptionsResponse,
     DashboardResponse,
     DiscoveryRunRequest,
     LoginRequest,
@@ -96,6 +97,7 @@ from .security import (
 )
 from .services.file_security import probe_malware_scanner
 from .services.ingestion import document_parse_error_detail, ingest_path, reprocess_document
+from .services.matching import rank_chain_link_candidates
 from .services.jobs import enqueue_job, job_json
 from .services.rules import analyze_chain
 from .services.rate_limit import consume_rate_limit
@@ -1864,6 +1866,90 @@ def red_team_chain(
     return RedTeamResponse.model_validate(result)
 
 
+@app.get("/api/chains/{chain_id}/link-options", response_model=ChainLinkOptionsResponse)
+def get_chain_link_options(
+    chain_id: str,
+    limit: int = Query(default=50, ge=1, le=100),
+    ctx: AuthContext = Depends(current_user),
+    db: Session = Depends(get_db),
+) -> ChainLinkOptionsResponse:
+    chain = db.scalar(
+        select(OperationChain).where(
+            OperationChain.id == chain_id,
+            OperationChain.tenant_id == ctx.tenant_id,
+        )
+    )
+    if not chain:
+        raise HTTPException(status_code=404, detail="Chain not found")
+
+    links = list(
+        db.scalars(
+            select(ChainDocument)
+            .where(
+                ChainDocument.tenant_id == ctx.tenant_id,
+                ChainDocument.chain_id == chain.id,
+            )
+            .order_by(ChainDocument.role, ChainDocument.sequence_no)
+        )
+    )
+    document_ids = [link.document_id for link in links]
+    linked_documents = (
+        {
+            document.id: document
+            for document in db.scalars(
+                select(Document)
+                .options(selectinload(Document.lines))
+                .where(Document.tenant_id == ctx.tenant_id, Document.id.in_(document_ids))
+            )
+        }
+        if document_ids
+        else {}
+    )
+    ranked = rank_chain_link_candidates(db, chain, limit=limit)
+    supplier_ids = {item["document"].supplier_id for item in ranked if item["document"].supplier_id}
+    suppliers = (
+        {supplier.id: supplier for supplier in db.scalars(select(Supplier).where(Supplier.id.in_(supplier_ids)))}
+        if supplier_ids
+        else {}
+    )
+    return ChainLinkOptionsResponse.model_validate(
+        {
+            "chain_id": chain.id,
+            "linked": [
+                {
+                    "document_id": link.document_id,
+                    "role": link.role,
+                    "sequence_no": link.sequence_no,
+                    "match_confidence": link.match_confidence,
+                    "match_reason": link.match_reason,
+                    "number": linked_documents[link.document_id].number,
+                    "source_filename": linked_documents[link.document_id].source_filename,
+                    "document_date": linked_documents[link.document_id].document_date,
+                    "parse_status": linked_documents[link.document_id].parse_status,
+                }
+                for link in links
+                if link.document_id in linked_documents
+            ],
+            "candidates": [
+                {
+                    "document_id": item["document"].id,
+                    "role": item["role"],
+                    "confidence": item["confidence"],
+                    "reason": item["reason"],
+                    "number": item["document"].number,
+                    "source_filename": item["document"].source_filename,
+                    "document_date": item["document"].document_date,
+                    "supplier": suppliers.get(item["document"].supplier_id).legal_name
+                    if item["document"].supplier_id in suppliers
+                    else None,
+                    "line_count": len(item["document"].lines),
+                }
+                for item in ranked
+            ],
+        }
+    )
+
+
 @app.post("/api/chains/{chain_id}/attach")
 def attach_chain_document(
     chain_id: str,
@@ -1927,6 +2013,7 @@ def attach_chain_document(
         }[payload.role]
         if not getattr(chain, primary_field):
             setattr(chain, primary_field, document.id)
+        chain.confidence = max(chain.confidence, 1.0)
     analyze_chain(db, chain)
     add_audit(
         db,
