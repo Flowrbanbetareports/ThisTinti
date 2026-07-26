@@ -1,4 +1,4 @@
-# Threat model — ThisTinti 3.4.0-alpha.5
+# Threat model — ThisTinti 3.4.0-alpha.7-rc.7
 
 ## Asset
 
@@ -90,7 +90,7 @@ Rischio residuo: chiavi di cifratura perse, backup non off-site, restore mai pro
 - **processo dominante scambiato per regola obbligatoria**: il conformance check segnala deviazioni ma non modifica la contabilità;
 - **avvelenamento della memoria privata**: profili e regole apprese richiedono supporto minimo e restano sotto decisione umana;
 - **esfiltrazione tramite pattern pack**: nessun dato grezzo, aggregazione dei casi rari e hash delle chiavi dinamiche;
-- **scenari sintetici con effetti collaterali**: i controlli lavorano su rappresentazioni sintetiche e non mutano documenti o pagamenti;
+- **self-red-team con effetti collaterali**: gli scenari lavorano su rappresentazioni sintetiche e non mutano documenti o pagamenti;
 - **ricevuta OCR interpretata male**: importo con confidenza ridotta, evidenza esplicita e revisione raccomandata.
 
 
