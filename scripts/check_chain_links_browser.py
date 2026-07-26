@@ -5,7 +5,7 @@ import json
 from playwright.sync_api import sync_playwright
 
 from browser_e2e import (
-    authenticated_context,
+    authenticated_page,
     live_app,
     mutation_headers,
     register_admin,
@@ -55,10 +55,7 @@ def main() -> None:
 
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch(headless=True)
-            context = authenticated_context(browser, admin, app)
-            page = context.new_page()
-            page.goto(app.base_url, wait_until="load")
-            page.wait_for_selector("#appView:not(.hidden)")
+            context, page = authenticated_page(browser, admin, app)
             page.locator('[data-view="chains"]').click()
             page.wait_for_selector(f'[data-chain-id="{chain["id"]}"]')
             chain_row = page.locator(f'[data-chain-id="{chain["id"]}"]')
