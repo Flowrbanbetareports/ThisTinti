@@ -1,73 +1,157 @@
 {
   "schema": "thistinti.publication-evidence.v2",
-  "version": "3.4.0-alpha.7-rc.5",
-  "tag": "v3.4.0-alpha.7-rc.5",
-  "release_id": 359442978,
-  "release_commit": "3ba42c8fd61043bd57d26fd04d937e7275818300",
-  "release_tree": "e483e40131d43cf0db78dd2c04f33daab563267b",
-  "release_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/tag/v3.4.0-alpha.7-rc.5",
-  "published_at": "2026-07-24T17:20:41Z",
+  "version": "3.4.0-alpha.7-rc.6",
+  "tag": "v3.4.0-alpha.7-rc.6",
+  "release_id": 359959559,
+  "release_commit": "0c86e669bbbecadcada3581dfd842a2f7fd9c3b5",
+  "release_tree": "5b42ee40bb948d6133afc50605534dd1028f478e",
+  "release_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/tag/v3.4.0-alpha.7-rc.6",
+  "published_at": "2026-07-26T08:11:42Z",
   "is_draft": false,
   "is_prerelease": true,
-  "asset_count": 8,
+  "asset_count": 20,
   "assets": [
     {
-      "id": 488638246,
+      "id": 490178387,
+      "name": "DISCLAIMER.md",
+      "size": 1223,
+      "sha256": "46abf3a02065f5b05d99e48db625e88050172ab7983b411d7cfb74348d1920b1",
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.6/DISCLAIMER.md"
+    },
+    {
+      "id": 490178388,
+      "name": "OPENAPI.json",
+      "size": 158425,
+      "sha256": "ca234174f7dd9bd928def5dfe3215e46be0220f893882a3a6a965cd475fc6ff8",
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.6/OPENAPI.json"
+    },
+    {
+      "id": 490178390,
+      "name": "PRIVACY.md",
+      "size": 1049,
+      "sha256": "378966bb8c0cbd7d73614abfbcaddd1889c469722b261431b89c7748ae03642a",
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.6/PRIVACY.md"
+    },
+    {
+      "id": 490178389,
+      "name": "RELEASE_NOTES.md",
+      "size": 3795,
+      "sha256": "8efb4af7358378c5a41a1d923bfead348232f4a177ec58a8c1c7ce1f80054297",
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.6/RELEASE_NOTES.md"
+    },
+    {
+      "id": 490178391,
+      "name": "SBOM.cdx.json",
+      "size": 8745,
+      "sha256": "d4b7a3998418aad51cdcfc443499b0e28c528c0137627afffc84b756f4831aca",
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.6/SBOM.cdx.json"
+    },
+    {
+      "id": 490178409,
+      "name": "SELF-HOSTED-ACCEPTANCE-CHECKLIST.md",
+      "size": 1706,
+      "sha256": "9ef2bb121b3ae2d43ba43082ca28205ae8ae5e643d888852bce7bfced365c039",
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.6/SELF-HOSTED-ACCEPTANCE-CHECKLIST.md"
+    },
+    {
+      "id": 490178408,
+      "name": "SELF-HOSTED-RESPONSIBILITY-MATRIX.md",
+      "size": 1869,
+      "sha256": "4dc88ac0a454171fcb19b45bbe9d0b3cefce45e155eb1067ed46ec484d105eac",
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.6/SELF-HOSTED-RESPONSIBILITY-MATRIX.md"
+    },
+    {
+      "id": 490178411,
+      "name": "SUPPORT.md",
+      "size": 1348,
+      "sha256": "360a8e7c4294c2eaa3b20687684ad58412f6a4903d98703e8601cc0c08572436",
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.6/SUPPORT.md"
+    },
+    {
+      "id": 490178410,
+      "name": "TERMS_OF_USE.md",
+      "size": 10817,
+      "sha256": "b29d072205616a8f57216446c6b48036f8fcc078b675b7590485b218b2383f6f",
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.6/TERMS_OF_USE.md"
+    },
+    {
+      "id": 490178412,
+      "name": "TRADEMARKS.md",
+      "size": 1454,
+      "sha256": "99686695605070db78372b1dcbf8cc6dbffd67efff32c6ca38ba433370508dc8",
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.6/TRADEMARKS.md"
+    },
+    {
+      "id": 490178415,
+      "name": "ThisTinti-3.4.0-alpha.7-rc.6-self-hosted-source.zip",
+      "size": 580470,
+      "sha256": "35d75a2bbf1cb238fb9ea726519edf9aaa44c05b814faf2d433c744a9c5ee953",
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.6/ThisTinti-3.4.0-alpha.7-rc.6-self-hosted-source.zip"
+    },
+    {
+      "id": 490178414,
+      "name": "ThisTinti-3.4.0-alpha.7-rc.6-self-hosted-source.zip.sha256",
+      "size": 119,
+      "sha256": "3cacd7368e2d12f3a3601fe37f79992308ff6541aac244debc04344bcde445ff",
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.6/ThisTinti-3.4.0-alpha.7-rc.6-self-hosted-source.zip.sha256"
+    },
+    {
+      "id": 490178416,
+      "name": "ThisTinti-Portable-3.4.0-alpha.7-rc.6-x64.zip",
+      "size": 82217946,
+      "sha256": "81562015e8f351f9e99ab38ee16a4f42d1af96b0d249cf436b9f9c283ad25f80",
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.6/ThisTinti-Portable-3.4.0-alpha.7-rc.6-x64.zip"
+    },
+    {
+      "id": 490178417,
+      "name": "ThisTinti-Portable-3.4.0-alpha.7-rc.6-x64.zip.sha256",
+      "size": 113,
+      "sha256": "7aa074a6f6fccf8879af8a40fed3506e2db63d45994e64d929eace1648899069",
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.6/ThisTinti-Portable-3.4.0-alpha.7-rc.6-x64.zip.sha256"
+    },
+    {
+      "id": 490178418,
+      "name": "ThisTinti-Setup-3.4.0-alpha.7-rc.6-x64.exe",
+      "size": 57079290,
+      "sha256": "f77b59b3b4ef8510fc0e9773f5840962fb23e9d3353dec8730d4c595f6d6bf89",
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.6/ThisTinti-Setup-3.4.0-alpha.7-rc.6-x64.exe"
+    },
+    {
+      "id": 490178419,
+      "name": "ThisTinti-Setup-3.4.0-alpha.7-rc.6-x64.exe.sha256",
+      "size": 110,
+      "sha256": "ab7eac4f7837606f6f4527046dfe9c9781440fc9cbc2112cd3d14d531201ea8e",
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.6/ThisTinti-Setup-3.4.0-alpha.7-rc.6-x64.exe.sha256"
+    },
+    {
+      "id": 490178420,
       "name": "frozen-local-smoke.json",
       "size": 348,
-      "sha256": "b603bf73d830dc5c0457424c19865e1b31a74a0f093725aba22325b86bd023b6",
-      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.5/frozen-local-smoke.json"
+      "sha256": "a3e5be737b5a7427773a0294dea018ac833d504ed87442c35bb54056dd6d6520",
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.6/frozen-local-smoke.json"
     },
     {
-      "id": 488638249,
+      "id": 490178421,
       "name": "installed-local-smoke.json",
       "size": 361,
-      "sha256": "46021d634baa6bc75a0c1930847a511884b546dc660935c498c8d5d23d55a898",
-      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.5/installed-local-smoke.json"
+      "sha256": "f6258601ef2d14a56957f739d2f69f53be058ef6350f42e52908f832edc24af8",
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.6/installed-local-smoke.json"
     },
     {
-      "id": 488638222,
-      "name": "ThisTinti-3.4.0-alpha.7-rc.5-self-hosted-source.zip",
-      "size": 525039,
-      "sha256": "aafc2e3f428b62289e69b3683b848fa6f2299152b8cb0579b8c2dc291b108081",
-      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.5/ThisTinti-3.4.0-alpha.7-rc.5-self-hosted-source.zip"
+      "id": 490178423,
+      "name": "installer-lifecycle-smoke.json",
+      "size": 399,
+      "sha256": "23bcdb8a8ec39acb260c96157cfb5c65eefc34d99b6ecdae1f751c9535eb6580",
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.6/installer-lifecycle-smoke.json"
     },
     {
-      "id": 488638227,
-      "name": "ThisTinti-3.4.0-alpha.7-rc.5-self-hosted-source.zip.sha256",
-      "size": 119,
-      "sha256": "5f713b6b90933ae5324c41e599dd52383b9f542b5e8a5492302663f2d2844867",
-      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.5/ThisTinti-3.4.0-alpha.7-rc.5-self-hosted-source.zip.sha256"
-    },
-    {
-      "id": 488638226,
-      "name": "ThisTinti-Portable-3.4.0-alpha.7-rc.5-x64.zip",
-      "size": 82134284,
-      "sha256": "ee44562e20c539bc40e3f30fc10285c21d26ce25bfaf59de443beea733a0552f",
-      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.5/ThisTinti-Portable-3.4.0-alpha.7-rc.5-x64.zip"
-    },
-    {
-      "id": 488638228,
-      "name": "ThisTinti-Portable-3.4.0-alpha.7-rc.5-x64.zip.sha256",
-      "size": 113,
-      "sha256": "7de8533eb1af6ddc74d79603288744ac536558ef270b5836f2dd7a0fab76e2a9",
-      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.5/ThisTinti-Portable-3.4.0-alpha.7-rc.5-x64.zip.sha256"
-    },
-    {
-      "id": 488638225,
-      "name": "ThisTinti-Setup-3.4.0-alpha.7-rc.5-x64.exe",
-      "size": 57026422,
-      "sha256": "3df354de308fcc3d3aba5ea1a3ca85d05c147c9b41f6891f9499bcde458172e1",
-      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.5/ThisTinti-Setup-3.4.0-alpha.7-rc.5-x64.exe"
-    },
-    {
-      "id": 488638245,
-      "name": "ThisTinti-Setup-3.4.0-alpha.7-rc.5-x64.exe.sha256",
-      "size": 110,
-      "sha256": "8c21363913ed46269949d53f13a345c60ba7504f7372ca3eba9784c171c25804",
-      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.5/ThisTinti-Setup-3.4.0-alpha.7-rc.5-x64.exe.sha256"
+      "id": 490178424,
+      "name": "release-provenance.json",
+      "size": 4162,
+      "sha256": "c23d86a5e0b60b47a909001d4fa7c4f37feeba7d5eddfa0fd0f9ab346dc31f2c",
+      "download_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.6/release-provenance.json"
     }
   ],
-  "verified_at": "2026-07-25T16:13:21Z",
+  "verified_at": "2026-07-26T08:11:43.358762+00:00",
   "verification_source": "GitHub REST release and asset metadata"
 }
