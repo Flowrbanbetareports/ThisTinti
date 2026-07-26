@@ -21,11 +21,9 @@ Completati:
 
 ## RC7 — chiusura tecnica della Public Preview
 
-Restano da completare prima della pubblicazione:
-
-- gate automatici sul commit finale candidato e verifica dell’artefatto Windows esatto;
-- collaudo manuale Windows di installazione, zoom, tastiera e tecnologia assistiva;
-- registrazione tracciabile dei risultati in `docs/RC7_EXECUTION_LOG.md`.
+I gate automatici e l’artefatto Windows del commit candidato sono registrati in
+`docs/RC7_EXECUTION_LOG.md`. Prima della pubblicazione resta il collaudo manuale
+Windows di installazione, zoom, tastiera e tecnologia assistiva.
 
 ## Pilot documentale e qualità misurata
 
