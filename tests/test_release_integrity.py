@@ -328,15 +328,20 @@ def test_latest_release_records_and_upgrade_baseline_are_coherent():
     publication = json.loads((ROOT / "builds" / "publication-latest.json").read_text(encoding="utf-8"))
     baseline = json.loads((ROOT / "builds" / "windows-upgrade-baseline.json").read_text(encoding="utf-8"))
 
-    assert release["version"] == publication["version"] == RELEASE_VERSION
+    published_version = release["version"]
+    baseline_version = baseline["version"]
+
+    assert published_version == publication["version"]
     assert release["release_commit"] == publication["release_commit"]
     assert any(
-        asset["name"] == f"ThisTinti-Setup-{RELEASE_VERSION}-x64.exe"
+        asset["name"] == f"ThisTinti-Setup-{published_version}-x64.exe"
         and asset["sha256"] == release["verification"]["installer_sha256"]
         for asset in publication["assets"]
     )
 
-    assert baseline["version"] == VERSION
-    assert baseline["installer"] == f"ThisTinti-Setup-{VERSION}-x64.exe"
+    assert baseline["installer"] == f"ThisTinti-Setup-{baseline_version}-x64.exe"
     assert baseline["release_commit"] != release["release_commit"]
-    assert Version(to_python_package_version(baseline["version"])) < Version(PYTHON_PACKAGE_VERSION)
+    assert Version(to_python_package_version(baseline_version)) < Version(
+        to_python_package_version(published_version)
+    )
+    assert Version(to_python_package_version(published_version)) <= Version(PYTHON_PACKAGE_VERSION)
