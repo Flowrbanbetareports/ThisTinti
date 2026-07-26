@@ -35,6 +35,13 @@ class LiveApp:
     root: Path
 
 
+@dataclass(frozen=True)
+class RegisteredAdmin:
+    client: httpx.Client
+    email: str
+    password: str
+
+
 def _free_port() -> int:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
         listener.bind(("127.0.0.1", 0))
@@ -124,14 +131,16 @@ def live_app(name: str) -> Iterator[LiveApp]:
                         os.environ[key] = old_value
 
 
-def register_admin(app: LiveApp, *, suffix: str) -> httpx.Client:
+def register_admin(app: LiveApp, *, suffix: str) -> RegisteredAdmin:
     client = httpx.Client(base_url=app.base_url, follow_redirects=True, timeout=10, trust_env=False)
+    email = f"admin-{suffix}@example.com"
+    password = f"BrowserE2E-{secrets.token_urlsafe(24)}"
     response = client.post(
         "/api/auth/register",
         json={
             "organization_name": f"Browser E2E {suffix}",
-            "email": f"admin-{suffix}@example.com",
-            "password": f"BrowserE2E-{secrets.token_urlsafe(24)}",
+            "email": email,
+            "password": password,
             "legal_notice_version": LEGAL_NOTICE_VERSION,
             "accepted_terms": True,
             "accepted_specific_clauses": True,
@@ -139,7 +148,7 @@ def register_admin(app: LiveApp, *, suffix: str) -> httpx.Client:
     )
     if response.status_code != 201:
         raise RuntimeError(f"Registration failed: HTTP {response.status_code}: {response.text}")
-    return client
+    return RegisteredAdmin(client=client, email=email, password=password)
 
 
 def mutation_headers(client: httpx.Client) -> dict[str, str]:
@@ -160,7 +169,7 @@ def upload_json(client: httpx.Client, filename: str, payload: dict) -> dict:
     return response.json()["document"]
 
 
-def authenticated_context(browser, client: httpx.Client, app: LiveApp):
+def authenticated_context(browser, admin: RegisteredAdmin, app: LiveApp):
     context = browser.new_context(viewport={"width": 1366, "height": 768})
     context.add_init_script(
         """
@@ -169,9 +178,16 @@ def authenticated_context(browser, client: httpx.Client, app: LiveApp):
         localStorage.setItem('thistinti_local_setup_complete', 'true');
         """
     )
-    context.add_cookies(
-        [{"name": cookie.name, "value": cookie.value, "url": app.base_url} for cookie in client.cookies.jar]
+    login = context.request.post(
+        f"{app.base_url}/api/auth/login",
+        data={"email": admin.email, "password": admin.password},
     )
+    if login.status != 200:
+        raise RuntimeError(f"Browser login failed: HTTP {login.status}: {login.text()}")
+    cookie_names = {cookie["name"] for cookie in context.cookies(app.base_url)}
+    required = {"thistinti_session", "thistinti_csrf"}
+    if not required.issubset(cookie_names):
+        raise RuntimeError(f"Browser login did not create required cookies: {sorted(cookie_names)}")
     return context
 
 
