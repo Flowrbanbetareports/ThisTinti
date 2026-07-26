@@ -47,6 +47,8 @@ def test_primary_navigation_and_progressive_disclosure_are_defined():
     assert "advancedNavPanel" in source
     assert "aria-expanded" in source
     assert "aria-controls" in source
+    assert "[discovery, validation, audit, users]" in source
+    assert "[dashboard, documents, chains, cases, jobs]" in source
 
 
 def test_sidebar_navigation_scrolls_independently_on_short_viewports():
@@ -150,6 +152,20 @@ def test_language_remains_informative_and_non_authoritative():
     for marker in forbidden:
         assert marker not in source
 
+
+
+def test_visible_product_terms_do_not_present_heuristics_as_decisions():
+    index = read("index.html")
+    core = read("app-core.js")
+    site_guide = (ROOT / "site" / "guide.html").read_text(encoding="utf-8")
+    assert "Autopilota" not in index
+    assert "Autopilota" not in site_guide
+    assert "riskDecisionLabel" in core
+    assert "Stima euristica" in core
+    assert "Indicazione tecnica non decisionale" in core
+    assert "Attiva da soglia" in core
+    assert "Esegui test sintetici" in core
+    assert "Prova a ingannare ThisTinti" not in core
 
 def test_experience_css_supports_small_screens_and_reduced_motion():
     css = read("onboarding.css")
