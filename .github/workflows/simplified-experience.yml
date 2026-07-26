@@ -16,6 +16,7 @@ on:
       - "tests/test_simplified_experience.py"
       - "scripts/check_sidebar_browser.py"
       - "scripts/check_evidence_browser.py"
+      - "scripts/browser_e2e.py"
       - "scripts/check_job_recovery_browser.py"
       - "scripts/check_chain_links_browser.py"
       - "docs/SIMPLIFIED_PRODUCT_EXPERIENCE_PROGRAM.md"
@@ -36,6 +37,7 @@ on:
       - "tests/test_simplified_experience.py"
       - "scripts/check_sidebar_browser.py"
       - "scripts/check_evidence_browser.py"
+      - "scripts/browser_e2e.py"
       - "scripts/check_job_recovery_browser.py"
       - "scripts/check_chain_links_browser.py"
       - "docs/SIMPLIFIED_PRODUCT_EXPERIENCE_PROGRAM.md"
@@ -82,6 +84,13 @@ jobs:
         run: python scripts/check_job_recovery_browser.py
       - name: Verify supervised chain links in Chromium
         run: python scripts/check_chain_links_browser.py
+      - name: Upload browser evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: browser-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: browser-evidence/
+          if-no-files-found: error
       - name: Run experience and security regressions
         run: |
           pytest -q \
