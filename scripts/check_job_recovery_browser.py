@@ -177,6 +177,9 @@ def main() -> None:
                       pageScrollWidth: document.documentElement.scrollWidth,
                       jobsVisible: Boolean(document.querySelector('[data-view="jobs"]')?.offsetParent),
                       uploadVisible: Boolean(document.querySelector('#openUploadButton')?.offsetParent),
+                      sidebarHeight: document.querySelector('.sidebar')?.getBoundingClientRect().height || 0,
+                      navClientHeight: document.querySelector('.nav-list')?.clientHeight || 0,
+                      navScrollHeight: document.querySelector('.nav-list')?.scrollHeight || 0,
                     })"""
                 )
                 require(
@@ -185,6 +188,12 @@ def main() -> None:
                 )
                 require(dimensions["jobsVisible"], f"Jobs navigation is hidden at {label}")
                 require(dimensions["uploadVisible"], f"Upload action is hidden at {label}")
+                if label == "200-percent-equivalent":
+                    require(dimensions["sidebarHeight"] < 220, "Mobile navigation consumes too much vertical space")
+                    require(
+                        dimensions["navScrollHeight"] <= dimensions["navClientHeight"] + 1,
+                        "Mobile navigation wraps vertically instead of scrolling horizontally",
+                    )
                 reflow[label] = dimensions
             save_screenshot(page, "job-recovery-03-reflow-200-equivalent.png")
             browser.close()
