@@ -19,9 +19,9 @@
 ## Stato della candidata tecnica
 
 - [x] versione `3.4.0-alpha.7-rc.7` coerente nelle sorgenti candidate, OpenAPI e SBOM;
-- [ ] repository e codice candidato integrati in `main`;
-- [ ] build Windows prodotta dal commit esatto del candidato;
-- [ ] artefatti, identità di build, provenienza e checksum verificati;
+- [x] repository e codice candidato integrati in `main`;
+- [x] build Windows prodotta dal commit esatto del candidato;
+- [x] artefatti, identità di build, provenienza e checksum verificati;
 - [ ] collaudo manuale di Lorenzo completato senza rilievi bloccanti;
 - [x] nessuna vulnerabilità nota bloccante rilevata dai controlli automatici;
 - [x] limiti e gate esterni dichiarati senza presentare la candidata come beta validata.
