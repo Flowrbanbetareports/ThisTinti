@@ -14,14 +14,15 @@
 - [x] ciclo Windows verificato: build, installazione precedente, aggiornamento, persistenza, smoke test e disinstallazione;
 - [x] prova self-hosted: avvio, amministratore, accettazione autenticata, backup, riavvio e persistenza;
 - [x] controllo strutturale di accessibilità e load probe di regressione;
-- [x] evidenza interna del candidato registrata in `docs/evidence/beta/internal-candidate-summary.json`.
+- [x] evidenze interne storiche conservate in `docs/evidence/beta/`;
 
 ## Stato della candidata tecnica
 
-- [x] versione `3.4.0-alpha.6-rc.1` coerente in applicazione, pacchetti e documentazione;
-- [x] repository e codice reale integrati in `main`;
-- [x] build Windows prodotta dal commit esatto del candidato;
-- [x] artefatti e checksum verificati;
+- [x] versione `3.4.0-alpha.7-rc.7` coerente nelle sorgenti candidate, OpenAPI e SBOM;
+- [ ] repository e codice candidato integrati in `main`;
+- [ ] build Windows prodotta dal commit esatto del candidato;
+- [ ] artefatti, identità di build, provenienza e checksum verificati;
+- [ ] collaudo manuale di Lorenzo completato senza rilievi bloccanti;
 - [x] nessuna vulnerabilità nota bloccante rilevata dai controlli automatici;
 - [x] limiti e gate esterni dichiarati senza presentare la candidata come beta validata.
 
