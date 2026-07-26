@@ -89,7 +89,14 @@ jobs:
       - name: Build, freeze and smoke-test installer
         shell: pwsh
         run: |
-          ./installer/windows/build_windows.ps1
+          $SourceTree = (git rev-parse "$env:GITHUB_SHA`^{tree}").Trim()
+          $ArtifactName = "ThisTinti-Windows-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_NUMBER"
+          ./installer/windows/build_windows.ps1 `
+            -SourceCommit $env:GITHUB_SHA `
+            -SourceTree $SourceTree `
+            -WorkflowRun $env:GITHUB_RUN_ID `
+            -WorkflowRunNumber $env:GITHUB_RUN_NUMBER `
+            -ArtifactName $ArtifactName
           Copy-Item "..\ThisTinti-*-self-hosted-source.zip" "release\windows"
           Copy-Item "..\ThisTinti-*-self-hosted-source.zip.sha256" "release\windows"
       - name: Download real previous Windows alpha
