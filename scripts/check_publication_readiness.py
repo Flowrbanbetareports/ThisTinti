@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import re
 import sys
+import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -95,10 +96,22 @@ def main() -> int:
     else:
         release_version = match.group(1)
 
-    for relative in ("pyproject.toml", "installer/windows/ThisTinti.iss", "README.md"):
+    for relative in ("installer/windows/ThisTinti.iss", "README.md"):
         text = (ROOT / relative).read_text(encoding="utf-8")
         if release_version and release_version not in text:
             failures.append(f"Version {release_version} missing from {relative}")
+
+    if release_version:
+        pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+        sys.path.insert(0, str(ROOT))
+        from app.version import PYTHON_PACKAGE_VERSION
+
+        package_version = pyproject.get("project", {}).get("version")
+        if package_version != PYTHON_PACKAGE_VERSION:
+            failures.append(
+                f"pyproject.toml version {package_version!r} does not match "
+                f"PEP 440 package version {PYTHON_PACKAGE_VERSION!r}"
+            )
 
     site = (ROOT / "site/index.html").read_text(encoding="utf-8")
     site_js = (ROOT / "site/site.js").read_text(encoding="utf-8")
