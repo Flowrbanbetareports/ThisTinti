@@ -15,7 +15,7 @@ Il perimetro tecnico locale della release 3.0.0 ha superato i controlli previsti
 - Migrazioni: upgrade, check, downgrade e nuovo upgrade riusciti.
 - Validation Gate: precisione 1.0, recall 1.0, F1 1.0, MAE 0 sui sei scenari sintetici.
 - Smoke HTTP: registrazione, sessione, CSRF, demo, dashboard, readiness e audit riusciti.
-- Adaptive Discovery: profilo attività, regole automatiche, regole incerte e decisioni tenant-isolate testate.
+- Adaptive Discovery: profilo attività, regole attive da soglia, regole incerte e revisioni tenant-isolate testate.
 - OpenAPI e SBOM rigenerati per la versione 3.0.0.
 
 ## Auto-configurazione verificata
