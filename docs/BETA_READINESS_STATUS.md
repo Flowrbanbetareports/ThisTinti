@@ -8,7 +8,7 @@
 
 ## Stato attuale
 
-ThisTinti è in preparazione come `3.4.0-alpha.7-rc.6`. La base tecnica include:
+ThisTinti è in preparazione come `3.4.0-alpha.7-rc.7`. La base tecnica include:
 
 - test applicativi e copertura minima del 90%;
 - migrazioni reversibili;
@@ -26,6 +26,9 @@ ThisTinti è in preparazione come `3.4.0-alpha.7-rc.6`. La base tecnica include:
 - severità `critical` distinta e ordinata prima delle altre priorità;
 - centro attività persistente con stato, errore, retry, cancellazione e rielaborazione guidata;
 - collegamenti proposti spiegati e collegamento/scollegamento manuale con rianalisi;
+- browser E2E dei flussi di recupero e collegamento contro API, database e worker reali;
+- reflow equivalente al 125%, 150% e 200%, apertura delle catene da tastiera e navigazione mobile compatta;
+- identità di build incorporata in ogni archivio portable e verificata insieme alla provenienza del candidato;
 - protocollo di pilot senza telemetria per misurare comprensione e completamento del primo percorso.
 
 ## Gate interni
