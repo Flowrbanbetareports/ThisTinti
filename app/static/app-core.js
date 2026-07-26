@@ -226,8 +226,15 @@ async function loadChains() {
   state.chains = await api('/api/chains');
   const body = $('#chainsTable');
   if (!state.chains.length) { body.innerHTML = `<tr><td colspan="9" class="empty-state">Nessuna catena.</td></tr>`; return; }
-  body.innerHTML = state.chains.map(c => `<tr data-chain-id="${c.id}"><td><strong>${escapeHtml(c.reference_key || c.id.slice(0,8))}</strong><small>${Math.round(c.confidence * 100)}% confidenza</small></td><td>${markList(c.documents.proposal)}</td><td>${markList(c.documents.order)}</td><td>${markList(c.documents.delivery)}</td><td>${markList(c.documents.invoice)}</td><td>${markList(c.documents.payment)}</td><td>${markList(c.documents.return)}</td><td>${markList(c.documents.credit_note)}</td><td><span class="badge ${c.status}">${labelStatus(c.status)}</span></td></tr>`).join('');
-  body.querySelectorAll('[data-chain-id]').forEach(row => row.addEventListener('click', () => openChain(row.dataset.chainId)));
+  body.innerHTML = state.chains.map(c => `<tr data-chain-id="${c.id}" tabindex="0" aria-haspopup="dialog"><td><strong>${escapeHtml(c.reference_key || c.id.slice(0,8))}</strong><small>${Math.round(c.confidence * 100)}% confidenza</small></td><td>${markList(c.documents.proposal)}</td><td>${markList(c.documents.order)}</td><td>${markList(c.documents.delivery)}</td><td>${markList(c.documents.invoice)}</td><td>${markList(c.documents.payment)}</td><td>${markList(c.documents.return)}</td><td>${markList(c.documents.credit_note)}</td><td><span class="badge ${c.status}">${labelStatus(c.status)}</span></td></tr>`).join('');
+  body.querySelectorAll('[data-chain-id]').forEach(row => {
+    row.addEventListener('click', () => openChain(row.dataset.chainId));
+    row.addEventListener('keydown', event => {
+      if (!['Enter', ' '].includes(event.key)) return;
+      event.preventDefault();
+      openChain(row.dataset.chainId);
+    });
+  });
 }
 
 
@@ -264,7 +271,7 @@ function riskDecisionLabel(value) {
     allow: 'segnale interno basso',
     review: 'verifica richiesta',
     block: 'verifica prioritaria',
-  })[value] || 'verifica richiesta';
+  })[value] || 'esito non classificato';
 }
 
 async function openChain(id) {
@@ -284,7 +291,7 @@ async function openChain(id) {
       ? pending.map(item => `<div class="case-item"><span class="severity-icon ${item.status === 'missing_proof' ? 'high' : 'medium'}">${item.status === 'missing_proof' ? '!' : '·'}</span><div><strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.rationale)}</small></div><span class="badge ${item.status === 'missing_proof' ? 'high' : 'medium'}">${escapeHtml(item.status)}</span></div>`).join('')
       : '<div class="empty-state">Nessun documento fondamentale mancante.</div>';
     const canReview = ['admin', 'reviewer'].includes(state.user?.role);
-    const actionButtons = canReview ? `<div class="modal-actions intelligence-actions"><button id="simulateChainButton" class="secondary-button" type="button">Calcola stima euristica</button><button id="redTeamChainButton" class="secondary-button" type="button">Esegui test sintetici</button></div>` : '';
+    const actionButtons = canReview ? `<div class="modal-actions intelligence-actions"><button id="simulateChainButton" class="secondary-button" type="button">Stima rischio della catena</button><button id="redTeamChainButton" class="secondary-button" type="button">Prova a ingannare ThisTinti</button></div>` : '';
     $('#chainDialogBody').innerHTML = `<div class="detail-grid"><div class="detail-card"><p>Stato</p><strong>${labelStatus(chain.status)}</strong></div><div class="detail-card"><p>Stima euristica del rischio</p><strong id="chainRiskValue">${risk.score}/100 · ${escapeHtml(riskDecisionLabel(risk.decision))}</strong><small id="chainRiskAmount">${money(risk.amount_at_risk)} potenzialmente coinvolti · non è una decisione</small></div><div class="detail-card"><p>Controllo incrociato</p><strong>${escapeHtml(intelligence.triangulation?.status || '—')}</strong><small>estrazione · calcoli · grafo</small></div><div class="detail-card"><p>Somiglianza al processo osservato</p><strong>${Math.round((intelligence.process_conformance?.score || 0) * 100)}%</strong><small>${escapeHtml(intelligence.process_conformance?.baseline_source || 'baseline prudenziale')}</small></div></div>${actionButtons}<div id="chainIntelligenceResult" aria-live="polite"></div>${renderChainLinkManagement(linkOptions, canReview)}<section class="detail-section"><div class="panel-heading"><div><h3>Documenti attesi</h3><p>Cosa manca o dovrebbe accadere dopo.</p></div></div><div class="list-stack">${expectationHtml}</div></section><div class="lines-table comparison-table"><table><thead><tr><th>Articolo</th><th>Riferimento commerciale</th><th>Consegna</th><th>Fattura</th><th>Reso</th><th>Nota credito</th><th>Esito</th></tr></thead><tbody>${rows.length ? rows.map(row => `<tr><td><strong>${escapeHtml(row.sku || row.description || row.key)}</strong><small>${escapeHtml([row.description,row.color,row.size,row.lot].filter(Boolean).join(' · '))}</small></td><td>${comparisonCell(row.values.confirmation || row.values.order || row.values.proposal)}</td><td>${comparisonCell(row.values.delivery)}</td><td>${comparisonCell(row.values.invoice)}</td><td>${comparisonCell(row.values.return)}</td><td>${comparisonCell(row.values.credit_note)}</td><td><span class="badge ${row.status === 'ok' ? 'parsed' : row.status === 'issue' ? 'high' : 'medium'}">${row.status === 'ok' ? 'Coerente' : escapeHtml(row.reasons.join(', ') || 'Da verificare')}</span></td></tr>`).join('') : '<tr><td colspan="7" class="empty-state">Nessuna riga confrontabile.</td></tr>'}</tbody></table></div>`;
     $('#simulateChainButton')?.addEventListener('click', async () => {
       try {
