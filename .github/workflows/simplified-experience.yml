@@ -17,6 +17,7 @@ on:
       - "scripts/check_sidebar_browser.py"
       - "scripts/check_evidence_browser.py"
       - "scripts/check_job_recovery_browser.py"
+      - "scripts/check_chain_links_browser.py"
       - "docs/SIMPLIFIED_PRODUCT_EXPERIENCE_PROGRAM.md"
       - ".github/workflows/simplified-experience.yml"
   push:
@@ -36,6 +37,7 @@ on:
       - "scripts/check_sidebar_browser.py"
       - "scripts/check_evidence_browser.py"
       - "scripts/check_job_recovery_browser.py"
+      - "scripts/check_chain_links_browser.py"
       - "docs/SIMPLIFIED_PRODUCT_EXPERIENCE_PROGRAM.md"
       - ".github/workflows/simplified-experience.yml"
   workflow_dispatch:
@@ -78,6 +80,8 @@ jobs:
         run: python scripts/check_evidence_browser.py
       - name: Verify recovery workflow in Chromium
         run: python scripts/check_job_recovery_browser.py
+      - name: Verify supervised chain links in Chromium
+        run: python scripts/check_chain_links_browser.py
       - name: Run experience and security regressions
         run: |
           pytest -q \
