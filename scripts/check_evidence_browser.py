@@ -145,6 +145,7 @@ def main() -> None:
         page = browser.new_page(viewport={"width": 1366, "height": 768})
         page.route("**/api/**", route_api)
         page.set_content(build_document(), wait_until="load")
+        page.wait_for_timeout(100)
         page.evaluate("""async () => {
           state.user = {role: 'reviewer', email: 'reviewer@example.test'};
           state.criticalCasesOpen = 1;
