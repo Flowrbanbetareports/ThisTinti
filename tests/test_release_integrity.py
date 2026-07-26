@@ -246,9 +246,7 @@ def test_latest_release_records_describe_current_publication_and_previous_upgrad
     assert release["release_commit"] == publication["release_commit"]
     assert release["build"]["artifact_head_sha"] == release["release_commit"]
 
-    installer = next(
-        asset for asset in publication["assets"] if asset["name"] == f"ThisTinti-Setup-{VERSION}-x64.exe"
-    )
+    installer = next(asset for asset in publication["assets"] if asset["name"] == f"ThisTinti-Setup-{VERSION}-x64.exe")
     assert installer["sha256"] == release["verification"]["installer_sha256"]
 
     assert baseline["version"] == "3.4.0-alpha.7-rc.5"
