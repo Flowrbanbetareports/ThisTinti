@@ -96,7 +96,7 @@ def main() -> None:
             page.wait_for_function(
                 """failedId => [...document.querySelectorAll('[data-job-row]')]
                   .some(row => row.dataset.jobRow !== failedId && row.textContent.includes('In attesa'))""",
-                failed_id,
+                arg=failed_id,
             )
             jobs_after_retry = client.get("/api/jobs?limit=25&offset=0").json()["items"]
             retried = next(item for item in jobs_after_retry if item["context"].get("retry_of") == failed_id)
@@ -110,7 +110,7 @@ def main() -> None:
                   const row = document.querySelector(`[data-job-row="${jobId}"]`);
                   return row && row.textContent.includes('Completata');
                 }""",
-                retried["id"],
+                arg=retried["id"],
             )
             page.locator(f'[data-job-row="{failed_id}"] .job-document-button').click()
             page.wait_for_selector("#documentDialog[open]")
@@ -141,7 +141,7 @@ def main() -> None:
                   const row = document.querySelector(`[data-job-row="${jobId}"]`);
                   return row && row.textContent.includes('Completata');
                 }""",
-                reprocess_job["id"],
+                arg=reprocess_job["id"],
             )
             save_screenshot(page, "job-recovery-02-completed.png")
             browser.close()
