@@ -1,6 +1,6 @@
 # Roadmap di ThisTinti
 
-## Stato attuale — 3.4.0-alpha.6-rc.1
+## Stato attuale — 3.4.0-alpha.7-rc.7 Public Preview
 
 Completati:
 
@@ -14,8 +14,20 @@ Completati:
 - messaggi di errore leggibili, orari locali e azioni contestuali;
 - documentazione legale e operativa di base;
 - gate interno beta, audit accessibilità strutturale, load probe e provenienza degli artefatti.
+- validazione numerica fail-closed, errori documentali leggibili ed evidenze apribili fino all’originale;
+- recupero persistente, rielaborazione guidata e collegamenti manuali correggibili;
+- browser E2E con API e worker reali, tastiera e reflow equivalente;
+- identità di build incorporata e verificata per ogni archivio portable.
 
-## Alpha.6 — pilot documentale e qualità misurata
+## RC7 — chiusura tecnica della Public Preview
+
+Restano da completare prima della pubblicazione:
+
+- gate automatici sul commit finale candidato e verifica dell’artefatto Windows esatto;
+- collaudo manuale Windows di installazione, zoom, tastiera e tecnologia assistiva;
+- registrazione tracciabile dei risultati in `docs/RC7_EXECUTION_LOG.md`.
+
+## Pilot documentale e qualità misurata
 
 Obiettivi interni:
 
