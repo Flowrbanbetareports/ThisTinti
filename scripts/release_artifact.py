@@ -3,11 +3,13 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import zipfile
 from pathlib import Path
 from typing import Any
 
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 COMMIT_PATTERN = re.compile(r"^[0-9a-f]{40}$")
+DISTRIBUTION_IDENTITY_NAME = "BUILD-IDENTITY.json"
 
 
 def sha256_file(path: Path) -> str:
@@ -46,6 +48,7 @@ def required_release_files(version: str) -> tuple[str, ...]:
         "SBOM.cdx.json",
         "OPENAPI.json",
         "RELEASE_NOTES.md",
+        "VERIFY-THIS-DOWNLOAD.md",
     )
 
 
@@ -87,3 +90,76 @@ def validate_source_identity(source_commit: str, source_tree: str) -> None:
         raise ValueError("Source commit must be a full lowercase Git SHA")
     if not COMMIT_PATTERN.fullmatch(source_tree):
         raise ValueError("Source tree must be a full lowercase Git SHA")
+
+
+def build_distribution_identity(
+    *,
+    version: str,
+    source_commit: str,
+    source_tree: str,
+    workflow_run: int,
+    workflow_run_number: int,
+    artifact_name: str,
+) -> dict[str, Any]:
+    validate_source_identity(source_commit, source_tree)
+    if workflow_run < 1 or workflow_run_number < 1:
+        raise ValueError("Distribution identity requires positive workflow run identifiers")
+    if not artifact_name.startswith("ThisTinti-Windows-"):
+        raise ValueError("Distribution identity artifact name is invalid")
+    return {
+        "schema": "thistinti.distribution-identity.v1",
+        "version": version,
+        "source": {"commit": source_commit, "tree": source_tree},
+        "build": {
+            "workflow": "Build Windows Free Download",
+            "run_id": workflow_run,
+            "run_number": workflow_run_number,
+            "artifact_name": artifact_name,
+        },
+        "verification": {
+            "detached_checksum_required": True,
+            "provenance_manifest_required": True,
+        },
+    }
+
+
+def validate_portable_identity(
+    portable: Path,
+    *,
+    expected_version: str,
+    expected_commit: str,
+    expected_tree: str,
+    expected_workflow_run: int | None = None,
+    expected_workflow_run_number: int | None = None,
+    expected_artifact_name: str | None = None,
+) -> dict[str, Any]:
+    try:
+        with zipfile.ZipFile(portable) as archive:
+            matches = [info for info in archive.infolist() if info.filename == DISTRIBUTION_IDENTITY_NAME]
+            if len(matches) != 1:
+                raise ValueError("Portable archive must contain exactly one root BUILD-IDENTITY.json")
+            identity = json.loads(archive.read(matches[0]).decode("utf-8-sig"))
+    except (OSError, UnicodeDecodeError, zipfile.BadZipFile, json.JSONDecodeError) as exc:
+        raise ValueError(f"Cannot read portable distribution identity: {exc}") from exc
+    if not isinstance(identity, dict) or identity.get("schema") != "thistinti.distribution-identity.v1":
+        raise ValueError("Unsupported or missing portable distribution identity")
+    if identity.get("version") != expected_version:
+        raise ValueError("Portable distribution version does not match")
+    source = identity.get("source") if isinstance(identity.get("source"), dict) else {}
+    if source.get("commit") != expected_commit or source.get("tree") != expected_tree:
+        raise ValueError("Portable distribution source identity does not match")
+    build = identity.get("build") if isinstance(identity.get("build"), dict) else {}
+    expected = {
+        "run_id": expected_workflow_run,
+        "run_number": expected_workflow_run_number,
+        "artifact_name": expected_artifact_name,
+    }
+    for field, value in expected.items():
+        if value is not None and build.get(field) != value:
+            raise ValueError(f"Portable distribution build {field} does not match")
+    verification = identity.get("verification") if isinstance(identity.get("verification"), dict) else {}
+    if not all(
+        verification.get(field) is True for field in ("detached_checksum_required", "provenance_manifest_required")
+    ):
+        raise ValueError("Portable distribution identity omits detached verification requirements")
+    return identity
