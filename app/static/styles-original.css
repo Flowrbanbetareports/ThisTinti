@@ -258,13 +258,13 @@ tbody tr:hover { background: #fbfcfc; }
 .job-actions button { white-space: nowrap; }
 .job-progress { width: 110px; height: 10px; overflow: hidden; border-radius: 999px; background: #e7ecef; }
 .job-progress span { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
-#jobsView .table-wrap table { min-width: 1120px; table-layout: fixed; }
-#jobsView th:nth-child(1) { width: 104px; }
-#jobsView th:nth-child(2) { width: 150px; }
-#jobsView th:nth-child(3) { width: 116px; }
-#jobsView th:nth-child(4) { width: 104px; }
-#jobsView th:nth-child(5) { width: 110px; }
-#jobsView th:nth-child(6) { width: 148px; }
+#jobsView .table-wrap table { min-width: 1008px; table-layout: fixed; }
+#jobsView th:nth-child(1) { width: 90px; }
+#jobsView th:nth-child(2) { width: 135px; }
+#jobsView th:nth-child(3) { width: 100px; }
+#jobsView th:nth-child(4) { width: 90px; }
+#jobsView th:nth-child(5) { width: 80px; }
+#jobsView th:nth-child(6) { width: 125px; }
 #jobsView th:nth-child(7) { width: 190px; }
 #jobsView th:nth-child(8) { width: 198px; }
 .job-error-cell { color: var(--danger); overflow-wrap: break-word; }
