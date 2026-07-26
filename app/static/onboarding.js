@@ -169,7 +169,7 @@
     advancedPanel.id = 'advancedNavPanel';
     advancedPanel.className = 'advanced-nav-panel';
 
-    [jobs, chains, discovery, validation, audit, users].filter(Boolean).forEach((button) => advancedPanel.appendChild(button));
+    [discovery, validation, audit, users].filter(Boolean).forEach((button) => advancedPanel.appendChild(button));
     mainNav.appendChild(advancedToggle);
     mainNav.appendChild(advancedPanel);
 
@@ -181,7 +181,7 @@
       if (remember) safeStorage.set(ADVANCED_KEY, open ? '1' : '0');
     };
 
-    const activeAdvanced = ['jobs', 'chains', 'discovery', 'validation', 'audit', 'users']
+    const activeAdvanced = ['discovery', 'validation', 'audit', 'users']
       .includes(mainNav.querySelector('[data-view].active')?.dataset.view);
     setAdvancedOpen(activeAdvanced || safeStorage.get(ADVANCED_KEY) === '1', false);
 
@@ -196,7 +196,9 @@
       openGuide();
     }, true);
 
-    [dashboard, documents, cases].filter(Boolean).forEach((button) => mainNav.insertBefore(button, guideButton));
+    [dashboard, documents, chains, cases, jobs]
+      .filter(Boolean)
+      .forEach((button) => mainNav.insertBefore(button, guideButton));
   }
 
   function injectGuide() {
