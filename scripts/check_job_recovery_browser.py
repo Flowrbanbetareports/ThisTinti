@@ -146,7 +146,47 @@ def main() -> None:
                 }""",
                 arg=reprocess_job["id"],
             )
+            layout = page.locator("#jobsView .table-wrap").evaluate(
+                """wrapper => {
+                  const error = wrapper.querySelector('.job-error-cell');
+                  const actions = wrapper.querySelector('tbody tr td:last-child');
+                  return {
+                    wrapperClientWidth: wrapper.clientWidth,
+                    wrapperScrollWidth: wrapper.scrollWidth,
+                    errorWidth: error?.getBoundingClientRect().width || 0,
+                    actionsWidth: actions?.getBoundingClientRect().width || 0,
+                  };
+                }"""
+            )
+            require(layout["wrapperScrollWidth"] >= layout["wrapperClientWidth"], "Jobs table overflow is invalid")
+            require(layout["errorWidth"] >= 180, "Persistent error column is too narrow to read")
+            require(layout["actionsWidth"] >= 188, "Recovery actions are compressed")
+            page.wait_for_timeout(3300)
             save_screenshot(page, "job-recovery-02-completed.png")
+            reflow = {}
+            for label, width, height in (
+                ("125-percent-equivalent", 1093, 614),
+                ("150-percent-equivalent", 911, 512),
+                ("200-percent-equivalent", 683, 384),
+            ):
+                page.set_viewport_size({"width": width, "height": height})
+                page.locator('[data-view="jobs"]').scroll_into_view_if_needed()
+                dimensions = page.evaluate(
+                    """() => ({
+                      viewportWidth: document.documentElement.clientWidth,
+                      pageScrollWidth: document.documentElement.scrollWidth,
+                      jobsVisible: Boolean(document.querySelector('[data-view="jobs"]')?.offsetParent),
+                      uploadVisible: Boolean(document.querySelector('#openUploadButton')?.offsetParent),
+                    })"""
+                )
+                require(
+                    dimensions["pageScrollWidth"] <= dimensions["viewportWidth"] + 1,
+                    f"Page overflows horizontally at {label}",
+                )
+                require(dimensions["jobsVisible"], f"Jobs navigation is hidden at {label}")
+                require(dimensions["uploadVisible"], f"Upload action is hidden at {label}")
+                reflow[label] = dimensions
+            save_screenshot(page, "job-recovery-03-reflow-200-equivalent.png")
             browser.close()
 
         report = {
@@ -160,6 +200,8 @@ def main() -> None:
             "reprocess_status": final_job["status"],
             "final_document_number": final_document["number"],
             "final_parse_status": final_document["parse_status"],
+            "jobs_layout": layout,
+            "reflow_equivalent_viewports": reflow,
             "worker_processes": 2,
         }
         write_report("job-recovery-report.json", report)
