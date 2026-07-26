@@ -8,7 +8,7 @@ adapt it without replacing the whole product.
 - `app/parsers/`: add document formats or supplier-specific extraction.
 - `app/services/rules.py`: deterministic anomaly rules.
 - `app/services/matching.py` and `line_matching.py`: document and line matching.
-- `app/services/intelligence.py`: Proof Graph, Sentinel, risk and conformance.
+- `app/services/intelligence.py`: evidence graph, expected documents, heuristic estimates and similarity to the observed process.
 - `app/static/`: browser interface and company branding.
 - `app/schemas.py`: API contracts.
 - `migrations/`: server/PostgreSQL schema evolution.
