@@ -169,7 +169,7 @@ def upload_json(client: httpx.Client, filename: str, payload: dict) -> dict:
     return response.json()["document"]
 
 
-def authenticated_context(browser, admin: RegisteredAdmin, app: LiveApp):
+def authenticated_page(browser, admin: RegisteredAdmin, app: LiveApp):
     context = browser.new_context(viewport={"width": 1366, "height": 768})
     context.add_init_script(
         """
@@ -178,17 +178,17 @@ def authenticated_context(browser, admin: RegisteredAdmin, app: LiveApp):
         localStorage.setItem('thistinti_local_setup_complete', 'true');
         """
     )
-    login = context.request.post(
-        f"{app.base_url}/api/auth/login",
-        data={"email": admin.email, "password": admin.password},
-    )
-    if login.status != 200:
-        raise RuntimeError(f"Browser login failed: HTTP {login.status}: {login.text()}")
+    page = context.new_page()
+    page.goto(app.base_url, wait_until="load")
+    page.locator("#loginEmail").fill(admin.email)
+    page.locator("#loginPassword").fill(admin.password)
+    page.locator('#loginForm button[type="submit"]').click()
+    page.wait_for_selector("#appView:not(.hidden)")
     cookie_names = {cookie["name"] for cookie in context.cookies(app.base_url)}
     required = {"thistinti_session", "thistinti_csrf"}
     if not required.issubset(cookie_names):
         raise RuntimeError(f"Browser login did not create required cookies: {sorted(cookie_names)}")
-    return context
+    return context, page
 
 
 def run_worker_once(app: LiveApp, worker_id: str) -> None:
