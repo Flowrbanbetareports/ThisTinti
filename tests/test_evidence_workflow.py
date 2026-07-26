@@ -1,4 +1,5 @@
 import json
+import shutil
 from pathlib import Path
 
 from app.db import SessionLocal
@@ -113,7 +114,7 @@ def test_missing_or_non_file_original_is_reported_without_losing_extracted_data(
         document = db.get(Document, document_id)
         original_path = Path(document.storage_path)
         unavailable_path = tmp_path / original_path.name
-        original_path.rename(unavailable_path)
+        shutil.move(original_path, unavailable_path)
     try:
         detail = client.get(f"/api/documents/{document_id}", headers=auth)
         assert detail.status_code == 200
@@ -121,13 +122,13 @@ def test_missing_or_non_file_original_is_reported_without_losing_extracted_data(
         assert detail.json()["lines"][0]["sku"] == "M-1"
         assert client.get(f"/api/documents/{document_id}/file", headers=auth).status_code == 410
     finally:
-        unavailable_path.rename(original_path)
+        shutil.move(unavailable_path, original_path)
 
     with SessionLocal() as db:
         document = db.get(Document, document_id)
         original_path = Path(document.storage_path)
         directory_path = original_path.with_name(f"{original_path.name}.directory")
-        original_path.rename(unavailable_path)
+        shutil.move(original_path, unavailable_path)
         directory_path.mkdir()
         document.storage_path = str(directory_path)
         db.commit()
@@ -136,7 +137,7 @@ def test_missing_or_non_file_original_is_reported_without_losing_extracted_data(
         assert client.get(f"/api/documents/{document_id}/file", headers=auth).status_code == 410
     finally:
         directory_path.rmdir()
-        unavailable_path.rename(original_path)
+        shutil.move(unavailable_path, original_path)
         with SessionLocal() as db:
             document = db.get(Document, document_id)
             document.storage_path = str(original_path)
