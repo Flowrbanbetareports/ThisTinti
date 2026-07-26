@@ -5,6 +5,7 @@ import json
 import subprocess
 import sys
 import tomllib
+import zipfile
 from pathlib import Path
 
 import pytest
@@ -12,14 +13,13 @@ from packaging.version import Version
 
 from app.version import PYTHON_PACKAGE_VERSION, RELEASE_VERSION, to_python_package_version
 from scripts.check_beta_readiness import build_report
-
 from scripts.check_release_consistency import validate_release_consistency
 from scripts.http_smoke import local_http_client
-from scripts.release_artifact import required_release_files
+from scripts.release_artifact import build_distribution_identity, required_release_files
 from scripts.verify_publish_candidate import REQUIRED_WORKFLOWS, validate_candidate_payloads
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "3.4.0-alpha.7-rc.6"
+VERSION = "3.4.0-alpha.7-rc.5"
 SOURCE_COMMIT = "a" * 40
 SOURCE_TREE = "b" * 40
 
@@ -175,6 +175,18 @@ def write_test_artifact(directory: Path) -> Path:
                 ),
                 encoding="utf-8",
             )
+        elif name == f"ThisTinti-Portable-{VERSION}-x64.zip":
+            identity = build_distribution_identity(
+                version=VERSION,
+                source_commit=SOURCE_COMMIT,
+                source_tree=SOURCE_TREE,
+                workflow_run=1234,
+                workflow_run_number=88,
+                artifact_name="ThisTinti-Windows-1234-88",
+            )
+            with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+                archive.writestr("BUILD-IDENTITY.json", json.dumps(identity))
+                archive.writestr("ThisTinti.exe", b"fixture")
         elif not name.endswith(".sha256"):
             path.write_bytes(f"fixture:{name}".encode())
     for stem in (
@@ -246,15 +258,61 @@ def test_release_artifact_manifest_detects_binary_tampering(tmp_path):
     assert "checksum mismatch" in rejected.stderr.lower()
 
 
+def test_release_artifact_rejects_portable_from_another_source(tmp_path):
+    directory = tmp_path / "release"
+    baseline = write_test_artifact(directory)
+    portable = directory / f"ThisTinti-Portable-{VERSION}-x64.zip"
+    wrong_identity = build_distribution_identity(
+        version=VERSION,
+        source_commit="f" * 40,
+        source_tree=SOURCE_TREE,
+        workflow_run=1234,
+        workflow_run_number=88,
+        artifact_name="ThisTinti-Windows-1234-88",
+    )
+    with zipfile.ZipFile(portable, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("BUILD-IDENTITY.json", json.dumps(wrong_identity))
+        archive.writestr("ThisTinti.exe", b"fixture")
+    digest = hashlib.sha256(portable.read_bytes()).hexdigest()
+    (directory / f"{portable.name}.sha256").write_text(f"{digest}  {portable.name}\n", encoding="ascii")
+
+    create = run_script(
+        "scripts/create_release_provenance.py",
+        "--directory",
+        str(directory),
+        "--version",
+        VERSION,
+        "--source-commit",
+        SOURCE_COMMIT,
+        "--source-tree",
+        SOURCE_TREE,
+        "--workflow-run",
+        "1234",
+        "--workflow-run-number",
+        "88",
+        "--artifact-name",
+        "ThisTinti-Windows-1234-88",
+        "--baseline-manifest",
+        str(baseline),
+    )
+
+    assert create.returncode == 1
+    assert "portable distribution source identity does not match" in create.stderr.lower()
+
+
 def test_release_workflows_enforce_gates_and_immutable_publication():
     ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
     windows = (ROOT / ".github" / "workflows" / "windows-release.yml").read_text(encoding="utf-8")
     publish = (ROOT / ".github" / "workflows" / "publish-public-preview.yml").read_text(encoding="utf-8")
+    windows_build = (ROOT / "installer" / "windows" / "build_windows.ps1").read_text(encoding="utf-8")
 
     assert "make verify" in ci
     assert "needs: source-verification" in windows
     assert "builds\\windows-upgrade-baseline.json" in windows
     assert "Get-FileHash" in windows
+    assert "create_distribution_identity.py" in windows_build
+    assert "BUILD-IDENTITY.json" in windows_build
+    assert "VERIFY-THIS-DOWNLOAD.md" in windows_build
     assert "release-provenance.json" in windows
     assert "workflow_dispatch:" in publish
     assert "\n  push:" not in publish
@@ -265,19 +323,15 @@ def test_release_workflows_enforce_gates_and_immutable_publication():
     assert "Refuse tag or release replacement" in publish
 
 
-def test_latest_release_records_describe_current_publication_and_previous_upgrade_baseline():
+def test_latest_release_records_describe_the_verified_rc5_publication():
     release = json.loads((ROOT / "builds" / "release-latest.json").read_text(encoding="utf-8"))
     publication = json.loads((ROOT / "builds" / "publication-latest.json").read_text(encoding="utf-8"))
     baseline = json.loads((ROOT / "builds" / "windows-upgrade-baseline.json").read_text(encoding="utf-8"))
 
-    assert release["version"] == publication["version"] == VERSION
-    assert release["tag"] == publication["tag"] == f"v{VERSION}"
-    assert release["release_commit"] == publication["release_commit"]
-    assert release["build"]["artifact_head_sha"] == release["release_commit"]
-
-    installer = next(asset for asset in publication["assets"] if asset["name"] == f"ThisTinti-Setup-{VERSION}-x64.exe")
-    assert installer["sha256"] == release["verification"]["installer_sha256"]
-
-    assert baseline["version"] == "3.4.0-alpha.7-rc.5"
-    assert baseline["tag"] == "v3.4.0-alpha.7-rc.5"
-    assert baseline["sha256"] != installer["sha256"]
+    assert release["version"] == publication["version"] == baseline["version"] == VERSION
+    assert release["release_commit"] == publication["release_commit"] == baseline["release_commit"]
+    assert release["verification"]["installer_sha256"] == baseline["sha256"]
+    assert any(
+        asset["name"] == f"ThisTinti-Setup-{VERSION}-x64.exe" and asset["sha256"] == baseline["sha256"]
+        for asset in publication["assets"]
+    )
