@@ -6,11 +6,11 @@ ThisTinti non decide, non approva e non certifica nulla. Organizza informazioni 
 
 ## Stato del rilascio
 
-Versione: **3.4.0-alpha.7-rc.5 — Public Preview con scorrimento laterale verificato in Chromium**.
+Versione: **3.4.0-alpha.7-rc.6 — Public Preview con dati fail-closed e flussi recuperabili**.
 
 Questa preview conserva il motore documentale esistente e offre due distribuzioni gratuite: una Local Edition per singola postazione e una Self-Hosted Reference Edition con PostgreSQL, worker scalabili, TLS, scanner malware e strumenti operativi per team tecnici.
 
-La candidata è adatta a sviluppo, dimostrazioni e **pilot controllati con documenti autorizzati e anonimizzati**. L’interfaccia iniziale presenta soltanto Inizio, Documenti, Da controllare e Guida; gli strumenti specialistici restano disponibili tramite progressive disclosure. La RC5 conserva il percorso locale corretto introdotto nella RC3 e corregge il difetto residuo del menu: le sezioni interne non vengono più compresse, l’overflow è reale e i gesti verticali sull’intera colonna blu vengono instradati verso la navigazione. Il comportamento è verificato con Chromium su viewport ridotto. La beta validata richiede ancora pilot reale e revisioni indipendenti.
+La candidata è adatta a sviluppo, dimostrazioni e **pilot controllati con documenti autorizzati e anonimizzati**. La RC6 aggiunge validazione numerica fail-closed, evidenze apribili fino al documento originale, priorità `critical`, centro attività persistente, retry e rielaborazione guidata, oltre a collegamenti manuali correggibili con rianalisi. Sidebar, evidenze, recupero e collegamenti sono verificati in Chromium. La beta validata richiede ancora pilot reale e revisioni indipendenti.
 
 ## Identità e posizionamento
 
@@ -63,12 +63,12 @@ Il Validation Gate sintetico serve soltanto alla regressione tecnica e non può 
 - ricevute PDF di pagamento con riconoscimento prudente dell'importo;
 - matching molti-a-molti e calcoli economici `Decimal`;
 - **Proof Graph**: grafo delle prove, collegamenti, forza delle evidenze e campi in conflitto;
-- **Sentinel Twin**: documenti attesi, scadenze generiche o apprese dallo storico privato del fornitore;
-- **simulazione preventiva**: rischio e importo potenzialmente esposto prima di approvare fattura, pagamento o consegna;
+- **controllo dei documenti attesi**: segnala documenti mancanti e scadenze euristiche o apprese dallo storico privato;
+- **stima preventiva supervisionata**: indicatore euristico di rischio e importo potenzialmente esposto, senza approvare o bloccare operazioni;
 - riconciliazione fattura–pagamento, sovrapagamenti, pagamenti orfani e possibili duplicati;
-- **tripla verifica** tra estrazione, controllo aritmetico e coerenza del grafo;
-- **process conformance** leggero per confrontare una pratica con il percorso dominante dell'azienda;
-- **self-red-team** manuale o persistente, senza alterare i documenti originali;
+- **controllo incrociato a tre fonti** tra estrazione, aritmetica e coerenza dei collegamenti;
+- **confronto euristico del processo** con il percorso dominante osservato nell’organizzazione;
+- **test sintetico degli scenari di errore** manuale o persistente, senza alterare i documenti originali;
 - memoria privata e pattern anonimi con soglia minima, senza documenti, nomi, importi o riferimenti;
 - fascicoli di prova, revisione umana, audit con sequenza canonica e catena hash;
 - Adaptive Discovery con regole apprese sempre soggette a conferma;
