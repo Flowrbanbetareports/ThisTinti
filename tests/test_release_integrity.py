@@ -323,15 +323,20 @@ def test_release_workflows_enforce_gates_and_immutable_publication():
     assert "Refuse tag or release replacement" in publish
 
 
-def test_latest_release_records_describe_the_verified_rc5_publication():
+def test_latest_release_records_and_upgrade_baseline_are_coherent():
     release = json.loads((ROOT / "builds" / "release-latest.json").read_text(encoding="utf-8"))
     publication = json.loads((ROOT / "builds" / "publication-latest.json").read_text(encoding="utf-8"))
     baseline = json.loads((ROOT / "builds" / "windows-upgrade-baseline.json").read_text(encoding="utf-8"))
 
-    assert release["version"] == publication["version"] == baseline["version"] == VERSION
-    assert release["release_commit"] == publication["release_commit"] == baseline["release_commit"]
-    assert release["verification"]["installer_sha256"] == baseline["sha256"]
+    assert release["version"] == publication["version"] == RELEASE_VERSION
+    assert release["release_commit"] == publication["release_commit"]
     assert any(
-        asset["name"] == f"ThisTinti-Setup-{VERSION}-x64.exe" and asset["sha256"] == baseline["sha256"]
+        asset["name"] == f"ThisTinti-Setup-{RELEASE_VERSION}-x64.exe"
+        and asset["sha256"] == release["verification"]["installer_sha256"]
         for asset in publication["assets"]
     )
+
+    assert baseline["version"] == VERSION
+    assert baseline["installer"] == f"ThisTinti-Setup-{VERSION}-x64.exe"
+    assert baseline["release_commit"] != release["release_commit"]
+    assert Version(to_python_package_version(baseline["version"])) < Version(PYTHON_PACKAGE_VERSION)
