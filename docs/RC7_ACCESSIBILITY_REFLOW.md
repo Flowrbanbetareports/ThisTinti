@@ -11,6 +11,8 @@ It verifies:
 - absence of page-level horizontal overflow at effective CSS viewports equivalent
   to 125%, 150% and 200% zoom from the reference viewport;
 - continued visibility of the Activities navigation and upload action;
+- a single-row, horizontally scrollable mobile navigation that does not consume
+  the reduced viewport vertically;
 - a screenshot at the 200%-equivalent viewport.
 
 These effective viewport checks are automated reflow evidence. They do not claim
