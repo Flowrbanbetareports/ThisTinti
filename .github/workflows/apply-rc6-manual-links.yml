@@ -1,4 +1,4 @@
-# Temporary transport workflow; product changes are applied by the guarded main workflow.
+# Temporary transport workflow; exports the already verified product files as an artifact.
 name: Apply RC6 Manual Links Patch
 
 on:
@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: apply-rc6-manual-links-${{ github.head_ref || github.ref }}
@@ -67,13 +67,11 @@ jobs:
           pytest -q tests/test_chain_link_options.py tests/test_simplified_experience.py
           node --check app/static/app-core.js
           git diff --check
-      - name: Commit verified product changes
+      - name: Package verified product files
         shell: bash
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add \
+          tar -czf rc6-manual-links-verified.tgz \
             .github/workflows/simplified-experience.yml \
             app/main.py \
             app/schemas.py \
@@ -85,7 +83,12 @@ jobs:
             scripts/check_chain_links_browser.py \
             tests/test_chain_link_options.py \
             tests/test_simplified_experience.py
-          git status --short
-          git commit -m "RC6 Manual Links: supervised attach, detach and reanalysis"
-      - name: Push verified product changes
-        run: git push origin HEAD:codex/rc6-manual-links
+          sha256sum rc6-manual-links-verified.tgz > rc6-manual-links-verified.tgz.sha256
+      - name: Upload verified product files
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: rc6-manual-links-verified-${{ github.run_id }}
+          path: |
+            rc6-manual-links-verified.tgz
+            rc6-manual-links-verified.tgz.sha256
+          retention-days: 7
