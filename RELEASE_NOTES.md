@@ -1,3 +1,19 @@
+# 3.4.0-alpha.7-rc.6 — Integrità dati, recupero ed evidenze correggibili
+
+- i valori numerici invalidi, non finiti o non convertibili non vengono più trasformati silenziosamente in zero;
+- gli input documentali non validi producono errori leggibili e non HTTP 500 generici;
+- il gate completo `make verify` è bloccante per CI, build Windows e pubblicazione;
+- OpenAPI, SBOM, versione, installer e provenienza vengono verificati sullo stesso commit candidato;
+- le segnalazioni permettono di aprire il documento originale e la riga estratta che ha generato l’evidenza;
+- i casi `critical` sono distinti, contati e ordinati prima delle altre severità;
+- aggiunto il centro **Attività** con stato persistente, errore, tentativi, ricerca, filtri, annullamento e nuovo tentativo;
+- aggiunta la correzione guidata dei metadati e la rielaborazione senza perdere l’ultima estrazione valida;
+- le proposte di collegamento mostrano compatibilità, percentuale e motivazioni;
+- collegamento e scollegamento manuale sono disponibili dalla UI con rianalisi della catena;
+- sidebar, evidenze, recupero e collegamenti sono verificati con Chromium reale;
+- il posizionamento resta quello di un workspace locale e supervisionato: le euristiche preparano evidenze e non certificano, approvano o decidono autonomamente;
+- aggiornamento supportato dalla RC5 con conservazione dei dati locali.
+
 # 3.4.0-alpha.7-rc.5 — Overflow laterale reale verificato in Chromium
 
 - corretto il pannello degli strumenti avanzati, che nelle finestre basse si restringeva e nascondeva le voci senza creare overflow nel menu esterno;
