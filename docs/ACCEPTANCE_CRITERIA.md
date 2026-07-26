@@ -21,10 +21,10 @@
 - [x] dashboard e confronto riga-per-riga;
 - [x] OpenAPI e SBOM;
 - [x] Proof Graph con contratto delle prove;
-- [x] Sentinel con documenti attesi e memoria temporale privata;
-- [x] simulazione preventiva con automazione disabilitata senza calibrazione;
+- [x] documenti attesi con memoria temporale privata e limiti dichiarati;
+- [x] stima euristica con automazione disabilitata senza calibrazione;
 - [x] riconciliazione pagamenti e controlli su duplicati/sovrapagamenti;
-- [x] process conformance, self-red-team e pattern pack anonimo.
+- [x] somiglianza al processo osservato, scenari sintetici di errore e pattern pack anonimo.
 
 ## Sicurezza del pacchetto
 
@@ -62,7 +62,7 @@
 
 - [ ] pilot autorizzato su documenti reali anonimizzati;
 - [ ] falsi positivi e falsi negativi misurati per regola e valore economico;
-- [ ] previsioni Sentinel, rischio e confidenza calibrati sul pilot;
+- [ ] documenti attesi, stime di rischio e confidenza calibrati sul pilot;
 - [ ] test di carico, stress e durata;
 - [ ] backup e restore provati sull'infrastruttura finale;
 - [ ] scanner malware con firme aggiornate e monitorate;
