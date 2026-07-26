@@ -11,7 +11,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from app.version import RELEASE_VERSION  # noqa: E402
+from app.version import PYTHON_PACKAGE_VERSION, RELEASE_VERSION  # noqa: E402
 from scripts.generate_openapi import render_openapi  # noqa: E402
 from scripts.generate_sbom import render_sbom  # noqa: E402
 
@@ -81,7 +81,6 @@ def validate_version_sources(failures: list[str]) -> None:
     )
     versions = {
         "app/version.py": RELEASE_VERSION,
-        "pyproject.toml": pyproject.get("project", {}).get("version"),
         "installer/windows/ThisTinti.iss": installer_version,
         "docs/openapi.json": load_json(ROOT / "docs" / "openapi.json").get("info", {}).get("version"),
         "docs/sbom.cdx.json": (
@@ -94,6 +93,12 @@ def validate_version_sources(failures: list[str]) -> None:
     for source, version in versions.items():
         if version != RELEASE_VERSION:
             failures.append(f"{source} version is {version!r}; expected {RELEASE_VERSION!r}")
+
+    package_version = pyproject.get("project", {}).get("version")
+    if package_version != PYTHON_PACKAGE_VERSION:
+        failures.append(
+            f"pyproject.toml version is {package_version!r}; expected PEP 440 equivalent {PYTHON_PACKAGE_VERSION!r}"
+        )
 
     for relative in ("README.md", "RELEASE_NOTES.md", "docs/BETA_READINESS_STATUS.md"):
         text = (ROOT / relative).read_text(encoding="utf-8")
