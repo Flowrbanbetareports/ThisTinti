@@ -22,7 +22,8 @@ def require(condition: bool, message: str) -> None:
 
 def main() -> None:
     with live_app("job-recovery") as app:
-        client = register_admin(app, suffix="recovery")
+        admin = register_admin(app, suffix="recovery")
+        client = admin.client
         document = upload_json(
             client,
             "ordine-recuperabile.json",
@@ -69,7 +70,7 @@ def main() -> None:
 
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch(headless=True)
-            context = authenticated_context(browser, client, app)
+            context = authenticated_context(browser, admin, app)
             page = context.new_page()
             page.goto(app.base_url, wait_until="load")
             page.wait_for_selector("#appView:not(.hidden)")
