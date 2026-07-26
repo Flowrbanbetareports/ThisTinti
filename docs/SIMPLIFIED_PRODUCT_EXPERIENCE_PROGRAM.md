@@ -31,7 +31,7 @@ Il programma di semplificazione deve rispettare questi limiti:
 
 ## 3. Problema da risolvere
 
-L'interfaccia corrente espone contemporaneamente Panoramica, Documenti, Catene, Anomalie, Autopilota, Validation Lab, Audit e Utenti. I nomi sono corretti dal punto di vista tecnico, ma un utente nuovo può non sapere:
+L'interfaccia precedente esponeva contemporaneamente Panoramica, Documenti, Catene, Anomalie, il nome storico Autopilota, Validation Lab, Audit e Utenti. I nomi sono corretti dal punto di vista tecnico, ma un utente nuovo può non sapere:
 
 - da dove iniziare;
 - quali pagine sono indispensabili;
@@ -205,7 +205,7 @@ Il raggruppamento non modifica autorizzazioni e visibilità per ruolo.
 | Dashboard | Inizio | pagina di orientamento |
 | Cases / Anomalie | Da controllare | possibili differenze |
 | Chains | Collegamenti | documenti della stessa attività |
-| Discovery / Autopilota | Regole proposte | controlli suggeriti |
+| Discovery / nome storico Autopilota | Regole proposte | controlli suggeriti |
 | Validation Lab | Verifica delle regole | qualità e test |
 | Audit | Registro attività | cronologia amministrativa |
 | Proof Graph | Prove collegate | dettaglio, non menu |
