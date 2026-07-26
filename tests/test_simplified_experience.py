@@ -153,7 +153,6 @@ def test_language_remains_informative_and_non_authoritative():
         assert marker not in source
 
 
-
 def test_visible_product_terms_do_not_present_heuristics_as_decisions():
     index = read("index.html")
     core = read("app-core.js")
@@ -166,6 +165,7 @@ def test_visible_product_terms_do_not_present_heuristics_as_decisions():
     assert "Attiva da soglia" in core
     assert "Esegui test sintetici" in core
     assert "Prova a ingannare ThisTinti" not in core
+
 
 def test_experience_css_supports_small_screens_and_reduced_motion():
     css = read("onboarding.css")
