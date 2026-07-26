@@ -61,7 +61,7 @@ Le divergenze tra revisori vengono risolte prima del confronto con il software.
 - accuratezza delle scadenze previste;
 - calibrazione fra confidenza dichiarata e risultati corretti;
 - falsi blocchi e approvazioni rischiose non bloccate;
-- copertura del self-red-team per famiglia di errore;
+- copertura degli scenari sintetici per famiglia di errore;
 - stabilità del processo dominante e dei pattern anonimi.
 
 ### Operazioni

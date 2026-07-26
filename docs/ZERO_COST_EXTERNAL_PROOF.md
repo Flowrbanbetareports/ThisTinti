@@ -7,7 +7,7 @@ Questa procedura dimostra il comportamento di ThisTinti su infrastruttura divers
 - suite locale: 121 test superati e copertura applicativa del 91%;
 - migrazioni SQLite reversibili e allineate;
 - Validation Gate sintetico, smoke HTTP, backup, verifica e restore;
-- prova app/worker locale con proposta, fattura e pagamento, Proof Graph, rischio preventivo, self-red-team, job persistenti, riavvio e file invariati;
+- prova app/worker locale con proposta, fattura e pagamento, grafo delle evidenze, stima euristica, scenari sintetici di errore, job persistenti, riavvio e file invariati;
 - PostgreSQL cloud Supabase: ruolo runtime senza `SUPERUSER`/`BYPASSRLS`, un solo tenant visibile per contesto e rifiuto cross-tenant `42501`;
 - advisor di sicurezza Supabase senza segnalazioni.
 
@@ -21,7 +21,7 @@ Il job `postgres-external-proof`:
 4. prova RLS e trigger cross-tenant come runtime;
 5. avvia FastAPI e il worker in processi separati;
 6. accoda ed elabora proposta, fattura e pagamento JSON non sensibili;
-7. controlla Proof Graph, simulazione preventiva, self-red-team, file, job, readiness e audit;
+7. controlla grafo delle evidenze, stima euristica, scenari sintetici di errore, file, job, readiness e audit;
 8. riavvia app e worker;
 9. ricontrolla persistenza e integrità;
 10. conserva report e log per 14 giorni.

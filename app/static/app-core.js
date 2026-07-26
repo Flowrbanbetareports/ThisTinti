@@ -158,7 +158,7 @@ const viewMeta = {
   chains: ['Operazioni', 'Catene documentali'],
   cases: ['Revisione', 'Anomalie'],
   jobs: ['Elaborazione', 'Attività'],
-  discovery: ['Adattamento', 'Autopilota'],
+  discovery: ['Adattamento', 'Regole proposte'],
   validation: ['Qualità', 'Validation Lab'],
   audit: ['Governance', 'Audit log'],
   users: ['Accessi', 'Utenti e ruoli'],
@@ -259,6 +259,14 @@ function renderChainLinkManagement(options, canReview) {
   return `<section class="detail-section chain-link-section"><div class="panel-heading"><div><h3>Documenti collegati</h3><p>Ogni collegamento mostra origine e affidabilità. Puoi verificarlo sull’originale prima di modificarlo.</p></div></div><div class="link-document-list">${linkedHtml}</div><details class="candidate-links"><summary>Collegamenti proposti (${candidates.length})</summary><p class="section-helper">Sono suggerimenti ordinati per compatibilità, non decisioni automatiche.</p><div class="link-document-list">${candidateHtml}</div></details></section>`;
 }
 
+function riskDecisionLabel(value) {
+  return ({
+    allow: 'segnale interno basso',
+    review: 'verifica richiesta',
+    block: 'verifica prioritaria',
+  })[value] || 'verifica richiesta';
+}
+
 async function openChain(id) {
   try {
     const [chain, linkOptions] = await Promise.all([
@@ -276,14 +284,14 @@ async function openChain(id) {
       ? pending.map(item => `<div class="case-item"><span class="severity-icon ${item.status === 'missing_proof' ? 'high' : 'medium'}">${item.status === 'missing_proof' ? '!' : '·'}</span><div><strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.rationale)}</small></div><span class="badge ${item.status === 'missing_proof' ? 'high' : 'medium'}">${escapeHtml(item.status)}</span></div>`).join('')
       : '<div class="empty-state">Nessun documento fondamentale mancante.</div>';
     const canReview = ['admin', 'reviewer'].includes(state.user?.role);
-    const actionButtons = canReview ? `<div class="modal-actions intelligence-actions"><button id="simulateChainButton" class="secondary-button" type="button">Stima rischio della catena</button><button id="redTeamChainButton" class="secondary-button" type="button">Prova a ingannare ThisTinti</button></div>` : '';
-    $('#chainDialogBody').innerHTML = `<div class="detail-grid"><div class="detail-card"><p>Stato</p><strong>${labelStatus(chain.status)}</strong></div><div class="detail-card"><p>Stima euristica del rischio</p><strong id="chainRiskValue">${risk.score}/100 · ${escapeHtml(risk.decision)}</strong><small id="chainRiskAmount">${money(risk.amount_at_risk)} potenzialmente coinvolti</small></div><div class="detail-card"><p>Controllo incrociato</p><strong>${escapeHtml(intelligence.triangulation?.status || '—')}</strong><small>estrazione · calcoli · grafo</small></div><div class="detail-card"><p>Somiglianza al processo osservato</p><strong>${Math.round((intelligence.process_conformance?.score || 0) * 100)}%</strong><small>${escapeHtml(intelligence.process_conformance?.baseline_source || 'baseline prudenziale')}</small></div></div>${actionButtons}<div id="chainIntelligenceResult" aria-live="polite"></div>${renderChainLinkManagement(linkOptions, canReview)}<section class="detail-section"><div class="panel-heading"><div><h3>Documenti attesi</h3><p>Cosa manca o dovrebbe accadere dopo.</p></div></div><div class="list-stack">${expectationHtml}</div></section><div class="lines-table comparison-table"><table><thead><tr><th>Articolo</th><th>Riferimento commerciale</th><th>Consegna</th><th>Fattura</th><th>Reso</th><th>Nota credito</th><th>Esito</th></tr></thead><tbody>${rows.length ? rows.map(row => `<tr><td><strong>${escapeHtml(row.sku || row.description || row.key)}</strong><small>${escapeHtml([row.description,row.color,row.size,row.lot].filter(Boolean).join(' · '))}</small></td><td>${comparisonCell(row.values.confirmation || row.values.order || row.values.proposal)}</td><td>${comparisonCell(row.values.delivery)}</td><td>${comparisonCell(row.values.invoice)}</td><td>${comparisonCell(row.values.return)}</td><td>${comparisonCell(row.values.credit_note)}</td><td><span class="badge ${row.status === 'ok' ? 'parsed' : row.status === 'issue' ? 'high' : 'medium'}">${row.status === 'ok' ? 'Coerente' : escapeHtml(row.reasons.join(', ') || 'Da verificare')}</span></td></tr>`).join('') : '<tr><td colspan="7" class="empty-state">Nessuna riga confrontabile.</td></tr>'}</tbody></table></div>`;
+    const actionButtons = canReview ? `<div class="modal-actions intelligence-actions"><button id="simulateChainButton" class="secondary-button" type="button">Calcola stima euristica</button><button id="redTeamChainButton" class="secondary-button" type="button">Esegui test sintetici</button></div>` : '';
+    $('#chainDialogBody').innerHTML = `<div class="detail-grid"><div class="detail-card"><p>Stato</p><strong>${labelStatus(chain.status)}</strong></div><div class="detail-card"><p>Stima euristica del rischio</p><strong id="chainRiskValue">${risk.score}/100 · ${escapeHtml(riskDecisionLabel(risk.decision))}</strong><small id="chainRiskAmount">${money(risk.amount_at_risk)} potenzialmente coinvolti · non è una decisione</small></div><div class="detail-card"><p>Controllo incrociato</p><strong>${escapeHtml(intelligence.triangulation?.status || '—')}</strong><small>estrazione · calcoli · grafo</small></div><div class="detail-card"><p>Somiglianza al processo osservato</p><strong>${Math.round((intelligence.process_conformance?.score || 0) * 100)}%</strong><small>${escapeHtml(intelligence.process_conformance?.baseline_source || 'baseline prudenziale')}</small></div></div>${actionButtons}<div id="chainIntelligenceResult" aria-live="polite"></div>${renderChainLinkManagement(linkOptions, canReview)}<section class="detail-section"><div class="panel-heading"><div><h3>Documenti attesi</h3><p>Cosa manca o dovrebbe accadere dopo.</p></div></div><div class="list-stack">${expectationHtml}</div></section><div class="lines-table comparison-table"><table><thead><tr><th>Articolo</th><th>Riferimento commerciale</th><th>Consegna</th><th>Fattura</th><th>Reso</th><th>Nota credito</th><th>Esito</th></tr></thead><tbody>${rows.length ? rows.map(row => `<tr><td><strong>${escapeHtml(row.sku || row.description || row.key)}</strong><small>${escapeHtml([row.description,row.color,row.size,row.lot].filter(Boolean).join(' · '))}</small></td><td>${comparisonCell(row.values.confirmation || row.values.order || row.values.proposal)}</td><td>${comparisonCell(row.values.delivery)}</td><td>${comparisonCell(row.values.invoice)}</td><td>${comparisonCell(row.values.return)}</td><td>${comparisonCell(row.values.credit_note)}</td><td><span class="badge ${row.status === 'ok' ? 'parsed' : row.status === 'issue' ? 'high' : 'medium'}">${row.status === 'ok' ? 'Coerente' : escapeHtml(row.reasons.join(', ') || 'Da verificare')}</span></td></tr>`).join('') : '<tr><td colspan="7" class="empty-state">Nessuna riga confrontabile.</td></tr>'}</tbody></table></div>`;
     $('#simulateChainButton')?.addEventListener('click', async () => {
       try {
         const result = await api(`/api/chains/${id}/simulate`, { method: 'POST', body: JSON.stringify({ action: 'approve_invoice' }) });
-        $('#chainRiskValue').textContent = `${result.score}/100 · ${result.decision}`;
+        $('#chainRiskValue').textContent = `${result.score}/100 · ${riskDecisionLabel(result.decision)}`;
         $('#chainRiskAmount').textContent = `${money(result.amount_at_risk)} potenzialmente coinvolti`;
-        $('#chainIntelligenceResult').innerHTML = `<div class="intelligence-callout"><strong>Simulazione: ${escapeHtml(result.decision)}</strong><p>${escapeHtml(result.reasons.slice(0, 3).join(' · ') || 'Nessun rischio rilevante.')}</p><small>Indicazione automatica: verificare i documenti originali prima di qualsiasi decisione economica.</small></div>`;
+        $('#chainIntelligenceResult').innerHTML = `<div class="intelligence-callout"><strong>Stima euristica: ${escapeHtml(riskDecisionLabel(result.decision))}</strong><p>${escapeHtml(result.reasons.slice(0, 3).join(' · ') || 'Nessun segnale rilevante.')}</p><small>Indicazione tecnica non decisionale: verificare i documenti originali e applicare le procedure dell’organizzazione.</small></div>`;
       } catch (error) { toast(error.message, true); }
     });
     $('#redTeamChainButton')?.addEventListener('click', async () => {
@@ -582,7 +590,7 @@ function renderDiscoveryRules() {
 }
 
 function labelRuleStatus(value) {
-  return ({ auto_active: 'Automatica', needs_confirmation: 'Da confermare', confirmed: 'Confermata', rejected: 'Rifiutata', inactive: 'Disattivata' })[value] || value;
+  return ({ auto_active: 'Attiva da soglia', needs_confirmation: 'Da confermare', confirmed: 'Confermata', rejected: 'Rifiutata', inactive: 'Disattivata' })[value] || value;
 }
 
 async function runDiscovery() {
@@ -595,7 +603,7 @@ async function runDiscovery() {
       method: 'POST',
       body: JSON.stringify({ minimum_documents: 3, auto_activate_threshold: 0.92, confirmation_threshold: 0.68 }),
     });
-    toast(`Attività analizzata: ${result.run.auto_activated_rules} regole automatiche, ${result.run.uncertain_rules} da confermare.`);
+    toast(`Attività analizzata: ${result.run.auto_activated_rules} regole attive da soglia, ${result.run.uncertain_rules} da confermare.`);
     await Promise.all([loadDiscovery(), loadCases(), loadDashboard()]);
   } catch (error) { toast(error.message, true); }
   finally { button.disabled = false; button.textContent = original; }
