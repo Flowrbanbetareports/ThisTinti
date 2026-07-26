@@ -61,6 +61,17 @@ analisi anche dopo la chiusura di un messaggio temporaneo. Da questa pagina è p
 Un errore non va considerato risolto soltanto perché viene riprovato. Verificare il nuovo
 risultato e confrontarlo con il file originale.
 
+## Evidenze e file originali
+
+Le anomalie `critical` vengono mostrate prima delle altre e hanno un conteggio dedicato.
+La tabella delle anomalie è utilizzabile anche da tastiera con `Invio` o `Spazio`.
+
+Dal dettaglio di una segnalazione è possibile aprire la riga estratta e il file originale.
+Se il documento è archiviato, il record resta consultabile. Se il file non è più presente
+o non è autorizzato per lo spazio corrente, l'errore resta visibile nel dettaglio: un
+messaggio temporaneo non equivale a un recupero riuscito. I dati estratti non sostituiscono
+il file originale.
+
 ## Correzione e rielaborazione
 
 Nel dettaglio di un documento, un amministratore o revisore può usare **Correggi e
