@@ -91,15 +91,20 @@ def main() -> None:
             )
             save_screenshot(page, "job-recovery-01-persistent-error.png")
             page.locator('[data-close-dialog="documentDialog"]').click()
+            page.wait_for_selector("#documentDialog", state="hidden")
 
-            failed_row.locator(".job-retry-button").click()
-            page.wait_for_function(
-                """failedId => [...document.querySelectorAll('[data-job-row]')]
-                  .some(row => row.dataset.jobRow !== failedId && row.textContent.includes('In attesa'))""",
-                arg=failed_id,
-            )
+            retry_path = f"/api/jobs/{failed_id}/retry"
+            with page.expect_response(
+                lambda response: retry_path in response.url and response.request.method == "POST"
+            ) as retry_exchange:
+                page.locator(f'[data-job-row="{failed_id}"] .job-retry-button').click()
+            retry_response = retry_exchange.value
+            require(retry_response.status == 201, f"Retry returned HTTP {retry_response.status}")
+            retried_id = retry_response.json()["job"]["id"]
+            page.wait_for_selector(f'[data-job-row="{retried_id}"]')
             jobs_after_retry = client.get("/api/jobs?limit=25&offset=0").json()["items"]
-            retried = next(item for item in jobs_after_retry if item["context"].get("retry_of") == failed_id)
+            retried = next(item for item in jobs_after_retry if item["id"] == retried_id)
+            require(retried["context"].get("retry_of") == failed_id, "Retry lineage was not persisted")
             run_worker_once(app, "browser-retry-worker")
             retried_status = client.get(f"/api/jobs/{retried['id']}").json()
             require(retried_status["status"] == "completed", "Retried job did not complete against the real worker")
