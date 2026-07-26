@@ -4,9 +4,13 @@ import hashlib
 import json
 import subprocess
 import sys
+import tomllib
 from pathlib import Path
 
 import pytest
+from packaging.version import Version
+
+from app.version import PYTHON_PACKAGE_VERSION, RELEASE_VERSION, to_python_package_version
 
 from scripts.check_release_consistency import validate_release_consistency
 from scripts.http_smoke import local_http_client
@@ -39,6 +43,23 @@ def test_release_consistency_gate_is_green_and_read_only():
 
     assert result.returncode == 0, result.stdout + result.stderr
     assert {path: path.read_bytes() for path in generated} == before
+
+
+def test_public_and_python_package_versions_are_equivalent_and_pep440_valid():
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+
+    assert PYTHON_PACKAGE_VERSION == to_python_package_version(RELEASE_VERSION)
+    assert pyproject["project"]["version"] == PYTHON_PACKAGE_VERSION
+    assert str(Version(PYTHON_PACKAGE_VERSION)) == PYTHON_PACKAGE_VERSION
+
+
+@pytest.mark.parametrize(
+    "invalid",
+    ["3.4.0-alpha.7", "3.4.0-rc.7", "3.4.0-alpha.x-rc.7", "3.4.0a7+rc.7"],
+)
+def test_python_package_version_mapping_rejects_unsupported_public_labels(invalid):
+    with pytest.raises(ValueError, match="Unsupported public release version"):
+        to_python_package_version(invalid)
 
 
 def test_generators_reproduce_committed_contracts_without_rewriting_them(tmp_path):
