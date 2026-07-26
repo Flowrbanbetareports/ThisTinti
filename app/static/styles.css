@@ -224,6 +224,53 @@ a:focus-visible {
   outline-offset: 2px;
 }
 
+.heading-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.critical-case-row {
+  box-shadow: inset 4px 0 0 #7b1010;
+}
+
+.critical-case-row:focus-visible {
+  outline: 3px solid rgba(123, 16, 16, .38);
+  outline-offset: -3px;
+}
+
+.critical-detail {
+  border-left: 4px solid #7b1010;
+}
+
+.evidence-origin-status,
+.evidence-warning,
+.evidence-error {
+  margin-top: 10px;
+  padding: 11px 13px;
+  border-radius: 10px;
+  overflow-wrap: anywhere;
+}
+
+.evidence-status {
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+}
+
+.evidence-warning {
+  color: #67440f;
+  background: #fff3df;
+  border: 1px solid #e5bf78;
+}
+
+.evidence-error {
+  color: #6f1717;
+  background: #fff2f0;
+  border: 1px solid #e4aaa5;
+  border-left: 4px solid var(--danger);
+}
+
 .local-consent {
   display: grid;
   grid-template-columns: 20px minmax(0, 1fr);
