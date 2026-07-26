@@ -12,7 +12,8 @@
 - collegamento e scollegamento manuale sono disponibili dalla UI con rianalisi della catena;
 - sidebar, evidenze, recupero e collegamenti sono verificati con Chromium reale;
 - il posizionamento resta quello di un workspace locale e supervisionato: le euristiche preparano evidenze e non certificano, approvano o decidono autonomamente;
-- aggiornamento supportato dalla RC5 con conservazione dei dati locali.
+- aggiornamento supportato dalla RC5 con conservazione dei dati locali;
+- l’artefatto pubblico RC6 deve essere costruito dal commit finale unito in `main`, non da un ramo intermedio.
 
 # 3.4.0-alpha.7-rc.5 — Overflow laterale reale verificato in Chromium
 
