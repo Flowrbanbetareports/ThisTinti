@@ -8,7 +8,7 @@
 
 ## Stato attuale
 
-ThisTinti è in preparazione come `3.4.0-alpha.7-rc.5`. La base tecnica include:
+ThisTinti è in preparazione come `3.4.0-alpha.7-rc.6`. La base tecnica include:
 
 - test applicativi e copertura minima del 90%;
 - migrazioni reversibili;
@@ -21,6 +21,11 @@ ThisTinti è in preparazione come `3.4.0-alpha.7-rc.5`. La base tecnica include:
 - esperienza iniziale semplificata con anteprima senza account, guida permanente e progressive disclosure;
 - navigazione laterale con overflow reale verificato in Chromium e gestione di touchpad, rotella e tastiera sull’intera colonna blu;
 - percorso locale di creazione o accesso selezionato automaticamente in base allo stato del database;
+- validazione numerica fail-closed e gestione leggibile degli input documentali non validi;
+- evidenze apribili dal caso fino al documento originale e alla riga estratta;
+- severità `critical` distinta e ordinata prima delle altre priorità;
+- centro attività persistente con stato, errore, retry, cancellazione e rielaborazione guidata;
+- collegamenti proposti spiegati e collegamento/scollegamento manuale con rianalisi;
 - protocollo di pilot senza telemetria per misurare comprensione e completamento del primo percorso.
 
 ## Gate interni
