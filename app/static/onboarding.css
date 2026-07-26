@@ -310,6 +310,52 @@
   .experience-preview-modal .modal-actions > * { width: 100%; }
 }
 
+@media (max-width: 760px) {
+  .nav-section-label { display: none; }
+
+  .nav-list {
+    display: flex;
+    grid-template-columns: none;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 2px 0 8px;
+    scroll-snap-type: x proximity;
+  }
+
+  .nav-list > button,
+  .advanced-nav-panel.open > button {
+    flex: 0 0 auto;
+    width: auto;
+    justify-content: flex-start;
+    padding: 10px 12px;
+    font-size: .86rem;
+    scroll-snap-align: start;
+  }
+
+  .nav-list button span { width: auto; font-size: 1rem; }
+
+  .advanced-nav-toggle {
+    display: flex !important;
+    flex: 0 0 auto;
+    width: auto;
+    margin: 0;
+    border-top: 0 !important;
+    border-radius: 12px !important;
+  }
+
+  .advanced-nav-toggle b { display: none; }
+  .advanced-nav-panel { display: none; }
+
+  .advanced-nav-panel.open {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 6px;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .advanced-nav-panel,
   .advanced-nav-panel > button,
