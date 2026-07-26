@@ -14,7 +14,7 @@ from scripts.release_artifact import required_release_files
 from scripts.verify_publish_candidate import REQUIRED_WORKFLOWS, validate_candidate_payloads
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "3.4.0-alpha.7-rc.5"
+VERSION = "3.4.0-alpha.7-rc.6"
 SOURCE_COMMIT = "a" * 40
 SOURCE_TREE = "b" * 40
 
@@ -236,15 +236,19 @@ def test_release_workflows_enforce_gates_and_immutable_publication():
     assert "Refuse tag or release replacement" in publish
 
 
-def test_latest_release_records_describe_the_verified_rc5_publication():
+def test_latest_release_records_describe_current_publication_and_previous_upgrade_baseline():
     release = json.loads((ROOT / "builds" / "release-latest.json").read_text(encoding="utf-8"))
     publication = json.loads((ROOT / "builds" / "publication-latest.json").read_text(encoding="utf-8"))
     baseline = json.loads((ROOT / "builds" / "windows-upgrade-baseline.json").read_text(encoding="utf-8"))
 
-    assert release["version"] == publication["version"] == baseline["version"] == VERSION
-    assert release["release_commit"] == publication["release_commit"] == baseline["release_commit"]
-    assert release["verification"]["installer_sha256"] == baseline["sha256"]
-    assert any(
-        asset["name"] == f"ThisTinti-Setup-{VERSION}-x64.exe" and asset["sha256"] == baseline["sha256"]
-        for asset in publication["assets"]
-    )
+    assert release["version"] == publication["version"] == VERSION
+    assert release["tag"] == publication["tag"] == f"v{VERSION}"
+    assert release["release_commit"] == publication["release_commit"]
+    assert release["build"]["artifact_head_sha"] == release["release_commit"]
+
+    installer = next(asset for asset in publication["assets"] if asset["name"] == f"ThisTinti-Setup-{VERSION}-x64.exe")
+    assert installer["sha256"] == release["verification"]["installer_sha256"]
+
+    assert baseline["version"] == "3.4.0-alpha.7-rc.5"
+    assert baseline["tag"] == "v3.4.0-alpha.7-rc.5"
+    assert baseline["sha256"] != installer["sha256"]
