@@ -51,6 +51,15 @@ def verify_artifact(
         ):
             verify_checksum_sidecar(directory / stem, directory / f"{stem}.sha256")
         build = metadata.get("build") if isinstance(metadata.get("build"), dict) else {}
+        if (
+            not isinstance(build.get("run_id"), int)
+            or build["run_id"] < 1
+            or not isinstance(build.get("run_number"), int)
+            or build["run_number"] < 1
+            or not isinstance(build.get("artifact_name"), str)
+        ):
+            failures.append("Provenance build identity is incomplete")
+            return failures
         validate_portable_identity(
             directory / f"ThisTinti-Portable-{expected_version}-x64.zip",
             expected_version=expected_version,
