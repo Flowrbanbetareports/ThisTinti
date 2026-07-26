@@ -263,6 +263,7 @@ class ReviewRequest(BaseModel):
 class DashboardResponse(BaseModel):
     documents: int
     cases_open: int
+    critical_cases_open: int
     chains: int
     amount_potential: float
     parsing_failures: int
