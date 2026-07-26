@@ -97,8 +97,7 @@ def validate_version_sources(failures: list[str]) -> None:
     package_version = pyproject.get("project", {}).get("version")
     if package_version != PYTHON_PACKAGE_VERSION:
         failures.append(
-            f"pyproject.toml version is {package_version!r}; "
-            f"expected PEP 440 equivalent {PYTHON_PACKAGE_VERSION!r}"
+            f"pyproject.toml version is {package_version!r}; expected PEP 440 equivalent {PYTHON_PACKAGE_VERSION!r}"
         )
 
     for relative in ("README.md", "RELEASE_NOTES.md", "docs/BETA_READINESS_STATUS.md"):
