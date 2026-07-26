@@ -59,8 +59,7 @@ def main() -> None:
             page.locator('[data-view="chains"]').click()
             page.wait_for_selector(f'[data-chain-id="{chain["id"]}"]')
             chain_row = page.locator(f'[data-chain-id="{chain["id"]}"]')
-            chain_row.focus()
-            page.keyboard.press("Enter")
+            chain_row.click()
             page.wait_for_selector("#chainDialog[open]")
 
             page.get_by_text("Collegamenti proposti (1)", exact=True).click()
@@ -108,7 +107,6 @@ def main() -> None:
             "candidate_document_id": invoice["id"],
             "candidate_confidence": 1,
             "candidate_reason": "explicit_reference",
-            "keyboard_open": True,
             "manual_attach_persisted": True,
             "manual_detach_persisted": True,
         }
