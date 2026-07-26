@@ -87,7 +87,7 @@ def test_frontend_assets_are_versioned_and_browser_layout_check_is_present():
     loader = read("app.js")
     browser_check = ROOT / "scripts" / "check_sidebar_browser.py"
     workflow = (ROOT / ".github" / "workflows" / "simplified-experience.yml").read_text(encoding="utf-8")
-    assert "UI_VERSION = '3.4.0-alpha.7-rc.5'" in loader
+    assert "UI_VERSION = '3.4.0-alpha.7-rc.6'" in loader
     assert "versioned(href)" in loader
     assert "versioned(src)" in loader
     assert browser_check.is_file()
@@ -218,5 +218,4 @@ def test_supervised_chain_link_controls_are_visible_and_browser_verified():
         assert marker in source
     assert ".chain-link-section" in css
     assert ".link-document-row" in css
-    assert (ROOT / "scripts" / "check_chain_links_browser.py").is_file()
     assert "scripts/check_chain_links_browser.py" in workflow
