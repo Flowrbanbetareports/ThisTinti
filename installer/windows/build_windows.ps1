@@ -1,3 +1,11 @@
+param(
+  [Parameter(Mandatory = $true)][string]$SourceCommit,
+  [Parameter(Mandatory = $true)][string]$SourceTree,
+  [Parameter(Mandatory = $true)][long]$WorkflowRun,
+  [Parameter(Mandatory = $true)][long]$WorkflowRunNumber,
+  [Parameter(Mandatory = $true)][string]$ArtifactName
+)
+
 $ErrorActionPreference = "Stop"
 Set-Location (Resolve-Path "$PSScriptRoot\..\..")
 
@@ -63,6 +71,16 @@ python scripts\local_distribution_smoke.py `
 if ($LASTEXITCODE -ne 0) { throw "Smoke test dell'eseguibile Windows fallito" }
 Remove-Item $SmokeData -Recurse -Force -ErrorAction SilentlyContinue
 
+python scripts\create_distribution_identity.py `
+  --output "dist\ThisTinti\BUILD-IDENTITY.json" `
+  --version $Version `
+  --source-commit $SourceCommit `
+  --source-tree $SourceTree `
+  --workflow-run $WorkflowRun `
+  --workflow-run-number $WorkflowRunNumber `
+  --artifact-name $ArtifactName
+if ($LASTEXITCODE -ne 0) { throw "Creazione dell'identità della distribuzione fallita" }
+
 $Portable = "release\windows\ThisTinti-Portable-$Version-x64.zip"
 Remove-Item $Portable -Force -ErrorAction SilentlyContinue
 Compress-Archive -Path "dist\ThisTinti\*" -DestinationPath $Portable -CompressionLevel Optimal
@@ -81,6 +99,7 @@ Copy-Item "docs\ENTERPRISE_ACCEPTANCE_CHECKLIST.md" "release\windows\SELF-HOSTED
 Copy-Item "docs\sbom.cdx.json" "release\windows\SBOM.cdx.json" -Force
 Copy-Item "docs\openapi.json" "release\windows\OPENAPI.json" -Force
 Copy-Item "RELEASE_NOTES.md" "release\windows\RELEASE_NOTES.md" -Force
+Copy-Item "docs\VERIFY_THIS_DOWNLOAD.md" "release\windows\VERIFY-THIS-DOWNLOAD.md" -Force
 
 Get-ChildItem "release\windows\*.exe", "release\windows\*.zip" | ForEach-Object {
   $Hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
