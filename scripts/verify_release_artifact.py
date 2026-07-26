@@ -10,6 +10,7 @@ from release_artifact import (
     load_json,
     required_release_files,
     sha256_file,
+    validate_portable_identity,
     validate_smoke_reports,
     validate_source_identity,
     verify_checksum_sidecar,
@@ -49,6 +50,19 @@ def verify_artifact(
             f"ThisTinti-{expected_version}-self-hosted-source.zip",
         ):
             verify_checksum_sidecar(directory / stem, directory / f"{stem}.sha256")
+        build = metadata.get("build") if isinstance(metadata.get("build"), dict) else {}
+        validate_portable_identity(
+            directory / f"ThisTinti-Portable-{expected_version}-x64.zip",
+            expected_version=expected_version,
+            expected_commit=expected_commit,
+            expected_tree=expected_tree,
+            expected_workflow_run=build.get("run_id"),
+            expected_workflow_run_number=build.get("run_number"),
+            expected_artifact_name=build.get("artifact_name"),
+        )
+        verification = metadata.get("verification") if isinstance(metadata.get("verification"), dict) else {}
+        if verification.get("portable_identity_verified") is not True:
+            failures.append("Provenance does not confirm the portable distribution identity")
         validate_smoke_reports(directory)
 
         listed = metadata.get("files")
