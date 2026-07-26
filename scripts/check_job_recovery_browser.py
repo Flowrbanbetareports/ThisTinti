@@ -97,7 +97,7 @@ def main() -> None:
             ) as retry_exchange:
                 page.locator(f'[data-job-row="{failed_id}"] .job-retry-button').click()
             retry_response = retry_exchange.value
-            require(retry_response.status == 201, f"Retry returned HTTP {retry_response.status}")
+            require(retry_response.status == 202, f"Retry returned HTTP {retry_response.status}")
             retried_id = retry_response.json()["job"]["id"]
             page.wait_for_selector(f'[data-job-row="{retried_id}"]')
             jobs_after_retry = client.get("/api/jobs?limit=25&offset=0").json()["items"]
