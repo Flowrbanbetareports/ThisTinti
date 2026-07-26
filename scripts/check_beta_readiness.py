@@ -5,6 +5,7 @@ import argparse
 import json
 import re
 import sys
+import tomllib
 from pathlib import Path
 from typing import Any
 
@@ -113,13 +114,26 @@ def build_report(*, require_external: bool) -> dict[str, Any]:
     if version and not re.fullmatch(r"3\.4\.0-alpha\.\d+(?:-rc\.\d+)?", version):
         internal_failures.append(f"Candidate version is not a supported 3.4 alpha or release candidate: {version}")
 
-    for relative in ("pyproject.toml", "installer/windows/ThisTinti.iss", "README.md", "RELEASE_NOTES.md"):
+    for relative in ("installer/windows/ThisTinti.iss", "README.md", "RELEASE_NOTES.md"):
         path = ROOT / relative
         if not path.is_file():
             internal_failures.append(f"Version carrier missing: {relative}")
             continue
         if version and version not in path.read_text(encoding="utf-8"):
             internal_failures.append(f"Version {version} missing from {relative}")
+
+    try:
+        pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+        sys.path.insert(0, str(ROOT))
+        from app.version import PYTHON_PACKAGE_VERSION
+
+        package_version = pyproject.get("project", {}).get("version")
+        if package_version != PYTHON_PACKAGE_VERSION:
+            internal_failures.append(
+                f"Python package version mismatch: expected {PYTHON_PACKAGE_VERSION}, found {package_version or 'missing'}"
+            )
+    except (OSError, tomllib.TOMLDecodeError) as exc:
+        internal_failures.append(f"Cannot read Python package version: {exc}")
 
     internal_failures.extend(check_workflow_pins())
 
