@@ -4039,6 +4039,10 @@
             "type": "integer",
             "title": "Cases Open"
           },
+          "critical_cases_open": {
+            "type": "integer",
+            "title": "Critical Cases Open"
+          },
           "chains": {
             "type": "integer",
             "title": "Chains"
@@ -4060,6 +4064,7 @@
         "required": [
           "documents",
           "cases_open",
+          "critical_cases_open",
           "chains",
           "amount_potential",
           "parsing_failures",

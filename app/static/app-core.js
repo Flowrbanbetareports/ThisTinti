@@ -13,6 +13,7 @@ const state = {
   jobsOffset: 0,
   jobsLimit: 25,
   jobsTimer: null,
+  criticalCasesOpen: null,
   selectedCase: null,
   selectedDocument: null,
   selectedJob: null,
@@ -188,6 +189,7 @@ async function loadDashboard() {
   const data = await api('/api/dashboard');
   $('#metricDocuments').textContent = data.documents;
   $('#metricCases').textContent = data.cases_open;
+  state.criticalCasesOpen = Number(data.critical_cases_open || 0);
   $('#metricChains').textContent = data.chains;
   $('#metricAmount').textContent = money(data.amount_potential);
   $('#parserDot').className = `status-dot ${data.parsing_failures ? 'warn' : 'ok'}`;
@@ -195,7 +197,7 @@ async function loadDashboard() {
   const cases = await api('/api/cases');
   state.cases = cases;
   const activeCases = cases.filter(c => ['open','needs_review','confirmed'].includes(c.status));
-  $('#metricCriticalCases').textContent = activeCases.filter(c => c.severity === 'critical').length;
+  $('#metricCriticalCases').textContent = state.criticalCasesOpen;
   renderPriorityCases(activeCases.slice(0, 5));
 }
 
@@ -324,10 +326,19 @@ async function loadCases() {
   if (status) qs.set('status', status);
   if (severity) qs.set('severity', severity);
   state.cases = await api(`/api/cases?${qs}`);
+  const criticalCases = state.criticalCasesOpen ?? state.cases.filter(c => c.severity === 'critical' && ['open', 'needs_review', 'confirmed'].includes(c.status)).length;
+  $('#criticalCaseCount').textContent = criticalCases === 1 ? '1 critica aperta' : `${criticalCases} critiche aperte`;
   const body = $('#casesTable');
   if (!state.cases.length) { body.innerHTML = `<tr><td colspan="5" class="empty-state">Nessuna anomalia.</td></tr>`; return; }
-  body.innerHTML = state.cases.map(c => `<tr data-case-id="${c.id}"><td><strong>${escapeHtml(c.title)}</strong><small>${escapeHtml(c.case_type)}</small></td><td><span class="badge ${c.severity}">${labelSeverity(c.severity)}</span></td><td>${money(c.amount_estimate)}</td><td>${Math.round(c.confidence * 100)}%</td><td><span class="badge ${c.status}">${labelStatus(c.status)}</span></td></tr>`).join('');
-  body.querySelectorAll('[data-case-id]').forEach(row => row.addEventListener('click', () => openCase(row.dataset.caseId)));
+  body.innerHTML = state.cases.map(c => `<tr class="${c.severity === 'critical' ? 'critical-case-row' : ''}" data-case-id="${c.id}" tabindex="0" role="button" aria-label="Apri anomalia ${escapeHtml(c.title)}, gravità ${labelSeverity(c.severity)}"><td><strong>${escapeHtml(c.title)}</strong><small>${escapeHtml(c.case_type)}</small></td><td><span class="badge ${c.severity}">${labelSeverity(c.severity)}</span></td><td>${money(c.amount_estimate)}</td><td>${Math.round(c.confidence * 100)}%</td><td><span class="badge ${c.status}">${labelStatus(c.status)}</span></td></tr>`).join('');
+  body.querySelectorAll('[data-case-id]').forEach(row => {
+    row.addEventListener('click', () => openCase(row.dataset.caseId));
+    row.addEventListener('keydown', event => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      openCase(row.dataset.caseId);
+    });
+  });
 }
 
 function jobTypeLabel(value) {
@@ -800,24 +811,39 @@ async function exportData() {
   } catch (error) { toast(error.message, true); }
 }
 
-function evidenceActions(evidence) {
+function evidenceActions(evidence, index) {
   if (!evidence.document_id) return '<p class="empty-state">Documento sorgente non più disponibile.</p>';
   const lineAction = evidence.document_line_id
     ? `<button class="secondary-button evidence-line-button" data-document-id="${escapeHtml(evidence.document_id)}" data-line-id="${escapeHtml(evidence.document_line_id)}" type="button">Apri riga estratta</button>`
     : `<button class="secondary-button evidence-line-button" data-document-id="${escapeHtml(evidence.document_id)}" type="button">Apri documento</button>`;
-  return `<div class="evidence-actions">${lineAction}<button class="secondary-button evidence-original-button" data-document-id="${escapeHtml(evidence.document_id)}" type="button">Apri originale</button></div>`;
+  return `<div class="evidence-actions">${lineAction}<button class="secondary-button evidence-original-button" data-document-id="${escapeHtml(evidence.document_id)}" data-status-target="evidence-origin-status-${index}" type="button">Apri originale</button></div><div id="evidence-origin-status-${index}" class="evidence-origin-status hidden" aria-live="polite"></div>`;
 }
 
-async function openOriginalDocument(documentId, button) {
+function originalDocumentErrorMessage(status, fallback) {
+  if (status === 403) return 'Permessi insufficienti per aprire il file originale.';
+  if (status === 404) return 'Documento non disponibile o non autorizzato per questo spazio.';
+  if (status === 410) return 'File originale non disponibile nell’archivio locale.';
+  return fallback;
+}
+
+function setEvidenceOriginStatus(target, message, isError = false) {
+  if (!target) return;
+  target.className = `evidence-origin-status ${isError ? 'evidence-error' : 'evidence-status'}`;
+  target.setAttribute('role', isError ? 'alert' : 'status');
+  target.textContent = message;
+}
+
+async function openOriginalDocument(documentId, button, statusTarget = null) {
   const originalLabel = button?.textContent || 'Apri originale';
   if (button) { button.disabled = true; button.textContent = 'Apertura…'; }
+  setEvidenceOriginStatus(statusTarget, 'Apertura del file originale in corso…');
   const preview = window.open('about:blank', '_blank');
   if (preview) preview.opener = null;
   try {
     const response = await fetch(`/api/documents/${encodeURIComponent(documentId)}/file`, { credentials: 'same-origin' });
     if (!response.ok) {
       const payload = response.headers.get('content-type')?.includes('application/json') ? await response.json() : await response.text();
-      throw new Error(messageFrom(payload, `Documento non disponibile (${response.status})`));
+      throw new Error(originalDocumentErrorMessage(response.status, messageFrom(payload, `Documento non disponibile (${response.status})`)));
     }
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
@@ -830,8 +856,10 @@ async function openOriginalDocument(documentId, button) {
       link.click();
     }
     window.setTimeout(() => URL.revokeObjectURL(url), 60000);
+    setEvidenceOriginStatus(statusTarget, 'File originale aperto in una nuova scheda.');
   } catch (error) {
     if (preview) preview.close();
+    setEvidenceOriginStatus(statusTarget, error.message, true);
     toast(error.message, true);
   } finally {
     if (button) { button.disabled = false; button.textContent = originalLabel; }
@@ -843,9 +871,9 @@ async function openCase(id) {
     const c = await api(`/api/cases/${id}`);
     state.selectedCase = c;
     $('#caseDialogTitle').textContent = c.title;
-    $('#caseDialogBody').innerHTML = `<div class="detail-grid"><div class="detail-card"><p>Gravità</p><strong><span class="badge ${c.severity}">${labelSeverity(c.severity)}</span></strong></div><div class="detail-card"><p>Importo stimato</p><strong>${money(c.amount_estimate)}</strong></div><div class="detail-card"><p>Confidenza</p><strong>${Math.round(c.confidence * 100)}%</strong></div></div><div class="detail-card detail-spaced"><p>Spiegazione</p><strong>${escapeHtml(c.explanation)}</strong></div><div class="detail-card detail-spaced"><p>Azione proposta</p><strong>${escapeHtml(c.recommended_action)}</strong></div><div class="evidence-list"><h4>Prove collegate</h4>${c.evidence.length ? c.evidence.map(e => `<div class="evidence-item"><p><strong>${escapeHtml(e.field_name)}</strong></p><p>Osservato: ${escapeHtml(e.observed_value || '—')}</p><p>Atteso: ${escapeHtml(e.expected_value || '—')}</p>${e.note ? `<small>${escapeHtml(e.note)}</small>` : ''}${evidenceActions(e)}</div>`).join('') : '<p class="empty-state">Nessuna prova strutturata.</p>'}</div>`;
+    $('#caseDialogBody').innerHTML = `<div class="detail-grid"><div class="detail-card ${c.severity === 'critical' ? 'critical-detail' : ''}"><p>Gravità</p><strong><span class="badge ${c.severity}">${labelSeverity(c.severity)}</span></strong></div><div class="detail-card"><p>Importo stimato</p><strong>${money(c.amount_estimate)}</strong></div><div class="detail-card"><p>Confidenza</p><strong>${Math.round(c.confidence * 100)}%</strong></div></div><div class="detail-card detail-spaced"><p>Spiegazione</p><strong>${escapeHtml(c.explanation)}</strong></div><div class="detail-card detail-spaced"><p>Azione proposta</p><strong>${escapeHtml(c.recommended_action)}</strong></div><div class="evidence-list"><h4>Prove collegate</h4>${c.evidence.length ? c.evidence.map((e, index) => `<div class="evidence-item"><p><strong>${escapeHtml(e.field_name)}</strong></p><p>Osservato: ${escapeHtml(e.observed_value ?? '—')}</p><p>Atteso: ${escapeHtml(e.expected_value ?? '—')}</p>${e.note ? `<small>${escapeHtml(e.note)}</small>` : ''}${evidenceActions(e, index)}</div>`).join('') : '<p class="empty-state">Nessuna prova strutturata.</p>'}</div>`;
     $('#caseDialogBody').querySelectorAll('.evidence-line-button').forEach(button => button.addEventListener('click', () => openDocument(button.dataset.documentId, button.dataset.lineId || null)));
-    $('#caseDialogBody').querySelectorAll('.evidence-original-button').forEach(button => button.addEventListener('click', () => openOriginalDocument(button.dataset.documentId, button)));
+    $('#caseDialogBody').querySelectorAll('.evidence-original-button').forEach(button => button.addEventListener('click', () => openOriginalDocument(button.dataset.documentId, button, $(`#${button.dataset.statusTarget}`))));
     $('#reviewNote').value = '';
     $('#caseDialog').showModal();
   } catch (error) { toast(error.message, true); }
@@ -858,9 +886,10 @@ async function openDocument(id, lineId = null) {
     $('#documentDialogTitle').textContent = d.number || d.source_filename;
     const canReview = ['admin', 'reviewer'].includes(state.user?.role);
     const errorPanel = d.parse_message ? `<div class="persistent-error" role="alert"><strong>${d.parse_status === 'failed' ? 'Il documento richiede intervento' : 'Messaggio di elaborazione'}</strong><p>${escapeHtml(d.parse_message)}</p></div>` : '';
-    const actions = `<div class="document-actions"><button id="documentOriginalButton" class="secondary-button" type="button">Apri originale</button>${canReview ? '<button id="documentReprocessButton" class="primary-button" type="button">Correggi e rielabora</button>' : ''}</div>`;
-    $('#documentDialogBody').innerHTML = `<div class="detail-grid"><div class="detail-card"><p>Tipo</p><strong>${labelType(d.document_type)}</strong></div><div class="detail-card"><p>Fornitore</p><strong>${escapeHtml(d.supplier || '—')}</strong></div><div class="detail-card"><p>Stato</p><strong>${labelStatus(d.parse_status)}</strong></div></div>${errorPanel}${actions}<div class="lines-table"><table><thead><tr><th>Riga</th><th>Articolo</th><th>Variante</th><th>Quantità</th><th>Prezzo</th><th>Sconto</th></tr></thead><tbody>${d.lines.length ? d.lines.map(l => `<tr data-line-id="${escapeHtml(l.id)}" class="${lineId === l.id ? 'document-row-highlight' : ''}"><td>${l.line_no}</td><td><strong>${escapeHtml(l.sku || '—')}</strong><small>${escapeHtml(l.description || '')}</small></td><td>${escapeHtml([l.color,l.size,l.lot].filter(Boolean).join(' / ') || '—')}</td><td>${numberOrDash(l.quantity)}</td><td>${moneyOrDash(l.unit_price)}</td><td>${percentOrDash(l.discount_rate)}</td></tr>`).join('') : `<tr><td colspan="6" class="empty-state">Nessuna riga estratta.</td></tr>`}</tbody></table></div>`;
-    $('#documentOriginalButton')?.addEventListener('click', event => openOriginalDocument(d.id, event.currentTarget));
+    const availability = `${d.archived ? '<div class="evidence-warning" role="status"><strong>Documento archiviato.</strong> Resta consultabile perché collegato a questa evidenza.</div>' : ''}${d.file_available === false ? '<div class="evidence-error" role="alert"><strong>File originale non disponibile.</strong> I dati estratti restano visibili; verifica l’archivio locale.</div>' : ''}`;
+    const actions = `<div class="document-actions"><button id="documentOriginalButton" class="secondary-button" type="button" ${d.file_available === false ? 'disabled aria-disabled="true"' : ''}>Apri originale</button>${canReview ? '<button id="documentReprocessButton" class="primary-button" type="button">Correggi e rielabora</button>' : ''}</div><div id="documentOriginStatus" class="evidence-origin-status hidden" aria-live="polite"></div>`;
+    $('#documentDialogBody').innerHTML = `<div class="detail-grid"><div class="detail-card"><p>Tipo</p><strong>${labelType(d.document_type)}</strong></div><div class="detail-card"><p>Fornitore</p><strong>${escapeHtml(d.supplier || '—')}</strong></div><div class="detail-card"><p>Stato</p><strong>${labelStatus(d.parse_status)}</strong></div></div>${errorPanel}${availability}${actions}<div class="lines-table"><table><thead><tr><th>Riga</th><th>Articolo</th><th>Variante</th><th>Quantità</th><th>Prezzo</th><th>Sconto</th></tr></thead><tbody>${d.lines.length ? d.lines.map(l => `<tr data-line-id="${escapeHtml(l.id)}" class="${lineId === l.id ? 'document-row-highlight' : ''}"><td>${l.line_no}</td><td><strong>${escapeHtml(l.sku || '—')}</strong><small>${escapeHtml(l.description || '')}</small></td><td>${escapeHtml([l.color,l.size,l.lot].filter(Boolean).join(' / ') || '—')}</td><td>${numberOrDash(l.quantity)}</td><td>${moneyOrDash(l.unit_price)}</td><td>${percentOrDash(l.discount_rate)}</td></tr>`).join('') : `<tr><td colspan="6" class="empty-state">Nessuna riga estratta.</td></tr>`}</tbody></table></div>`;
+    $('#documentOriginalButton')?.addEventListener('click', event => openOriginalDocument(d.id, event.currentTarget, $('#documentOriginStatus')));
     $('#documentReprocessButton')?.addEventListener('click', () => openReprocessDialog(d));
     $('#documentDialog').showModal();
     if (lineId) {

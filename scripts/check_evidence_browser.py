@@ -41,6 +41,21 @@ def route_api(route: Route) -> None:
         route.fulfill(json={"edition": "local"})
     elif url.endswith("/api/auth/me"):
         route.fulfill(status=401, json={"detail": "not authenticated"})
+    elif "/api/cases?" in url or url.endswith("/api/cases"):
+        route.fulfill(
+            json=[
+                {
+                    "id": "case-critical",
+                    "case_type": "line_total_mismatch",
+                    "severity": "critical",
+                    "amount_estimate": 25,
+                    "confidence": 0.99,
+                    "status": "open",
+                    "title": "Pagamento critico da verificare",
+                    "explanation": "Una prova deve portare alla riga originale.",
+                }
+            ]
+        )
     elif url.endswith("/api/cases/case-critical"):
         route.fulfill(
             json={
@@ -79,6 +94,8 @@ def route_api(route: Route) -> None:
                 "parse_message": None,
                 "confidence": 0.98,
                 "supplier": "Fornitore prova",
+                "archived": True,
+                "file_available": False,
                 "lines": [
                     {
                         "id": "line-1",
@@ -107,6 +124,8 @@ def route_api(route: Route) -> None:
                 ],
             }
         )
+    elif url.endswith("/api/documents/doc-1/file"):
+        route.fulfill(status=410, json={"detail": "Stored file unavailable"})
     else:
         route.fulfill(status=404, json={"detail": "not mocked"})
 
@@ -126,12 +145,23 @@ def main() -> None:
         page = browser.new_page(viewport={"width": 1366, "height": 768})
         page.route("**/api/**", route_api)
         page.set_content(build_document(), wait_until="load")
+        page.wait_for_timeout(100)
         page.evaluate("""async () => {
+          state.user = {role: 'reviewer', email: 'reviewer@example.test'};
+          state.criticalCasesOpen = 1;
           document.querySelector('#authView').classList.add('hidden');
           document.querySelector('#appView').classList.remove('hidden');
-          await window.openCase('case-critical');
+          await window.openView('cases');
         }""")
+        page.wait_for_selector('#casesTable tr[data-case-id="case-critical"]')
+        critical_row = page.locator('#casesTable tr[data-case-id="case-critical"]')
+        critical_row.focus()
+        page.keyboard.press("Enter")
         page.wait_for_selector("#caseDialog[open]")
+        require(
+            page.locator("#criticalCaseCount").inner_text() == "1 critica aperta",
+            "Dedicated critical count is not visible",
+        )
         require(page.locator("#caseDialogBody .badge.critical").is_visible(), "Critical severity badge is not visible")
         require(
             page.get_by_role("button", name="Apri riga estratta").is_visible(),
@@ -148,11 +178,31 @@ def main() -> None:
             "Source row line-2 is not highlighted",
         )
         require(page.get_by_text("Riga sorgente", exact=True).is_visible(), "Source-row label is not visible")
+        require(
+            page.get_by_text("Documento archiviato.", exact=False).is_visible(),
+            "Archived-document state is not persistent",
+        )
+        require(
+            page.get_by_text("File originale non disponibile.", exact=False).is_visible(),
+            "Missing-file state is not persistent",
+        )
+        page.locator('[data-close-dialog="documentDialog"]').click()
+        page.locator("#caseDialogBody .evidence-original-button").click()
+        page.wait_for_selector("#caseDialogBody .evidence-origin-status.evidence-error")
+        require(
+            "archivio locale" in page.locator("#caseDialogBody .evidence-origin-status").inner_text(),
+            "Original-file error did not remain visible in the evidence",
+        )
 
         result = {
             "critical_label": True,
+            "critical_count": 1,
+            "case_keyboard_open": True,
             "evidence_actions": page.locator(".evidence-actions button").count(),
             "highlighted_line": highlighted.get_attribute("data-line-id"),
+            "archived_state": True,
+            "missing_file_state": True,
+            "persistent_original_error": True,
         }
         browser.close()
     print(json.dumps(result, indent=2, sort_keys=True))
