@@ -391,6 +391,13 @@ app.add_middleware(
 )
 
 
+def _stored_file_available(document: Document) -> bool:
+    try:
+        return Path(document.storage_path).is_file()
+    except OSError:
+        return False
+
+
 def _doc_json(document: Document, supplier: Supplier | None = None, include_lines: bool = False) -> dict:
     payload = {
         "id": document.id,
@@ -405,6 +412,8 @@ def _doc_json(document: Document, supplier: Supplier | None = None, include_line
         "supplier": supplier.legal_name if supplier else None,
         "created_at": document.created_at.isoformat(),
         "line_count": len(document.lines),
+        "archived": document.archived,
+        "file_available": _stored_file_available(document),
     }
     if include_lines:
         lines = []
@@ -975,6 +984,16 @@ def dashboard(ctx: AuthContext = Depends(current_user), db: Session = Depends(ge
         )
         or 0
     )
+    critical_cases = (
+        db.scalar(
+            select(func.count(DiscrepancyCase.id)).where(
+                DiscrepancyCase.tenant_id == ctx.tenant_id,
+                DiscrepancyCase.status.in_(["open", "needs_review", "confirmed"]),
+                DiscrepancyCase.severity == "critical",
+            )
+        )
+        or 0
+    )
     chains = db.scalar(select(func.count(OperationChain.id)).where(OperationChain.tenant_id == ctx.tenant_id)) or 0
     amount = (
         db.scalar(
@@ -1000,6 +1019,7 @@ def dashboard(ctx: AuthContext = Depends(current_user), db: Session = Depends(ge
     return DashboardResponse(
         documents=docs,
         cases_open=open_cases,
+        critical_cases_open=critical_cases,
         chains=chains,
         amount_potential=float(amount),
         parsing_failures=failed,
@@ -1680,7 +1700,7 @@ def download_document(document_id: str, ctx: AuthContext = Depends(current_user)
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
     path = Path(document.storage_path)
-    if not path.exists():
+    if not path.is_file():
         raise HTTPException(status_code=410, detail="Stored file unavailable")
     return FileResponse(path, filename=document.source_filename, media_type=document.mime_type)
 
