@@ -1,3 +1,17 @@
+# 3.4.0-alpha.7-rc.7 — Evidenze reali, reflow e provenienza del download
+
+- i test browser di recupero e collegamento usano API, database e worker reali, senza risposte simulate;
+- retry, rielaborazione con metadati corretti e collegamento/scollegamento manuale vengono verificati fino alla persistenza;
+- le catene documentali si aprono anche da tastiera;
+- la schermata Attività mantiene leggibili errori e azioni al viewport desktop di riferimento;
+- il layout evita overflow della pagina ai viewport equivalenti a zoom 125%, 150% e 200%;
+- la navigazione ridotta resta compatta, etichettata e scorrevole orizzontalmente;
+- ogni portable incorpora `BUILD-IDENTITY.json` con versione, commit, tree, workflow e nome dell’artefatto;
+- checksum e provenienza rifiutano un portable ricalcolato se dichiara un’altra sorgente;
+- una guida inclusa nel download spiega verifica, provenienza e limite dell’eseguibile non firmato;
+- nomi e descrizioni distinguono verifiche euristiche, simulazioni supervisionate e decisioni umane;
+- questa versione resta una Public Preview: zoom reale su Windows, tecnologie assistive, pilot e revisioni indipendenti non sono autocertificati.
+
 # 3.4.0-alpha.7-rc.6 — Integrità dati, recupero ed evidenze correggibili
 
 - i valori numerici invalidi, non finiti o non convertibili non vengono più trasformati silenziosamente in zero;

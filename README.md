@@ -6,11 +6,11 @@ ThisTinti non decide, non approva e non certifica nulla. Organizza informazioni 
 
 ## Stato del rilascio
 
-Versione: **3.4.0-alpha.7-rc.6 — Public Preview con dati fail-closed e flussi recuperabili**.
+Versione: **3.4.0-alpha.7-rc.7 — Public Preview con flussi verificabili e recuperabili**.
 
 Questa preview conserva il motore documentale esistente e offre due distribuzioni gratuite: una Local Edition per singola postazione e una Self-Hosted Reference Edition con PostgreSQL, worker scalabili, TLS, scanner malware e strumenti operativi per team tecnici.
 
-La candidata è adatta a sviluppo, dimostrazioni e **pilot controllati con documenti autorizzati e anonimizzati**. La RC6 aggiunge validazione numerica fail-closed, evidenze apribili fino al documento originale, priorità `critical`, centro attività persistente, retry e rielaborazione guidata, oltre a collegamenti manuali correggibili con rianalisi. Sidebar, evidenze, recupero e collegamenti sono verificati in Chromium. La beta validata richiede ancora pilot reale e revisioni indipendenti.
+La candidata è adatta a sviluppo, dimostrazioni e **pilot controllati con documenti autorizzati e anonimizzati**. La RC7 consolida la validazione numerica fail-closed, le evidenze apribili fino all’originale, il centro attività persistente e i collegamenti manuali correggibili. I flussi di recupero e collegamento usano API, database e worker reali nei test Chromium; tastiera e reflow equivalente sono controllati automaticamente. Ogni download portable incorpora inoltre l’identità del proprio build. La beta validata richiede ancora pilot reale, collaudo manuale Windows/accessibilità e revisioni indipendenti.
 
 ## Identità e posizionamento
 

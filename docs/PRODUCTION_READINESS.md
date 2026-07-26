@@ -1,4 +1,4 @@
-# Production readiness — ThisTinti 3.4.0-alpha.5
+# Production readiness — ThisTinti 3.4.0-alpha.7-rc.7
 
 ## Gate tecnici interni implementati
 
@@ -16,10 +16,13 @@
 - reference deploy self-hosted con segreti file-based, rete interna, bootstrap offline e accettazione operatore;
 - RLS e trigger PostgreSQL inclusi nella migrazione;
 - test CI PostgreSQL dedicato ai tentativi cross-tenant;
-- harness esterno app/worker con grafo delle evidenze, stima euristica, scenari sintetici di errore e verifica dopo riavvio;
+- harness esterno app/worker con grafo delle evidenze, stima euristica, scenari
+  sintetici di errore e verifica dopo riavvio;
 - rate limiting condiviso;
 - scanner malware esterno obbligatorio in produzione;
-- calibrazione obbligatoria: pilot reale, almeno 30 scenari, motore corrente e approvazione amministrativa del run esatto prima di abilitare qualunque automazione suggerita dai controlli temporali;
+- calibrazione obbligatoria: pilot reale, almeno 30 scenari, motore corrente e
+  approvazione amministrativa del run esatto prima di abilitare qualunque
+  automazione suggerita dai controlli temporali;
 - vincoli database e revoca automatica dell'idoneità a ogni nuova validazione.
 
 ## Gate esterni obbligatori prima di dati sensibili
