@@ -5,7 +5,7 @@ import json
 from playwright.sync_api import sync_playwright
 
 from browser_e2e import (
-    authenticated_context,
+    authenticated_page,
     live_app,
     register_admin,
     run_worker_once,
@@ -70,10 +70,7 @@ def main() -> None:
 
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch(headless=True)
-            context = authenticated_context(browser, admin, app)
-            page = context.new_page()
-            page.goto(app.base_url, wait_until="load")
-            page.wait_for_selector("#appView:not(.hidden)")
+            context, page = authenticated_page(browser, admin, app)
             page.locator('[data-view="jobs"]').click()
             page.wait_for_selector(f'[data-job-row="{failed_id}"]')
 
