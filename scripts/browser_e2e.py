@@ -87,6 +87,10 @@ def live_app(name: str) -> Iterator[LiveApp]:
                 "THISTINTI_ALLOW_SYNCHRONOUS_INGESTION": "true",
                 "THISTINTI_ASYNC_INGESTION_ENABLED": "true",
                 "THISTINTI_REQUIRE_MALWARE_SCANNER": "false",
+                # Chromium sends the page origin on unsafe requests. Authorize
+                # only this ephemeral loopback origin so the E2E exercises the
+                # same Origin check used in production instead of bypassing it.
+                "THISTINTI_CORS_ORIGINS": base_url,
             }
         )
         previous = {key: os.environ.get(key) for key in environment if key.startswith("THISTINTI_")}
