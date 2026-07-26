@@ -236,4 +236,7 @@ def test_supervised_chain_link_controls_are_visible_and_browser_verified():
     assert ".link-document-row" in css
     assert "#chainsTable tr:focus-visible" in css
     assert "#jobsView .table-wrap table { min-width: 1008px;" in css
+    onboarding_css = read("onboarding.css")
+    assert "scroll-snap-type: x proximity" in onboarding_css
+    assert ".advanced-nav-panel.open" in onboarding_css
     assert "scripts/check_chain_links_browser.py" in workflow
