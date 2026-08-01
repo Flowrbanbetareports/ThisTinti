@@ -75,6 +75,20 @@ def test_diagnostics_are_in_real_browser_ci_scope() -> None:
     assert "python scripts/check_in_app_diagnostics_browser.py" in workflow
 
 
+def test_installed_diagnostics_are_a_windows_release_gate() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "windows-release.yml").read_text(encoding="utf-8")
+    release = (ROOT / "scripts" / "release_artifact.py").read_text(encoding="utf-8")
+
+    assert "python scripts\\check_installed_diagnostics_browser.py" in workflow
+    assert '--executable (Join-Path $InstallDir "ThisTinti.exe")' in workflow
+    assert "installed-diagnostics-report.json" in workflow
+    assert "installed-diagnostics-verbal.json" in workflow
+    assert "ThisTinti-installed-diagnostics-${{ github.run_id }}" in workflow
+    assert "installed_diagnostics_passed" in workflow
+    assert '"installed-diagnostics-report.json"' in release
+    assert '"thistinti.windows-installed-diagnostics.v1"' in release
+
+
 def test_diagnostics_do_not_claim_external_validation() -> None:
     html = (STATIC / "diagnostics.html").read_text(encoding="utf-8")
 

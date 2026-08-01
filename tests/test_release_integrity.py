@@ -161,6 +161,21 @@ def write_test_artifact(directory: Path) -> Path:
         path = directory / name
         if name in {"frozen-local-smoke.json", "installed-local-smoke.json"}:
             path.write_text('{"passed": true}\n', encoding="utf-8")
+        elif name == "installed-diagnostics-report.json":
+            path.write_text(
+                json.dumps(
+                    {
+                        "schema": "thistinti.windows-installed-diagnostics.v1",
+                        "passed": True,
+                        "api_mocked": False,
+                        "read_only_outcome": "PARZIALE",
+                        "active_outcome": "PASS",
+                        "numeric_rejection": "PASS",
+                        "restart_persistence": True,
+                    }
+                ),
+                encoding="utf-8",
+            )
         elif name == "installer-lifecycle-smoke.json":
             path.write_text(
                 json.dumps(
@@ -169,6 +184,7 @@ def write_test_artifact(directory: Path) -> Path:
                         "baseline_installed": True,
                         "upgrade_installed": True,
                         "installed_smoke_passed": True,
+                        "installed_diagnostics_passed": True,
                         "uninstalled": True,
                         "data_preserved": True,
                     }
