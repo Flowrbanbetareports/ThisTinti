@@ -9,7 +9,11 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_FILES = (ROOT / "app/static/index.html", ROOT / "site/index.html")
+DEFAULT_FILES = (
+    ROOT / "app/static/index.html",
+    ROOT / "app/static/diagnostics.html",
+    ROOT / "site/index.html",
+)
 
 
 class AccessibilityParser(HTMLParser):

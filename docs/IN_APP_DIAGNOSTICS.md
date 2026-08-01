@@ -10,19 +10,21 @@ Dopo l'accesso, la voce **Diagnostica** compare nella navigazione dell'app. La p
 
 **Esegui controlli sicuri** verifica:
 
-- disponibilità del servizio e versione OpenAPI;
-- sessione e dashboard;
+- disponibilità del servizio e coerenza tra versione runtime e OpenAPI;
+- sessione, ruolo e dashboard;
 - lettura di documenti, catene, segnalazioni e attività;
 - struttura minima dei collegamenti e presenza di spiegazioni/evidenze;
 - assenza di overflow orizzontale globale nella pagina diagnostica;
-- presenza di controlli raggiungibili da tastiera;
+- struttura minima dei controlli predisposti per il focus da tastiera;
 - persistenza locale del browser.
 
 Questi controlli sono di sola lettura, salvo una scrittura temporanea in `localStorage` immediatamente rimossa.
 
-## Test attivo di recupero errore
+La verifica della struttura di focus non sostituisce una prova umana con la sola tastiera.
 
-**Esegui anche test recupero errore** aggiunge un documento JSON diagnostico con quantità testuale `cinque`. Il test:
+## Test attivo di integrità numerica
+
+**Esegui anche test integrità numerica** aggiunge un documento JSON diagnostico con quantità testuale `cinque`. Il test:
 
 1. usa lo stesso endpoint di caricamento dell'interfaccia;
 2. applica cookie di sessione, CSRF e chiave di idempotenza;
@@ -31,6 +33,8 @@ Questi controlli sono di sola lettura, salvo una scrittura temporanea in `localS
 5. verifica che campo, valore e motivo siano consultabili nel risultato.
 
 Il documento e il job diagnostici restano intenzionalmente tracciabili in **Attività**. Non vengono creati valori economici validi e non viene eseguita alcuna decisione automatica.
+
+Il test richiede un ruolo `admin` o `reviewer`. Con un ruolo di sola consultazione resta `NON ESEGUITO`; un mancato permesso non viene presentato come difetto del motore.
 
 ## Verbale
 
@@ -41,9 +45,10 @@ La pagina produce un JSON con:
 - versione osservata;
 - stato, dettaglio, durata e dati tecnici di ogni controllo;
 - dati aggregati osservati;
-- esito complessivo `PASS`, `PARZIALE` o `FAIL`.
+- esito complessivo `PASS`, `PARZIALE` o `FAIL`;
+- controlli intenzionalmente omessi marcati `NON ESEGUITO`.
 
-`SKIPPED` e `PARTIAL` non vengono trasformati in `PASS`.
+`NON ESEGUITO` e `PARZIALE` non vengono trasformati in `PASS`.
 
 ## Limiti
 

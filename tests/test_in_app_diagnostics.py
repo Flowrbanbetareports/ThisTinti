@@ -26,6 +26,8 @@ def test_diagnostics_cover_core_supervised_workflow() -> None:
     script = (STATIC / "diagnostics.js").read_text(encoding="utf-8")
 
     for endpoint in (
+        "/api/health",
+        "/api/auth/me",
         "/openapi.json",
         "/api/dashboard",
         "/api/documents",
@@ -40,8 +42,37 @@ def test_diagnostics_cover_core_supervised_workflow() -> None:
     assert "credentials: 'same-origin'" in script
     assert "quantity: 'cinque'" in script
     assert "NON ESEGUITO" in script
-    assert "PARTIAL" in script
+    assert "PARZIALE" in script
     assert "FAIL" in script
+    assert "SKIPPED" not in script
+    assert "PARTIAL" not in script
+    assert "healthVersion !== openapiVersion" in script
+    assert "['admin', 'reviewer'].includes(session.role)" in script
+
+
+def test_read_only_diagnostics_do_not_promote_the_active_check() -> None:
+    script = (STATIC / "diagnostics.js").read_text(encoding="utf-8")
+    documentation = (ROOT / "docs" / "IN_APP_DIAGNOSTICS.md").read_text(encoding="utf-8")
+
+    assert "Il controllo sicuro non crea documenti" in script
+    assert "['PARZIALE', 'NON ESEGUITO']" in script
+    assert "NON ESEGUITO" in documentation
+    assert "non sostituisce una prova umana" in documentation
+
+
+def test_diagnostics_are_in_real_browser_ci_scope() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "simplified-experience.yml").read_text(encoding="utf-8")
+
+    for path in (
+        "app/static/diagnostics.html",
+        "app/static/diagnostics.css",
+        "app/static/diagnostics.js",
+        "app/static/diagnostics-link.js",
+        "scripts/check_in_app_diagnostics_browser.py",
+    ):
+        assert path in workflow
+    assert "node --check app/static/diagnostics.js" in workflow
+    assert "python scripts/check_in_app_diagnostics_browser.py" in workflow
 
 
 def test_diagnostics_do_not_claim_external_validation() -> None:

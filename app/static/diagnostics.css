@@ -86,11 +86,12 @@ tr:last-child td { border-bottom: 0; }
 .status.pass { background: #e2f3eb; color: var(--ok); }
 .status.fail { background: #fde8e8; color: var(--fail); }
 .status.partial { background: #fff1d8; color: var(--warn); }
-.status.skipped { background: #eef1f3; color: var(--skip); }
+.status.not-run { background: #eef1f3; color: var(--skip); }
 pre { margin: 14px 0 0; max-height: 420px; overflow: auto; padding: 16px; background: #0e1e29; color: #dce9ed; border-radius: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
 [data-overall="PASS"] { color: var(--ok); }
 [data-overall="FAIL"] { color: var(--fail); }
 [data-overall="PARZIALE"] { color: var(--warn); }
+[data-overall="NON ESEGUITO"] { color: var(--skip); }
 @media (max-width: 760px) {
   .topbar { grid-template-columns: auto 1fr; }
   .topbar > .secondary { grid-column: 1 / -1; }

@@ -104,7 +104,13 @@ function renderCheck(check) {
   const badge = document.createElement('span');
 
   name.textContent = check.name;
-  badge.className = `status ${check.status.toLowerCase()}`;
+  const statusClass = {
+    PASS: 'pass',
+    FAIL: 'fail',
+    PARZIALE: 'partial',
+    'NON ESEGUITO': 'not-run',
+  }[check.status] || 'not-run';
+  badge.className = `status ${statusClass}`;
   badge.textContent = check.status;
   statusCell.appendChild(badge);
   detail.textContent = check.detail;
@@ -113,7 +119,7 @@ function renderCheck(check) {
   byId('resultsBody').appendChild(row);
 }
 
-async function runCheck(name, task, options = {}) {
+async function runCheck(name, task) {
   const started = performance.now();
   let status = 'PASS';
   let detail = 'Completato.';
@@ -126,10 +132,9 @@ async function runCheck(name, task, options = {}) {
       data = result.data ?? null;
     } else if (result !== undefined) {
       data = result;
-      detail = options.successDetail || detail;
     }
   } catch (error) {
-    status = options.optional ? 'SKIPPED' : 'FAIL';
+    status = 'FAIL';
     detail = messageFrom(error);
     data = error?.payload ?? null;
   }
@@ -165,7 +170,14 @@ async function pollJob(jobId, timeoutMs = 120000) {
   return { ...last, status: last?.status || 'timeout', timed_out: true };
 }
 
-async function activeNumericRecoveryTest() {
+async function activeNumericIntegrityTest() {
+  const session = report.observed.session || {};
+  if (!['admin', 'reviewer'].includes(session.role)) {
+    return {
+      status: 'NON ESEGUITO',
+      detail: 'Il ruolo corrente può consultare i dati ma non è autorizzato a caricare il documento diagnostico.',
+    };
+  }
   const diagnosticId = `DIAG-${new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)}`;
   const invalidDocument = {
     document_type: 'invoice',
@@ -211,7 +223,7 @@ async function activeNumericRecoveryTest() {
   }
   if (rejected) {
     return {
-      status: 'PARTIAL',
+      status: 'PARZIALE',
       detail: `Input rifiutato nel job ${jobId}, ma il dettaglio strutturato non contiene chiaramente campo, valore e motivo.`,
       data: job,
     };
@@ -226,7 +238,7 @@ async function activeNumericRecoveryTest() {
 async function run(mode) {
   reset(mode);
   setBusy(true);
-  const steps = mode === 'active' ? 9 : 8;
+  const steps = 10;
   let completed = 0;
   const advance = (label) => {
     completed += 1;
@@ -235,17 +247,46 @@ async function run(mode) {
   };
 
   await runCheck('Servizio e versione', async () => {
-    const spec = await api('/openapi.json');
-    report.version = spec?.info?.version || 'non dichiarata';
-    report.observed.openapi = { title: spec?.info?.title, version: report.version };
-    return { status: 'PASS', detail: `Servizio raggiungibile; versione dichiarata ${report.version}.` };
+    const [health, spec] = await Promise.all([api('/api/health'), api('/openapi.json')]);
+    const healthVersion = health?.version || 'non dichiarata';
+    const openapiVersion = spec?.info?.version || 'non dichiarata';
+    report.version = healthVersion;
+    report.observed.service = {
+      name: health?.name,
+      edition: health?.edition,
+      telemetry: health?.telemetry,
+      cloud_required: health?.cloud_required,
+      health_version: healthVersion,
+      openapi_version: openapiVersion,
+    };
+    if (healthVersion !== openapiVersion) {
+      return {
+        status: 'FAIL',
+        detail: `Versioni incoerenti: servizio ${healthVersion}, OpenAPI ${openapiVersion}.`,
+      };
+    }
+    return { status: 'PASS', detail: `Servizio raggiungibile; versione coerente ${healthVersion}.` };
   });
   advance('Versione verificata.');
 
-  await runCheck('Sessione e dashboard', async () => {
+  await runCheck('Sessione e permessi', async () => {
+    const session = await api('/api/auth/me');
+    report.observed.session = {
+      role: session?.role,
+      principal_type: session?.principal_type,
+      scopes: Array.isArray(session?.scopes) ? session.scopes : [],
+    };
+    return {
+      status: 'PASS',
+      detail: `Sessione valida; ruolo ${session?.role || 'non dichiarato'}.`,
+    };
+  });
+  advance('Sessione verificata.');
+
+  await runCheck('Dashboard', async () => {
     const dashboard = await api('/api/dashboard');
     report.observed.dashboard = dashboard;
-    return { status: 'PASS', detail: 'Sessione valida e dashboard disponibile.', data: dashboard };
+    return { status: 'PASS', detail: 'Riepilogo operativo disponibile.', data: dashboard };
   });
   advance('Dashboard verificata.');
 
@@ -263,7 +304,7 @@ async function run(mode) {
     report.observed.chains = { count: items.length };
     const malformed = items.filter((item) => !item.id || !item.documents).length;
     return malformed
-      ? { status: 'PARTIAL', detail: `${items.length} catene lette; ${malformed} non hanno la struttura attesa.` }
+      ? { status: 'PARZIALE', detail: `${items.length} catene lette; ${malformed} non hanno la struttura attesa.` }
       : { status: 'PASS', detail: `${items.length} catene lette con struttura coerente.` };
   });
   advance('Collegamenti verificati.');
@@ -277,7 +318,7 @@ async function run(mode) {
     };
     const missingEvidence = items.filter((item) => !item.explanation && !item.evidence).length;
     return missingEvidence
-      ? { status: 'PARTIAL', detail: `${items.length} segnalazioni lette; ${missingEvidence} senza spiegazione o evidenza esplicita.` }
+      ? { status: 'PARZIALE', detail: `${items.length} segnalazioni lette; ${missingEvidence} senza spiegazione o evidenza esplicita.` }
       : { status: 'PASS', detail: `${items.length} segnalazioni lette; spiegazioni/evidenze presenti.` };
   });
   advance('Segnalazioni verificate.');
@@ -290,18 +331,38 @@ async function run(mode) {
   });
   advance('Attività verificate.');
 
-  await runCheck('Layout e tastiera della diagnostica', async () => {
+  await runCheck('Struttura tastiera e layout', async () => {
     const focusables = [...document.querySelectorAll('button:not([disabled]), a[href], input, select, textarea')];
     const overflow = document.documentElement.scrollWidth > document.documentElement.clientWidth + 2;
+    const inaccessible = focusables.filter((element) => {
+      const bounds = element.getBoundingClientRect();
+      const style = window.getComputedStyle(element);
+      const name = element.getAttribute('aria-label') || element.textContent?.trim();
+      return element.tabIndex < 0
+        || bounds.width <= 0
+        || bounds.height <= 0
+        || style.visibility === 'hidden'
+        || style.display === 'none'
+        || !name;
+    });
     report.observed.accessibility = {
       focusable_controls: focusables.length,
+      controls_without_usable_structure: inaccessible.length,
       page_horizontal_overflow: overflow,
       reduced_motion_requested: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
       viewport: { width: window.innerWidth, height: window.innerHeight, device_pixel_ratio: window.devicePixelRatio },
     };
-    return overflow
-      ? { status: 'FAIL', detail: 'La pagina diagnostica produce scorrimento orizzontale globale.' }
-      : { status: 'PASS', detail: `${focusables.length} controlli raggiungibili; nessun overflow orizzontale globale.` };
+    if (overflow) return { status: 'FAIL', detail: 'La pagina diagnostica produce scorrimento orizzontale globale.' };
+    if (inaccessible.length) {
+      return {
+        status: 'FAIL',
+        detail: `${inaccessible.length} controlli non hanno dimensioni, nome o ordine di focus utilizzabili.`,
+      };
+    }
+    return {
+      status: 'PASS',
+      detail: `${focusables.length} controlli predisposti per il focus; nessun overflow globale. La prova umana resta necessaria.`,
+    };
   });
   advance('Layout verificato.');
 
@@ -318,12 +379,24 @@ async function run(mode) {
   advance('Persistenza locale verificata.');
 
   if (mode === 'active') {
-    await runCheck('Recupero errore numerico', activeNumericRecoveryTest);
+    await runCheck('Rifiuto di un valore numerico non valido', activeNumericIntegrityTest);
     advance('Test attivo completato.');
+  } else {
+    const check = {
+      name: 'Rifiuto di un valore numerico non valido',
+      status: 'NON ESEGUITO',
+      detail: 'Il controllo sicuro non crea documenti. Avvia esplicitamente il test di integrità numerica per eseguirlo.',
+      duration_ms: 0,
+      data: null,
+    };
+    report.checks.push(check);
+    renderCheck(check);
+    renderSummary();
+    advance('Test attivo non eseguito.');
   }
 
   const failures = report.checks.filter((item) => item.status === 'FAIL').length;
-  const partials = report.checks.filter((item) => ['PARTIAL', 'SKIPPED'].includes(item.status)).length;
+  const partials = report.checks.filter((item) => ['PARZIALE', 'NON ESEGUITO'].includes(item.status)).length;
   report.overall = failures ? 'FAIL' : partials ? 'PARZIALE' : 'PASS';
   report.completed_at = new Date().toISOString();
   byId('progressBar').value = 100;
