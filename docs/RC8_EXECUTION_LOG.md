@@ -9,16 +9,17 @@ campi non ancora provati restano esplicitamente aperti.
 |---|---|
 | Versione | `3.4.0-alpha.7-rc.8` |
 | Funzione diagnostica integrata | PR `#68`, merge `dc28eac094bd779334f0fe47461595712a574d1b` |
-| Commit candidato versione | `ac7a8a88b59ceed5d35747ae987569d901af08bd` (merge PR `#69`) |
-| Tree candidato | `9446e8ee177773ad883718d9505715d728b9f39a` |
-| CI candidata | run `30708365343`, verde sul commit esatto |
+| Commit candidato versione | `a2a0d76121326bf08ba14de30ed32de379aa28b4` (merge PR `#71`) |
+| Tree candidato | `5aee4fbafe37d4698c8a3691447fd41805982142` |
+| CI candidata | run `30710864495`, verde sul commit esatto |
 | Browser candidata | run `30708365354`, verde sul commit esatto |
-| Windows finale `main` | run `30708365359` (`#253`), verde sul commit e tree esatti |
-| Registro build in `main` | commit bot `7744261e11201a89c44c1bad2c84333cd9e33c6c` |
-| Artifact Windows | ID `8821138405`, digest archivio `d4c21381b230b2fe8bbb4804a9cee7d220d81d0f236230d0e7758bf7e4e9b8b6` |
-| SHA-256 installer | `d4b2d9b6275e7021a2ea37be265fdaa9c058f7779ec4f3a67bd08ad25b59a3be` |
-| SHA-256 portable | `eaea6a29a69b85c04b282d6cb0f11d5028cee75fd4cb2d622faded57ae5ac52b` |
-| SHA-256 self-hosted | `11b5cfd35e9ed1027b00af99f73a338b82153a7ba4582d13545da330671a9137` |
+| Windows finale `main` | run `30710864493` (`#255`), verde sul commit e tree esatti |
+| Registro build in `main` | commit bot `a299e38a831734a51a0a56770441861ff09fc3ac` |
+| Artifact Windows | ID `8821910523`, digest archivio `70eaf2069e4d07a15bc65bd5df071495e86cd4d3774366a69703512632d656e3` |
+| Evidenza Diagnostica installata | ID `8821909202`, digest `b2cad0f20b78adbe29f3b1957880eea60bcfd9b24064891345cb0b8a482874d0` |
+| SHA-256 installer | `ecb0e37768633b75561f0ee470e15a051f8b3fca820902bf9cd00e849fb33d3a` |
+| SHA-256 portable | `f0ed7ed10a851d701ad243cf82d048877e69bec5e4360af036249b61f358833c` |
+| SHA-256 self-hosted | `33e1023d7a2fd6119dd3f6c3c5936d2d40699d26855b601fe95f4ca4207da669` |
 
 ## Evidenza già verificata sulla funzione
 
@@ -34,6 +35,12 @@ campi non ancora provati restano esplicitamente aperti.
 - [x] la stessa prova è stata ripetuta sul commit RC8 in `main`: run `30708365354`,
   artifact ID `8821056330`, digest
   `673740fe5b0c72f5efcaead146459c6720b1308e87285419686b15414fdb114c`.
+- [x] Diagnostica ripetuta dal vero `ThisTinti.exe` dopo installazione e upgrade
+  Windows: controllo sicuro `PARZIALE` senza `FAIL`, controllo attivo `PASS`,
+  job `parse_failed`, verbale scaricato, ordine tastiera verificato, reflow
+  equivalente 125/150/200%, riduzione animazioni e persistenza dopo riavvio;
+- [x] screenshot Windows ispezionati: contenuti completi, azioni utilizzabili e
+  nessun overflow globale; la tabella resta confinata al proprio contenitore.
 
 ## Gate richiesti sul candidato RC8
 
@@ -47,6 +54,7 @@ campi non ancora provati restano esplicitamente aperti.
 - [x] upgrade automatico dalla baseline pubblica RC5, riavvio, persistenza e
   disinstallazione verdi;
 - [x] identità, checksum, smoke report e provenienza coerenti.
+- [x] la provenienza finale registra `installed_diagnostics_passed: true`.
 
 Il workflow automatico usa volutamente la baseline pubblica RC5 registrata in
 `builds/windows-upgrade-baseline.json`. L'aggiornamento dalla RC7 realmente

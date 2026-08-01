@@ -22,6 +22,7 @@
 - [x] repository e codice candidato integrati in `main` (`ac7a8a88b59ceed5d35747ae987569d901af08bd`);
 - [x] build Windows prodotta dal commit esatto del candidato unito (run `30708365359`);
 - [x] artefatti, identità di build, provenienza e checksum verificati sul candidato unito;
+- [x] Diagnostica eseguita con Chromium contro il vero `ThisTinti.exe` installato, con verbale, screenshot e persistenza dopo riavvio;
 - [ ] collaudo manuale di Lorenzo completato senza rilievi bloccanti;
 - [x] nessuna vulnerabilità nota bloccante rilevata dai controlli automatici;
 - [x] limiti e gate esterni dichiarati senza presentare la candidata come beta validata.
