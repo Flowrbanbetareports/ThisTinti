@@ -1,4 +1,4 @@
-# Production readiness — ThisTinti 3.4.0-alpha.7-rc.7
+# Production readiness — ThisTinti 3.4.0-alpha.7-rc.8
 
 ## Gate tecnici interni implementati
 
@@ -24,6 +24,7 @@
   approvazione amministrativa del run esatto prima di abilitare qualunque
   automazione suggerita dai controlli temporali;
 - vincoli database e revoca automatica dell'idoneità a ogni nuova validazione.
+- diagnostica locale integrata con verbale scaricabile; non sostituisce i gate esterni.
 
 ## Gate esterni obbligatori prima di dati sensibili
 

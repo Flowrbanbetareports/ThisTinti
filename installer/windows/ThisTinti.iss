@@ -1,6 +1,6 @@
 #define MyAppName "ThisTinti Local"
 #ifndef MyAppVersion
-  #define MyAppVersion "3.4.0-alpha.7-rc.7"
+  #define MyAppVersion "3.4.0-alpha.7-rc.8"
 #endif
 #define MyAppPublisher "Lorenzo Tinti"
 #define MyAppExeName "ThisTinti.exe"
@@ -29,7 +29,7 @@ WizardStyle=modern dynamic
 CloseApplications=yes
 RestartApplications=no
 ChangesAssociations=no
-VersionInfoVersion=3.4.0.13
+VersionInfoVersion=3.4.0.14
 VersionInfoProductName={#MyAppName}
 VersionInfoDescription=Local document integrity and discrepancy review platform
 VersionInfoCompany={#MyAppPublisher}
