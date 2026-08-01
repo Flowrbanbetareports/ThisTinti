@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Diagnostica locale ThisTinti" />
+  <title>ThisTinti — Diagnostica</title>
+  <link rel="stylesheet" href="/diagnostics.css" />
+  <script src="/diagnostics.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">ThisTinti</a>
+    <div>
+      <p class="eyebrow">Controllo locale</p>
+      <h1>Diagnostica e collaudo</h1>
+      <p class="subtitle">Verifica installazione, sessione, dati, collegamenti, attività e recupero errori senza terminale.</p>
+    </div>
+    <a class="secondary" href="/">Torna all’app</a>
+  </header>
+
+  <main>
+    <section class="notice" role="note">
+      <strong>Ambiente locale.</strong>
+      I controlli leggono esclusivamente il servizio ThisTinti aperto su questo computer. Il test attivo crea un documento diagnostico volutamente non valido e un job tracciabile.
+    </section>
+
+    <section class="actions" aria-label="Azioni diagnostiche">
+      <button id="runReadOnly" class="primary" type="button">Esegui controlli sicuri</button>
+      <button id="runActive" class="secondary" type="button">Esegui anche test recupero errore</button>
+      <button id="downloadReport" class="secondary" type="button" disabled>Scarica verbale JSON</button>
+      <button id="copySummary" class="secondary" type="button" disabled>Copia riepilogo</button>
+    </section>
+
+    <section class="summary-grid" aria-label="Riepilogo">
+      <article><span>Esito</span><strong id="overallStatus">NON ESEGUITO</strong></article>
+      <article><span>Versione</span><strong id="appVersion">—</strong></article>
+      <article><span>Controlli</span><strong id="checkCount">0</strong></article>
+      <article><span>Problemi</span><strong id="failureCount">0</strong></article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
+          <h2>Risultati</h2>
+          <p id="progressText" aria-live="polite">Pronto.</p>
+        </div>
+        <progress id="progressBar" max="100" value="0">0%</progress>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Controllo</th><th>Stato</th><th>Dettaglio</th><th>Durata</th></tr></thead>
+          <tbody id="resultsBody"><tr><td colspan="4" class="empty">Nessun controllo eseguito.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Dati osservati</h2>
+      <pre id="observedData">{}</pre>
+    </section>
+
+    <section class="panel">
+      <h2>Limiti dichiarati</h2>
+      <p>Questa pagina non può certificare comprensibilità con tecnologie assistive, qualità di documenti reali, firma Authenticode o sicurezza indipendente. I controlli non eseguiti restano esplicitamente tali.</p>
+    </section>
+  </main>
+</body>
+</html>
