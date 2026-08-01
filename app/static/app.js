@@ -4,8 +4,8 @@
   // Legal distribution marker required by the release gate: 2026-07-20-v2.
   // Security-sensitive behavior remains in app-core.js, including messageFrom,
   // dateTime, thistinti_csrf handling and the X-CSRF-Token mutation header.
-  // onboarding.js is a local presentation layer: it does not receive session
-  // tokens, create accounts, upload files automatically or call external services.
+  // Presentation layers do not receive session tokens, create accounts or call
+  // external services. diagnostics-link.js only exposes the local diagnostics page.
   const UI_VERSION = '3.4.0-alpha.7-rc.7';
   const versioned = (path) => `${path}?v=${encodeURIComponent(UI_VERSION)}`;
 
@@ -29,6 +29,7 @@
     .then(() => loadScript('/onboarding.js'))
     .then(() => loadScript('/sidebar-scroll.js'))
     .then(() => loadScript('/local-first-run.js'))
+    .then(() => loadScript('/diagnostics-link.js'))
     .catch((error) => {
       console.error(error);
       const toast = document.querySelector('#toast');
