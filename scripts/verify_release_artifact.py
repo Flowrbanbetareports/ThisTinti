@@ -72,6 +72,8 @@ def verify_artifact(
         verification = metadata.get("verification") if isinstance(metadata.get("verification"), dict) else {}
         if verification.get("portable_identity_verified") is not True:
             failures.append("Provenance does not confirm the portable distribution identity")
+        if verification.get("installed_diagnostics_passed") is not True:
+            failures.append("Provenance does not confirm the installed Diagnostica test")
         validate_smoke_reports(directory)
 
         listed = metadata.get("files")

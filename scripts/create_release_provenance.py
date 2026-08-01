@@ -80,6 +80,7 @@ def main() -> int:
             "portable_identity_verified": True,
             "frozen_smoke_passed": True,
             "installed_smoke_passed": True,
+            "installed_diagnostics_passed": True,
             "installer_lifecycle_passed": True,
         },
         "files": files,

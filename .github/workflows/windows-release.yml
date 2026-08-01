@@ -76,7 +76,10 @@ jobs:
           python-version: "3.12"
           cache: pip
       - name: Install dependencies
-        run: python -m pip install -r requirements-build.txt
+        run: |
+          python -m pip install -r requirements-build.txt
+          python -m pip install playwright==1.55.0
+          python -m playwright install chromium
       - name: Verify source before packaging
         shell: pwsh
         run: |
@@ -246,6 +249,23 @@ jobs:
             --data-dir (Join-Path $DataDir "smoke") `
             --report "release\windows\installed-local-smoke.json"
           if ($LASTEXITCODE -ne 0) { throw "Installed application smoke test failed" }
+      - name: Exercise Diagnostica in the installed application
+        id: installed_diagnostics
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $Version = (Select-String -Path "app\version.py" -Pattern 'RELEASE_VERSION = "([^"]+)"').Matches.Groups[1].Value
+          $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\ThisTinti-Acceptance"
+          $DataDir = Join-Path $env:LOCALAPPDATA "ThisTinti-Acceptance"
+          python scripts\check_installed_diagnostics_browser.py `
+            --executable (Join-Path $InstallDir "ThisTinti.exe") `
+            --data-dir (Join-Path $DataDir "installed-diagnostics") `
+            --evidence-dir "release\windows\installed-diagnostics-evidence" `
+            --report "release\windows\installed-diagnostics-report.json" `
+            --verbal "release\windows\installed-diagnostics-verbal.json" `
+            --expected-version $Version
+          if ($LASTEXITCODE -ne 0) { throw "Installed Diagnostica browser test failed" }
       - name: Uninstall and verify data preservation
         shell: pwsh
         run: |
@@ -274,6 +294,10 @@ jobs:
           $Baseline = Get-Content "builds\windows-upgrade-baseline.json" -Raw | ConvertFrom-Json
           $Version = (Select-String -Path "app\version.py" -Pattern 'RELEASE_VERSION = "([^"]+)"').Matches.Groups[1].Value
           $InstalledSmoke = Get-Content "release\windows\installed-local-smoke.json" -Raw | ConvertFrom-Json
+          $InstalledDiagnostics = $null
+          if (Test-Path "release\windows\installed-diagnostics-report.json") {
+            $InstalledDiagnostics = Get-Content "release\windows\installed-diagnostics-report.json" -Raw | ConvertFrom-Json
+          }
           $Lifecycle = [ordered]@{
             schema = "thistinti.windows-installer-lifecycle.v1"
             version = $Version
@@ -282,11 +306,28 @@ jobs:
             baseline_installed = $true
             upgrade_installed = $true
             installed_smoke_passed = ($InstalledSmoke.passed -eq $true)
+            installed_diagnostics_passed = ($null -ne $InstalledDiagnostics -and $InstalledDiagnostics.passed -eq $true)
             uninstalled = $true
             data_preserved = $true
-            passed = ($InstalledSmoke.passed -eq $true)
+            passed = ($InstalledSmoke.passed -eq $true -and $null -ne $InstalledDiagnostics -and $InstalledDiagnostics.passed -eq $true)
           }
           $Lifecycle | ConvertTo-Json -Depth 4 | Set-Content "release\windows\installer-lifecycle-smoke.json" -Encoding utf8
+      - name: Upload installed Diagnostica evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ThisTinti-installed-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            release/windows/installed-diagnostics-report.json
+            release/windows/installed-diagnostics-verbal.json
+            release/windows/installed-diagnostics-evidence/
+            release/windows/installer-lifecycle-smoke.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Stop after installed Diagnostica failure
+        if: steps.installed_diagnostics.outcome != 'success'
+        shell: pwsh
+        run: throw "Installed Diagnostica evidence captured"
       - name: Create and verify artifact provenance
         shell: pwsh
         run: |

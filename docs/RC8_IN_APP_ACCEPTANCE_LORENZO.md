@@ -3,6 +3,11 @@
 Questa prova si svolge dall’app installata. Non richiede PowerShell, terminale
 o runner esterni.
 
+La pipeline Windows esegue inoltre lo stesso percorso con Chromium contro il
+vero `ThisTinti.exe` installato, conserva verbale e screenshot e ripete il
+controllo di persistenza dopo il riavvio. Questa prova automatica copre il
+comportamento tecnico; non viene descritta come valutazione umana con NVDA.
+
 ## Preparazione
 
 1. Installare la candidata RC8 sopra la RC7, senza cancellare cartelle dati.

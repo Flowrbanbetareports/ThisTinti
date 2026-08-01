@@ -37,6 +37,7 @@ def required_release_files(version: str) -> tuple[str, ...]:
         f"ThisTinti-{version}-self-hosted-source.zip.sha256",
         "frozen-local-smoke.json",
         "installed-local-smoke.json",
+        "installed-diagnostics-report.json",
         "installer-lifecycle-smoke.json",
         "TERMS_OF_USE.md",
         "DISCLAIMER.md",
@@ -79,8 +80,35 @@ def validate_smoke_reports(directory: Path) -> None:
         report = load_json(directory / name)
         if report.get("passed") is not True:
             raise ValueError(f"Smoke report did not pass: {name}")
+    diagnostics = load_json(directory / "installed-diagnostics-report.json")
+    if diagnostics.get("schema") != "thistinti.windows-installed-diagnostics.v1":
+        raise ValueError("Windows installed diagnostics report has an unsupported schema")
+    required_diagnostics = (
+        "api_mocked",
+        "read_only_outcome",
+        "active_outcome",
+        "numeric_rejection",
+        "restart_persistence",
+    )
+    if (
+        diagnostics.get("passed") is not True
+        or diagnostics.get("api_mocked") is not False
+        or diagnostics.get("read_only_outcome") != "PARZIALE"
+        or diagnostics.get("active_outcome") != "PASS"
+        or diagnostics.get("numeric_rejection") != "PASS"
+        or diagnostics.get("restart_persistence") is not True
+        or not all(field in diagnostics for field in required_diagnostics)
+    ):
+        raise ValueError("Windows installed diagnostics report did not pass every required check")
     lifecycle = load_json(directory / "installer-lifecycle-smoke.json")
-    required = ("baseline_installed", "upgrade_installed", "installed_smoke_passed", "uninstalled", "data_preserved")
+    required = (
+        "baseline_installed",
+        "upgrade_installed",
+        "installed_smoke_passed",
+        "installed_diagnostics_passed",
+        "uninstalled",
+        "data_preserved",
+    )
     if lifecycle.get("passed") is not True or not all(lifecycle.get(field) is True for field in required):
         raise ValueError("Windows installer lifecycle report did not pass every required check")
 
