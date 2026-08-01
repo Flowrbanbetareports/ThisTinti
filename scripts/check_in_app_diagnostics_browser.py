@@ -50,7 +50,7 @@ def main() -> None:
             page.wait_for_selector("#runReadOnly")
 
             page.locator("#runReadOnly").click()
-            page.wait_for_function("document.querySelector('#overallStatus')?.textContent === 'PARZIALE'")
+            page.locator("#overallStatus").filter(has_text="PARZIALE").wait_for()
             require(
                 page.get_by_text("NON ESEGUITO", exact=True).is_visible(),
                 "Read-only diagnostics promoted the active numeric check",
@@ -67,7 +67,7 @@ def main() -> None:
             queued_job = wait_for_diagnostic_job(client)
             require(queued_job["status"] == "queued", "Diagnostic job was not durably queued")
             run_worker_once(app, "browser-in-app-diagnostics-worker")
-            page.wait_for_function("document.querySelector('#overallStatus')?.textContent === 'PASS'")
+            page.locator("#overallStatus").filter(has_text="PASS").wait_for()
 
             completed_job = client.get(f"/api/jobs/{queued_job['id']}").json()
             require(completed_job["status"] == "completed", "Diagnostic job did not complete")
