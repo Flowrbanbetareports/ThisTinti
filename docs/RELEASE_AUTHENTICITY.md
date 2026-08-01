@@ -14,7 +14,7 @@ Aprire PowerShell nella cartella del download, impostare il nome della versione
 scaricata ed eseguire:
 
 ```powershell
-$Version = "3.4.0-alpha.7-rc.7"
+$Version = "3.4.0-alpha.7-rc.8"
 Get-FileHash ".\ThisTinti-Setup-$Version-x64.exe" -Algorithm SHA256
 Get-Content ".\ThisTinti-Setup-$Version-x64.exe.sha256"
 ```

@@ -1,6 +1,6 @@
 # Diagnostica locale integrata
 
-La pagina `/diagnostics.html` sostituisce i runner esterni usati durante il collaudo RC7 con un flusso locale, visibile e tracciabile dentro ThisTinti.
+La pagina `/diagnostics.html` porta il collaudo RC8 in un flusso locale, visibile e tracciabile dentro ThisTinti, senza richiedere runner PowerShell all’utente.
 
 ## Accesso
 

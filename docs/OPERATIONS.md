@@ -1,4 +1,4 @@
-# Manuale operativo — ThisTinti 3.4.0-alpha.7-rc.7
+# Manuale operativo — ThisTinti 3.4.0-alpha.7-rc.8
 
 ## Profili di ambiente
 

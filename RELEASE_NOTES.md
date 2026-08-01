@@ -1,3 +1,16 @@
+# 3.4.0-alpha.7-rc.8 — Diagnostica e collaudo dentro l’app
+
+- aggiunta la voce **Diagnostica** nella navigazione autenticata;
+- i controlli locali confrontano versione runtime e OpenAPI e verificano sessione, dashboard, documenti, collegamenti, segnalazioni e attività;
+- il controllo sicuro non modifica i documenti e lascia il test numerico esplicitamente `NON ESEGUITO`;
+- il test attivo carica tramite la normale UI un JSON con quantità `cinque` e richiede un job `parse_failed` con campo, valore e motivo consultabili;
+- gli esiti pubblici sono coerenti: `PASS`, `PARZIALE`, `FAIL` e `NON ESEGUITO`;
+- il verbale JSON è scaricabile e non contiene token né copie dei documenti aziendali;
+- la pagina non usa telemetria, servizi cloud o connessioni esterne;
+- il browser E2E apre la diagnostica dall’app autenticata, usa la tastiera, avvia il worker reale, scarica il verbale e verifica reflow equivalente al 200% e riduzione animazioni;
+- la diagnostica non viene presentata come prova WCAG, pentest, pilot o certificazione indipendente;
+- questa versione resta una Public Preview alpha/RC e richiede accettazione umana prima della pubblicazione.
+
 # 3.4.0-alpha.7-rc.7 — Evidenze reali, reflow e provenienza del download
 
 - i test browser di recupero e collegamento usano API, database e worker reali, senza risposte simulate;

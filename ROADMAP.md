@@ -1,6 +1,6 @@
 # Roadmap di ThisTinti
 
-## Stato attuale — 3.4.0-alpha.7-rc.7 Public Preview
+## Stato attuale — 3.4.0-alpha.7-rc.8 Public Preview
 
 Completati:
 
@@ -18,12 +18,16 @@ Completati:
 - recupero persistente, rielaborazione guidata e collegamenti manuali correggibili;
 - browser E2E con API e worker reali, tastiera e reflow equivalente;
 - identità di build incorporata e verificata per ogni archivio portable.
+- diagnostica locale integrata, senza PowerShell, con verbale scaricabile e test numerico tramite il normale upload.
 
-## RC7 — chiusura tecnica della Public Preview
+## RC8 — collaudo direttamente nell’app
 
-I gate automatici e l’artefatto Windows del commit candidato sono registrati in
-`docs/RC7_EXECUTION_LOG.md`. Prima della pubblicazione resta il collaudo manuale
-Windows di installazione, zoom, tastiera e tecnologia assistiva.
+La diagnostica permette a Lorenzo di svolgere il collaudo dalla UI e distingue
+`PASS`, `PARZIALE`, `FAIL` e `NON ESEGUITO`. I gate automatici e l’artefatto
+Windows del commit candidato sono registrati in `docs/RC8_EXECUTION_LOG.md`.
+Prima della pubblicazione restano l’accettazione in-app e le prove manuali di
+zoom, tastiera e tecnologia assistiva descritte in
+`docs/RC8_IN_APP_ACCEPTANCE_LORENZO.md`.
 
 ## Pilot documentale e qualità misurata
 
