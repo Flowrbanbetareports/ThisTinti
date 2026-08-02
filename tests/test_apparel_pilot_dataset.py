@@ -58,9 +58,7 @@ def test_apparel_pre_pilot_is_scoped_and_contains_no_real_identity_fields() -> N
     raw = json.loads(DATASET.read_text(encoding="utf-8"))
     payload = ValidationDatasetPayload.model_validate(raw)
     document_types = {
-        str(document.content.get("document_type"))
-        for scenario in payload.scenarios
-        for document in scenario.documents
+        str(document.content.get("document_type")) for scenario in payload.scenarios for document in scenario.documents
     }
     serialized = DATASET.read_text(encoding="utf-8").casefold()
 

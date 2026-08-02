@@ -29,9 +29,7 @@ from app.version import RELEASE_VERSION  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Run the 30-scenario apparel pre-pilot and OCR scan diagnostic."
-    )
+    parser = argparse.ArgumentParser(description="Run the 30-scenario apparel pre-pilot and OCR scan diagnostic.")
     parser.add_argument("dataset", type=Path)
     parser.add_argument("--report", type=Path, required=True)
     parser.add_argument("--markdown", type=Path, required=True)
@@ -435,9 +433,7 @@ def main() -> int:
                     "f1_score": float(run.f1_score),
                     "amount_mae": float(run.amount_mae),
                     "gate_passed": bool(run.gate_passed),
-                    "all_scenarios_pass": bool(
-                        details.get("all_scenarios_pass")
-                    ),
+                    "all_scenarios_pass": bool(details.get("all_scenarios_pass")),
                     "elapsed_seconds": round(elapsed, 3),
                     "average_seconds_per_scenario": round(
                         elapsed / len(payload.scenarios),
