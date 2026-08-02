@@ -29,17 +29,10 @@ jobs:
 
           path = Path("app/parsers/pdf_text.py")
           source = path.read_text(encoding="utf-8")
-          old = '''        if not labelled:
-              if not raw_line.strip() and fields:
-                  flush()
-              continue
-          '''
-          new = '''        if not labelled:
-              continue
-          '''
-          if old not in source:
-              raise SystemExit("Expected OCR blank-line block not found")
-          path.write_text(source.replace(old, new, 1), encoding="utf-8")
+          old = "            if not raw_line.strip() and fields:\n                flush()\n"
+          if source.count(old) != 1:
+              raise SystemExit("Expected OCR blank-line block not found exactly once")
+          path.write_text(source.replace(old, "", 1), encoding="utf-8")
           PY
           python -m pip install ruff==0.15.22
           ruff format app/parsers/pdf_text.py tests/test_parsers.py
