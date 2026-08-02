@@ -19,7 +19,7 @@ non autorizza dichiarazioni commerciali di accuratezza.
 - falsi positivi: **0**
 - falsi negativi: **0**
 - gate tecnico superato: **SÌ**
-- tempo motore complessivo: **1.097 s**
+- tempo motore complessivo: **1.108 s**
 - tempo medio per pratica: **0.037 s**
 
 ## Scansioni sintetiche difficili
@@ -30,9 +30,9 @@ misura di accuratezza su scansioni reali.
 
 | Caso | Variante | Esito ingestione | Stato | Righe | Secondi |
 |---|---|---|---|---:|---:|
-| scan-01 | clear | parse_failed | failed | 0 | 1.075 |
-| scan-02 | low-contrast | parse_failed | failed | 0 | 0.833 |
-| scan-03 | rotated-noisy | parse_failed | failed | 0 | 1.869 |
+| scan-01 | clear | parse_failed | failed | 0 | 1.016 |
+| scan-02 | low-contrast | parse_failed | failed | 0 | 0.976 |
+| scan-03 | rotated-noisy | parse_failed | failed | 0 | 1.839 |
 
 ## Misure non inventate
 
