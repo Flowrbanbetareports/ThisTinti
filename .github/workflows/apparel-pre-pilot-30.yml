@@ -10,6 +10,13 @@ on:
       - tests/test_apparel_pilot_dataset.py
       - docs/APPAREL_PRE_PILOT_30.md
       - .github/workflows/apparel-pre-pilot-30.yml
+  pull_request:
+    paths:
+      - samples/pilot_apparel_30_synthetic.json
+      - scripts/run_apparel_pilot.py
+      - tests/test_apparel_pilot_dataset.py
+      - docs/APPAREL_PRE_PILOT_30.md
+      - .github/workflows/apparel-pre-pilot-30.yml
   workflow_dispatch:
 
 permissions:
