@@ -1,0 +1,104 @@
+name: Apparel Pre-Pilot 30
+
+on:
+  push:
+    branches:
+      - agent/apparel-pilot-30
+    paths:
+      - samples/pilot_apparel_30_synthetic.json
+      - scripts/run_apparel_pilot.py
+      - tests/test_apparel_pilot_dataset.py
+      - docs/APPAREL_PRE_PILOT_30.md
+      - .github/workflows/apparel-pre-pilot-30.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apparel-pre-pilot-30-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      THISTINTI_ENV: test
+      THISTINTI_DATABASE_URL: sqlite:///./apparel-pre-pilot.db
+      THISTINTI_SECRET_KEY: apparel-pre-pilot-secret-key-more-than-thirty-two-characters
+      THISTINTI_AUTO_CREATE_SCHEMA: "false"
+      THISTINTI_ALLOW_REGISTRATION: "true"
+      THISTINTI_SECURE_COOKIES: "false"
+      THISTINTI_OCR_ENABLED: "true"
+      THISTINTI_STORAGE_DIR: ./apparel-pilot-data/uploads
+      THISTINTI_QUARANTINE_DIR: ./apparel-pilot-data/quarantine
+      THISTINTI_REJECTED_DIR: ./apparel-pilot-data/rejected
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          ref: agent/apparel-pilot-30
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Install OCR tools and dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils tesseract-ocr tesseract-ocr-eng tesseract-ocr-ita fonts-dejavu-core
+          python -m pip install -r requirements-dev.txt
+      - name: Prepare isolated database
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f apparel-pre-pilot.db
+          alembic upgrade head
+      - name: Validate synthetic dataset governance
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p builds
+          python scripts/validate_pilot_dataset.py \
+            samples/pilot_apparel_30_synthetic.json \
+            --report builds/apparel-pre-pilot-30-inspection.json \
+            --fail-on-warning
+      - name: Run 30 practices and OCR diagnostics
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/run_apparel_pilot.py \
+            samples/pilot_apparel_30_synthetic.json \
+            --report builds/apparel-pre-pilot-30-latest.json \
+            --markdown builds/apparel-pre-pilot-30-latest.md \
+            --measurement-template builds/apparel-real-pilot-measurements.csv
+      - name: Upload reproducible evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: apparel-pre-pilot-30-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            builds/apparel-pre-pilot-30-inspection.json
+            builds/apparel-pre-pilot-30-latest.json
+            builds/apparel-pre-pilot-30-latest.md
+            builds/apparel-real-pilot-measurements.csv
+          retention-days: 30
+      - name: Record latest benchmark evidence on the branch
+        if: success() && github.ref == 'refs/heads/agent/apparel-pilot-30'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            builds/apparel-pre-pilot-30-inspection.json \
+            builds/apparel-pre-pilot-30-latest.json \
+            builds/apparel-pre-pilot-30-latest.md \
+            builds/apparel-real-pilot-measurements.csv
+          if git diff --cached --quiet; then
+            echo "Benchmark evidence already current"
+            exit 0
+          fi
+          git commit -m "Record apparel pre-pilot 30 evidence"
+          git push origin HEAD:agent/apparel-pilot-30
