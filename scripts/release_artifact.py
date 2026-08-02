@@ -58,9 +58,7 @@ def publication_manifest_files(provenance: dict, version: str) -> dict[str, dict
     if not isinstance(manifest_files, list) or not manifest_files:
         raise ValueError("Artifact provenance has no file manifest")
     manifest_by_name = {
-        str(item.get("name")): item
-        for item in manifest_files
-        if isinstance(item, dict) and item.get("name")
+        str(item.get("name")): item for item in manifest_files if isinstance(item, dict) and item.get("name")
     }
     if not set(required_release_files(version)).issubset(manifest_by_name):
         raise ValueError("Artifact provenance omits required release files")

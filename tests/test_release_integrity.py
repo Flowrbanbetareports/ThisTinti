@@ -357,10 +357,7 @@ def test_release_workflows_enforce_gates_and_immutable_publication():
 
 
 def test_publication_records_manifested_diagnostic_evidence_without_weakening_required_assets():
-    required = [
-        {"name": name, "size": 1, "sha256": "a" * 64}
-        for name in required_release_files(RELEASE_VERSION)
-    ]
+    required = [{"name": name, "size": 1, "sha256": "a" * 64} for name in required_release_files(RELEASE_VERSION)]
     verbal = {"name": "installed-diagnostics-verbal.json", "size": 2, "sha256": "b" * 64}
 
     manifest = publication_manifest_files({"files": [*required, verbal]}, RELEASE_VERSION)
