@@ -53,6 +53,18 @@ def required_release_files(version: str) -> tuple[str, ...]:
     )
 
 
+def publication_manifest_files(provenance: dict, version: str) -> dict[str, dict]:
+    manifest_files = provenance.get("files")
+    if not isinstance(manifest_files, list) or not manifest_files:
+        raise ValueError("Artifact provenance has no file manifest")
+    manifest_by_name = {
+        str(item.get("name")): item for item in manifest_files if isinstance(item, dict) and item.get("name")
+    }
+    if not set(required_release_files(version)).issubset(manifest_by_name):
+        raise ValueError("Artifact provenance omits required release files")
+    return manifest_by_name
+
+
 def distributable_files(directory: Path) -> list[Path]:
     suffixes = {".exe", ".zip", ".sha256", ".json", ".md"}
     return sorted(

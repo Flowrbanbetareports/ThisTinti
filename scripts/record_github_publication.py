@@ -12,7 +12,12 @@ from typing import Any
 from urllib.parse import quote
 from urllib.request import Request, urlopen
 
-from release_artifact import load_json, required_release_files, sha256_file, validate_source_identity
+from release_artifact import (
+    load_json,
+    publication_manifest_files,
+    sha256_file,
+    validate_source_identity,
+)
 
 REPOSITORY_PATTERN = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 
@@ -79,7 +84,8 @@ def main() -> int:
         assets = release.get("assets")
         if not isinstance(assets, list):
             raise ValueError("Published release has no asset list")
-        expected_names = set(required_release_files(str(version))) | {"release-provenance.json"}
+        manifest_by_name = publication_manifest_files(provenance, str(version))
+        expected_names = set(manifest_by_name) | {"release-provenance.json"}
         actual_names = {asset.get("name") for asset in assets if isinstance(asset, dict)}
         if actual_names != expected_names:
             raise ValueError("Published asset set does not exactly match the verified artifact")
@@ -89,6 +95,11 @@ def main() -> int:
             name = str(asset.get("name"))
             local = directory / name
             local_hash = sha256_file(local)
+            manifest_entry = manifest_by_name.get(name)
+            if manifest_entry is not None and (
+                manifest_entry.get("sha256") != local_hash or manifest_entry.get("size") != local.stat().st_size
+            ):
+                raise ValueError(f"Artifact provenance differs for {name}")
             digest = str(asset.get("digest") or "")
             if digest and digest != f"sha256:{local_hash}":
                 raise ValueError(f"Published asset digest differs for {name}")

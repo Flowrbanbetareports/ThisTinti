@@ -16,7 +16,11 @@ from app.version import PYTHON_PACKAGE_VERSION, RELEASE_VERSION, to_python_packa
 from scripts.check_beta_readiness import build_report
 from scripts.check_release_consistency import validate_release_consistency
 from scripts.http_smoke import local_http_client
-from scripts.release_artifact import build_distribution_identity, required_release_files
+from scripts.release_artifact import (
+    build_distribution_identity,
+    publication_manifest_files,
+    required_release_files,
+)
 from scripts.verify_publish_candidate import REQUIRED_WORKFLOWS, validate_candidate_payloads
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -341,13 +345,25 @@ def test_release_workflows_enforce_gates_and_immutable_publication():
     assert '--expected-commit "$TARGET_SHA"' in publish
     assert "gh attestation verify" in publish
     assert "--clobber" not in publish
-    assert "Refuse tag or release replacement" in publish
+    assert "Refuse replacement or reuse the exact immutable release" in publish
+    assert 'test "$EXISTING_TARGET" = "$TARGET_SHA"' in publish
+    assert "if: env.RELEASE_ALREADY_EXISTS != 'true'" in publish
 
     request = json.loads((ROOT / "builds" / "public-preview-request.json").read_text(encoding="utf-8"))
     assert request["schema"] == "thistinti.public-preview-request.v1"
     assert request["version"] == RELEASE_VERSION
     assert re.fullmatch(r"[0-9a-f]{40}", request["target_sha"])
     assert re.fullmatch(r"[0-9]+", request["windows_run_id"])
+
+
+def test_publication_records_manifested_diagnostic_evidence_without_weakening_required_assets():
+    required = [{"name": name, "size": 1, "sha256": "a" * 64} for name in required_release_files(RELEASE_VERSION)]
+    verbal = {"name": "installed-diagnostics-verbal.json", "size": 2, "sha256": "b" * 64}
+
+    manifest = publication_manifest_files({"files": [*required, verbal]}, RELEASE_VERSION)
+
+    assert set(required_release_files(RELEASE_VERSION)).issubset(manifest)
+    assert manifest["installed-diagnostics-verbal.json"] == verbal
 
 
 def test_latest_release_records_and_upgrade_baseline_are_coherent():
