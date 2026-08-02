@@ -345,7 +345,7 @@ def test_release_workflows_enforce_gates_and_immutable_publication():
 
     request = json.loads((ROOT / "builds" / "public-preview-request.json").read_text(encoding="utf-8"))
     assert request["schema"] == "thistinti.public-preview-request.v1"
-    assert request["version"] == VERSION
+    assert request["version"] == RELEASE_VERSION
     assert re.fullmatch(r"[0-9a-f]{40}", request["target_sha"])
     assert re.fullmatch(r"[0-9]+", request["windows_run_id"])
 
