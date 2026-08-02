@@ -8,7 +8,13 @@ Automated release evidence includes the complete repository gate, installed Wind
 
 ## Administrative closure
 
-The remaining internal task is to replace the stale RC6 values in `builds/release-latest.json` and `builds/publication-latest.json` with records generated from the already-published RC8 asset inventory. The recovery must not recreate, overwrite or mutate any release asset.
+The internal publication record is complete. Workflow run `30768348013` re-verified the exact RC8 source and Windows artifact, reused the existing immutable release without uploading or replacing assets, and successfully regenerated the canonical evidence records.
+
+- `builds/release-latest.json` records RC8, the exact release source, Windows run `30710864493`, all mandatory assets and the verified installer, portable and self-hosted hashes.
+- `builds/publication-latest.json` records the complete set of 23 published assets and their exact SHA-256 values.
+- evidence commit: `7cb63df298b650e3baddcdad6354028db4b75122`.
+
+There is no remaining internal publication blocker for RC8 as a **Public Preview alpha/RC**.
 
 ## External work
 
