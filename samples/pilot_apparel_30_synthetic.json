@@ -1,0 +1,2994 @@
+{
+  "name": "ThisTinti Apparel Flow Pre-Pilot 30",
+  "version": "1.0.0",
+  "description": "Benchmark sintetico su un unico processo: ordine, consegna, fattura, reso e nota di credito nel settore abbigliamento. Non costituisce validazione su dati reali.",
+  "evidence_level": "synthetic",
+  "automation_eligible": false,
+  "gate": {
+    "min_precision": 1.0,
+    "min_recall": 1.0,
+    "min_f1": 1.0,
+    "max_amount_mae": 0.05,
+    "require_all_scenarios_pass": true
+  },
+  "scenarios": [
+    {
+      "id": "clean-01",
+      "description": "Catena ordine-consegna-fattura completamente coerente.",
+      "documents": [
+        {
+          "filename": "clean-01-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-C-001",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Pilot 01",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "TSHIRT-101",
+                "description": "T-shirt cotone",
+                "quantity": 11,
+                "unit_price": 13,
+                "discount_rate": 5,
+                "color": "Blu",
+                "size": "45"
+              }
+            ]
+          }
+        },
+        {
+          "filename": "clean-01-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-C-001",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Pilot 01",
+            "references": {
+              "order_numbers": [
+                "PO-C-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "TSHIRT-101",
+                "description": "T-shirt cotone",
+                "quantity": 11,
+                "unit_price": 13,
+                "discount_rate": 5,
+                "color": "Blu",
+                "size": "45"
+              }
+            ]
+          }
+        },
+        {
+          "filename": "clean-01-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-C-001",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Pilot 01",
+            "references": {
+              "order_numbers": [
+                "PO-C-001"
+              ],
+              "delivery_numbers": [
+                "DDT-C-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "TSHIRT-101",
+                "description": "T-shirt cotone",
+                "quantity": 11,
+                "unit_price": 13,
+                "discount_rate": 5,
+                "color": "Blu",
+                "size": "45"
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "clean-02",
+      "description": "Catena ordine-consegna-fattura completamente coerente.",
+      "documents": [
+        {
+          "filename": "clean-02-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-C-002",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Pilot 02",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "TSHIRT-102",
+                "description": "T-shirt cotone",
+                "quantity": 12,
+                "unit_price": 14,
+                "discount_rate": 0,
+                "color": "Blu",
+                "size": "46"
+              }
+            ]
+          }
+        },
+        {
+          "filename": "clean-02-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-C-002",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Pilot 02",
+            "references": {
+              "order_numbers": [
+                "PO-C-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "TSHIRT-102",
+                "description": "T-shirt cotone",
+                "quantity": 12,
+                "unit_price": 14,
+                "discount_rate": 0,
+                "color": "Blu",
+                "size": "46"
+              }
+            ]
+          }
+        },
+        {
+          "filename": "clean-02-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-C-002",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Pilot 02",
+            "references": {
+              "order_numbers": [
+                "PO-C-002"
+              ],
+              "delivery_numbers": [
+                "DDT-C-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "TSHIRT-102",
+                "description": "T-shirt cotone",
+                "quantity": 12,
+                "unit_price": 14,
+                "discount_rate": 0,
+                "color": "Blu",
+                "size": "46"
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "clean-03",
+      "description": "Catena ordine-consegna-fattura completamente coerente.",
+      "documents": [
+        {
+          "filename": "clean-03-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-C-003",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Pilot 03",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "TSHIRT-103",
+                "description": "T-shirt cotone",
+                "quantity": 13,
+                "unit_price": 15,
+                "discount_rate": 5,
+                "color": "Blu",
+                "size": "47"
+              }
+            ]
+          }
+        },
+        {
+          "filename": "clean-03-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-C-003",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Pilot 03",
+            "references": {
+              "order_numbers": [
+                "PO-C-003"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "TSHIRT-103",
+                "description": "T-shirt cotone",
+                "quantity": 13,
+                "unit_price": 15,
+                "discount_rate": 5,
+                "color": "Blu",
+                "size": "47"
+              }
+            ]
+          }
+        },
+        {
+          "filename": "clean-03-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-C-003",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Pilot 03",
+            "references": {
+              "order_numbers": [
+                "PO-C-003"
+              ],
+              "delivery_numbers": [
+                "DDT-C-003"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "TSHIRT-103",
+                "description": "T-shirt cotone",
+                "quantity": 13,
+                "unit_price": 15,
+                "discount_rate": 5,
+                "color": "Blu",
+                "size": "47"
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "clean-04",
+      "description": "Catena ordine-consegna-fattura completamente coerente.",
+      "documents": [
+        {
+          "filename": "clean-04-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-C-004",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Pilot 04",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "TSHIRT-104",
+                "description": "T-shirt cotone",
+                "quantity": 14,
+                "unit_price": 16,
+                "discount_rate": 0,
+                "color": "Blu",
+                "size": "48"
+              }
+            ]
+          }
+        },
+        {
+          "filename": "clean-04-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-C-004",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Pilot 04",
+            "references": {
+              "order_numbers": [
+                "PO-C-004"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "TSHIRT-104",
+                "description": "T-shirt cotone",
+                "quantity": 14,
+                "unit_price": 16,
+                "discount_rate": 0,
+                "color": "Blu",
+                "size": "48"
+              }
+            ]
+          }
+        },
+        {
+          "filename": "clean-04-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-C-004",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Pilot 04",
+            "references": {
+              "order_numbers": [
+                "PO-C-004"
+              ],
+              "delivery_numbers": [
+                "DDT-C-004"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "TSHIRT-104",
+                "description": "T-shirt cotone",
+                "quantity": 14,
+                "unit_price": 16,
+                "discount_rate": 0,
+                "color": "Blu",
+                "size": "48"
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "clean-05",
+      "description": "Catena ordine-consegna-fattura completamente coerente.",
+      "documents": [
+        {
+          "filename": "clean-05-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-C-005",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Pilot 05",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "TSHIRT-105",
+                "description": "T-shirt cotone",
+                "quantity": 15,
+                "unit_price": 17,
+                "discount_rate": 5,
+                "color": "Blu",
+                "size": "49"
+              }
+            ]
+          }
+        },
+        {
+          "filename": "clean-05-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-C-005",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Pilot 05",
+            "references": {
+              "order_numbers": [
+                "PO-C-005"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "TSHIRT-105",
+                "description": "T-shirt cotone",
+                "quantity": 15,
+                "unit_price": 17,
+                "discount_rate": 5,
+                "color": "Blu",
+                "size": "49"
+              }
+            ]
+          }
+        },
+        {
+          "filename": "clean-05-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-C-005",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Pilot 05",
+            "references": {
+              "order_numbers": [
+                "PO-C-005"
+              ],
+              "delivery_numbers": [
+                "DDT-C-005"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "TSHIRT-105",
+                "description": "T-shirt cotone",
+                "quantity": 15,
+                "unit_price": 17,
+                "discount_rate": 5,
+                "color": "Blu",
+                "size": "49"
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "clean-06",
+      "description": "Catena ordine-consegna-fattura completamente coerente.",
+      "documents": [
+        {
+          "filename": "clean-06-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-C-006",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Pilot 06",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "TSHIRT-106",
+                "description": "T-shirt cotone",
+                "quantity": 16,
+                "unit_price": 18,
+                "discount_rate": 0,
+                "color": "Blu",
+                "size": "50"
+              }
+            ]
+          }
+        },
+        {
+          "filename": "clean-06-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-C-006",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Pilot 06",
+            "references": {
+              "order_numbers": [
+                "PO-C-006"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "TSHIRT-106",
+                "description": "T-shirt cotone",
+                "quantity": 16,
+                "unit_price": 18,
+                "discount_rate": 0,
+                "color": "Blu",
+                "size": "50"
+              }
+            ]
+          }
+        },
+        {
+          "filename": "clean-06-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-C-006",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Pilot 06",
+            "references": {
+              "order_numbers": [
+                "PO-C-006"
+              ],
+              "delivery_numbers": [
+                "DDT-C-006"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "TSHIRT-106",
+                "description": "T-shirt cotone",
+                "quantity": 16,
+                "unit_price": 18,
+                "discount_rate": 0,
+                "color": "Blu",
+                "size": "50"
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "multi-clean-01",
+      "description": "Ordine con due consegne parziali e due fatture coerenti.",
+      "documents": [
+        {
+          "filename": "multi-clean-01-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-M-001",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Multi 01",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "FELPA-201",
+                "description": "Felpa zip",
+                "quantity": 100,
+                "unit_price": 21,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "multi-clean-01-delivery-1.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-M1-1",
+            "document_date": "2026-06-02",
+            "supplier_name": "Fornitore Multi 01",
+            "references": {
+              "order_numbers": [
+                "PO-M-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "FELPA-201",
+                "description": "Felpa zip",
+                "quantity": 60,
+                "unit_price": 21,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "multi-clean-01-delivery-2.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-M1-2",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Multi 01",
+            "references": {
+              "order_numbers": [
+                "PO-M-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "FELPA-201",
+                "description": "Felpa zip",
+                "quantity": 40,
+                "unit_price": 21,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "multi-clean-01-invoice-1.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-M1-1",
+            "document_date": "2026-06-04",
+            "supplier_name": "Fornitore Multi 01",
+            "references": {
+              "order_numbers": [
+                "PO-M-001"
+              ],
+              "delivery_numbers": [
+                "DDT-M1-1"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "FELPA-201",
+                "description": "Felpa zip",
+                "quantity": 60,
+                "unit_price": 21,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "multi-clean-01-invoice-2.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-M1-2",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Multi 01",
+            "references": {
+              "order_numbers": [
+                "PO-M-001"
+              ],
+              "delivery_numbers": [
+                "DDT-M1-2"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "FELPA-201",
+                "description": "Felpa zip",
+                "quantity": 40,
+                "unit_price": 21,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "multi-clean-02",
+      "description": "Ordine con due consegne parziali e due fatture coerenti.",
+      "documents": [
+        {
+          "filename": "multi-clean-02-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-M-002",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Multi 02",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "FELPA-202",
+                "description": "Felpa zip",
+                "quantity": 100,
+                "unit_price": 22,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "multi-clean-02-delivery-1.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-M2-1",
+            "document_date": "2026-06-02",
+            "supplier_name": "Fornitore Multi 02",
+            "references": {
+              "order_numbers": [
+                "PO-M-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "FELPA-202",
+                "description": "Felpa zip",
+                "quantity": 60,
+                "unit_price": 22,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "multi-clean-02-delivery-2.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-M2-2",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Multi 02",
+            "references": {
+              "order_numbers": [
+                "PO-M-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "FELPA-202",
+                "description": "Felpa zip",
+                "quantity": 40,
+                "unit_price": 22,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "multi-clean-02-invoice-1.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-M2-1",
+            "document_date": "2026-06-04",
+            "supplier_name": "Fornitore Multi 02",
+            "references": {
+              "order_numbers": [
+                "PO-M-002"
+              ],
+              "delivery_numbers": [
+                "DDT-M2-1"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "FELPA-202",
+                "description": "Felpa zip",
+                "quantity": 60,
+                "unit_price": 22,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "multi-clean-02-invoice-2.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-M2-2",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Multi 02",
+            "references": {
+              "order_numbers": [
+                "PO-M-002"
+              ],
+              "delivery_numbers": [
+                "DDT-M2-2"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "FELPA-202",
+                "description": "Felpa zip",
+                "quantity": 40,
+                "unit_price": 22,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "quantity-over-01",
+      "description": "La fattura riporta due unità in più rispetto alla consegna.",
+      "documents": [
+        {
+          "filename": "quantity-over-01-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-Q-001",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Quantita 01",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PANT-301",
+                "description": "Pantalone tecnico",
+                "quantity": 21,
+                "unit_price": 16,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "quantity-over-01-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-Q-001",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Quantita 01",
+            "references": {
+              "order_numbers": [
+                "PO-Q-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PANT-301",
+                "description": "Pantalone tecnico",
+                "quantity": 19,
+                "unit_price": 16,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "quantity-over-01-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-Q-001",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Quantita 01",
+            "references": {
+              "order_numbers": [
+                "PO-Q-001"
+              ],
+              "delivery_numbers": [
+                "DDT-Q-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PANT-301",
+                "description": "Pantalone tecnico",
+                "quantity": 21,
+                "unit_price": 16,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "invoiced_over_received",
+          "amount": 32.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "quantity-over-02",
+      "description": "La fattura riporta due unità in più rispetto alla consegna.",
+      "documents": [
+        {
+          "filename": "quantity-over-02-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-Q-002",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Quantita 02",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PANT-302",
+                "description": "Pantalone tecnico",
+                "quantity": 22,
+                "unit_price": 17,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "quantity-over-02-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-Q-002",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Quantita 02",
+            "references": {
+              "order_numbers": [
+                "PO-Q-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PANT-302",
+                "description": "Pantalone tecnico",
+                "quantity": 20,
+                "unit_price": 17,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "quantity-over-02-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-Q-002",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Quantita 02",
+            "references": {
+              "order_numbers": [
+                "PO-Q-002"
+              ],
+              "delivery_numbers": [
+                "DDT-Q-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PANT-302",
+                "description": "Pantalone tecnico",
+                "quantity": 22,
+                "unit_price": 17,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "invoiced_over_received",
+          "amount": 34.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "quantity-over-03",
+      "description": "La fattura riporta due unità in più rispetto alla consegna.",
+      "documents": [
+        {
+          "filename": "quantity-over-03-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-Q-003",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Quantita 03",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PANT-303",
+                "description": "Pantalone tecnico",
+                "quantity": 23,
+                "unit_price": 18,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "quantity-over-03-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-Q-003",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Quantita 03",
+            "references": {
+              "order_numbers": [
+                "PO-Q-003"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PANT-303",
+                "description": "Pantalone tecnico",
+                "quantity": 21,
+                "unit_price": 18,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "quantity-over-03-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-Q-003",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Quantita 03",
+            "references": {
+              "order_numbers": [
+                "PO-Q-003"
+              ],
+              "delivery_numbers": [
+                "DDT-Q-003"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PANT-303",
+                "description": "Pantalone tecnico",
+                "quantity": 23,
+                "unit_price": 18,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "invoiced_over_received",
+          "amount": 36.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "quantity-over-04",
+      "description": "La fattura riporta due unità in più rispetto alla consegna.",
+      "documents": [
+        {
+          "filename": "quantity-over-04-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-Q-004",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Quantita 04",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PANT-304",
+                "description": "Pantalone tecnico",
+                "quantity": 24,
+                "unit_price": 19,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "quantity-over-04-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-Q-004",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Quantita 04",
+            "references": {
+              "order_numbers": [
+                "PO-Q-004"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PANT-304",
+                "description": "Pantalone tecnico",
+                "quantity": 22,
+                "unit_price": 19,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "quantity-over-04-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-Q-004",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Quantita 04",
+            "references": {
+              "order_numbers": [
+                "PO-Q-004"
+              ],
+              "delivery_numbers": [
+                "DDT-Q-004"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PANT-304",
+                "description": "Pantalone tecnico",
+                "quantity": 24,
+                "unit_price": 19,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "invoiced_over_received",
+          "amount": 38.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "quantity-over-05",
+      "description": "La fattura riporta due unità in più rispetto alla consegna.",
+      "documents": [
+        {
+          "filename": "quantity-over-05-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-Q-005",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Quantita 05",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PANT-305",
+                "description": "Pantalone tecnico",
+                "quantity": 25,
+                "unit_price": 20,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "quantity-over-05-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-Q-005",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Quantita 05",
+            "references": {
+              "order_numbers": [
+                "PO-Q-005"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PANT-305",
+                "description": "Pantalone tecnico",
+                "quantity": 23,
+                "unit_price": 20,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "quantity-over-05-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-Q-005",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Quantita 05",
+            "references": {
+              "order_numbers": [
+                "PO-Q-005"
+              ],
+              "delivery_numbers": [
+                "DDT-Q-005"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PANT-305",
+                "description": "Pantalone tecnico",
+                "quantity": 25,
+                "unit_price": 20,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "invoiced_over_received",
+          "amount": 40.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "price-over-01",
+      "description": "Il prezzo unitario fatturato supera di due euro quello ordinato.",
+      "documents": [
+        {
+          "filename": "price-over-01-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-P-001",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Prezzo 01",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-401",
+                "description": "Giacca tecnica",
+                "quantity": 11,
+                "unit_price": 31,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "price-over-01-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-P-001",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Prezzo 01",
+            "references": {
+              "order_numbers": [
+                "PO-P-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-401",
+                "description": "Giacca tecnica",
+                "quantity": 11,
+                "unit_price": 31,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "price-over-01-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-P-001",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Prezzo 01",
+            "references": {
+              "order_numbers": [
+                "PO-P-001"
+              ],
+              "delivery_numbers": [
+                "DDT-P-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-401",
+                "description": "Giacca tecnica",
+                "quantity": 11,
+                "unit_price": 33,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "price_over_order",
+          "amount": 22.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "price-over-02",
+      "description": "Il prezzo unitario fatturato supera di due euro quello ordinato.",
+      "documents": [
+        {
+          "filename": "price-over-02-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-P-002",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Prezzo 02",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-402",
+                "description": "Giacca tecnica",
+                "quantity": 12,
+                "unit_price": 32,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "price-over-02-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-P-002",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Prezzo 02",
+            "references": {
+              "order_numbers": [
+                "PO-P-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-402",
+                "description": "Giacca tecnica",
+                "quantity": 12,
+                "unit_price": 32,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "price-over-02-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-P-002",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Prezzo 02",
+            "references": {
+              "order_numbers": [
+                "PO-P-002"
+              ],
+              "delivery_numbers": [
+                "DDT-P-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-402",
+                "description": "Giacca tecnica",
+                "quantity": 12,
+                "unit_price": 34,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "price_over_order",
+          "amount": 24.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "price-over-03",
+      "description": "Il prezzo unitario fatturato supera di due euro quello ordinato.",
+      "documents": [
+        {
+          "filename": "price-over-03-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-P-003",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Prezzo 03",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-403",
+                "description": "Giacca tecnica",
+                "quantity": 13,
+                "unit_price": 33,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "price-over-03-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-P-003",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Prezzo 03",
+            "references": {
+              "order_numbers": [
+                "PO-P-003"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-403",
+                "description": "Giacca tecnica",
+                "quantity": 13,
+                "unit_price": 33,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "price-over-03-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-P-003",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Prezzo 03",
+            "references": {
+              "order_numbers": [
+                "PO-P-003"
+              ],
+              "delivery_numbers": [
+                "DDT-P-003"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-403",
+                "description": "Giacca tecnica",
+                "quantity": 13,
+                "unit_price": 35,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "price_over_order",
+          "amount": 26.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "price-over-04",
+      "description": "Il prezzo unitario fatturato supera di due euro quello ordinato.",
+      "documents": [
+        {
+          "filename": "price-over-04-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-P-004",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Prezzo 04",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-404",
+                "description": "Giacca tecnica",
+                "quantity": 14,
+                "unit_price": 34,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "price-over-04-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-P-004",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Prezzo 04",
+            "references": {
+              "order_numbers": [
+                "PO-P-004"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-404",
+                "description": "Giacca tecnica",
+                "quantity": 14,
+                "unit_price": 34,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "price-over-04-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-P-004",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Prezzo 04",
+            "references": {
+              "order_numbers": [
+                "PO-P-004"
+              ],
+              "delivery_numbers": [
+                "DDT-P-004"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-404",
+                "description": "Giacca tecnica",
+                "quantity": 14,
+                "unit_price": 36,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "price_over_order",
+          "amount": 28.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "discount-missing-01",
+      "description": "Lo sconto del cinque per cento presente nell'ordine manca in fattura.",
+      "documents": [
+        {
+          "filename": "discount-missing-01-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-D-001",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Sconto 01",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "CAMICIA-501",
+                "description": "Camicia oxford",
+                "quantity": 21,
+                "unit_price": 19,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "discount-missing-01-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-D-001",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Sconto 01",
+            "references": {
+              "order_numbers": [
+                "PO-D-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "CAMICIA-501",
+                "description": "Camicia oxford",
+                "quantity": 21,
+                "unit_price": 19,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "discount-missing-01-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-D-001",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Sconto 01",
+            "references": {
+              "order_numbers": [
+                "PO-D-001"
+              ],
+              "delivery_numbers": [
+                "DDT-D-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "CAMICIA-501",
+                "description": "Camicia oxford",
+                "quantity": 21,
+                "unit_price": 19,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "discount_missing",
+          "amount": 19.95,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "discount-missing-02",
+      "description": "Lo sconto del cinque per cento presente nell'ordine manca in fattura.",
+      "documents": [
+        {
+          "filename": "discount-missing-02-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-D-002",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Sconto 02",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "CAMICIA-502",
+                "description": "Camicia oxford",
+                "quantity": 22,
+                "unit_price": 20,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "discount-missing-02-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-D-002",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Sconto 02",
+            "references": {
+              "order_numbers": [
+                "PO-D-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "CAMICIA-502",
+                "description": "Camicia oxford",
+                "quantity": 22,
+                "unit_price": 20,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "discount-missing-02-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-D-002",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Sconto 02",
+            "references": {
+              "order_numbers": [
+                "PO-D-002"
+              ],
+              "delivery_numbers": [
+                "DDT-D-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "CAMICIA-502",
+                "description": "Camicia oxford",
+                "quantity": 22,
+                "unit_price": 20,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "discount_missing",
+          "amount": 22.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "discount-missing-03",
+      "description": "Lo sconto del cinque per cento presente nell'ordine manca in fattura.",
+      "documents": [
+        {
+          "filename": "discount-missing-03-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-D-003",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Sconto 03",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "CAMICIA-503",
+                "description": "Camicia oxford",
+                "quantity": 23,
+                "unit_price": 21,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "discount-missing-03-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-D-003",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Sconto 03",
+            "references": {
+              "order_numbers": [
+                "PO-D-003"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "CAMICIA-503",
+                "description": "Camicia oxford",
+                "quantity": 23,
+                "unit_price": 21,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "discount-missing-03-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-D-003",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Sconto 03",
+            "references": {
+              "order_numbers": [
+                "PO-D-003"
+              ],
+              "delivery_numbers": [
+                "DDT-D-003"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "CAMICIA-503",
+                "description": "Camicia oxford",
+                "quantity": 23,
+                "unit_price": 21,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "discount_missing",
+          "amount": 24.15,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "discount-missing-04",
+      "description": "Lo sconto del cinque per cento presente nell'ordine manca in fattura.",
+      "documents": [
+        {
+          "filename": "discount-missing-04-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-D-004",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Sconto 04",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "CAMICIA-504",
+                "description": "Camicia oxford",
+                "quantity": 24,
+                "unit_price": 22,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "discount-missing-04-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-D-004",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Sconto 04",
+            "references": {
+              "order_numbers": [
+                "PO-D-004"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "CAMICIA-504",
+                "description": "Camicia oxford",
+                "quantity": 24,
+                "unit_price": 22,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "discount-missing-04-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-D-004",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Sconto 04",
+            "references": {
+              "order_numbers": [
+                "PO-D-004"
+              ],
+              "delivery_numbers": [
+                "DDT-D-004"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "CAMICIA-504",
+                "description": "Camicia oxford",
+                "quantity": 24,
+                "unit_price": 22,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "discount_missing",
+          "amount": 26.4,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "unmatched-line-01",
+      "description": "La fattura contiene una riga aggiuntiva non presente in ordine o consegna.",
+      "documents": [
+        {
+          "filename": "unmatched-line-01-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-U-001",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Extra 01",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "POLO-601",
+                "description": "Polo piquet",
+                "quantity": 10,
+                "unit_price": 23,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "unmatched-line-01-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-U-001",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Extra 01",
+            "references": {
+              "order_numbers": [
+                "PO-U-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "POLO-601",
+                "description": "Polo piquet",
+                "quantity": 10,
+                "unit_price": 23,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "unmatched-line-01-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-U-001",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Extra 01",
+            "references": {
+              "order_numbers": [
+                "PO-U-001"
+              ],
+              "delivery_numbers": [
+                "DDT-U-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "POLO-601",
+                "description": "Polo piquet",
+                "quantity": 10,
+                "unit_price": 23,
+                "discount_rate": 0
+              },
+              {
+                "line_no": 2,
+                "sku": "FEE-1",
+                "description": "Costo non previsto",
+                "quantity": 1,
+                "unit_price": 75,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "unmatched_invoice_line",
+          "amount": 75.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "unmatched-line-02",
+      "description": "La fattura contiene una riga aggiuntiva non presente in ordine o consegna.",
+      "documents": [
+        {
+          "filename": "unmatched-line-02-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-U-002",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Extra 02",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "POLO-602",
+                "description": "Polo piquet",
+                "quantity": 10,
+                "unit_price": 24,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "unmatched-line-02-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-U-002",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Extra 02",
+            "references": {
+              "order_numbers": [
+                "PO-U-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "POLO-602",
+                "description": "Polo piquet",
+                "quantity": 10,
+                "unit_price": 24,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "unmatched-line-02-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-U-002",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Extra 02",
+            "references": {
+              "order_numbers": [
+                "PO-U-002"
+              ],
+              "delivery_numbers": [
+                "DDT-U-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "POLO-602",
+                "description": "Polo piquet",
+                "quantity": 10,
+                "unit_price": 24,
+                "discount_rate": 0
+              },
+              {
+                "line_no": 2,
+                "sku": "FEE-2",
+                "description": "Costo non previsto",
+                "quantity": 1,
+                "unit_price": 100,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "unmatched_invoice_line",
+          "amount": 100.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "unmatched-line-03",
+      "description": "La fattura contiene una riga aggiuntiva non presente in ordine o consegna.",
+      "documents": [
+        {
+          "filename": "unmatched-line-03-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-U-003",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Extra 03",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "POLO-603",
+                "description": "Polo piquet",
+                "quantity": 10,
+                "unit_price": 25,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "unmatched-line-03-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-U-003",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Extra 03",
+            "references": {
+              "order_numbers": [
+                "PO-U-003"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "POLO-603",
+                "description": "Polo piquet",
+                "quantity": 10,
+                "unit_price": 25,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "unmatched-line-03-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-U-003",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Extra 03",
+            "references": {
+              "order_numbers": [
+                "PO-U-003"
+              ],
+              "delivery_numbers": [
+                "DDT-U-003"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "POLO-603",
+                "description": "Polo piquet",
+                "quantity": 10,
+                "unit_price": 25,
+                "discount_rate": 0
+              },
+              {
+                "line_no": 2,
+                "sku": "FEE-3",
+                "description": "Costo non previsto",
+                "quantity": 1,
+                "unit_price": 125,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "unmatched_invoice_line",
+          "amount": 125.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "return-no-credit-01",
+      "description": "Il reso non è seguito da una nota di credito.",
+      "documents": [
+        {
+          "filename": "return-no-credit-01-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-R-001",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Resi 01",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SCARPA-701",
+                "description": "Sneaker pelle",
+                "quantity": 20,
+                "unit_price": 30,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "return-no-credit-01-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-R-001",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Resi 01",
+            "references": {
+              "order_numbers": [
+                "PO-R-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SCARPA-701",
+                "description": "Sneaker pelle",
+                "quantity": 20,
+                "unit_price": 30,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "return-no-credit-01-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-R-001",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Resi 01",
+            "references": {
+              "order_numbers": [
+                "PO-R-001"
+              ],
+              "delivery_numbers": [
+                "DDT-R-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SCARPA-701",
+                "description": "Sneaker pelle",
+                "quantity": 20,
+                "unit_price": 30,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "return-no-credit-01-return.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "return",
+            "number": "RET-R-001",
+            "document_date": "2026-06-10",
+            "supplier_name": "Fornitore Resi 01",
+            "references": {
+              "order_numbers": [
+                "PO-R-001"
+              ],
+              "invoice_numbers": [
+                "INV-R-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SCARPA-701",
+                "description": "Sneaker pelle",
+                "quantity": 4,
+                "unit_price": 30,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "return_without_credit",
+          "amount": 120.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "return-no-credit-02",
+      "description": "Il reso non è seguito da una nota di credito.",
+      "documents": [
+        {
+          "filename": "return-no-credit-02-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-R-002",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Resi 02",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SCARPA-702",
+                "description": "Sneaker pelle",
+                "quantity": 20,
+                "unit_price": 35,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "return-no-credit-02-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-R-002",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Resi 02",
+            "references": {
+              "order_numbers": [
+                "PO-R-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SCARPA-702",
+                "description": "Sneaker pelle",
+                "quantity": 20,
+                "unit_price": 35,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "return-no-credit-02-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-R-002",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Resi 02",
+            "references": {
+              "order_numbers": [
+                "PO-R-002"
+              ],
+              "delivery_numbers": [
+                "DDT-R-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SCARPA-702",
+                "description": "Sneaker pelle",
+                "quantity": 20,
+                "unit_price": 35,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "return-no-credit-02-return.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "return",
+            "number": "RET-R-002",
+            "document_date": "2026-06-10",
+            "supplier_name": "Fornitore Resi 02",
+            "references": {
+              "order_numbers": [
+                "PO-R-002"
+              ],
+              "invoice_numbers": [
+                "INV-R-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SCARPA-702",
+                "description": "Sneaker pelle",
+                "quantity": 5,
+                "unit_price": 35,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "return_without_credit",
+          "amount": 175.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "partial-credit-01",
+      "description": "La nota di credito copre soltanto una parte del reso.",
+      "documents": [
+        {
+          "filename": "partial-credit-01-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-CN-001",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Accrediti 01",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "BORSA-801",
+                "description": "Borsa tessuto",
+                "quantity": 20,
+                "unit_price": 35,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "partial-credit-01-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-CN-001",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Accrediti 01",
+            "references": {
+              "order_numbers": [
+                "PO-CN-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "BORSA-801",
+                "description": "Borsa tessuto",
+                "quantity": 20,
+                "unit_price": 35,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "partial-credit-01-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-CN-001",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Accrediti 01",
+            "references": {
+              "order_numbers": [
+                "PO-CN-001"
+              ],
+              "delivery_numbers": [
+                "DDT-CN-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "BORSA-801",
+                "description": "Borsa tessuto",
+                "quantity": 20,
+                "unit_price": 35,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "partial-credit-01-return.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "return",
+            "number": "RET-CN-001",
+            "document_date": "2026-06-10",
+            "supplier_name": "Fornitore Accrediti 01",
+            "references": {
+              "order_numbers": [
+                "PO-CN-001"
+              ],
+              "invoice_numbers": [
+                "INV-CN-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "BORSA-801",
+                "description": "Borsa tessuto",
+                "quantity": 6,
+                "unit_price": 35,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "partial-credit-01-credit.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "credit_note",
+            "number": "CN-001",
+            "document_date": "2026-06-15",
+            "supplier_name": "Fornitore Accrediti 01",
+            "references": {
+              "order_numbers": [
+                "PO-CN-001"
+              ],
+              "invoice_numbers": [
+                "INV-CN-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "BORSA-801",
+                "description": "Borsa tessuto",
+                "quantity": 3,
+                "unit_price": 35,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "credit_below_return",
+          "amount": 105.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "partial-credit-02",
+      "description": "La nota di credito copre soltanto una parte del reso.",
+      "documents": [
+        {
+          "filename": "partial-credit-02-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-CN-002",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Accrediti 02",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "BORSA-802",
+                "description": "Borsa tessuto",
+                "quantity": 20,
+                "unit_price": 40,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "partial-credit-02-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-CN-002",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Accrediti 02",
+            "references": {
+              "order_numbers": [
+                "PO-CN-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "BORSA-802",
+                "description": "Borsa tessuto",
+                "quantity": 20,
+                "unit_price": 40,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "partial-credit-02-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-CN-002",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Accrediti 02",
+            "references": {
+              "order_numbers": [
+                "PO-CN-002"
+              ],
+              "delivery_numbers": [
+                "DDT-CN-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "BORSA-802",
+                "description": "Borsa tessuto",
+                "quantity": 20,
+                "unit_price": 40,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "partial-credit-02-return.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "return",
+            "number": "RET-CN-002",
+            "document_date": "2026-06-10",
+            "supplier_name": "Fornitore Accrediti 02",
+            "references": {
+              "order_numbers": [
+                "PO-CN-002"
+              ],
+              "invoice_numbers": [
+                "INV-CN-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "BORSA-802",
+                "description": "Borsa tessuto",
+                "quantity": 7,
+                "unit_price": 40,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "partial-credit-02-credit.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "credit_note",
+            "number": "CN-002",
+            "document_date": "2026-06-15",
+            "supplier_name": "Fornitore Accrediti 02",
+            "references": {
+              "order_numbers": [
+                "PO-CN-002"
+              ],
+              "invoice_numbers": [
+                "INV-CN-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "BORSA-802",
+                "description": "Borsa tessuto",
+                "quantity": 3,
+                "unit_price": 40,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "credit_below_return",
+          "amount": 160.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "ambiguous-sku-01",
+      "description": "Codici articolo differenti ma descrizione, colore e taglia equivalenti.",
+      "documents": [
+        {
+          "filename": "ambiguous-sku-01-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-F-001",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Codici 01",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-141",
+                "description": "Giacca tecnica",
+                "quantity": 10,
+                "unit_price": 40,
+                "discount_rate": 5,
+                "color": "Blu",
+                "size": "48"
+              }
+            ]
+          }
+        },
+        {
+          "filename": "ambiguous-sku-01-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-F-001",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Codici 01",
+            "references": {
+              "order_numbers": [
+                "PO-F-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "ART.141",
+                "description": "Giacca tecnica navy",
+                "quantity": 8,
+                "unit_price": 40,
+                "discount_rate": 5,
+                "color": "Navy",
+                "size": "EU48"
+              }
+            ]
+          }
+        },
+        {
+          "filename": "ambiguous-sku-01-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-F-001",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Codici 01",
+            "references": {
+              "order_numbers": [
+                "PO-F-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "141-GIACCA",
+                "description": "Giacca tecnica blue",
+                "quantity": 10,
+                "unit_price": 42,
+                "discount_rate": 0,
+                "color": "Blue",
+                "size": "48"
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "invoiced_over_received",
+          "amount": 84.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        },
+        {
+          "case_type": "price_over_order",
+          "amount": 20.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        },
+        {
+          "case_type": "discount_missing",
+          "amount": 21.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "ambiguous-sku-02",
+      "description": "Codici articolo differenti ma descrizione, colore e taglia equivalenti.",
+      "documents": [
+        {
+          "filename": "ambiguous-sku-02-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-F-002",
+            "document_date": "2026-06-01",
+            "supplier_name": "Fornitore Codici 02",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "GIACCA-142",
+                "description": "Giacca tecnica",
+                "quantity": 10,
+                "unit_price": 40,
+                "discount_rate": 5,
+                "color": "Blu",
+                "size": "48"
+              }
+            ]
+          }
+        },
+        {
+          "filename": "ambiguous-sku-02-delivery.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-F-002",
+            "document_date": "2026-06-03",
+            "supplier_name": "Fornitore Codici 02",
+            "references": {
+              "order_numbers": [
+                "PO-F-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "ART.142",
+                "description": "Giacca tecnica navy",
+                "quantity": 8,
+                "unit_price": 40,
+                "discount_rate": 5,
+                "color": "Navy",
+                "size": "EU48"
+              }
+            ]
+          }
+        },
+        {
+          "filename": "ambiguous-sku-02-invoice.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-F-002",
+            "document_date": "2026-06-05",
+            "supplier_name": "Fornitore Codici 02",
+            "references": {
+              "order_numbers": [
+                "PO-F-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "142-GIACCA",
+                "description": "Giacca tecnica blue",
+                "quantity": 10,
+                "unit_price": 42,
+                "discount_rate": 0,
+                "color": "Blue",
+                "size": "48"
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "case_type": "invoiced_over_received",
+          "amount": 84.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        },
+        {
+          "case_type": "price_over_order",
+          "amount": 20.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        },
+        {
+          "case_type": "discount_missing",
+          "amount": 21.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "ignore_unexpected_types": []
+    }
+  ]
+}
