@@ -204,7 +204,7 @@ def run_scan_diagnostic(db) -> list[dict[str, Any]]:
                     scan_path,
                     scan_path.name,
                     "application/pdf",
-                    {},
+                    {"document_type": "invoice"},
                 )
                 elapsed = time.perf_counter() - started
                 results.append(
