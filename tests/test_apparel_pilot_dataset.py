@@ -9,6 +9,7 @@ from app.schemas import ValidationDatasetPayload
 
 ROOT = Path(__file__).resolve().parents[1]
 DATASET = ROOT / "samples" / "pilot_apparel_30_synthetic.json"
+RUNNER = ROOT / "scripts" / "run_apparel_pilot.py"
 
 
 def _family(identifier: str) -> str:
@@ -78,3 +79,9 @@ def test_apparel_pre_pilot_is_scoped_and_contains_no_real_identity_fields() -> N
         "phone",
     ):
         assert prohibited not in serialized
+
+
+def test_scan_diagnostic_supplies_the_required_pdf_document_type() -> None:
+    runner = RUNNER.read_text(encoding="utf-8")
+
+    assert '"application/pdf",\n                    {"document_type": "invoice"},' in runner
