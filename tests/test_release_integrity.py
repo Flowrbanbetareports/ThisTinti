@@ -16,8 +16,11 @@ from app.version import PYTHON_PACKAGE_VERSION, RELEASE_VERSION, to_python_packa
 from scripts.check_beta_readiness import build_report
 from scripts.check_release_consistency import validate_release_consistency
 from scripts.http_smoke import local_http_client
-from scripts.record_github_publication import publication_manifest_files
-from scripts.release_artifact import build_distribution_identity, required_release_files
+from scripts.release_artifact import (
+    build_distribution_identity,
+    publication_manifest_files,
+    required_release_files,
+)
 from scripts.verify_publish_candidate import REQUIRED_WORKFLOWS, validate_candidate_payloads
 
 ROOT = Path(__file__).resolve().parents[1]

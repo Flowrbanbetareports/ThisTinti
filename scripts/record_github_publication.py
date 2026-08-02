@@ -12,7 +12,12 @@ from typing import Any
 from urllib.parse import quote
 from urllib.request import Request, urlopen
 
-from release_artifact import load_json, required_release_files, sha256_file, validate_source_identity
+from release_artifact import (
+    load_json,
+    publication_manifest_files,
+    sha256_file,
+    validate_source_identity,
+)
 
 REPOSITORY_PATTERN = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 
@@ -37,20 +42,6 @@ def github_json(url: str, token: str) -> dict[str, Any]:
 def write_json(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-
-
-def publication_manifest_files(provenance: dict[str, Any], version: str) -> dict[str, dict[str, Any]]:
-    manifest_files = provenance.get("files")
-    if not isinstance(manifest_files, list) or not manifest_files:
-        raise ValueError("Artifact provenance has no file manifest")
-    manifest_by_name = {
-        str(item.get("name")): item
-        for item in manifest_files
-        if isinstance(item, dict) and item.get("name")
-    }
-    if not set(required_release_files(version)).issubset(manifest_by_name):
-        raise ValueError("Artifact provenance omits required release files")
-    return manifest_by_name
 
 
 def main() -> int:
