@@ -177,6 +177,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          git checkout main
+          git pull --ff-only origin main
+          test "$(python -c 'from app.version import RELEASE_VERSION; print(RELEASE_VERSION)')" = "$VERSION"
           python scripts/record_github_publication.py \
             --repository "$GITHUB_REPOSITORY" \
             --tag "$TAG" \
@@ -185,9 +188,6 @@ jobs:
             --artifact-directory dist \
             --release-output /tmp/release-latest.json \
             --publication-output /tmp/publication-latest.json
-          git checkout main
-          git pull --ff-only origin main
-          test "$(python -c 'from app.version import RELEASE_VERSION; print(RELEASE_VERSION)')" = "$VERSION"
           cp /tmp/release-latest.json builds/release-latest.json
           cp /tmp/publication-latest.json builds/publication-latest.json
           git config user.name "github-actions[bot]"
