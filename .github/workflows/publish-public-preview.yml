@@ -124,17 +124,24 @@ jobs:
           gh attestation verify "dist/ThisTinti-Portable-$VERSION-x64.zip" --repo "$GITHUB_REPOSITORY"
           gh attestation verify "dist/ThisTinti-$VERSION-self-hosted-source.zip" --repo "$GITHUB_REPOSITORY"
 
-      - name: Refuse tag or release replacement
+      - name: Refuse replacement or reuse the exact immutable release
         shell: bash
         run: |
           set -euo pipefail
-          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
-            echo "Tag $TAG already exists; releases are immutable" >&2
+          TAG_EXISTS=false
+          RELEASE_EXISTS=false
+          git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1 && TAG_EXISTS=true
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 && RELEASE_EXISTS=true
+          if [[ "$TAG_EXISTS" != "$RELEASE_EXISTS" ]]; then
+            echo "Tag and release state differ; refusing publication" >&2
             exit 1
           fi
-          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "Release $TAG already exists; assets will not be replaced" >&2
-            exit 1
+          if [[ "$RELEASE_EXISTS" == true ]]; then
+            EXISTING_TARGET="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json targetCommitish --jq .targetCommitish)"
+            test "$EXISTING_TARGET" = "$TARGET_SHA" || { echo "Existing release targets another commit" >&2; exit 1; }
+            echo "RELEASE_ALREADY_EXISTS=true" >> "$GITHUB_ENV"
+          else
+            echo "RELEASE_ALREADY_EXISTS=false" >> "$GITHUB_ENV"
           fi
 
       - name: Prepare truthful Public Preview notes
@@ -155,6 +162,7 @@ jobs:
           } > public-preview-notes.md
 
       - name: Publish immutable prerelease assets
+        if: env.RELEASE_ALREADY_EXISTS != 'true'
         shell: bash
         run: |
           set -euo pipefail

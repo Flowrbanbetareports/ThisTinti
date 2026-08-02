@@ -39,6 +39,20 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
+def publication_manifest_files(provenance: dict[str, Any], version: str) -> dict[str, dict[str, Any]]:
+    manifest_files = provenance.get("files")
+    if not isinstance(manifest_files, list) or not manifest_files:
+        raise ValueError("Artifact provenance has no file manifest")
+    manifest_by_name = {
+        str(item.get("name")): item
+        for item in manifest_files
+        if isinstance(item, dict) and item.get("name")
+    }
+    if not set(required_release_files(version)).issubset(manifest_by_name):
+        raise ValueError("Artifact provenance omits required release files")
+    return manifest_by_name
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Record verifiable evidence for a published GitHub prerelease.")
     parser.add_argument("--repository", required=True)
@@ -79,7 +93,8 @@ def main() -> int:
         assets = release.get("assets")
         if not isinstance(assets, list):
             raise ValueError("Published release has no asset list")
-        expected_names = set(required_release_files(str(version))) | {"release-provenance.json"}
+        manifest_by_name = publication_manifest_files(provenance, str(version))
+        expected_names = set(manifest_by_name) | {"release-provenance.json"}
         actual_names = {asset.get("name") for asset in assets if isinstance(asset, dict)}
         if actual_names != expected_names:
             raise ValueError("Published asset set does not exactly match the verified artifact")
@@ -89,6 +104,11 @@ def main() -> int:
             name = str(asset.get("name"))
             local = directory / name
             local_hash = sha256_file(local)
+            manifest_entry = manifest_by_name.get(name)
+            if manifest_entry is not None and (
+                manifest_entry.get("sha256") != local_hash or manifest_entry.get("size") != local.stat().st_size
+            ):
+                raise ValueError(f"Artifact provenance differs for {name}")
             digest = str(asset.get("digest") or "")
             if digest and digest != f"sha256:{local_hash}":
                 raise ValueError(f"Published asset digest differs for {name}")
