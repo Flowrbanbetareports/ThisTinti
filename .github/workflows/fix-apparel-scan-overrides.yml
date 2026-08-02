@@ -6,6 +6,9 @@ on:
       - agent/apparel-pilot-30
     paths:
       - .github/workflows/fix-apparel-scan-overrides.yml
+  pull_request:
+    paths:
+      - .github/workflows/fix-apparel-scan-overrides.yml
 
 permissions:
   contents: write
