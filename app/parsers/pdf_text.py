@@ -308,8 +308,6 @@ def _extract_labelled_lines(
     for index, raw_line in enumerate(text.splitlines(), start=1):
         labelled = _labelled_value(raw_line)
         if not labelled:
-            if not raw_line.strip() and fields:
-                flush()
             continue
         field, value = labelled
         if field == "sku" and fields:
