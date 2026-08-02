@@ -1,3 +1,14 @@
+# 3.4.0-alpha.7-rc.9 — OCR strutturato e pilot esclusivamente locale (non pubblicata)
+
+- le fatture PDF con campi etichettati possono produrre righe revisionabili da SKU, descrizione, quantità, prezzo unitario, sconto e totale;
+- fornitore, riferimento ordine e riferimento consegna vengono acquisiti soltanto quando esplicitamente indicati;
+- i valori numerici OCR non validi restano fail-closed e riportano riga, campo, valore e motivo;
+- il totale indicato nel documento viene confrontato con quello ricalcolato, con revisione obbligatoria in caso di differenza;
+- le righe derivate da OCR mantengono provenienza e confidenza prudente e non diventano decisioni automatiche;
+- il benchmark abbigliamento blocca regressioni se le scansioni sintetiche pulite o a basso contrasto non producono almeno una riga utile;
+- il toolkit per pilot reale resta locale e non contiene invio email, contatti automatici o azioni verso fornitori;
+- questa è un’identità di sviluppo interna: nessun asset RC8 viene sostituito e nessuna RC9 viene pubblicata automaticamente.
+
 # 3.4.0-alpha.7-rc.8 — Diagnostica e collaudo dentro l’app
 
 - aggiunta la voce **Diagnostica** nella navigazione autenticata;

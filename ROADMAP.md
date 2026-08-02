@@ -1,6 +1,8 @@
 # Roadmap di ThisTinti
 
-## Stato attuale — 3.4.0-alpha.7-rc.8 Public Preview
+## Stato attuale — 3.4.0-alpha.7-rc.9 candidata interna non pubblicata
+
+Ultima Public Preview pubblicata e immutabile: `3.4.0-alpha.7-rc.8`.
 
 Completati:
 
@@ -19,6 +21,10 @@ Completati:
 - browser E2E con API e worker reali, tastiera e reflow equivalente;
 - identità di build incorporata e verificata per ogni archivio portable.
 - diagnostica locale integrata, senza PowerShell, con verbale scaricabile e test numerico tramite il normale upload.
+- estrazione prudente di righe da PDF OCR con campi etichettati e provenienza verificabile;
+- confronto bloccante tra totale sorgente e totale ricalcolato;
+- benchmark OCR obbligatorio per scansioni sintetiche pulite e a basso contrasto;
+- workflow del pilot mantenuto interamente locale, senza contatti o messaggi automatici.
 
 ## RC8 — collaudo direttamente nell’app
 
