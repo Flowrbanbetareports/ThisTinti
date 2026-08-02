@@ -1,0 +1,48 @@
+name: Patch RC9 Gate Triggers Once
+
+on:
+  push:
+    branches:
+      - agent/next-unreleased-rc9
+    paths:
+      - .github/workflows/patch-rc9-gate-triggers-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          ref: agent/next-unreleased-rc9
+      - name: Make version changes exercise version-dependent gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          apparel = Path(".github/workflows/apparel-pre-pilot-30.yml")
+          text = apparel.read_text(encoding="utf-8")
+          marker = "    paths:\n      - app/parsers/pdf_text.py\n"
+          replacement = "    paths:\n      - app/version.py\n      - app/parsers/pdf_text.py\n"
+          if text.count(marker) != 2:
+              raise SystemExit(f"Expected two apparel path sections, found {text.count(marker)}")
+          apparel.write_text(text.replace(marker, replacement), encoding="utf-8")
+
+          toolkit = Path(".github/workflows/real-pilot-toolkit.yml")
+          text = toolkit.read_text(encoding="utf-8")
+          marker = "    paths:\n      - scripts/real_pilot_toolkit.py\n"
+          replacement = "    paths:\n      - app/version.py\n      - scripts/real_pilot_toolkit.py\n"
+          if text.count(marker) != 2:
+              raise SystemExit(f"Expected two toolkit path sections, found {text.count(marker)}")
+          toolkit.write_text(text.replace(marker, replacement), encoding="utf-8")
+          PY
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/workflows/apparel-pre-pilot-30.yml .github/workflows/real-pilot-toolkit.yml
+          git commit -m "Run version-dependent pilot gates for candidate changes"
+          git push origin HEAD:agent/next-unreleased-rc9
