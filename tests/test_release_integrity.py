@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import subprocess
 import sys
 import tomllib
@@ -331,12 +332,22 @@ def test_release_workflows_enforce_gates_and_immutable_publication():
     assert "VERIFY-THIS-DOWNLOAD.md" in windows_build
     assert "release-provenance.json" in windows
     assert "workflow_dispatch:" in publish
-    assert "\n  push:" not in publish
+    assert "\n  push:" in publish
+    assert "branches: [main]" in publish
+    assert "- builds/public-preview-request.json" in publish
+    assert 'if [[ "$GITHUB_EVENT_NAME" == "push" ]]' in publish
+    assert 'git checkout --detach "$TARGET_SHA"' in publish
     assert "verify_publish_candidate.py" in publish
     assert '--expected-commit "$TARGET_SHA"' in publish
     assert "gh attestation verify" in publish
     assert "--clobber" not in publish
     assert "Refuse tag or release replacement" in publish
+
+    request = json.loads((ROOT / "builds" / "public-preview-request.json").read_text(encoding="utf-8"))
+    assert request["schema"] == "thistinti.public-preview-request.v1"
+    assert request["version"] == VERSION
+    assert re.fullmatch(r"[0-9a-f]{40}", request["target_sha"])
+    assert re.fullmatch(r"[0-9]+", request["windows_run_id"])
 
 
 def test_latest_release_records_and_upgrade_baseline_are_coherent():
