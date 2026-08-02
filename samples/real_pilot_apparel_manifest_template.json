@@ -1,0 +1,42 @@
+{
+  "schema": "thistinti.real-pilot-workspace.v1",
+  "pilot_id": "APPAREL-PILOT-001",
+  "created_at": "TO_BE_GENERATED",
+  "sector": "abbigliamento",
+  "process_flow": [
+    "order",
+    "delivery",
+    "invoice",
+    "return",
+    "credit_note"
+  ],
+  "organization_alias": "ORG-001",
+  "evidence_level": "anonymized_pilot",
+  "authorization": {
+    "status": "pending",
+    "authorized_by_role": "",
+    "authorized_at": "",
+    "processing_location": "local_only",
+    "retention_end": "",
+    "personal_data_expected": false,
+    "notes": ""
+  },
+  "reviewers": [
+    {
+      "reviewer_id": "REV-A",
+      "role": "",
+      "independent": true
+    },
+    {
+      "reviewer_id": "REV-B",
+      "role": "",
+      "independent": true
+    }
+  ],
+  "cases": [],
+  "claim_boundary": {
+    "safe_to_automate": false,
+    "commercial_accuracy_claim_allowed": false,
+    "production_claim_allowed": false
+  }
+}
