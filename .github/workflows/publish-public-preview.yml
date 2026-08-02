@@ -11,6 +11,10 @@ on:
         description: Successful main-branch Build Windows Free Download run ID for target_sha
         required: true
         type: string
+  push:
+    branches: [main]
+    paths:
+      - builds/public-preview-request.json
 
 permissions:
   actions: read
@@ -26,16 +30,33 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     env:
-      TARGET_SHA: ${{ inputs.target_sha }}
-      WINDOWS_RUN_ID: ${{ inputs.windows_run_id }}
       GH_TOKEN: ${{ github.token }}
       GITHUB_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
         with:
-          ref: ${{ inputs.target_sha }}
           fetch-depth: 0
           show-progress: false
+
+      - name: Resolve the reviewed publication request
+        shell: bash
+        env:
+          DISPATCH_TARGET_SHA: ${{ inputs.target_sha }}
+          DISPATCH_WINDOWS_RUN_ID: ${{ inputs.windows_run_id }}
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            TARGET_SHA="$(python -c 'import json; print(json.load(open("builds/public-preview-request.json", encoding="utf-8"))["target_sha"])')"
+            WINDOWS_RUN_ID="$(python -c 'import json; print(json.load(open("builds/public-preview-request.json", encoding="utf-8"))["windows_run_id"])')"
+          else
+            TARGET_SHA="$DISPATCH_TARGET_SHA"
+            WINDOWS_RUN_ID="$DISPATCH_WINDOWS_RUN_ID"
+          fi
+          {
+            echo "TARGET_SHA=$TARGET_SHA"
+            echo "WINDOWS_RUN_ID=$WINDOWS_RUN_ID"
+          } >> "$GITHUB_ENV"
+          git checkout --detach "$TARGET_SHA"
 
       - name: Resolve and constrain the release source
         shell: bash

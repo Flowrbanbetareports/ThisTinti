@@ -1,0 +1,8 @@
+{
+  "schema": "thistinti.public-preview-request.v1",
+  "version": "3.4.0-alpha.7-rc.8",
+  "target_sha": "a2a0d76121326bf08ba14de30ed32de379aa28b4",
+  "windows_run_id": "30710864493",
+  "requested_as": "Public Preview alpha/RC",
+  "note": "Publish only after the workflow re-verifies the exact source, gates, attestations and immutable release tag."
+}
