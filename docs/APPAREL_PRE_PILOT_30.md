@@ -22,7 +22,7 @@ Il dataset `samples/pilot_apparel_30_synthetic.json` contiene 30 scenari indipen
 - 2 note di credito parziali;
 - 2 pratiche con codici articolo differenti ma descrizione, colore e taglia compatibili.
 
-Una prova OCR separata genera inoltre tre PDF composti soltanto da immagini: pulito, a basso contrasto e ruotato con rumore. Questa parte misura il comportamento tecnico del parser, non l'accuratezza su scansioni aziendali reali.
+Una prova OCR separata genera inoltre tre PDF composti soltanto da immagini: pulito, a basso contrasto e ruotato con rumore. Il runner assegna esplicitamente il tipo `invoice`, richiesto dal percorso di ingestione PDF. Questa parte misura il comportamento tecnico del parser, non l'accuratezza su scansioni aziendali reali.
 
 Tutti i nomi, numeri e valori sono artificiali. Il dataset è classificato `synthetic`, non contiene autorizzazioni aziendali e non può essere approvato per automazioni.
 
