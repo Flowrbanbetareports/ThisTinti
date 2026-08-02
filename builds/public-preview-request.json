@@ -4,6 +4,6 @@
   "target_sha": "a2a0d76121326bf08ba14de30ed32de379aa28b4",
   "windows_run_id": "30710864493",
   "requested_as": "Public Preview alpha/RC",
-  "request_id": "rc8-publication-evidence-recovery-1",
-  "note": "Publish only after the workflow re-verifies the exact source, gates, attestations and immutable release tag."
+  "request_id": "rc8-publication-evidence-recovery-2",
+  "note": "Re-verify the immutable RC8 release and record every published asset only when it is backed by the exact verified Windows artifact."
 }
