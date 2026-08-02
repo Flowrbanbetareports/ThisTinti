@@ -1,0 +1,46 @@
+name: Patch Current Publication Recorder
+
+on:
+  push:
+    branches:
+      - agent/run-current-publication-recorder
+    paths:
+      - .github/workflows/patch-current-publication-recorder.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          ref: agent/run-current-publication-recorder
+      - name: Move evidence recording onto the current main control plane
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('.github/workflows/publish-public-preview.yml')
+          lines = path.read_text(encoding='utf-8').splitlines()
+          section = lines.index('      - name: Record publication evidence')
+          python_index = next(i for i in range(section, len(lines)) if lines[i].strip() == 'python scripts/record_github_publication.py \\')
+          checkout_index = next(i for i in range(section, len(lines)) if lines[i].strip() == 'git checkout main')
+          control_lines = lines[checkout_index:checkout_index + 3]
+          assert control_lines[1].strip() == 'git pull --ff-only origin main'
+          assert control_lines[2].strip().startswith('test "$(python -c')
+          del lines[checkout_index:checkout_index + 3]
+          lines[python_index:python_index] = control_lines
+          updated = '\n'.join(lines) + '\n'
+          assert updated.index('git checkout main', updated.index('Record publication evidence')) < updated.index('python scripts/record_github_publication.py', updated.index('Record publication evidence'))
+          path.write_text(updated, encoding='utf-8')
+          PY
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/workflows/publish-public-preview.yml
+          git commit -m "Run the current publication recorder after exact-source verification"
+          git push origin HEAD:agent/run-current-publication-recorder
