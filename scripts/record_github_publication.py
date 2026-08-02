@@ -13,6 +13,7 @@ from urllib.parse import quote
 from urllib.request import Request, urlopen
 
 from release_artifact import (
+    distributable_files,
     load_json,
     publication_manifest_files,
     sha256_file,
@@ -42,6 +43,35 @@ def github_json(url: str, token: str) -> dict[str, Any]:
 def write_json(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def published_asset_inventory(
+    assets: list[Any],
+    directory: Path,
+    expected_names: set[str],
+) -> tuple[list[dict[str, Any]], set[str]]:
+    normalized_assets = [
+        asset
+        for asset in assets
+        if (isinstance(asset, dict) and isinstance(asset.get("name"), str) and asset.get("name"))
+    ]
+    actual_names = {str(asset["name"]) for asset in normalized_assets}
+    if len(actual_names) != len(normalized_assets):
+        raise ValueError("Published release contains duplicate or invalid asset names")
+
+    missing_names = expected_names - actual_names
+    if missing_names:
+        raise ValueError(f"Published release is missing verified assets: {sorted(missing_names)}")
+
+    local_names = {path.name for path in distributable_files(directory)}
+    unexpected_names = actual_names - expected_names
+    unbacked_names = unexpected_names - local_names
+    if unbacked_names:
+        raise ValueError(
+            f"Published release contains assets absent from the verified artifact: {sorted(unbacked_names)}"
+        )
+
+    return normalized_assets, unexpected_names
 
 
 def main() -> int:
@@ -86,14 +116,14 @@ def main() -> int:
             raise ValueError("Published release has no asset list")
         manifest_by_name = publication_manifest_files(provenance, str(version))
         expected_names = set(manifest_by_name) | {"release-provenance.json"}
-        actual_names = {asset.get("name") for asset in assets if isinstance(asset, dict)}
-        if actual_names != expected_names:
-            raise ValueError("Published asset set does not exactly match the verified artifact")
+        normalized_assets, unexpected_names = published_asset_inventory(assets, directory, expected_names)
 
         publication_assets: list[dict[str, Any]] = []
-        for asset in sorted(assets, key=lambda item: str(item.get("name"))):
+        for asset in sorted(normalized_assets, key=lambda item: str(item.get("name"))):
             name = str(asset.get("name"))
             local = directory / name
+            if not local.is_file():
+                raise ValueError(f"Published asset is not a verified local file: {name}")
             local_hash = sha256_file(local)
             manifest_entry = manifest_by_name.get(name)
             if manifest_entry is not None and (
@@ -141,6 +171,8 @@ def main() -> int:
                 "release_target_verified": True,
                 "artifact_tree_matches_release_tree": True,
                 "required_assets_verified": True,
+                "all_published_assets_matched_local_bytes": True,
+                "unexpected_but_verified_assets": sorted(unexpected_names),
                 "smoke_reports_passed": True,
                 "installer_sha256": sha256_file(directory / f"ThisTinti-Setup-{version}-x64.exe"),
                 "portable_sha256": sha256_file(directory / f"ThisTinti-Portable-{version}-x64.zip"),
@@ -165,7 +197,7 @@ def main() -> int:
             "asset_count": len(publication_assets),
             "assets": publication_assets,
             "verified_at": now,
-            "verification_source": "GitHub REST release and asset metadata",
+            "verification_source": "GitHub REST release metadata matched against exact local artifact bytes",
         }
         write_json(args.release_output, release_payload)
         write_json(args.publication_output, publication_payload)
