@@ -53,7 +53,11 @@ def published_asset_inventory(
     normalized_assets = [
         asset
         for asset in assets
-        if isinstance(asset, dict) and isinstance(asset.get("name"), str) and asset.get("name")
+        if (
+            isinstance(asset, dict)
+            and isinstance(asset.get("name"), str)
+            and asset.get("name")
+        )
     ]
     actual_names = {str(asset["name"]) for asset in normalized_assets}
     if len(actual_names) != len(normalized_assets):
@@ -61,7 +65,9 @@ def published_asset_inventory(
 
     missing_names = expected_names - actual_names
     if missing_names:
-        raise ValueError(f"Published release is missing verified assets: {sorted(missing_names)}")
+        raise ValueError(
+            f"Published release is missing verified assets: {sorted(missing_names)}"
+        )
 
     local_names = {path.name for path in distributable_files(directory)}
     unexpected_names = actual_names - expected_names
@@ -76,7 +82,9 @@ def published_asset_inventory(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Record verifiable evidence for a published GitHub prerelease.")
+    parser = argparse.ArgumentParser(
+        description="Record verifiable evidence for a published GitHub prerelease."
+    )
     parser.add_argument("--repository", required=True)
     parser.add_argument("--tag", required=True)
     parser.add_argument("--source-commit", required=True)
@@ -99,7 +107,11 @@ def main() -> int:
         version = provenance.get("version")
         if args.tag != f"v{version}":
             raise ValueError("Release tag and artifact version differ")
-        source = provenance.get("source") if isinstance(provenance.get("source"), dict) else {}
+        source = (
+            provenance.get("source")
+            if isinstance(provenance.get("source"), dict)
+            else {}
+        )
         if source != {"commit": args.source_commit, "tree": args.source_tree}:
             raise ValueError("Artifact provenance and release source differ")
 
@@ -117,10 +129,14 @@ def main() -> int:
             raise ValueError("Published release has no asset list")
         manifest_by_name = publication_manifest_files(provenance, str(version))
         expected_names = set(manifest_by_name) | {"release-provenance.json"}
-        normalized_assets, unexpected_names = published_asset_inventory(assets, directory, expected_names)
+        normalized_assets, unexpected_names = published_asset_inventory(
+            assets, directory, expected_names
+        )
 
         publication_assets: list[dict[str, Any]] = []
-        for asset in sorted(normalized_assets, key=lambda item: str(item.get("name"))):
+        for asset in sorted(
+            normalized_assets, key=lambda item: str(item.get("name"))
+        ):
             name = str(asset.get("name"))
             local = directory / name
             if not local.is_file():
@@ -128,7 +144,8 @@ def main() -> int:
             local_hash = sha256_file(local)
             manifest_entry = manifest_by_name.get(name)
             if manifest_entry is not None and (
-                manifest_entry.get("sha256") != local_hash or manifest_entry.get("size") != local.stat().st_size
+                manifest_entry.get("sha256") != local_hash
+                or manifest_entry.get("size") != local.stat().st_size
             ):
                 raise ValueError(f"Artifact provenance differs for {name}")
             digest = str(asset.get("digest") or "")
@@ -147,7 +164,11 @@ def main() -> int:
             )
 
         now = datetime.now(timezone.utc).isoformat()
-        build = provenance.get("build") if isinstance(provenance.get("build"), dict) else {}
+        build = (
+            provenance.get("build")
+            if isinstance(provenance.get("build"), dict)
+            else {}
+        )
         release_payload = {
             "schema": "thistinti.release-evidence.v2",
             "version": version,
@@ -175,9 +196,15 @@ def main() -> int:
                 "all_published_assets_matched_local_bytes": True,
                 "unexpected_but_verified_assets": sorted(unexpected_names),
                 "smoke_reports_passed": True,
-                "installer_sha256": sha256_file(directory / f"ThisTinti-Setup-{version}-x64.exe"),
-                "portable_sha256": sha256_file(directory / f"ThisTinti-Portable-{version}-x64.zip"),
-                "self_hosted_source_sha256": sha256_file(directory / f"ThisTinti-{version}-self-hosted-source.zip"),
+                "installer_sha256": sha256_file(
+                    directory / f"ThisTinti-Setup-{version}-x64.exe"
+                ),
+                "portable_sha256": sha256_file(
+                    directory / f"ThisTinti-Portable-{version}-x64.zip"
+                ),
+                "self_hosted_source_sha256": sha256_file(
+                    directory / f"ThisTinti-{version}-self-hosted-source.zip"
+                ),
             },
             "required_assets": sorted(expected_names),
             "unsigned_installer": True,
