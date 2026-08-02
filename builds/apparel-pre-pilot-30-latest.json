@@ -1,0 +1,940 @@
+{
+  "schema": "thistinti.apparel-pre-pilot.v1",
+  "generated_at": "2026-08-02T22:43:48.539438+00:00",
+  "product": {
+    "name": "ThisTinti",
+    "engine_version": "3.4.0-alpha.7-rc.8"
+  },
+  "classification": {
+    "evidence_level": "synthetic",
+    "real_pilot_completed": false,
+    "commercial_accuracy_claim_allowed": false
+  },
+  "process_scope": {
+    "sector": "abbigliamento",
+    "flow": [
+      "order",
+      "delivery",
+      "invoice",
+      "return",
+      "credit_note"
+    ],
+    "single_process_confirmed": true
+  },
+  "structured_benchmark": {
+    "dataset_name": "ThisTinti Apparel Flow Pre-Pilot 30",
+    "dataset_version": "1.0.0",
+    "families": {
+      "catena coerente": 6,
+      "codici articolo ambigui": 2,
+      "consegne e fatture multiple": 2,
+      "nota di credito parziale": 2,
+      "prezzo superiore all'ordine": 4,
+      "quantità fatturata oltre consegna": 5,
+      "reso senza nota di credito": 2,
+      "riga fattura non abbinata": 3,
+      "sconto mancante": 4
+    },
+    "metrics": {
+      "status": "completed",
+      "scenario_count": 30,
+      "document_count": 100,
+      "expected_finding_count": 26,
+      "true_positives": 26,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "amount_mae": 0.0,
+      "gate_passed": true,
+      "all_scenarios_pass": true,
+      "elapsed_seconds": 1.114,
+      "average_seconds_per_scenario": 0.037
+    },
+    "scenario_results": [
+      {
+        "id": "clean-01",
+        "description": "Catena ordine-consegna-fattura completamente coerente.",
+        "expected_count": 0,
+        "found_count": 0,
+        "found": [],
+        "parse_failures": [],
+        "matches": [],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 0,
+        "passed": true
+      },
+      {
+        "id": "clean-02",
+        "description": "Catena ordine-consegna-fattura completamente coerente.",
+        "expected_count": 0,
+        "found_count": 0,
+        "found": [],
+        "parse_failures": [],
+        "matches": [],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 0,
+        "passed": true
+      },
+      {
+        "id": "clean-03",
+        "description": "Catena ordine-consegna-fattura completamente coerente.",
+        "expected_count": 0,
+        "found_count": 0,
+        "found": [],
+        "parse_failures": [],
+        "matches": [],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 0,
+        "passed": true
+      },
+      {
+        "id": "clean-04",
+        "description": "Catena ordine-consegna-fattura completamente coerente.",
+        "expected_count": 0,
+        "found_count": 0,
+        "found": [],
+        "parse_failures": [],
+        "matches": [],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 0,
+        "passed": true
+      },
+      {
+        "id": "clean-05",
+        "description": "Catena ordine-consegna-fattura completamente coerente.",
+        "expected_count": 0,
+        "found_count": 0,
+        "found": [],
+        "parse_failures": [],
+        "matches": [],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 0,
+        "passed": true
+      },
+      {
+        "id": "clean-06",
+        "description": "Catena ordine-consegna-fattura completamente coerente.",
+        "expected_count": 0,
+        "found_count": 0,
+        "found": [],
+        "parse_failures": [],
+        "matches": [],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 0,
+        "passed": true
+      },
+      {
+        "id": "multi-clean-01",
+        "description": "Ordine con due consegne parziali e due fatture coerenti.",
+        "expected_count": 0,
+        "found_count": 0,
+        "found": [],
+        "parse_failures": [],
+        "matches": [],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 0,
+        "passed": true
+      },
+      {
+        "id": "multi-clean-02",
+        "description": "Ordine con due consegne parziali e due fatture coerenti.",
+        "expected_count": 0,
+        "found_count": 0,
+        "found": [],
+        "parse_failures": [],
+        "matches": [],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 0,
+        "passed": true
+      },
+      {
+        "id": "quantity-over-01",
+        "description": "La fattura riporta due unità in più rispetto alla consegna.",
+        "expected_count": 1,
+        "found_count": 1,
+        "found": [
+          {
+            "case_type": "invoiced_over_received",
+            "amount": 32.0,
+            "confidence": 0.99,
+            "severity": "high",
+            "title": "Quantità fatturata superiore a quella verificata"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 0,
+            "case_type": "invoiced_over_received",
+            "expected_amount": 32.0,
+            "found_amount": 32.0,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 1,
+        "passed": true
+      },
+      {
+        "id": "quantity-over-02",
+        "description": "La fattura riporta due unità in più rispetto alla consegna.",
+        "expected_count": 1,
+        "found_count": 1,
+        "found": [
+          {
+            "case_type": "invoiced_over_received",
+            "amount": 34.0,
+            "confidence": 0.99,
+            "severity": "high",
+            "title": "Quantità fatturata superiore a quella verificata"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 0,
+            "case_type": "invoiced_over_received",
+            "expected_amount": 34.0,
+            "found_amount": 34.0,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 1,
+        "passed": true
+      },
+      {
+        "id": "quantity-over-03",
+        "description": "La fattura riporta due unità in più rispetto alla consegna.",
+        "expected_count": 1,
+        "found_count": 1,
+        "found": [
+          {
+            "case_type": "invoiced_over_received",
+            "amount": 36.0,
+            "confidence": 0.99,
+            "severity": "high",
+            "title": "Quantità fatturata superiore a quella verificata"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 0,
+            "case_type": "invoiced_over_received",
+            "expected_amount": 36.0,
+            "found_amount": 36.0,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 1,
+        "passed": true
+      },
+      {
+        "id": "quantity-over-04",
+        "description": "La fattura riporta due unità in più rispetto alla consegna.",
+        "expected_count": 1,
+        "found_count": 1,
+        "found": [
+          {
+            "case_type": "invoiced_over_received",
+            "amount": 38.0,
+            "confidence": 0.99,
+            "severity": "high",
+            "title": "Quantità fatturata superiore a quella verificata"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 0,
+            "case_type": "invoiced_over_received",
+            "expected_amount": 38.0,
+            "found_amount": 38.0,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 1,
+        "passed": true
+      },
+      {
+        "id": "quantity-over-05",
+        "description": "La fattura riporta due unità in più rispetto alla consegna.",
+        "expected_count": 1,
+        "found_count": 1,
+        "found": [
+          {
+            "case_type": "invoiced_over_received",
+            "amount": 40.0,
+            "confidence": 0.99,
+            "severity": "high",
+            "title": "Quantità fatturata superiore a quella verificata"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 0,
+            "case_type": "invoiced_over_received",
+            "expected_amount": 40.0,
+            "found_amount": 40.0,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 1,
+        "passed": true
+      },
+      {
+        "id": "price-over-01",
+        "description": "Il prezzo unitario fatturato supera di due euro quello ordinato.",
+        "expected_count": 1,
+        "found_count": 1,
+        "found": [
+          {
+            "case_type": "price_over_order",
+            "amount": 22.0,
+            "confidence": 0.98,
+            "severity": "high",
+            "title": "Prezzo fatturato superiore al riferimento commerciale"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 0,
+            "case_type": "price_over_order",
+            "expected_amount": 22.0,
+            "found_amount": 22.0,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 1,
+        "passed": true
+      },
+      {
+        "id": "price-over-02",
+        "description": "Il prezzo unitario fatturato supera di due euro quello ordinato.",
+        "expected_count": 1,
+        "found_count": 1,
+        "found": [
+          {
+            "case_type": "price_over_order",
+            "amount": 24.0,
+            "confidence": 0.98,
+            "severity": "high",
+            "title": "Prezzo fatturato superiore al riferimento commerciale"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 0,
+            "case_type": "price_over_order",
+            "expected_amount": 24.0,
+            "found_amount": 24.0,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 1,
+        "passed": true
+      },
+      {
+        "id": "price-over-03",
+        "description": "Il prezzo unitario fatturato supera di due euro quello ordinato.",
+        "expected_count": 1,
+        "found_count": 1,
+        "found": [
+          {
+            "case_type": "price_over_order",
+            "amount": 26.0,
+            "confidence": 0.98,
+            "severity": "high",
+            "title": "Prezzo fatturato superiore al riferimento commerciale"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 0,
+            "case_type": "price_over_order",
+            "expected_amount": 26.0,
+            "found_amount": 26.0,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 1,
+        "passed": true
+      },
+      {
+        "id": "price-over-04",
+        "description": "Il prezzo unitario fatturato supera di due euro quello ordinato.",
+        "expected_count": 1,
+        "found_count": 1,
+        "found": [
+          {
+            "case_type": "price_over_order",
+            "amount": 28.0,
+            "confidence": 0.98,
+            "severity": "high",
+            "title": "Prezzo fatturato superiore al riferimento commerciale"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 0,
+            "case_type": "price_over_order",
+            "expected_amount": 28.0,
+            "found_amount": 28.0,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 1,
+        "passed": true
+      },
+      {
+        "id": "discount-missing-01",
+        "description": "Lo sconto del cinque per cento presente nell'ordine manca in fattura.",
+        "expected_count": 1,
+        "found_count": 1,
+        "found": [
+          {
+            "case_type": "discount_missing",
+            "amount": 19.95,
+            "confidence": 0.96,
+            "severity": "high",
+            "title": "Sconto dell'ordine non applicato integralmente"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 0,
+            "case_type": "discount_missing",
+            "expected_amount": 19.95,
+            "found_amount": 19.95,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 1,
+        "passed": true
+      },
+      {
+        "id": "discount-missing-02",
+        "description": "Lo sconto del cinque per cento presente nell'ordine manca in fattura.",
+        "expected_count": 1,
+        "found_count": 1,
+        "found": [
+          {
+            "case_type": "discount_missing",
+            "amount": 22.0,
+            "confidence": 0.96,
+            "severity": "high",
+            "title": "Sconto dell'ordine non applicato integralmente"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 0,
+            "case_type": "discount_missing",
+            "expected_amount": 22.0,
+            "found_amount": 22.0,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 1,
+        "passed": true
+      },
+      {
+        "id": "discount-missing-03",
+        "description": "Lo sconto del cinque per cento presente nell'ordine manca in fattura.",
+        "expected_count": 1,
+        "found_count": 1,
+        "found": [
+          {
+            "case_type": "discount_missing",
+            "amount": 24.15,
+            "confidence": 0.96,
+            "severity": "high",
+            "title": "Sconto dell'ordine non applicato integralmente"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 0,
+            "case_type": "discount_missing",
+            "expected_amount": 24.15,
+            "found_amount": 24.15,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 1,
+        "passed": true
+      },
+      {
+        "id": "discount-missing-04",
+        "description": "Lo sconto del cinque per cento presente nell'ordine manca in fattura.",
+        "expected_count": 1,
+        "found_count": 1,
+        "found": [
+          {
+            "case_type": "discount_missing",
+            "amount": 26.4,
+            "confidence": 0.96,
+            "severity": "high",
+            "title": "Sconto dell'ordine non applicato integralmente"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 0,
+            "case_type": "discount_missing",
+            "expected_amount": 26.4,
+            "found_amount": 26.4,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 1,
+        "passed": true
+      },
+      {
+        "id": "unmatched-line-01",
+        "description": "La fattura contiene una riga aggiuntiva non presente in ordine o consegna.",
+        "expected_count": 1,
+        "found_count": 1,
+        "found": [
+          {
+            "case_type": "unmatched_invoice_line",
+            "amount": 75.0,
+            "confidence": 0.72,
+            "severity": "low",
+            "title": "Riga fattura senza corrispondenza"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 0,
+            "case_type": "unmatched_invoice_line",
+            "expected_amount": 75.0,
+            "found_amount": 75.0,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 1,
+        "passed": true
+      },
+      {
+        "id": "unmatched-line-02",
+        "description": "La fattura contiene una riga aggiuntiva non presente in ordine o consegna.",
+        "expected_count": 1,
+        "found_count": 1,
+        "found": [
+          {
+            "case_type": "unmatched_invoice_line",
+            "amount": 100.0,
+            "confidence": 0.72,
+            "severity": "low",
+            "title": "Riga fattura senza corrispondenza"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 0,
+            "case_type": "unmatched_invoice_line",
+            "expected_amount": 100.0,
+            "found_amount": 100.0,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 1,
+        "passed": true
+      },
+      {
+        "id": "unmatched-line-03",
+        "description": "La fattura contiene una riga aggiuntiva non presente in ordine o consegna.",
+        "expected_count": 1,
+        "found_count": 1,
+        "found": [
+          {
+            "case_type": "unmatched_invoice_line",
+            "amount": 125.0,
+            "confidence": 0.72,
+            "severity": "low",
+            "title": "Riga fattura senza corrispondenza"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 0,
+            "case_type": "unmatched_invoice_line",
+            "expected_amount": 125.0,
+            "found_amount": 125.0,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 1,
+        "passed": true
+      },
+      {
+        "id": "return-no-credit-01",
+        "description": "Il reso non è seguito da una nota di credito.",
+        "expected_count": 1,
+        "found_count": 1,
+        "found": [
+          {
+            "case_type": "return_without_credit",
+            "amount": 120.0,
+            "confidence": 0.92,
+            "severity": "high",
+            "title": "Reso senza nota di credito collegata"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 0,
+            "case_type": "return_without_credit",
+            "expected_amount": 120.0,
+            "found_amount": 120.0,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 1,
+        "passed": true
+      },
+      {
+        "id": "return-no-credit-02",
+        "description": "Il reso non è seguito da una nota di credito.",
+        "expected_count": 1,
+        "found_count": 1,
+        "found": [
+          {
+            "case_type": "return_without_credit",
+            "amount": 175.0,
+            "confidence": 0.92,
+            "severity": "high",
+            "title": "Reso senza nota di credito collegata"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 0,
+            "case_type": "return_without_credit",
+            "expected_amount": 175.0,
+            "found_amount": 175.0,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 1,
+        "passed": true
+      },
+      {
+        "id": "partial-credit-01",
+        "description": "La nota di credito copre soltanto una parte del reso.",
+        "expected_count": 1,
+        "found_count": 1,
+        "found": [
+          {
+            "case_type": "credit_below_return",
+            "amount": 105.0,
+            "confidence": 0.97,
+            "severity": "high",
+            "title": "Note di credito inferiori al reso"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 0,
+            "case_type": "credit_below_return",
+            "expected_amount": 105.0,
+            "found_amount": 105.0,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 1,
+        "passed": true
+      },
+      {
+        "id": "partial-credit-02",
+        "description": "La nota di credito copre soltanto una parte del reso.",
+        "expected_count": 1,
+        "found_count": 1,
+        "found": [
+          {
+            "case_type": "credit_below_return",
+            "amount": 160.0,
+            "confidence": 0.97,
+            "severity": "high",
+            "title": "Note di credito inferiori al reso"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 0,
+            "case_type": "credit_below_return",
+            "expected_amount": 160.0,
+            "found_amount": 160.0,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 1,
+        "passed": true
+      },
+      {
+        "id": "ambiguous-sku-01",
+        "description": "Codici articolo differenti ma descrizione, colore e taglia equivalenti.",
+        "expected_count": 3,
+        "found_count": 3,
+        "found": [
+          {
+            "case_type": "discount_missing",
+            "amount": 21.0,
+            "confidence": 0.96,
+            "severity": "high",
+            "title": "Sconto dell'ordine non applicato integralmente"
+          },
+          {
+            "case_type": "invoiced_over_received",
+            "amount": 84.0,
+            "confidence": 0.99,
+            "severity": "high",
+            "title": "Quantità fatturata superiore a quella verificata"
+          },
+          {
+            "case_type": "price_over_order",
+            "amount": 20.0,
+            "confidence": 0.98,
+            "severity": "high",
+            "title": "Prezzo fatturato superiore al riferimento commerciale"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 1,
+            "case_type": "invoiced_over_received",
+            "expected_amount": 84.0,
+            "found_amount": 84.0,
+            "amount_error": 0.0
+          },
+          {
+            "expected_index": 1,
+            "found_index": 2,
+            "case_type": "price_over_order",
+            "expected_amount": 20.0,
+            "found_amount": 20.0,
+            "amount_error": 0.0
+          },
+          {
+            "expected_index": 2,
+            "found_index": 0,
+            "case_type": "discount_missing",
+            "expected_amount": 21.0,
+            "found_amount": 21.0,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 3,
+        "passed": true
+      },
+      {
+        "id": "ambiguous-sku-02",
+        "description": "Codici articolo differenti ma descrizione, colore e taglia equivalenti.",
+        "expected_count": 3,
+        "found_count": 3,
+        "found": [
+          {
+            "case_type": "discount_missing",
+            "amount": 21.0,
+            "confidence": 0.96,
+            "severity": "high",
+            "title": "Sconto dell'ordine non applicato integralmente"
+          },
+          {
+            "case_type": "invoiced_over_received",
+            "amount": 84.0,
+            "confidence": 0.99,
+            "severity": "high",
+            "title": "Quantità fatturata superiore a quella verificata"
+          },
+          {
+            "case_type": "price_over_order",
+            "amount": 20.0,
+            "confidence": 0.98,
+            "severity": "high",
+            "title": "Prezzo fatturato superiore al riferimento commerciale"
+          }
+        ],
+        "parse_failures": [],
+        "matches": [
+          {
+            "expected_index": 0,
+            "found_index": 1,
+            "case_type": "invoiced_over_received",
+            "expected_amount": 84.0,
+            "found_amount": 84.0,
+            "amount_error": 0.0
+          },
+          {
+            "expected_index": 1,
+            "found_index": 2,
+            "case_type": "price_over_order",
+            "expected_amount": 20.0,
+            "found_amount": 20.0,
+            "amount_error": 0.0
+          },
+          {
+            "expected_index": 2,
+            "found_index": 0,
+            "case_type": "discount_missing",
+            "expected_amount": 21.0,
+            "found_amount": 21.0,
+            "amount_error": 0.0
+          }
+        ],
+        "false_positives": [],
+        "false_negatives": [],
+        "true_positives": 3,
+        "passed": true
+      }
+    ]
+  },
+  "scan_diagnostic": {
+    "synthetic_image_only_pdfs": 3,
+    "ingested_without_explicit_failure": 3,
+    "items": [
+      {
+        "id": "scan-01",
+        "variant": "clear",
+        "outcome": null,
+        "parse_status": "review_required",
+        "parse_message": "OCR eseguito; tabella righe non riconosciuta automaticamente",
+        "document_type": "invoice",
+        "number": "INV-SCAN-001",
+        "confidence": 0.32,
+        "line_count": 0,
+        "elapsed_seconds": 1.0
+      },
+      {
+        "id": "scan-02",
+        "variant": "low-contrast",
+        "outcome": null,
+        "parse_status": "review_required",
+        "parse_message": "OCR eseguito; tabella righe non riconosciuta automaticamente",
+        "document_type": "invoice",
+        "number": "INV-SCAN-002",
+        "confidence": 0.32,
+        "line_count": 0,
+        "elapsed_seconds": 0.846
+      },
+      {
+        "id": "scan-03",
+        "variant": "rotated-noisy",
+        "outcome": null,
+        "parse_status": "review_required",
+        "parse_message": "OCR eseguito; tabella righe non riconosciuta automaticamente",
+        "document_type": "invoice",
+        "number": "INV-SCAN-003",
+        "confidence": 0.32,
+        "line_count": 0,
+        "elapsed_seconds": 1.954
+      }
+    ],
+    "gating": false
+  },
+  "human_measurement": {
+    "manual_time_before_seconds": null,
+    "assisted_time_after_seconds": null,
+    "known_false_negatives_confirmed_by_reviewers": null,
+    "user_judgment": null,
+    "status": "requires_real_users_and_two_distinct_reviewers",
+    "template": "apparel-real-pilot-measurements.csv"
+  },
+  "limitations": [
+    "The 30 structured practices are synthetic.",
+    "The OCR PDFs are generated images, not real supplier scans.",
+    "Human before/after time has not been measured.",
+    "No user judgment has been invented.",
+    "A real pilot still requires authorized data and two reviewers."
+  ]
+}

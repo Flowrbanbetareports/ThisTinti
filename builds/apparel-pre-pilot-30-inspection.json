@@ -1,0 +1,38 @@
+{
+  "schema": "thistinti.pilot-dataset-inspection.v1",
+  "sha256": "56220b71cd9433615bf73c8baa578bdb3b39368d1d8e9eaa4a0b6b48fb45127b",
+  "name": "ThisTinti Apparel Flow Pre-Pilot 30",
+  "version": "1.0.0",
+  "evidence_level": "synthetic",
+  "scenario_count": 30,
+  "document_count": 100,
+  "expected_finding_count": 26,
+  "document_types": {
+    "credit_note": 2,
+    "delivery": 32,
+    "invoice": 32,
+    "order": 30,
+    "return": 4
+  },
+  "mime_types": {
+    "application/json": 100
+  },
+  "expected_case_types": {
+    "credit_below_return": 2,
+    "discount_missing": 6,
+    "invoiced_over_received": 7,
+    "price_over_order": 6,
+    "return_without_credit": 2,
+    "unmatched_invoice_line": 3
+  },
+  "governance": {
+    "evidence_metadata_present": false,
+    "authorized_use_confirmed": false,
+    "anonymization_confirmed": false,
+    "reviewer_count": 0,
+    "ground_truth_method_documented": false,
+    "scope_documented": false
+  },
+  "warnings": [],
+  "ready_for_controlled_pilot": false
+}
