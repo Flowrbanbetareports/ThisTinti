@@ -1,6 +1,6 @@
 {
   "schema": "thistinti.apparel-pre-pilot.v1",
-  "generated_at": "2026-08-02T22:43:48.539438+00:00",
+  "generated_at": "2026-08-02T23:51:47.607544+00:00",
   "product": {
     "name": "ThisTinti",
     "engine_version": "3.4.0-alpha.7-rc.8"
@@ -49,8 +49,8 @@
       "amount_mae": 0.0,
       "gate_passed": true,
       "all_scenarios_pass": true,
-      "elapsed_seconds": 1.114,
-      "average_seconds_per_scenario": 0.037
+      "elapsed_seconds": 1.005,
+      "average_seconds_per_scenario": 0.033
     },
     "scenario_results": [
       {
@@ -888,36 +888,36 @@
         "variant": "clear",
         "outcome": null,
         "parse_status": "review_required",
-        "parse_message": "OCR eseguito; tabella righe non riconosciuta automaticamente",
+        "parse_message": "Dati derivati da OCR locale: revisione umana raccomandata",
         "document_type": "invoice",
         "number": "INV-SCAN-001",
-        "confidence": 0.32,
-        "line_count": 0,
-        "elapsed_seconds": 1.0
+        "confidence": 0.55,
+        "line_count": 1,
+        "elapsed_seconds": 0.987
       },
       {
         "id": "scan-02",
         "variant": "low-contrast",
         "outcome": null,
         "parse_status": "review_required",
-        "parse_message": "OCR eseguito; tabella righe non riconosciuta automaticamente",
+        "parse_message": "Dati derivati da OCR locale: revisione umana raccomandata",
         "document_type": "invoice",
         "number": "INV-SCAN-002",
-        "confidence": 0.32,
-        "line_count": 0,
-        "elapsed_seconds": 0.846
+        "confidence": 0.55,
+        "line_count": 1,
+        "elapsed_seconds": 0.878
       },
       {
         "id": "scan-03",
         "variant": "rotated-noisy",
         "outcome": null,
         "parse_status": "review_required",
-        "parse_message": "OCR eseguito; tabella righe non riconosciuta automaticamente",
+        "parse_message": "Dati derivati da OCR locale: revisione umana raccomandata",
         "document_type": "invoice",
         "number": "INV-SCAN-003",
-        "confidence": 0.32,
-        "line_count": 0,
-        "elapsed_seconds": 1.954
+        "confidence": 0.55,
+        "line_count": 1,
+        "elapsed_seconds": 1.983
       }
     ],
     "gating": false
