@@ -139,6 +139,17 @@ def _money(value: Decimal | int | float | str) -> Decimal:
     return _decimal(value).quantize(MONEY_QUANTUM, rounding=ROUND_HALF_UP)
 
 
+def _display_decimal(value, *, max_places: int = 4) -> str:
+    decimal_value = _decimal(value)
+    quantum = Decimal("1").scaleb(-max_places)
+    if decimal_value.as_tuple().exponent < -max_places:
+        decimal_value = decimal_value.quantize(quantum, rounding=ROUND_HALF_UP)
+    rendered = format(decimal_value, "f")
+    if "." in rendered:
+        rendered = rendered.rstrip("0").rstrip(".")
+    return "0" if rendered in {"-0", ""} else rendered
+
+
 def _document_total(document: Document) -> Decimal | None:
     if not all_numeric_available(document.lines, "line_total"):
         return None
@@ -256,8 +267,12 @@ def _line_evidence(line: DocumentLine | None, field: str, observed, expected, no
         "document_id": line.document_id if line else None,
         "document_line_id": line.id if line else None,
         "field_name": field,
-        "observed_value": str(observed) if observed is not None else None,
-        "expected_value": str(expected) if expected is not None else None,
+        "observed_value": (_display_decimal(observed) if isinstance(observed, Decimal) else str(observed))
+        if observed is not None
+        else None,
+        "expected_value": (_display_decimal(expected) if isinstance(expected, Decimal) else str(expected))
+        if expected is not None
+        else None,
         "note": note,
     }
 
@@ -452,7 +467,8 @@ def analyze_chain(db: Session, chain: OperationChain) -> list[DiscrepancyCase]:
                     max(ZERO, (dq - cq) * cp),
                     0.98,
                     "Quantità consegnata superiore all'ordine",
-                    f"{label}: quantità {commercial_label} {cq:g}, consegnata complessivamente {dq:g}.",
+                    f"{label}: quantità {commercial_label} {_display_decimal(cq)}, "
+                    f"consegnata complessivamente {_display_decimal(dq)}.",
                     "Verificare l'accettazione della consegna eccedente.",
                     key,
                     [
@@ -472,7 +488,8 @@ def analyze_chain(db: Session, chain: OperationChain) -> list[DiscrepancyCase]:
                     max(ZERO, delta * ip),
                     0.99 if d else 0.91,
                     "Quantità fatturata superiore a quella verificata",
-                    f"{label}: fatturate complessivamente {iq:g}, riferimento disponibile {expected_for_invoice:g}.",
+                    f"{label}: fatturate complessivamente {_display_decimal(iq)}, "
+                    f"riferimento disponibile {_display_decimal(expected_for_invoice)}.",
                     "Controllare le righe e preparare una richiesta di rettifica.",
                     key,
                     [
@@ -510,7 +527,8 @@ def analyze_chain(db: Session, chain: OperationChain) -> list[DiscrepancyCase]:
                     max(ZERO, gross * ((cd - idis) / ONE_HUNDRED)),
                     0.96,
                     "Sconto dell'ordine non applicato integralmente",
-                    f"{label}: sconto medio {commercial_label} {cd:.2f}%, sconto medio fattura {idis:.2f}%.",
+                    f"{label}: sconto medio {commercial_label} {_display_decimal(cd, max_places=2)}%, "
+                    f"sconto medio fattura {_display_decimal(idis, max_places=2)}%.",
                     "Verificare la condizione commerciale e richiedere rettifica se confermata.",
                     key,
                     [
@@ -528,7 +546,8 @@ def analyze_chain(db: Session, chain: OperationChain) -> list[DiscrepancyCase]:
                     0.0,
                     0.94,
                     "Aliquota fiscale diversa tra ordine e fattura",
-                    f"{label}: aliquota media {commercial_label} {ctax:.2f}%, aliquota media fattura {itax:.2f}%.",
+                    f"{label}: aliquota media {commercial_label} {_display_decimal(ctax, max_places=2)}%, "
+                    f"aliquota media fattura {_display_decimal(itax, max_places=2)}%.",
                     "Verificare il trattamento fiscale prima della registrazione contabile.",
                     key,
                     [
@@ -752,7 +771,8 @@ def analyze_chain(db: Session, chain: OperationChain) -> list[DiscrepancyCase]:
                         rqty * price,
                         0.92,
                         "Reso senza nota di credito collegata",
-                        f"{label}: reso complessivo di {rqty:g} unità senza nota di credito nella catena.",
+                        f"{label}: reso complessivo di {_display_decimal(rqty)} unità "
+                        "senza nota di credito nella catena.",
                         "Verificare lo stato del reso e la nota di credito attesa.",
                         key,
                         [_line_evidence(exemplar, "credit_quantity", 0, rqty)],
@@ -766,7 +786,8 @@ def analyze_chain(db: Session, chain: OperationChain) -> list[DiscrepancyCase]:
                         (rqty - cqty) * price,
                         0.97,
                         "Note di credito inferiori al reso",
-                        f"{label}: reso complessivo {rqty:g}, accreditato complessivamente {cqty:g}.",
+                        f"{label}: reso complessivo {_display_decimal(rqty)}, "
+                        f"accreditato complessivamente {_display_decimal(cqty)}.",
                         "Controllare le quantità e l'importo residuo.",
                         key,
                         [

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rapporto operativo · ThisTinti</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/operational-report.css">
+</head>
+<body>
+  <header class="report-header">
+    <div>
+      <p class="eyebrow">ThisTinti</p>
+      <h1>Rapporto operativo</h1>
+      <p id="reportGeneratedAt">Preparazione del rapporto…</p>
+    </div>
+    <div class="report-actions">
+      <button id="downloadReportJson" type="button">Scarica JSON</button>
+      <button id="printReport" class="primary" type="button">Stampa / Salva PDF</button>
+    </div>
+  </header>
+
+  <main id="reportRoot" aria-live="polite">
+    <section class="report-loading">
+      <span></span>
+      <p>Raccolta delle misure disponibili nel workspace locale.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Rapporto interno supervisionato. Non certifica accuratezza, contabilità, conformità legale o idoneità alla produzione.</p>
+  </footer>
+  <script src="/operational-report.js" defer></script>
+</body>
+</html>

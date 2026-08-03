@@ -6,7 +6,7 @@
   // dateTime, thistinti_csrf handling and the X-CSRF-Token mutation header.
   // Presentation layers do not receive session tokens, create accounts or call
   // external services. diagnostics-link.js only exposes the local diagnostics page.
-  const UI_VERSION = '3.4.0-alpha.7-rc.10';
+  const UI_VERSION = '3.4.0-alpha.7-rc.11';
   const versioned = (path) => `${path}?v=${encodeURIComponent(UI_VERSION)}`;
 
   for (const href of [
@@ -14,6 +14,8 @@
     '/sidebar-scroll.css',
     '/local-first-run.css',
     '/product-polish.css',
+    '/operational-center.css',
+    '/operational-learning.css',
   ]) {
     const style = document.createElement('link');
     style.rel = 'stylesheet';
@@ -33,6 +35,8 @@
   loadScript('/app-core.js')
     .then(() => loadScript('/onboarding.js'))
     .then(() => loadScript('/product-polish.js'))
+    .then(() => loadScript('/operational-center.js'))
+    .then(() => loadScript('/operational-learning.js'))
     .then(() => loadScript('/sidebar-scroll.js'))
     .then(() => loadScript('/local-first-run.js'))
     .then(() => loadScript('/diagnostics-link.js'))
