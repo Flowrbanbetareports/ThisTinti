@@ -50,6 +50,9 @@ jobs:
               raise SystemExit('Browser fixture dialog marker not found exactly once')
           text = text.replace(old, new, 1)
           text = text.replace('</div></div><dialog id="documentDialog"></dialog>\n<script>', '</div></div></dialog>\n<script>', 1)
+          text = text.replace("async function openCase(id) { state.selectedCase = caseDetail; document.querySelector('#caseDialogBody').innerHTML=", "async function openCase(id) { state.selectedCase = caseDetail; document.querySelector('#caseDialog').showModal(); document.querySelector('#caseDialogBody').innerHTML=", 1)
+          text = text.replace("async function openChain(id) { document.querySelector('#chainDialogBody').innerHTML=", "async function openChain(id) { document.querySelector('#chainDialog').showModal(); document.querySelector('#chainDialogBody').innerHTML=", 1)
+          text = text.replace("async function openDocument(id) { state.selectedDocument = documentDetail; }", "async function openDocument(id) { state.selectedDocument = documentDetail; if (!document.querySelector('#documentDialog').open) document.querySelector('#documentDialog').showModal(); }", 1)
           path.write_text(text, encoding='utf-8')
           PY
           python -m pip install -r requirements-dev.txt
