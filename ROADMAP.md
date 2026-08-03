@@ -1,8 +1,8 @@
 # Roadmap di ThisTinti
 
-## Stato attuale — 3.4.0-alpha.7-rc.10 candidata interna di qualità prodotto
+## Stato attuale — 3.4.0-alpha.7-rc.10 Public Preview
 
-Ultima Public Preview pubblicata e immutabile: `3.4.0-alpha.7-rc.9`.
+Release pubblica immutabile: `3.4.0-alpha.7-rc.10`, commit `fe34da4e1f7cc509f19a34573f6145dd7f720762`, build Windows `30777323794`.
 
 Completati:
 

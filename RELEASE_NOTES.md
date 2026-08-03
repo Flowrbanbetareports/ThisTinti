@@ -1,4 +1,4 @@
-# 3.4.0-alpha.7-rc.10 — qualità del prodotto e linguaggio operativo (candidata interna)
+# 3.4.0-alpha.7-rc.10 — qualità del prodotto e linguaggio operativo
 
 - identificatori tecnici, campi, stati e tipi di anomalia vengono tradotti in italiano comprensibile;
 - quantità e percentuali non mostrano più zeri decimali inutili;
@@ -10,7 +10,7 @@
 - la nuova presentazione è isolata dal core di sicurezza, non usa servizi esterni e non invia messaggi;
 - un controllo Chromium reale verifica gerarchia, terminologia, numeri, rischio, audit e visibilità della demo;
 - un gate impedisce ai moduli già monolitici di continuare a crescere senza estrazione;
-- RC9 resta la Public Preview immutabile finché RC10 non supera tutti i gate e viene pubblicata separatamente.
+- pubblicata come Public Preview immutabile dopo CI, Chromium, PostgreSQL, self-hosted, ciclo Windows, checksum, provenienza e attestazioni verdi sul commit esatto.
 
 # 3.4.0-alpha.7-rc.9 — OCR strutturato e pilot esclusivamente locale
 
