@@ -9,6 +9,10 @@ on:
       - "app/static/onboarding.css"
       - "app/static/product-polish.js"
       - "app/static/product-polish.css"
+      - "app/static/operational-center.js"
+      - "app/static/operational-center.css"
+      - "app/static/operational-learning.js"
+      - "app/static/operational-learning.css"
       - "app/static/sidebar-scroll.css"
       - "app/static/sidebar-scroll.js"
       - "app/static/local-first-run.js"
@@ -17,18 +21,26 @@ on:
       - "app/static/diagnostics.css"
       - "app/static/diagnostics.js"
       - "app/static/diagnostics-link.js"
+      - "app/services/operational.py"
+      - "app/services/rules.py"
       - "tests/test_frontend_security.py"
       - "tests/test_security_hardening.py"
       - "tests/test_simplified_experience.py"
       - "tests/test_product_quality_pass.py"
+      - "tests/test_operational_center.py"
+      - "tests/test_operational_center_assets.py"
+      - "tests/test_rules_presentation.py"
       - "scripts/check_sidebar_browser.py"
       - "scripts/check_evidence_browser.py"
       - "scripts/check_product_polish_browser.py"
+      - "scripts/check_operational_center_browser.py"
+      - "scripts/check_operational_center_live_browser.py"
       - "scripts/browser_e2e.py"
       - "scripts/check_job_recovery_browser.py"
       - "scripts/check_chain_links_browser.py"
       - "scripts/check_in_app_diagnostics_browser.py"
       - "docs/IN_APP_DIAGNOSTICS.md"
+      - "docs/RC11_OPERATIONAL_CENTER.md"
       - "docs/SIMPLIFIED_PRODUCT_EXPERIENCE_PROGRAM.md"
       - ".github/workflows/simplified-experience.yml"
   push:
@@ -40,6 +52,10 @@ on:
       - "app/static/onboarding.css"
       - "app/static/product-polish.js"
       - "app/static/product-polish.css"
+      - "app/static/operational-center.js"
+      - "app/static/operational-center.css"
+      - "app/static/operational-learning.js"
+      - "app/static/operational-learning.css"
       - "app/static/sidebar-scroll.css"
       - "app/static/sidebar-scroll.js"
       - "app/static/local-first-run.js"
@@ -48,18 +64,26 @@ on:
       - "app/static/diagnostics.css"
       - "app/static/diagnostics.js"
       - "app/static/diagnostics-link.js"
+      - "app/services/operational.py"
+      - "app/services/rules.py"
       - "tests/test_frontend_security.py"
       - "tests/test_security_hardening.py"
       - "tests/test_simplified_experience.py"
       - "tests/test_product_quality_pass.py"
+      - "tests/test_operational_center.py"
+      - "tests/test_operational_center_assets.py"
+      - "tests/test_rules_presentation.py"
       - "scripts/check_sidebar_browser.py"
       - "scripts/check_evidence_browser.py"
       - "scripts/check_product_polish_browser.py"
+      - "scripts/check_operational_center_browser.py"
+      - "scripts/check_operational_center_live_browser.py"
       - "scripts/browser_e2e.py"
       - "scripts/check_job_recovery_browser.py"
       - "scripts/check_chain_links_browser.py"
       - "scripts/check_in_app_diagnostics_browser.py"
       - "docs/IN_APP_DIAGNOSTICS.md"
+      - "docs/RC11_OPERATIONAL_CENTER.md"
       - "docs/SIMPLIFIED_PRODUCT_EXPERIENCE_PROGRAM.md"
       - ".github/workflows/simplified-experience.yml"
   workflow_dispatch:
@@ -74,7 +98,7 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -90,6 +114,8 @@ jobs:
           node --check app/static/app-core.js
           node --check app/static/onboarding.js
           node --check app/static/product-polish.js
+          node --check app/static/operational-center.js
+          node --check app/static/operational-learning.js
           node --check app/static/sidebar-scroll.js
           node --check app/static/local-first-run.js
           node --check app/static/diagnostics.js
@@ -105,6 +131,10 @@ jobs:
         run: python scripts/check_evidence_browser.py
       - name: Verify product terminology and hierarchy in Chromium
         run: python scripts/check_product_polish_browser.py
+      - name: Verify operational center fixture in Chromium
+        run: python scripts/check_operational_center_browser.py
+      - name: Verify operational center against the live app
+        run: python scripts/check_operational_center_live_browser.py
       - name: Verify recovery workflow in Chromium
         run: python scripts/check_job_recovery_browser.py
       - name: Verify supervised chain links in Chromium
@@ -124,4 +154,7 @@ jobs:
             tests/test_frontend_security.py \
             tests/test_simplified_experience.py \
             tests/test_product_quality_pass.py \
+            tests/test_operational_center.py \
+            tests/test_operational_center_assets.py \
+            tests/test_rules_presentation.py \
             tests/test_security_hardening.py::test_frontend_core_remains_auditable_with_a_bounded_experience_layer
