@@ -31,4 +31,4 @@ Indicative amounts can overlap when multiple findings concern the same commercia
 
 ## Release boundary
 
-The current public release remains the immutable RC10 Public Preview. An RC11 version identity and Windows candidate may be created only after this branch passes the complete application, browser, PostgreSQL, self-hosted and Windows lifecycle gates.
+The current public release remains the immutable `3.4.0-alpha.7-rc.10` Public Preview. This branch now carries the unreleased `3.4.0-alpha.7-rc.11` identity; publication remains a separate decision after the complete application, browser, PostgreSQL, self-hosted and Windows lifecycle gates pass on the exact final commit.

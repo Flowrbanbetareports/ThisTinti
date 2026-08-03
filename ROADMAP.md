@@ -1,8 +1,8 @@
 # Roadmap di ThisTinti
 
-## Stato attuale — 3.4.0-alpha.7-rc.10 Public Preview
+## Stato attuale — 3.4.0-alpha.7-rc.11 candidata interna Centro operativo
 
-Release pubblica immutabile: `3.4.0-alpha.7-rc.10`, commit `fe34da4e1f7cc509f19a34573f6145dd7f720762`, build Windows `30777323794`.
+Ultima Public Preview pubblicata e immutabile: `3.4.0-alpha.7-rc.10`, commit `fe34da4e1f7cc509f19a34573f6145dd7f720762`, build Windows `30777323794`.
 
 Completati:
 
@@ -29,6 +29,10 @@ Completati:
 - numeri, priorità di controllo, audit e attività presentati con una gerarchia più professionale;
 - nuova responsabilità di presentazione estratta dal core frontend;
 - gate contro l’ulteriore crescita dei moduli monolitici.
+- centro operativo orientato alla prossima verifica e alle pratiche raggruppate;
+- workflow supervisionato con storico delle decisioni e falsi positivi espliciti;
+- correzione dei dati estratti con provenienza, audit e rianalisi;
+- rapporto operativo veritiero e apprendimento sempre soggetto ad approvazione umana.
 
 ## RC8 — collaudo direttamente nell’app
 

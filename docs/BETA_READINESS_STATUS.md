@@ -8,7 +8,7 @@
 
 ## Stato attuale
 
-ThisTinti `3.4.0-alpha.7-rc.10` è pubblicata come Public Preview immutabile. La base tecnica include:
+ThisTinti è in preparazione interna come `3.4.0-alpha.7-rc.11`. L’ultima Public Preview pubblicata e immutabile è `3.4.0-alpha.7-rc.10`. La base tecnica include:
 
 - test applicativi e copertura minima del 90%;
 - migrazioni reversibili;
@@ -34,6 +34,10 @@ ThisTinti `3.4.0-alpha.7-rc.10` è pubblicata come Public Preview immutabile. La
 - estrazione OCR prudente di righe etichettate, con valori numerici fail-closed e confronto dei totali;
 - gate sintetico bloccante su scansioni pulite e a basso contrasto;
 - toolkit pilot locale senza comunicazioni o azioni esterne automatiche.
+- centro operativo con pratiche raggruppate, priorità spiegata e storico della revisione;
+- correzione supervisionata delle righe estratte con audit, provenienza e rianalisi;
+- prova Chromium reale del percorso operativo e rapporto con misure non inventate;
+- suggerimenti di apprendimento non automatici e vincolati a decisioni umane sufficienti.
 - terminologia operativa, numeri e priorità ripuliti senza alterare i dati o le decisioni umane;
 - controllo Chromium dedicato alla qualità percepita e alla gerarchia dell’interfaccia;
 - gate di dimensione per impedire ulteriore crescita dei moduli principali.

@@ -6,11 +6,11 @@ ThisTinti non decide, non approva e non certifica nulla. Organizza informazioni 
 
 ## Stato del rilascio
 
-Versione pubblica corrente: **3.4.0-alpha.7-rc.10 — Public Preview**.
+Versione di sviluppo: **3.4.0-alpha.7-rc.11 — candidata interna Centro operativo**.
 
-La RC10 migliora chiarezza, gerarchia e coerenza dell’interfaccia: traduce gli identificatori tecnici, elimina decimali inutili, presenta il rischio come priorità di controllo, compatta gli avvisi ripetitivi, separa meglio gli strumenti avanzati e rende più leggibili attività e audit. Mantiene l’estrazione OCR prudente della RC9, la provenienza dei dati e il controllo tra totale sorgente e totale ricalcolato. Non aggiunge azioni economiche autonome né comunicazioni esterne.
+Ultima versione pubblica immutabile: **3.4.0-alpha.7-rc.10 — Public Preview**. La RC10 resta disponibile con checksum, provenienza e attestazioni e non viene modificata da questo sviluppo.
 
-La release è una prerelease immutabile costruita dal commit `fe34da4e1f7cc509f19a34573f6145dd7f720762`, verificata dalla build Windows `30777323794` e pubblicata con checksum, provenienza e attestazioni.
+La candidata RC11 trasforma la dashboard in un centro operativo supervisionato: raggruppa le segnalazioni per pratica, propone la prossima verifica, mostra il workflow della segnalazione, apre il confronto documentale, permette correzioni controllate dei dati estratti con storico e rianalisi, produce rapporti operativi e formula soltanto suggerimenti di apprendimento soggetti ad approvazione umana.
 
 ThisTinti offre due distribuzioni gratuite: una Local Edition per singola postazione e una Self-Hosted Reference Edition con PostgreSQL, worker scalabili, TLS, scanner malware e strumenti operativi per team tecnici. È adatto a sviluppo, dimostrazioni e **pilot controllati con documenti autorizzati e anonimizzati**. La beta validata richiede ancora pilot reale, collaudo manuale con tecnologie assistive e revisioni indipendenti.
 

@@ -1,3 +1,17 @@
+# 3.4.0-alpha.7-rc.11 — centro operativo e revisione supervisionata (candidata interna)
+
+- la home indica cosa controllare adesso e propone la prossima verifica in base a gravità, stato, valore indicativo e data;
+- le segnalazioni della stessa operazione vengono raggruppate in un unico fascicolo di pratica;
+- il workflow distingue nuova, in verifica, confermata, falso positivo e risolta, mantenendo lo storico delle decisioni;
+- il confronto della pratica riusa le prove e i documenti collegati esistenti senza creare copie o fonti parallele;
+- i revisori possono correggere una riga estratta con motivo obbligatorio, prima/dopo, autore, provenienza e rianalisi delle catene coinvolte;
+- i totali vengono ricalcolati coerentemente quando quantità, prezzo o sconto vengono corretti;
+- i decimali di memorizzazione non compaiono più nelle nuove descrizioni e nelle evidenze;
+- il rapporto operativo è esportabile in JSON e in una vista stampabile/PDF, lasciando nulli i dati di pilot non realmente misurati;
+- l’apprendimento propone una revisione delle soglie soltanto dopo almeno cinque decisioni umane coerenti e non applica mai modifiche automatiche;
+- Chromium verifica sia la presentazione isolata sia il flusso reale contro API, database, audit e rianalisi;
+- RC10 resta la Public Preview immutabile finché RC11 non supera tutti i gate e viene pubblicata separatamente.
+
 # 3.4.0-alpha.7-rc.10 — qualità del prodotto e linguaggio operativo
 
 - identificatori tecnici, campi, stati e tipi di anomalia vengono tradotti in italiano comprensibile;

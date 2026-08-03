@@ -47,7 +47,7 @@ def update_readme() -> None:
     text = path.read_text(encoding="utf-8")
     start = text.index("## Stato del rilascio")
     end = text.index("## Identità e posizionamento")
-    block = f'''## Stato del rilascio
+    block = f"""## Stato del rilascio
 
 Versione di sviluppo: **{NEW} — candidata interna Centro operativo**.
 
@@ -57,7 +57,7 @@ La candidata RC11 trasforma la dashboard in un centro operativo supervisionato: 
 
 ThisTinti offre due distribuzioni gratuite: una Local Edition per singola postazione e una Self-Hosted Reference Edition con PostgreSQL, worker scalabili, TLS, scanner malware e strumenti operativi per team tecnici. È adatto a sviluppo, dimostrazioni e **pilot controllati con documenti autorizzati e anonimizzati**. La beta validata richiede ancora pilot reale, collaudo manuale con tecnologie assistive e revisioni indipendenti.
 
-'''
+"""
     path.write_text(text[:start] + block + text[end:], encoding="utf-8")
 
 
@@ -66,7 +66,7 @@ def update_release_notes() -> None:
     text = path.read_text(encoding="utf-8")
     if text.startswith(f"# {NEW}"):
         return
-    intro = f'''# {NEW} — centro operativo e revisione supervisionata (candidata interna)
+    intro = f"""# {NEW} — centro operativo e revisione supervisionata (candidata interna)
 
 - la home indica cosa controllare adesso e propone la prossima verifica in base a gravità, stato, valore indicativo e data;
 - le segnalazioni della stessa operazione vengono raggruppate in un unico fascicolo di pratica;
@@ -80,7 +80,7 @@ def update_release_notes() -> None:
 - Chromium verifica sia la presentazione isolata sia il flusso reale contro API, database, audit e rianalisi;
 - RC10 resta la Public Preview immutabile finché RC11 non supera tutti i gate e viene pubblicata separatamente.
 
-'''
+"""
     path.write_text(intro + text, encoding="utf-8")
 
 
@@ -151,7 +151,7 @@ def update_operational_doc() -> None:
     )
     path.write_text(text, encoding="utf-8")
     Path("docs/RC11_INTERNAL_CANDIDATE.md").write_text(
-        f'''# RC11 internal candidate
+        f"""# RC11 internal candidate
 
 Version: `{NEW}`.
 
@@ -167,7 +167,7 @@ It does not publish itself, replace RC10 assets, modify original documents, cont
 - apparel OCR benchmark and local pilot toolkit;
 - Windows build, upgrade from the existing public baseline, installed diagnostics, uninstall and data preservation;
 - exact-commit checksums, provenance and attestations before any separate RC11 publication request.
-''',
+""",
         encoding="utf-8",
     )
 
