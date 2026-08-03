@@ -89,9 +89,12 @@ def main() -> None:
                 "Human correction provenance is missing",
             )
 
+            page.wait_for_selector("#documentDialog[open]")
+            page.locator("#documentDialog").evaluate("dialog => dialog.close()")
             page.locator('[data-view="dashboard"]').click()
             page.wait_for_selector("#operationalCenter")
             save_screenshot(page, "operational-center-04-recalculated.png")
+            context.close()
             browser.close()
 
         audit = client.get("/api/audit").json()
