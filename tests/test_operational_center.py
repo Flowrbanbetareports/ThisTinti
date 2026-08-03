@@ -59,6 +59,7 @@ def test_human_line_correction_keeps_history_and_reanalyzes(client, auth):
             "quantity": 114,
             "unit_price": 42,
             "discount_rate": 8,
+            "line_total": 9999,
             "reason": "Valori controllati sul documento originale",
         },
     )
@@ -69,13 +70,32 @@ def test_human_line_correction_keeps_history_and_reanalyzes(client, auth):
     assert corrected["quantity"] == 114
     assert corrected["unit_price"] == 42
     assert corrected["discount_rate"] == 8
+    assert corrected["line_total"] == 4404.96
     assert corrected["numeric_provenance"]["quantity"] == "human_corrected"
+    assert corrected["numeric_provenance"]["line_total"] == "derived_from_human_correction"
     with SessionLocal() as db:
         stored = db.get(DocumentLine, line["id"])
         assert "Valori controllati sul documento originale" in stored.raw_json
         assert "correction_history" in stored.raw_json
     audit = client.get("/api/audit", headers=auth).json()
     assert any(event["action"] == "document_line.corrected" for event in audit)
+
+
+def test_line_total_can_be_corrected_independently(client, auth):
+    load_demo(client, auth)
+    document = next(
+        item for item in client.get("/api/documents", headers=auth).json() if item["document_type"] == "invoice"
+    )
+    line = client.get(f"/api/documents/{document['id']}", headers=auth).json()["lines"][0]
+    response = client.patch(
+        f"/api/document-lines/{line['id']}",
+        headers=auth,
+        json={"line_total": 123.45, "reason": "Totale verificato sull'originale"},
+    )
+    assert response.status_code == 200, response.text
+    updated = client.get(f"/api/documents/{document['id']}", headers=auth).json()["lines"][0]
+    assert updated["line_total"] == 123.45
+    assert updated["numeric_provenance"]["line_total"] == "human_corrected"
 
 
 def test_line_correction_requires_reason(client, auth):
