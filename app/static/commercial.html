@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="ThisTinti — progetto, download pubblici e preparazione commerciale leggera." />
+  <title>Progetto e piani · ThisTinti</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/commercial.css" />
+</head>
+<body class="commercial-body">
+  <main class="commercial-shell">
+    <header class="commercial-header">
+      <div>
+        <p class="eyebrow">Area amministratore</p>
+        <h1>Progetto e piani</h1>
+        <p>Contatori pubblici, anteprima del pacchetto tecnico e predisposizioni future. Nessun pagamento, annuncio o tracciamento è attivo.</p>
+      </div>
+      <a class="secondary-button" href="/">← Torna all’app</a>
+    </header>
+
+    <aside id="accessNotice" class="commercial-notice">Verifica della sessione in corso…</aside>
+
+    <div id="commercialContent" class="hidden">
+      <section class="commercial-panel commercial-project-link">
+        <div>
+          <p class="eyebrow">Dashboard proprietario</p>
+          <h2>Download e stato pubblico del progetto</h2>
+          <p>La dashboard online legge soltanto metriche pubbliche GitHub: download degli asset, release, stelle, fork, issue/PR e workflow. Non vede utenti, installazioni attive o documenti.</p>
+        </div>
+        <a class="primary-button commercial-download" href="https://flowrbanbetareports.github.io/ThisTinti/project.html" target="_blank" rel="noopener">Apri dashboard progetto</a>
+      </section>
+
+      <section class="commercial-grid">
+        <article class="commercial-panel">
+          <p class="eyebrow">Team tecnici</p>
+          <h2>Integration Pack</h2>
+          <p>OpenAPI, esempi Python/JavaScript/C# e contratto di esportazione. È un’anteprima inclusa, non un acquisto.</p>
+          <a id="integrationPackButton" class="primary-button commercial-download" href="/api/commercial/integration-pack">Scarica anteprima ZIP</a>
+          <small>Il sorgente pubblico resta Apache 2.0. In futuro si potrà far pagare manutenzione, compatibilità e connettori.</small>
+        </article>
+
+        <article class="commercial-panel">
+          <p class="eyebrow">Pagamenti futuri</p>
+          <h2>Checkout disattivato</h2>
+          <div class="commercial-status off">Non attivo</div>
+          <p>Predisposizione leggera per un acquisto digitale una tantum, preferibilmente B2B.</p>
+          <ul id="paymentRules" class="commercial-list"></ul>
+          <p class="commercial-boundary">Le condizioni possono ridurre contestazioni improprie, non cancellare reclami legittimi o diritti inderogabili.</p>
+          <button class="secondary-button" type="button" disabled>Acquista — non disponibile</button>
+        </article>
+
+        <article class="commercial-panel">
+          <p class="eyebrow">Sponsor</p>
+          <h2>Spazio predisposto, spento</h2>
+          <div class="sponsor-placeholder">
+            <strong>Nessun annuncio</strong>
+            <span>Niente reti esterne, profilazione o pubblicità nelle schermate operative.</span>
+          </div>
+        </article>
+
+        <article class="commercial-panel commercial-wide">
+          <p class="eyebrow">Piani indicativi</p>
+          <h2>Una struttura minima, senza appesantire il prodotto</h2>
+          <div id="planCards" class="plan-grid"></div>
+        </article>
+      </section>
+    </div>
+  </main>
+  <script src="/commercial.js" defer></script>
+</body>
+</html>

@@ -115,6 +115,7 @@ from .services.operational import (
     build_operational_report,
     build_practice_summaries,
 )
+from .services.commercial import build_commercial_catalog, build_integration_pack
 from .services.discovery import DiscoverySettings, maybe_run_discovery, run_discovery
 from .services.intelligence import (
     assess_risk,
@@ -3090,6 +3091,39 @@ def decide_discovered_rule(
     )
     db.commit()
     return {"rule": _rule_proposal_json(proposal), "reanalyzed_chains": reanalyzed}
+
+
+@app.get("/api/commercial/catalog")
+def commercial_catalog(ctx: AuthContext = Depends(current_user)) -> dict:
+    return build_commercial_catalog()
+
+
+@app.get(
+    "/api/commercial/integration-pack",
+    response_class=Response,
+    responses={200: {"content": {"application/zip": {"schema": {"type": "string", "format": "binary"}}}}},
+)
+def commercial_integration_pack(
+    ctx: AuthContext = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> Response:
+    content = build_integration_pack(app.openapi(), RELEASE_VERSION)
+    add_audit(
+        db,
+        ctx.tenant_id,
+        "commercial.integration_pack_exported",
+        ctx.user_id,
+        "tenant",
+        ctx.tenant_id,
+        {"version": RELEASE_VERSION, "status": "preview_included"},
+    )
+    db.commit()
+    filename = f"ThisTinti-Integration-Pack-{RELEASE_VERSION}-preview.zip"
+    return Response(
+        content=content,
+        media_type="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 @app.get(

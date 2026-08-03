@@ -35,6 +35,7 @@ jobs:
         run: |
           set -euo pipefail
           node --check site/site.js
+          node --check site/project.js
           python - <<'PY'
           from html.parser import HTMLParser
           from pathlib import Path
@@ -45,6 +46,7 @@ jobs:
               'index.html', 'guide.html', 'legal.html', '404.html',
               'styles.css', 'site.js', 'config.js', 'logo.svg',
               'social-card.svg', 'robots.txt', 'sitemap.xml',
+              'project.html', 'project.css', 'project.js',
           }
           missing = sorted(name for name in required if not (site / name).is_file())
           if missing:
@@ -66,7 +68,7 @@ jobs:
                       if target:
                           self.links.append(target)
 
-          for name in ['index.html', 'guide.html', 'legal.html', '404.html']:
+          for name in ['index.html', 'guide.html', 'legal.html', '404.html', 'project.html']:
               parser = Validator()
               parser.feed((site / name).read_text(encoding='utf-8'))
               parser.close()

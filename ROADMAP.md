@@ -1,38 +1,8 @@
 # Roadmap di ThisTinti
 
-## Stato attuale — 3.4.0-alpha.7-rc.11 candidata interna Centro operativo
+## Stato attuale — 3.4.0-alpha.7-rc.12 candidata interna preparazione commerciale leggera
 
-Ultima Public Preview pubblicata e immutabile: `3.4.0-alpha.7-rc.10`, commit `fe34da4e1f7cc509f19a34573f6145dd7f720762`, build Windows `30777323794`.
-
-Completati:
-
-- Local Edition Windows installabile, aggiornabile e disinstallabile senza rimuovere i dati;
-- archivio portable, pagina pubblica, checksum e sorgente self-hosted;
-- caricamento demo, esportazione, persistenza e smoke test dopo riavvio;
-- PostgreSQL con ruoli separati, RLS e prove cross-tenant;
-- Self-Hosted Reference Edition con Docker, TLS, scanner e procedure operative;
-- CI, audit dipendenze, backup e ripristino automatici;
-- identità visiva unificata, motion accessibile e collaudo Windows;
-- messaggi di errore leggibili, orari locali e azioni contestuali;
-- documentazione legale e operativa di base;
-- gate interno beta, audit accessibilità strutturale, load probe e provenienza degli artefatti.
-- validazione numerica fail-closed, errori documentali leggibili ed evidenze apribili fino all’originale;
-- recupero persistente, rielaborazione guidata e collegamenti manuali correggibili;
-- browser E2E con API e worker reali, tastiera e reflow equivalente;
-- identità di build incorporata e verificata per ogni archivio portable.
-- diagnostica locale integrata, senza PowerShell, con verbale scaricabile e test numerico tramite il normale upload.
-- estrazione prudente di righe da PDF OCR con campi etichettati e provenienza verificabile;
-- confronto bloccante tra totale sorgente e totale ricalcolato;
-- benchmark OCR obbligatorio per scansioni sintetiche pulite e a basso contrasto;
-- workflow del pilot mantenuto interamente locale, senza contatti o messaggi automatici.
-- linguaggio operativo ripulito dagli identificatori tecnici visibili;
-- numeri, priorità di controllo, audit e attività presentati con una gerarchia più professionale;
-- nuova responsabilità di presentazione estratta dal core frontend;
-- gate contro l’ulteriore crescita dei moduli monolitici.
-- centro operativo orientato alla prossima verifica e alle pratiche raggruppate;
-- workflow supervisionato con storico delle decisioni e falsi positivi espliciti;
-- correzione dei dati estratti con provenienza, audit e rianalisi;
-- rapporto operativo veritiero e apprendimento sempre soggetto ad approvazione umana.
+RC12 mantiene il prodotto gratuito e local-first. Aggiunge soltanto una pagina amministratore per metriche pubbliche, un Integration Pack in anteprima e predisposizioni disattivate per piani, sponsor e acquisto digitale. La Public Preview pubblica corrente resta RC11.
 
 ## RC8 — collaudo direttamente nell’app
 

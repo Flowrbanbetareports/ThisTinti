@@ -3,7 +3,7 @@
   "info": {
     "title": "ThisTinti",
     "description": "Document integrity and discrepancy review platform.",
-    "version": "3.4.0-alpha.7-rc.11"
+    "version": "3.4.0-alpha.7-rc.12"
   },
   "paths": {
     "/api/health": {
@@ -3569,6 +3569,55 @@
             }
           }
         }
+      }
+    },
+    "/api/commercial/catalog": {
+      "get": {
+        "summary": "Commercial Catalog",
+        "operationId": "commercial_catalog_api_commercial_catalog_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Commercial Catalog Api Commercial Catalog Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/commercial/integration-pack": {
+      "get": {
+        "summary": "Commercial Integration Pack",
+        "operationId": "commercial_integration_pack_api_commercial_integration_pack_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/export": {
