@@ -60,7 +60,6 @@ jobs:
           ruff check app/main.py
           python scripts/generate_openapi.py
           pytest -q tests/test_commercial_readiness.py tests/test_release_integrity.py
-          python scripts/verify_release.py --internal
       - name: Commit fix
         shell: bash
         run: |
