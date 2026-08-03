@@ -13,6 +13,9 @@ on:
       - "app/static/operational-center.css"
       - "app/static/operational-learning.js"
       - "app/static/operational-learning.css"
+      - "app/static/operational-report.html"
+      - "app/static/operational-report.css"
+      - "app/static/operational-report.js"
       - "app/static/sidebar-scroll.css"
       - "app/static/sidebar-scroll.js"
       - "app/static/local-first-run.js"
@@ -56,6 +59,9 @@ on:
       - "app/static/operational-center.css"
       - "app/static/operational-learning.js"
       - "app/static/operational-learning.css"
+      - "app/static/operational-report.html"
+      - "app/static/operational-report.css"
+      - "app/static/operational-report.js"
       - "app/static/sidebar-scroll.css"
       - "app/static/sidebar-scroll.js"
       - "app/static/local-first-run.js"
@@ -116,6 +122,7 @@ jobs:
           node --check app/static/product-polish.js
           node --check app/static/operational-center.js
           node --check app/static/operational-learning.js
+          node --check app/static/operational-report.js
           node --check app/static/sidebar-scroll.js
           node --check app/static/local-first-run.js
           node --check app/static/diagnostics.js
