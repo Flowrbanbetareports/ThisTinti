@@ -1771,20 +1771,24 @@ def correct_document_line(
     supplied = payload.model_dump(exclude_none=True)
     reason = supplied.pop("reason")
     numeric_fields = {"quantity", "unit_price", "discount_rate", "line_total"}
+    component_fields = {"quantity", "unit_price", "discount_rate"}
+    component_changed = bool(component_fields & set(supplied))
     for field, value in supplied.items():
         setattr(line, field, Decimal(str(value)) if field in numeric_fields else value.strip())
-    if "line_total" not in supplied and {"quantity", "unit_price", "discount_rate"} & set(supplied):
+    if component_changed:
         base = Decimal(str(line.price_base_quantity or 1)) or Decimal("1")
         line.line_total = (
             Decimal(str(line.quantity or 0))
             * (Decimal(str(line.unit_price or 0)) / base)
             * (Decimal("1") - Decimal(str(line.discount_rate or 0)) / Decimal("100"))
-        )
+        ).quantize(Decimal("0.01"))
     provenance = raw.get("numeric_provenance")
     if not isinstance(provenance, dict):
         provenance = {}
     for field in numeric_fields & set(supplied):
         provenance[field] = "human_corrected"
+    if component_changed:
+        provenance["line_total"] = "derived_from_human_correction"
     raw["numeric_provenance"] = provenance
     raw["correction_history"] = (
         history

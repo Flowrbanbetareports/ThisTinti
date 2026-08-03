@@ -117,6 +117,11 @@
   }
 
   async function downloadReport() {
+    const popup = window.open('', '_blank', 'noopener,noreferrer');
+    if (popup) {
+      popup.document.write('<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Preparazione rapporto…</title></head><body><p>Preparazione del rapporto operativo…</p></body></html>');
+      popup.document.close();
+    }
     try {
       const report = await api('/api/operational/report');
       const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
@@ -125,15 +130,17 @@
       link.href = url;
       link.download = `ThisTinti-rapporto-operativo-${new Date().toISOString().slice(0, 10)}.json`;
       link.click();
-      URL.revokeObjectURL(url);
-      const popup = window.open('', '_blank', 'noopener,noreferrer');
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
       if (popup) {
         const metrics = report.overview?.metrics || {};
         const review = report.review || {};
         popup.document.write(`<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Rapporto operativo</title><style>body{font-family:Arial;margin:40px;color:#14202b}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.card{border:1px solid #ddd;border-radius:12px;padding:16px}.card strong{display:block;font-size:24px;margin-top:8px}@media print{button{display:none}}</style></head><body><h1>ThisTinti — Rapporto operativo</h1><div class="grid"><div class="card">Pratiche aperte<strong>${metrics.practices_to_review || 0}</strong></div><div class="card">Segnalazioni attive<strong>${metrics.active_cases || 0}</strong></div><div class="card">Valore indicativo<strong>${money(metrics.amount_indicative || 0)}</strong></div><div class="card">Confermate o risolte<strong>${review.confirmed_or_resolved || 0}</strong></div><div class="card">Falsi positivi<strong>${review.false_positive_proxy || 0}</strong></div><div class="card">Tempo medio prima decisione<strong>${review.average_minutes_to_first_decision == null ? 'Non misurato' : `${review.average_minutes_to_first_decision} min`}</strong></div></div><p>${escapeHtml(report.measurement_availability?.note || '')}</p><p><strong>${escapeHtml(report.claim_boundary || '')}</strong></p><button onclick="window.print()">Stampa / Salva PDF</button></body></html>`);
         popup.document.close();
       }
-    } catch (error) { toast(error.message, true); }
+    } catch (error) {
+      if (popup) popup.close();
+      toast(error.message, true);
+    }
   }
 
   async function enhanceCase(id) {
