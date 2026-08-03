@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Metriche pubbliche del progetto ThisTinti: download, release e stato dei workflow." />
+  <meta name="theme-color" content="#0d1720" />
+  <title>Dashboard progetto · ThisTinti</title>
+  <link rel="icon" href="logo.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="project.css" />
+</head>
+<body class="project-page">
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="ThisTinti, torna al sito"><img src="logo.svg" alt="" />ThisTinti</a>
+    <nav aria-label="Navigazione progetto"><a href="index.html">Sito</a><a href="transparency.html">Trasparenza</a><a href="project.html" aria-current="page">Progetto</a></nav>
+    <a class="header-cta" href="index.html#download">Scarica</a>
+  </header>
+
+  <main class="project-main">
+    <section class="project-hero">
+      <div>
+        <p class="eyebrow">Dashboard pubblica</p>
+        <h1>Numeri del progetto.</h1>
+        <p>Download degli asset GitHub, release e workflow. Questi dati non misurano utenti unici, installazioni attive o utilizzo dell’app.</p>
+      </div>
+      <button id="refreshProjectMetrics" class="button secondary" type="button">Aggiorna</button>
+    </section>
+
+    <aside id="projectStatus" class="project-status" aria-live="polite">Lettura dei dati pubblici GitHub…</aside>
+
+    <section class="project-metric-grid" aria-label="Metriche principali">
+      <article><span>Download prodotto</span><strong id="productDownloads">—</strong><small>installer + portable + self-hosted</small></article>
+      <article><span>Installer Windows</span><strong id="installerDownloads">—</strong><small>download asset .exe</small></article>
+      <article><span>Portable</span><strong id="portableDownloads">—</strong><small>download archivio ZIP</small></article>
+      <article><span>Self-hosted</span><strong id="selfHostedDownloads">—</strong><small>download sorgente dedicato</small></article>
+      <article><span>Stelle</span><strong id="projectStars">—</strong><small>repository pubblico</small></article>
+      <article><span>Release</span><strong id="projectReleases">—</strong><small>pubblicazioni rilevate</small></article>
+    </section>
+
+    <section class="project-layout">
+      <article class="project-panel project-wide">
+        <div class="project-heading"><div><p class="eyebrow">Counter</p><h2>Download per release</h2></div><span id="metricsUpdatedAt">—</span></div>
+        <div class="project-table-wrap">
+          <table>
+            <thead><tr><th>Versione</th><th>Installer</th><th>Portable</th><th>Self-hosted</th><th>Totale prodotto</th></tr></thead>
+            <tbody id="releaseDownloadRows"><tr><td colspan="5">Caricamento…</td></tr></tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="project-panel">
+        <p class="eyebrow">Repository</p>
+        <h2>Interesse pubblico</h2>
+        <dl class="project-definition-list">
+          <div><dt>Fork</dt><dd id="projectForks">—</dd></div>
+          <div><dt>Issue e PR aperte</dt><dd id="projectOpenItems">—</dd></div>
+          <div><dt>Osservatori</dt><dd id="projectWatchers">—</dd></div>
+          <div><dt>Asset complessivi</dt><dd id="allAssetDownloads">—</dd></div>
+        </dl>
+      </article>
+
+      <article class="project-panel project-double">
+        <p class="eyebrow">Automazione tecnica</p>
+        <h2>Workflow recenti</h2>
+        <div id="projectWorkflows" class="project-workflows"><p>Caricamento…</p></div>
+      </article>
+
+      <article class="project-panel project-wide project-boundary">
+        <p class="eyebrow">Confine dei dati</p>
+        <h2>Cosa non mostra questa dashboard</h2>
+        <p>GitHub conta richieste di download per singolo asset. Non permette di dedurre persone uniche, installazioni riuscite, computer attivi, documenti elaborati o tempo di utilizzo. ThisTinti non invia telemetria a questa pagina.</p>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <div><a class="brand footer-brand" href="index.html"><img src="logo.svg" alt="" />ThisTinti</a><p>Metriche pubbliche, senza telemetria applicativa.</p></div>
+    <div class="footer-links"><a href="index.html">Sito</a><a href="guide.html">Guida</a><a href="legal.html">Note legali</a></div>
+    <p class="footer-note">I conteggi sono forniti dalle API pubbliche GitHub e possono essere temporaneamente non disponibili o soggetti a limiti.</p>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="project.js"></script>
+</body>
+</html>
