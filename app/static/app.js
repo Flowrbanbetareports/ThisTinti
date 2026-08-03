@@ -14,6 +14,7 @@
     '/sidebar-scroll.css',
     '/local-first-run.css',
     '/product-polish.css',
+    '/operational-center.css',
   ]) {
     const style = document.createElement('link');
     style.rel = 'stylesheet';
@@ -33,6 +34,7 @@
   loadScript('/app-core.js')
     .then(() => loadScript('/onboarding.js'))
     .then(() => loadScript('/product-polish.js'))
+    .then(() => loadScript('/operational-center.js'))
     .then(() => loadScript('/sidebar-scroll.js'))
     .then(() => loadScript('/local-first-run.js'))
     .then(() => loadScript('/diagnostics-link.js'))

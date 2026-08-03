@@ -255,6 +255,36 @@ class ChainIntelligenceResponse(BaseModel):
     learning: dict[str, Any]
 
 
+class DocumentLineCorrectionRequest(BaseModel):
+    quantity: float | None = None
+    unit_price: float | None = Field(default=None, ge=0)
+    discount_rate: float | None = Field(default=None, ge=0, le=100)
+    line_total: float | None = Field(default=None, ge=0)
+    sku: str | None = Field(default=None, max_length=280)
+    description: str | None = Field(default=None, max_length=2000)
+    color: str | None = Field(default=None, max_length=120)
+    size: str | None = Field(default=None, max_length=120)
+    lot: str | None = Field(default=None, max_length=120)
+    reason: str = Field(min_length=3, max_length=1000)
+
+    @model_validator(mode="after")
+    def require_change(self):
+        values = (
+            self.quantity,
+            self.unit_price,
+            self.discount_rate,
+            self.line_total,
+            self.sku,
+            self.description,
+            self.color,
+            self.size,
+            self.lot,
+        )
+        if all(value is None for value in values):
+            raise ValueError("At least one extracted field must be corrected")
+        return self
+
+
 class ReviewRequest(BaseModel):
     decision: Literal["confirmed", "dismissed", "needs_review", "resolved"]
     note: str | None = Field(default=None, max_length=2000)

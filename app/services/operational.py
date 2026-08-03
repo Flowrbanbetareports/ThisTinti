@@ -187,10 +187,7 @@ def build_operational_overview(db: Session, tenant_id: str) -> dict:
         or 0
     )
     last_event = db.scalar(
-        select(AuditEvent)
-        .where(AuditEvent.tenant_id == tenant_id)
-        .order_by(AuditEvent.sequence_no.desc())
-        .limit(1)
+        select(AuditEvent).where(AuditEvent.tenant_id == tenant_id).order_by(AuditEvent.sequence_no.desc()).limit(1)
     )
     raw_amount = sum((Decimal(str(item["amount_estimate"])) for item in active_cases), Decimal("0"))
     return {
