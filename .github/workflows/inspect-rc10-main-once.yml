@@ -1,4 +1,4 @@
-name: Inspect RC10 Main Once
+name: Inspect RC10 Publication Once
 
 on:
   push:
@@ -20,17 +20,16 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
         with:
           ref: agent/inspect-rc10-main
-      - name: Capture compact current main workflow state
+      - name: Capture compact RC10 publication state
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p builds
-          MAIN_SHA="$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)"
-          gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$MAIN_SHA&per_page=30" \
-            --jq '{main_sha: "'"$MAIN_SHA"'", runs: [.workflow_runs[] | select(.event != "dynamic") | {id, name, status, conclusion, run_number, event}]}' \
-            > builds/rc10-main-compact.json
+          gh api "repos/$GITHUB_REPOSITORY/actions/workflows/publish-public-preview.yml/runs?per_page=10" \
+            --jq '{runs: [.workflow_runs[] | {id, name, head_sha, status, conclusion, run_number, event, display_title}]}' \
+            > builds/rc10-publication-compact.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add builds/rc10-main-compact.json
-          git commit -m "Capture compact RC10 main workflow state"
+          git add builds/rc10-publication-compact.json
+          git commit -m "Capture compact RC10 publication state"
           git push origin HEAD:agent/inspect-rc10-main
