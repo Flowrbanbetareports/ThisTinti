@@ -1,0 +1,71 @@
+name: Apply RC11 Quality on PR
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - scripts/apply_rc11_quality.py
+      - scripts/check_operational_center_browser.py
+      - app/static/operational-learning.js
+      - app/static/operational-learning.css
+      - tests/test_rules_presentation.py
+      - .github/workflows/apply-rc11-quality-on-pr.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rc11-quality-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          ref: agent/rc11-operational-center
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Apply source formatting, loader and browser-gate changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/apply_rc11_quality.py
+          python -m pip install -r requirements-dev.txt
+          pip install playwright==1.55.0
+          python -m playwright install chromium
+          python -m ruff format app/services/rules.py tests/test_rules_presentation.py scripts/check_operational_center_browser.py
+          python -m ruff check app/services/rules.py tests/test_rules_presentation.py scripts/check_operational_center_browser.py
+          node --check app/static/operational-center.js
+          node --check app/static/operational-learning.js
+          python -m pytest -q tests/test_rules_presentation.py tests/test_operational_center.py tests/test_operational_center_assets.py
+          python scripts/check_operational_center_browser.py
+          git diff --check
+      - name: Commit tested quality changes and remove one-time helpers
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm scripts/apply_rc11_quality.py .github/workflows/apply-rc11-quality-on-pr.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            app/services/rules.py \
+            app/static/app.js \
+            app/static/operational-learning.js \
+            app/static/operational-learning.css \
+            .github/workflows/simplified-experience.yml \
+            scripts/check_operational-center-browser.py \
+            scripts/check_operational_center_browser.py \
+            tests/test_rules_presentation.py
+          git reset scripts/check_operational-center-browser.py 2>/dev/null || true
+          git commit -m "Complete the RC11 operational quality layer"
+          git push origin HEAD:agent/rc11-operational-center
