@@ -8,7 +8,7 @@
 
 ## Stato attuale
 
-ThisTinti è in preparazione come `3.4.0-alpha.7-rc.8`. La base tecnica include:
+ThisTinti è in preparazione interna come `3.4.0-alpha.7-rc.9`, non ancora pubblicata. L’ultima Public Preview resta `3.4.0-alpha.7-rc.8`. La base tecnica include:
 
 - test applicativi e copertura minima del 90%;
 - migrazioni reversibili;
@@ -31,6 +31,9 @@ ThisTinti è in preparazione come `3.4.0-alpha.7-rc.8`. La base tecnica include:
 - identità di build incorporata in ogni archivio portable e verificata insieme alla provenienza del candidato;
 - protocollo di pilot senza telemetria per misurare comprensione e completamento del primo percorso.
 - diagnostica locale in-app con esiti non ambigui, test numerico reale e verbale JSON scaricabile.
+- estrazione OCR prudente di righe etichettate, con valori numerici fail-closed e confronto dei totali;
+- gate sintetico bloccante su scansioni pulite e a basso contrasto;
+- toolkit pilot locale senza comunicazioni o azioni esterne automatiche.
 
 ## Gate interni
 

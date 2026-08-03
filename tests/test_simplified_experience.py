@@ -89,7 +89,7 @@ def test_frontend_assets_are_versioned_and_browser_layout_check_is_present():
     loader = read("app.js")
     browser_check = ROOT / "scripts" / "check_sidebar_browser.py"
     workflow = (ROOT / ".github" / "workflows" / "simplified-experience.yml").read_text(encoding="utf-8")
-    assert "UI_VERSION = '3.4.0-alpha.7-rc.8'" in loader
+    assert "UI_VERSION = '3.4.0-alpha.7-rc.9'" in loader
     assert "versioned(href)" in loader
     assert "versioned(src)" in loader
     assert browser_check.is_file()

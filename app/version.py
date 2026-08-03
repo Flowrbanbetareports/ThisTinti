@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 
 # Public artifacts must be built from the final clean commit on main.
-RELEASE_VERSION = "3.4.0-alpha.7-rc.8"
+RELEASE_VERSION = "3.4.0-alpha.7-rc.9"
 
 
 def to_python_package_version(release_version: str) -> str:

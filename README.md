@@ -6,7 +6,9 @@ ThisTinti non decide, non approva e non certifica nulla. Organizza informazioni 
 
 ## Stato del rilascio
 
-Versione: **3.4.0-alpha.7-rc.8 — Public Preview con diagnostica locale integrata**.
+Versione di sviluppo: **3.4.0-alpha.7-rc.9 — candidata interna non pubblicata**.
+
+Ultima versione pubblica immutabile: **3.4.0-alpha.7-rc.8 — Public Preview**. La candidata interna aggiunge estrazione prudente delle righe da PDF OCR etichettati, controllo tra totale sorgente e totale ricalcolato e workflow pilot esclusivamente locale.
 
 Questa preview conserva il motore documentale esistente e offre due distribuzioni gratuite: una Local Edition per singola postazione e una Self-Hosted Reference Edition con PostgreSQL, worker scalabili, TLS, scanner malware e strumenti operativi per team tecnici.
 
