@@ -33,9 +33,9 @@ def build_document() -> str:
   <div class="metric-grid"></div><div class="dashboard-grid"></div><div class="panel"></div>
 </section>
 <section id="casesView" class="hidden"><div class="table-panel"><table><tbody id="casesTable"></tbody></table></div></section>
-<div id="caseDialogBody"></div><dialog id="caseDialog"></dialog>
-<div id="chainDialogBody"></div><dialog id="chainDialog"></dialog>
-<div id="documentDialogBody"><div class="lines-table"><table><thead><tr><th>Riga</th></tr></thead><tbody><tr data-line-id="line-1"><td>1</td><td>GIACCA-145</td><td>Giacca</td><td>120</td><td>43</td><td>0%</td></tr></tbody></table></div></div><dialog id="documentDialog"></dialog>
+<dialog id="caseDialog"><div id="caseDialogBody"></div></dialog>
+<dialog id="chainDialog"><div id="chainDialogBody"></div></dialog>
+<dialog id="documentDialog"><div id="documentDialogBody"><div class="lines-table"><table><thead><tr><th>Riga</th></tr></thead><tbody><tr data-line-id="line-1"><td>1</td><td>GIACCA-145</td><td>Giacca</td><td>120</td><td>43</td><td>0%</td></tr></tbody></table></div></div></dialog>
 <script>
 const state = {{
   user: {{ role: 'admin' }},
@@ -104,7 +104,9 @@ def main() -> None:
             })"""
         )
 
-        page.evaluate("window.openCase('case-1')")
+        page.evaluate(
+            "async () => { await window.openCase('case-1'); document.querySelector('#caseDialog').showModal(); }"
+        )
         page.wait_for_selector(".case-operational-summary")
         case_view = page.evaluate(
             """() => ({
@@ -115,7 +117,9 @@ def main() -> None:
             })"""
         )
 
-        page.evaluate("window.openDocument('doc-1')")
+        page.evaluate(
+            "async () => { await window.openDocument('doc-1'); document.querySelector('#documentDialog').showModal(); }"
+        )
         page.wait_for_selector(".correct-line-button")
         page.click(".correct-line-button")
         page.fill("#lineCorrectionQuantity", "114")
@@ -156,8 +160,12 @@ def main() -> None:
     if correction != expected_correction:
         failures["correction"] = correction
     if failures:
-        raise SystemExit(json.dumps({"failures": failures, "dashboard": dashboard, "case": case_view}, ensure_ascii=False, indent=2))
-    print(json.dumps({"dashboard": dashboard, "case": case_view, "correction": correction}, ensure_ascii=False, indent=2))
+        raise SystemExit(
+            json.dumps({"failures": failures, "dashboard": dashboard, "case": case_view}, ensure_ascii=False, indent=2)
+        )
+    print(
+        json.dumps({"dashboard": dashboard, "case": case_view, "correction": correction}, ensure_ascii=False, indent=2)
+    )
 
 
 if __name__ == "__main__":
