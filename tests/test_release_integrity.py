@@ -354,16 +354,18 @@ def test_release_workflows_enforce_gates_and_immutable_publication():
     windows_latest = json.loads((ROOT / "builds" / "windows-latest.json").read_text(encoding="utf-8"))
     request_version = Version(to_python_package_version(request["version"]))
     published_version = Version(to_python_package_version(release["version"]))
+    current_version = Version(PYTHON_PACKAGE_VERSION)
 
     assert request["schema"] == "thistinti.public-preview-request.v1"
-    assert request_version == Version(PYTHON_PACKAGE_VERSION)
-    assert published_version <= request_version
-    assert windows_latest["version"] == request["version"]
-    assert windows_latest["source"]["commit"] == request["target_sha"]
-    assert windows_latest["build"]["run_id"] == int(request["windows_run_id"])
-    if published_version == request_version:
+    assert published_version <= request_version <= current_version
+    if request_version == published_version:
         assert request["target_sha"] == release["release_commit"]
         assert int(request["windows_run_id"]) == release["build"]["workflow_run"]
+    else:
+        assert request_version == current_version
+        assert windows_latest["version"] == request["version"]
+        assert windows_latest["source"]["commit"] == request["target_sha"]
+        assert windows_latest["build"]["run_id"] == int(request["windows_run_id"])
     assert re.fullmatch(r"[0-9a-f]{40}", request["target_sha"])
     assert re.fullmatch(r"[0-9]+", request["windows_run_id"])
 

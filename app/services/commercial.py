@@ -91,7 +91,7 @@ def build_commercial_catalog() -> dict[str, Any]:
 
 
 def build_integration_pack(openapi_schema: dict[str, Any], release_version: str) -> bytes:
-    python_client = '''# Minimal ThisTinti client example.
+    python_client = """# Minimal ThisTinti client example.
 # Configure the base URL and API credential locally.
 
 import json
@@ -108,8 +108,8 @@ def get_operational_report():
     )
     with urllib.request.urlopen(request, timeout=15) as response:
         return json.loads(response.read().decode("utf-8"))
-'''
-    javascript_client = '''const baseUrl = 'http://127.0.0.1:8000';
+"""
+    javascript_client = """const baseUrl = 'http://127.0.0.1:8000';
 const apiToken = 'replace-with-local-api-credential';
 
 export async function getOperationalReport() {
@@ -119,8 +119,8 @@ export async function getOperationalReport() {
   if (!response.ok) throw new Error(`ThisTinti API ${response.status}`);
   return response.json();
 }
-'''
-    csharp_client = '''using System.Net.Http.Headers;
+"""
+    csharp_client = """using System.Net.Http.Headers;
 using System.Text.Json;
 
 using var client = new HttpClient { BaseAddress = new Uri("http://127.0.0.1:8000") };
@@ -129,7 +129,7 @@ client.DefaultRequestHeaders.Authorization =
 var json = await client.GetStringAsync("/api/operational/report");
 using var report = JsonDocument.Parse(json);
 Console.WriteLine(report.RootElement.GetProperty("schema"));
-'''
+"""
     readme = f"""# ThisTinti Integration Pack — preview
 
 Versione applicativa: `{release_version}`.

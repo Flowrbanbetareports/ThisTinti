@@ -22,10 +22,19 @@ def main() -> None:
             require(project_link.is_visible(), "Admin project link is missing")
             page.goto(f"{app.base_url}/commercial.html")
             page.wait_for_selector("#commercialContent:not(.hidden)", timeout=20_000)
-            require(page.get_by_role("heading", name="Progetto e piani").is_visible(), "Project page heading is missing")
-            require(page.get_by_text("Checkout disattivato", exact=True).is_visible(), "Disabled checkout boundary is missing")
-            require(page.get_by_text("Nessun annuncio", exact=True).is_visible(), "Disabled sponsor boundary is missing")
-            require(page.get_by_role("button", name="Acquista — non disponibile").is_disabled(), "Checkout became active")
+            require(
+                page.get_by_role("heading", name="Progetto e piani").is_visible(), "Project page heading is missing"
+            )
+            require(
+                page.get_by_text("Checkout disattivato", exact=True).is_visible(),
+                "Disabled checkout boundary is missing",
+            )
+            require(
+                page.get_by_text("Nessun annuncio", exact=True).is_visible(), "Disabled sponsor boundary is missing"
+            )
+            require(
+                page.get_by_role("button", name="Acquista — non disponibile").is_disabled(), "Checkout became active"
+            )
             require(
                 page.get_by_role("link", name="Apri dashboard progetto").get_attribute("href")
                 == "https://flowrbanbetareports.github.io/ThisTinti/project.html",

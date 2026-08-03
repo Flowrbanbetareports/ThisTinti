@@ -1,3 +1,15 @@
+# 3.4.0-alpha.7-rc.12 — preparazione commerciale leggera (candidata interna)
+
+- nuova pagina amministratore “Progetto e piani”, separata dal lavoro documentale quotidiano;
+- contatore dei download pubblici GitHub per installer, portable e self-hosted, dichiarato esplicitamente distinto da utenti e installazioni attive;
+- riepilogo di release, stelle, fork, issue/PR e workflow pubblici richiesto soltanto quando l’amministratore apre o aggiorna la pagina;
+- Integration Pack in anteprima con OpenAPI, esempi Python, JavaScript e C# e contratto tecnico di esportazione;
+- catalogo minimo Free / Integration Pack / Enterprise senza prezzi o checkout attivi;
+- spazio sponsor esclusivamente dimostrativo, privo di reti esterne, profilazione e inserzioni nelle schermate operative;
+- politica di acquisto digitale futura predisposta senza rinunce assolute a reclami legittimi o diritti inderogabili;
+- nessuna telemetria, nessun documento o dato utente inviato all’autore;
+- RC11 resta la Public Preview immutabile finché RC12 non supera i gate e viene pubblicata separatamente.
+
 # 3.4.0-alpha.7-rc.11 — centro operativo e revisione supervisionata (candidata interna)
 
 - la home indica cosa controllare adesso e propone la prossima verifica in base a gravità, stato, valore indicativo e data;
