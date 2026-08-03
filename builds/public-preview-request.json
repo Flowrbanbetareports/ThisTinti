@@ -1,9 +1,9 @@
 {
   "schema": "thistinti.public-preview-request.v1",
-  "version": "3.4.0-alpha.7-rc.11",
-  "target_sha": "9cacfac9e995196da530dd42f08b64617f12b6d3",
-  "windows_run_id": "30785715753",
+  "version": "3.4.0-alpha.7-rc.12",
+  "target_sha": "de4df8a96394b088e434c870971a193b5538d78d",
+  "windows_run_id": "30826987458",
   "requested_as": "Public Preview alpha/RC",
-  "request_id": "rc11-operational-center-publication-1",
-  "note": "Publish the exact verified RC11 operational-center candidate as a Public Preview prerelease. Preserve immutable RC10 assets and require exact-source CI, live Chromium, PostgreSQL, self-hosted, Windows lifecycle, checksums, provenance and attestations."
+  "request_id": "rc12-light-commercial-readiness-publication-1",
+  "note": "Publish the exact verified RC12 light-commercial-readiness candidate as a Public Preview prerelease. Preserve immutable RC11 assets and require exact-source CI, live Chromium, PostgreSQL, self-hosted, Windows lifecycle, checksums, provenance and attestations. Checkout, advertising, telemetry and managed services remain disabled."
 }
