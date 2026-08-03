@@ -1,9 +1,9 @@
 {
   "schema": "thistinti.public-preview-request.v1",
-  "version": "3.4.0-alpha.7-rc.9",
-  "target_sha": "a656917cc59866980627ba6da9956166f511c69d",
-  "windows_run_id": "30774096670",
+  "version": "3.4.0-alpha.7-rc.10",
+  "target_sha": "fe34da4e1f7cc509f19a34573f6145dd7f720762",
+  "windows_run_id": "30777323794",
   "requested_as": "Public Preview alpha/RC",
-  "request_id": "rc9-publication-1",
-  "note": "Publish the exact verified RC9 Windows candidate as a Public Preview prerelease without replacing any earlier immutable release assets."
+  "request_id": "rc10-product-quality-publication-1",
+  "note": "Publish the exact verified RC10 product-quality candidate as a Public Preview prerelease. Preserve the immutable RC9 release and require exact-source CI, browser, PostgreSQL, self-hosted, Windows lifecycle, checksums and provenance gates."
 }
