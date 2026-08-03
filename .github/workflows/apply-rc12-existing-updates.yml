@@ -5,6 +5,10 @@ on:
     branches: [agent/rc12-light-commercial-readiness]
     paths:
       - ".github/workflows/apply-rc12-existing-updates.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/apply-rc12-existing-updates.yml"
 
 permissions:
   contents: write
