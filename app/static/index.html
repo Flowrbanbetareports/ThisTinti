@@ -69,14 +69,14 @@
     <aside class="sidebar">
       <div class="sidebar-brand"><div class="brand-mark small">T</div><strong>ThisTinti</strong></div>
       <nav id="mainNav" class="nav-list" aria-label="Navigazione principale">
-        <button class="active" data-view="dashboard" type="button"><span>◫</span> Panoramica</button>
+        <button class="active" data-view="dashboard" type="button"><span>⌂</span> Inizio</button>
         <button data-view="documents" type="button"><span>▤</span> Documenti</button>
-        <button data-view="chains" type="button"><span>⌘</span> Catene</button>
-        <button data-view="cases" type="button"><span>△</span> Anomalie</button>
+        <button data-view="chains" type="button"><span>⌘</span> Collegamenti</button>
+        <button data-view="cases" type="button"><span>△</span> Da controllare</button>
         <button data-view="jobs" type="button"><span>↻</span> Attività</button>
-        <button data-view="discovery" type="button"><span>✦</span> Regole proposte</button>
-        <button data-view="validation" type="button"><span>✓</span> Validation Lab</button>
-        <button data-view="audit" data-admin-only type="button"><span>◎</span> Audit</button>
+        <button data-view="discovery" type="button"><span>✦</span> Controlli proposti</button>
+        <button data-view="validation" type="button"><span>✓</span> Qualità del motore</button>
+        <button data-view="audit" data-admin-only type="button"><span>◎</span> Registro attività</button>
         <button data-view="users" data-admin-only type="button"><span>◇</span> Utenti</button>
       </nav>
       <div class="sidebar-footer">
@@ -90,7 +90,7 @@
       <header class="topbar">
         <div>
           <p class="eyebrow" id="pageEyebrow">Controllo documentale</p>
-          <h2 id="pageTitle">Panoramica</h2>
+          <h2 id="pageTitle">Inizio</h2>
         </div>
         <div class="topbar-actions">
           <button id="exportButton" class="secondary-button" data-admin-only type="button">Esporta</button>
@@ -103,9 +103,9 @@
       <div id="dashboardView" class="view-panel">
         <section class="metric-grid">
           <article class="metric-card"><p>Documenti</p><strong id="metricDocuments">0</strong><small>archiviati e analizzati</small></article>
-          <article class="metric-card"><p>Anomalie aperte</p><strong id="metricCases">0</strong><small><span id="metricCriticalCases">0</span> critiche da trattare per prime</small></article>
-          <article class="metric-card"><p>Catene operative</p><strong id="metricChains">0</strong><small>documenti collegati</small></article>
-          <article class="metric-card"><p>Importo potenziale</p><strong id="metricAmount">€0</strong><small>non è un importo garantito</small></article>
+          <article class="metric-card"><p>Da controllare</p><strong id="metricCases">0</strong><small><span id="metricCriticalCases">0</span> critiche da trattare per prime</small></article>
+          <article class="metric-card"><p>Collegamenti</p><strong id="metricChains">0</strong><small>documenti collegati</small></article>
+          <article class="metric-card"><p>Valore da verificare</p><strong id="metricAmount">€0</strong><small>non è un importo garantito</small></article>
         </section>
         <section class="dashboard-grid">
           <article class="panel">
@@ -136,21 +136,21 @@
 
       <div id="documentsView" class="view-panel hidden">
         <section class="panel table-panel">
-          <div class="panel-heading"><div><h3>Documenti</h3><p>XML/P7M, JSON, CSV, XLSX e PDF testuali.</p></div><div class="filter-row"><select id="documentTypeFilter" aria-label="Filtra documenti per tipo"><option value="">Tutti i tipi</option><option value="proposal">Proposte</option><option value="order">Ordini</option><option value="confirmation">Conferme</option><option value="delivery">Consegne</option><option value="invoice">Fatture</option><option value="payment">Pagamenti</option><option value="return">Resi</option><option value="credit_note">Note di credito</option></select><select id="documentStatusFilter" aria-label="Filtra documenti per stato"><option value="">Tutti gli stati</option><option value="parsed">Letti</option><option value="review_required">Da rivedere</option><option value="failed">Falliti</option></select></div></div>
+          <div class="panel-heading"><div><h3>Documenti</h3><p>XML/P7M, JSON, CSV, XLSX, PDF testuali e scansioni assistite.</p></div><div class="filter-row"><select id="documentTypeFilter" aria-label="Filtra documenti per tipo"><option value="">Tutti i tipi</option><option value="proposal">Proposte</option><option value="order">Ordini</option><option value="confirmation">Conferme</option><option value="delivery">Consegne</option><option value="invoice">Fatture</option><option value="payment">Pagamenti</option><option value="return">Resi</option><option value="credit_note">Note di credito</option></select><select id="documentStatusFilter" aria-label="Filtra documenti per stato"><option value="">Tutti gli stati</option><option value="parsed">Letti</option><option value="review_required">Da rivedere</option><option value="failed">Falliti</option></select></div></div>
           <div class="table-wrap"><table><thead><tr><th>Documento</th><th>Fornitore</th><th>Tipo</th><th>Righe</th><th>Confidenza</th><th>Stato</th></tr></thead><tbody id="documentsTable"></tbody></table></div>
         </section>
       </div>
 
       <div id="chainsView" class="view-panel hidden">
         <section class="panel table-panel">
-          <div class="panel-heading"><div><h3>Catene operative</h3><p>Collegamenti tra documenti della stessa operazione.</p></div></div>
+          <div class="panel-heading"><div><h3>Collegamenti</h3><p>Documenti che appartengono o potrebbero appartenere alla stessa operazione.</p></div></div>
           <div class="table-wrap"><table><thead><tr><th>Riferimento</th><th>Proposta</th><th>Ordine</th><th>Consegna</th><th>Fattura</th><th>Pagamento</th><th>Reso</th><th>Nota credito</th><th>Stato</th></tr></thead><tbody id="chainsTable"></tbody></table></div>
         </section>
       </div>
 
       <div id="casesView" class="view-panel hidden">
         <section class="panel table-panel">
-          <div class="panel-heading"><div><div class="heading-title-row"><h3>Anomalie</h3><span id="criticalCaseCount" class="badge critical" aria-live="polite">0 critiche aperte</span></div><p>Ogni caso include origine, prova e livello di affidabilità.</p></div><div class="filter-row"><select id="caseStatusFilter" aria-label="Filtra anomalie per stato"><option value="">Tutti gli stati</option><option value="open">Aperte</option><option value="needs_review">Da rivedere</option><option value="confirmed">Confermate</option><option value="dismissed">Scartate</option><option value="resolved">Risolte</option></select><select id="caseSeverityFilter" aria-label="Filtra anomalie per gravità"><option value="">Tutte le gravità</option><option value="critical">Critica</option><option value="high">Alta</option><option value="medium">Media</option><option value="low">Bassa</option></select></div></div>
+          <div class="panel-heading"><div><div class="heading-title-row"><h3>Da controllare</h3><span id="criticalCaseCount" class="badge critical" aria-live="polite">0 critiche aperte</span></div><p>Ogni caso include origine, prova e livello di affidabilità.</p></div><div class="filter-row"><select id="caseStatusFilter" aria-label="Filtra anomalie per stato"><option value="">Tutti gli stati</option><option value="open">Aperte</option><option value="needs_review">Da rivedere</option><option value="confirmed">Confermate</option><option value="dismissed">Scartate</option><option value="resolved">Risolte</option></select><select id="caseSeverityFilter" aria-label="Filtra anomalie per gravità"><option value="">Tutte le gravità</option><option value="critical">Critica</option><option value="high">Alta</option><option value="medium">Media</option><option value="low">Bassa</option></select></div></div>
           <div class="table-wrap"><table><thead><tr><th>Caso</th><th>Gravità</th><th>Importo</th><th>Confidenza</th><th>Stato</th></tr></thead><tbody id="casesTable"></tbody></table></div>
         </section>
       </div>
@@ -189,7 +189,7 @@
           <div id="discoveryFields" class="detail-grid"></div>
         </section>
         <section class="panel table-panel">
-          <div class="panel-heading"><div><h3>Regole proposte</h3><p>Lo stato deriva da soglie configurabili. Le regole possono essere controllate, confermate o disattivate.</p></div></div>
+          <div class="panel-heading"><div><h3>Controlli proposti</h3><p>Controlli spiegabili che possono essere verificati, confermati, rifiutati o disattivati.</p></div></div>
           <div class="table-wrap"><table><thead><tr><th>Regola</th><th>Motivo</th><th>Confidenza</th><th>Stato</th><th></th></tr></thead><tbody id="discoveryRulesTable"></tbody></table></div>
         </section>
       </div>
@@ -197,10 +197,10 @@
 
       <div id="validationView" class="view-panel hidden">
         <section class="metric-grid">
-          <article class="metric-card"><p>Precisione</p><strong id="validationPrecision">—</strong><small>segnalazioni corrette</small></article>
-          <article class="metric-card"><p>Recall</p><strong id="validationRecall">—</strong><small>anomalie attese trovate</small></article>
-          <article class="metric-card"><p>F1</p><strong id="validationF1">—</strong><small>equilibrio complessivo</small></article>
-          <article class="metric-card"><p>Gate rilascio</p><strong id="validationGate">—</strong><small id="validationGateNote">nessuna esecuzione</small></article>
+          <article class="metric-card"><p>Segnalazioni corrette</p><strong id="validationPrecision">—</strong><small>segnalazioni corrette</small></article>
+          <article class="metric-card"><p>Anomalie trovate</p><strong id="validationRecall">—</strong><small>anomalie attese trovate</small></article>
+          <article class="metric-card"><p>Equilibrio complessivo</p><strong id="validationF1">—</strong><small>equilibrio complessivo</small></article>
+          <article class="metric-card"><p>Controllo rilascio</p><strong id="validationGate">—</strong><small id="validationGateNote">nessuna esecuzione</small></article>
         </section>
         <section class="panel table-panel">
           <div class="panel-heading"><div><h3>Suite di validazione</h3><p>Scenari versionati con risultati attesi e soglie di rilascio.</p></div><div class="filter-row"><button id="loadDefaultValidationButton" class="secondary-button" data-admin-only type="button">Carica suite base</button><button id="openValidationDatasetButton" class="primary-button compact" data-admin-only type="button">＋ Nuova suite</button></div></div>
@@ -214,7 +214,7 @@
 
       <div id="auditView" class="view-panel hidden">
         <section class="panel table-panel">
-          <div class="panel-heading"><div><h3>Audit log</h3><p>Azioni e modifiche registrate in ordine cronologico.</p></div></div>
+          <div class="panel-heading"><div><h3>Registro attività</h3><p>Azioni e modifiche registrate in ordine cronologico, con dettagli tecnici richiudibili.</p></div></div>
           <div class="table-wrap"><table><thead><tr><th>Data</th><th>Azione</th><th>Entità</th><th>Dettagli</th></tr></thead><tbody id="auditTable"></tbody></table></div>
         </section>
       </div>

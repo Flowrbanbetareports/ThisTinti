@@ -8,7 +8,7 @@
 
 ## Stato attuale
 
-ThisTinti è in preparazione interna come `3.4.0-alpha.7-rc.9`, non ancora pubblicata. L’ultima Public Preview resta `3.4.0-alpha.7-rc.8`. La base tecnica include:
+ThisTinti è in preparazione interna come `3.4.0-alpha.7-rc.10`. L’ultima Public Preview pubblicata e immutabile è `3.4.0-alpha.7-rc.9`. La base tecnica include:
 
 - test applicativi e copertura minima del 90%;
 - migrazioni reversibili;
@@ -34,6 +34,9 @@ ThisTinti è in preparazione interna come `3.4.0-alpha.7-rc.9`, non ancora pubbl
 - estrazione OCR prudente di righe etichettate, con valori numerici fail-closed e confronto dei totali;
 - gate sintetico bloccante su scansioni pulite e a basso contrasto;
 - toolkit pilot locale senza comunicazioni o azioni esterne automatiche.
+- terminologia operativa, numeri e priorità ripuliti senza alterare i dati o le decisioni umane;
+- controllo Chromium dedicato alla qualità percepita e alla gerarchia dell’interfaccia;
+- gate di dimensione per impedire ulteriore crescita dei moduli principali.
 
 ## Gate interni
 
