@@ -3100,7 +3100,8 @@ def commercial_catalog(ctx: AuthContext = Depends(current_user)) -> dict:
 
 @app.get(
     "/api/commercial/integration-pack",
-    responses={200: {"content": {"application/zip": {}}}},
+    response_class=Response,
+    responses={200: {"content": {"application/zip": {"schema": {"type": "string", "format": "binary"}}}}},
 )
 def commercial_integration_pack(
     ctx: AuthContext = Depends(require_admin),
