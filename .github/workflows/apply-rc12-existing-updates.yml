@@ -64,10 +64,10 @@ jobs:
             tests/test_release_integrity.py \
             tests/test_rebrand.py \
             tests/test_simplified_experience.py
-      - name: Remove one-shot migration files
+      - name: Keep workflow mutations for the repository connector
         run: |
+          git checkout -- .github/workflows/pages.yml .github/workflows/simplified-experience.yml
           rm scripts/apply_rc12_existing_updates.py
-          rm .github/workflows/apply-rc12-existing-updates.yml
       - name: Commit integrated candidate
         shell: bash
         run: |
