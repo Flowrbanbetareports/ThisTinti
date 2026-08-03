@@ -350,8 +350,12 @@ def test_release_workflows_enforce_gates_and_immutable_publication():
     assert "if: env.RELEASE_ALREADY_EXISTS != 'true'" in publish
 
     request = json.loads((ROOT / "builds" / "public-preview-request.json").read_text(encoding="utf-8"))
+    release = json.loads((ROOT / "builds" / "release-latest.json").read_text(encoding="utf-8"))
     assert request["schema"] == "thistinti.public-preview-request.v1"
-    assert request["version"] == RELEASE_VERSION
+    assert request["version"] == release["version"]
+    assert request["target_sha"] == release["release_commit"]
+    assert int(request["windows_run_id"]) == release["build"]["workflow_run"]
+    assert Version(to_python_package_version(request["version"])) <= Version(PYTHON_PACKAGE_VERSION)
     assert re.fullmatch(r"[0-9a-f]{40}", request["target_sha"])
     assert re.fullmatch(r"[0-9]+", request["windows_run_id"])
 
