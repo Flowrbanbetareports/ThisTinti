@@ -66,6 +66,6 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app/main.py OPENAPI.json
+          git add app/main.py docs/openapi.json
           git commit -m "Describe Integration Pack binary response"
           git push origin HEAD:agent/rc12-light-commercial-readiness
