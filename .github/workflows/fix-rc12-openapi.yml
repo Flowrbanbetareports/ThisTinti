@@ -1,0 +1,72 @@
+name: Fix RC12 Integration Pack OpenAPI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/fix-rc12-openapi.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fix-rc12-openapi
+  cancel-in-progress: false
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          ref: agent/rc12-light-commercial-readiness
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Describe binary Integration Pack response
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("app/main.py")
+          text = path.read_text(encoding="utf-8")
+          old = '''@app.get(
+              "/api/commercial/integration-pack",
+              responses={200: {"content": {"application/zip": {}}}},
+          )'''
+          new = '''@app.get(
+              "/api/commercial/integration-pack",
+              response_class=Response,
+              responses={
+                  200: {
+                      "content": {
+                          "application/zip": {
+                              "schema": {"type": "string", "format": "binary"}
+                          }
+                      }
+                  }
+              },
+          )'''
+          if text.count(old) != 1:
+              raise SystemExit(f"Expected one Integration Pack route marker, found {text.count(old)}")
+          path.write_text(text.replace(old, new, 1), encoding="utf-8")
+      - name: Regenerate and verify contracts
+        run: |
+          ruff format app/main.py
+          ruff check app/main.py
+          python scripts/generate_openapi.py
+          pytest -q tests/test_commercial_readiness.py tests/test_release_integrity.py
+          python scripts/verify_release.py --internal
+      - name: Commit fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/main.py OPENAPI.json
+          git commit -m "Describe Integration Pack binary response"
+          git push origin HEAD:agent/rc12-light-commercial-readiness
