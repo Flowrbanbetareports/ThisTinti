@@ -1,0 +1,289 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+
+def patch_main() -> None:
+    path = Path("app/main.py")
+    text = path.read_text(encoding="utf-8")
+    if "from decimal import Decimal\n" not in text:
+        text = text.replace(
+            "from collections import defaultdict, deque\n",
+            "from collections import defaultdict, deque\nfrom decimal import Decimal\n",
+            1,
+        )
+    if "    DocumentLineCorrectionRequest,\n" not in text:
+        text = text.replace(
+            "    DiscoveryRunRequest,\n",
+            "    DiscoveryRunRequest,\n    DocumentLineCorrectionRequest,\n",
+            1,
+        )
+    if "from .services.operational import" not in text:
+        text = text.replace(
+            "from .services.numeric_fields import numeric_or_none, numeric_provenance\n",
+            "from .services.numeric_fields import numeric_or_none, numeric_provenance\n"
+            "from .services.operational import (\n"
+            "    build_case_history,\n"
+            "    build_learning_suggestions,\n"
+            "    build_operational_overview,\n"
+            "    build_operational_report,\n"
+            "    build_practice_summaries,\n"
+            ")\n",
+            1,
+        )
+
+    if '@app.get("/api/operational/overview")' not in text:
+        marker = '@app.get("/api/dashboard", response_model=DashboardResponse)\n'
+        block = '''@app.get("/api/operational/overview")
+def operational_overview(
+    ctx: AuthContext = Depends(current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    return build_operational_overview(db, ctx.tenant_id)
+
+
+@app.get("/api/operational/practices")
+def operational_practices(
+    active_only: bool = Query(default=True),
+    ctx: AuthContext = Depends(current_user),
+    db: Session = Depends(get_db),
+) -> list[dict]:
+    return build_practice_summaries(db, ctx.tenant_id, active_only=active_only)
+
+
+@app.get("/api/operational/report")
+def operational_report(
+    ctx: AuthContext = Depends(current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    return build_operational_report(db, ctx.tenant_id)
+
+
+@app.get("/api/operational/learning-suggestions")
+def operational_learning_suggestions(
+    ctx: AuthContext = Depends(current_user),
+    db: Session = Depends(get_db),
+) -> list[dict]:
+    return build_learning_suggestions(db, ctx.tenant_id)
+
+
+'''
+        if marker not in text:
+            raise SystemExit("Dashboard endpoint marker not found")
+        text = text.replace(marker, block + marker, 1)
+
+    if '@app.patch("/api/document-lines/{line_id}")' not in text:
+        marker = '@app.get(\n    "/api/documents/{document_id}/file",\n'
+        block = '''@app.patch("/api/document-lines/{line_id}")
+def correct_document_line(
+    line_id: str,
+    payload: DocumentLineCorrectionRequest,
+    ctx: AuthContext = Depends(require_reviewer),
+    db: Session = Depends(get_db),
+) -> dict:
+    line = db.scalar(
+        select(DocumentLine)
+        .join(Document, Document.id == DocumentLine.document_id)
+        .where(
+            DocumentLine.id == line_id,
+            DocumentLine.tenant_id == ctx.tenant_id,
+            Document.tenant_id == ctx.tenant_id,
+        )
+    )
+    if not line:
+        raise HTTPException(status_code=404, detail="Document line not found")
+    try:
+        raw = json.loads(line.raw_json or "{}")
+    except (TypeError, ValueError, json.JSONDecodeError):
+        raw = {}
+    history = raw.get("correction_history")
+    if not isinstance(history, list):
+        history = []
+    before = {
+        "quantity": str(line.quantity),
+        "unit_price": str(line.unit_price),
+        "discount_rate": str(line.discount_rate),
+        "line_total": str(line.line_total),
+        "sku": line.sku,
+        "description": line.description,
+        "color": line.color,
+        "size": line.size,
+        "lot": line.lot,
+    }
+    supplied = payload.model_dump(exclude_none=True)
+    reason = supplied.pop("reason")
+    numeric_fields = {"quantity", "unit_price", "discount_rate", "line_total"}
+    for field, value in supplied.items():
+        setattr(line, field, Decimal(str(value)) if field in numeric_fields else value.strip())
+    if "line_total" not in supplied and {"quantity", "unit_price", "discount_rate"} & set(supplied):
+        base = Decimal(str(line.price_base_quantity or 1)) or Decimal("1")
+        line.line_total = (
+            Decimal(str(line.quantity or 0))
+            * (Decimal(str(line.unit_price or 0)) / base)
+            * (Decimal("1") - Decimal(str(line.discount_rate or 0)) / Decimal("100"))
+        )
+    provenance = raw.get("numeric_provenance")
+    if not isinstance(provenance, dict):
+        provenance = {}
+    for field in numeric_fields & set(supplied):
+        provenance[field] = "human_corrected"
+    raw["numeric_provenance"] = provenance
+    raw["correction_history"] = (
+        history
+        + [{
+            "corrected_at": utcnow().isoformat(),
+            "corrected_by": ctx.user_id,
+            "reason": reason,
+            "before": before,
+            "after": {
+                "quantity": str(line.quantity),
+                "unit_price": str(line.unit_price),
+                "discount_rate": str(line.discount_rate),
+                "line_total": str(line.line_total),
+                "sku": line.sku,
+                "description": line.description,
+                "color": line.color,
+                "size": line.size,
+                "lot": line.lot,
+            },
+        }]
+    )[-20:]
+    line.raw_json = json.dumps(raw, ensure_ascii=False)
+    line.confidence = max(float(line.confidence or 0), 0.98)
+    chain_ids = list(
+        db.scalars(
+            select(ChainDocument.chain_id).where(
+                ChainDocument.tenant_id == ctx.tenant_id,
+                ChainDocument.document_id == line.document_id,
+            )
+        )
+    )
+    for chain_id in sorted(set(chain_ids)):
+        chain = db.scalar(
+            select(OperationChain).where(
+                OperationChain.id == chain_id,
+                OperationChain.tenant_id == ctx.tenant_id,
+            )
+        )
+        if chain:
+            analyze_chain(db, chain)
+    add_audit(
+        db,
+        ctx.tenant_id,
+        "document_line.corrected",
+        ctx.user_id,
+        "document_line",
+        line.id,
+        {
+            "document_id": line.document_id,
+            "reason": reason,
+            "changed_fields": sorted(supplied),
+            "affected_chains": sorted(set(chain_ids)),
+        },
+    )
+    db.commit()
+    return {
+        "ok": True,
+        "line_id": line.id,
+        "document_id": line.document_id,
+        "affected_chains": sorted(set(chain_ids)),
+        "confidence": line.confidence,
+    }
+
+
+'''
+        if marker not in text:
+            raise SystemExit("Document file endpoint marker not found")
+        text = text.replace(marker, block + marker, 1)
+
+    if '@app.get("/api/cases/{case_id}/history")' not in text:
+        marker = '@app.post("/api/cases/{case_id}/decision")\n'
+        block = '''@app.get("/api/cases/{case_id}/history")
+def get_case_history(
+    case_id: str,
+    ctx: AuthContext = Depends(current_user),
+    db: Session = Depends(get_db),
+) -> list[dict]:
+    exists = db.scalar(
+        select(DiscrepancyCase.id).where(
+            DiscrepancyCase.id == case_id,
+            DiscrepancyCase.tenant_id == ctx.tenant_id,
+        )
+    )
+    if not exists:
+        raise HTTPException(status_code=404, detail="Case not found")
+    return build_case_history(db, ctx.tenant_id, case_id)
+
+
+'''
+        if marker not in text:
+            raise SystemExit("Case decision endpoint marker not found")
+        text = text.replace(marker, block + marker, 1)
+    path.write_text(text, encoding="utf-8")
+
+
+def patch_schemas() -> None:
+    path = Path("app/schemas.py")
+    text = path.read_text(encoding="utf-8")
+    if "class DocumentLineCorrectionRequest" in text:
+        return
+    marker = "\n\nclass ReviewRequest(BaseModel):\n"
+    block = '''
+
+class DocumentLineCorrectionRequest(BaseModel):
+    quantity: float | None = None
+    unit_price: float | None = Field(default=None, ge=0)
+    discount_rate: float | None = Field(default=None, ge=0, le=100)
+    line_total: float | None = Field(default=None, ge=0)
+    sku: str | None = Field(default=None, max_length=280)
+    description: str | None = Field(default=None, max_length=2000)
+    color: str | None = Field(default=None, max_length=120)
+    size: str | None = Field(default=None, max_length=120)
+    lot: str | None = Field(default=None, max_length=120)
+    reason: str = Field(min_length=3, max_length=1000)
+
+    @model_validator(mode="after")
+    def require_change(self):
+        values = (
+            self.quantity,
+            self.unit_price,
+            self.discount_rate,
+            self.line_total,
+            self.sku,
+            self.description,
+            self.color,
+            self.size,
+            self.lot,
+        )
+        if all(value is None for value in values):
+            raise ValueError("At least one extracted field must be corrected")
+        return self
+'''
+    if marker not in text:
+        raise SystemExit("ReviewRequest marker not found")
+    path.write_text(text.replace(marker, block + marker, 1), encoding="utf-8")
+
+
+def patch_loader() -> None:
+    path = Path("app/static/app.js")
+    text = path.read_text(encoding="utf-8")
+    if "'/operational-center.css'" not in text:
+        text = text.replace(
+            "    '/product-polish.css',\n",
+            "    '/product-polish.css',\n    '/operational-center.css',\n",
+            1,
+        )
+    if "loadScript('/operational-center.js')" not in text:
+        text = text.replace(
+            "    .then(() => loadScript('/product-polish.js'))\n",
+            "    .then(() => loadScript('/product-polish.js'))\n"
+            "    .then(() => loadScript('/operational-center.js'))\n",
+            1,
+        )
+    path.write_text(text, encoding="utf-8")
+
+
+if __name__ == "__main__":
+    patch_main()
+    patch_schemas()
+    patch_loader()
