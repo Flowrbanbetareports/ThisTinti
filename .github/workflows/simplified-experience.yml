@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - "app/static/app.js"
+      - "app/static/commercial.html"
+      - "app/static/commercial.css"
+      - "app/static/commercial.js"
       - "app/static/app-core.js"
       - "app/static/onboarding.js"
       - "app/static/onboarding.css"
@@ -25,11 +28,13 @@ on:
       - "app/static/diagnostics.js"
       - "app/static/diagnostics-link.js"
       - "app/services/operational.py"
+      - "app/services/commercial.py"
       - "app/services/rules.py"
       - "tests/test_frontend_security.py"
       - "tests/test_security_hardening.py"
       - "tests/test_simplified_experience.py"
       - "tests/test_product_quality_pass.py"
+      - "tests/test_commercial_readiness.py"
       - "tests/test_operational_center.py"
       - "tests/test_operational_center_assets.py"
       - "tests/test_rules_presentation.py"
@@ -38,18 +43,24 @@ on:
       - "scripts/check_product_polish_browser.py"
       - "scripts/check_operational_center_browser.py"
       - "scripts/check_operational_center_live_browser.py"
+      - "scripts/check_commercial_readiness_browser.py"
       - "scripts/browser_e2e.py"
       - "scripts/check_job_recovery_browser.py"
       - "scripts/check_chain_links_browser.py"
       - "scripts/check_in_app_diagnostics_browser.py"
       - "docs/IN_APP_DIAGNOSTICS.md"
       - "docs/RC11_OPERATIONAL_CENTER.md"
+      - "docs/LIGHT_COMMERCIAL_READINESS.md"
+      - "docs/DIGITAL_PURCHASE_POLICY_TEMPLATE.md"
       - "docs/SIMPLIFIED_PRODUCT_EXPERIENCE_PROGRAM.md"
       - ".github/workflows/simplified-experience.yml"
   push:
     branches: [main]
     paths:
       - "app/static/app.js"
+      - "app/static/commercial.html"
+      - "app/static/commercial.css"
+      - "app/static/commercial.js"
       - "app/static/app-core.js"
       - "app/static/onboarding.js"
       - "app/static/onboarding.css"
@@ -71,11 +82,13 @@ on:
       - "app/static/diagnostics.js"
       - "app/static/diagnostics-link.js"
       - "app/services/operational.py"
+      - "app/services/commercial.py"
       - "app/services/rules.py"
       - "tests/test_frontend_security.py"
       - "tests/test_security_hardening.py"
       - "tests/test_simplified_experience.py"
       - "tests/test_product_quality_pass.py"
+      - "tests/test_commercial_readiness.py"
       - "tests/test_operational_center.py"
       - "tests/test_operational_center_assets.py"
       - "tests/test_rules_presentation.py"
@@ -84,12 +97,15 @@ on:
       - "scripts/check_product_polish_browser.py"
       - "scripts/check_operational_center_browser.py"
       - "scripts/check_operational_center_live_browser.py"
+      - "scripts/check_commercial_readiness_browser.py"
       - "scripts/browser_e2e.py"
       - "scripts/check_job_recovery_browser.py"
       - "scripts/check_chain_links_browser.py"
       - "scripts/check_in_app_diagnostics_browser.py"
       - "docs/IN_APP_DIAGNOSTICS.md"
       - "docs/RC11_OPERATIONAL_CENTER.md"
+      - "docs/LIGHT_COMMERCIAL_READINESS.md"
+      - "docs/DIGITAL_PURCHASE_POLICY_TEMPLATE.md"
       - "docs/SIMPLIFIED_PRODUCT_EXPERIENCE_PROGRAM.md"
       - ".github/workflows/simplified-experience.yml"
   workflow_dispatch:
@@ -117,6 +133,7 @@ jobs:
       - name: Validate JavaScript syntax
         run: |
           node --check app/static/app.js
+          node --check app/static/commercial.js
           node --check app/static/app-core.js
           node --check app/static/onboarding.js
           node --check app/static/product-polish.js
@@ -142,6 +159,8 @@ jobs:
         run: python scripts/check_operational_center_browser.py
       - name: Verify operational center against the live app
         run: python scripts/check_operational_center_live_browser.py
+      - name: Verify light commercial readiness against the live app
+        run: python scripts/check_commercial_readiness_browser.py
       - name: Verify recovery workflow in Chromium
         run: python scripts/check_job_recovery_browser.py
       - name: Verify supervised chain links in Chromium
@@ -161,6 +180,7 @@ jobs:
             tests/test_frontend_security.py \
             tests/test_simplified_experience.py \
             tests/test_product_quality_pass.py \
+            tests/test_commercial_readiness.py \
             tests/test_operational_center.py \
             tests/test_operational_center_assets.py \
             tests/test_rules_presentation.py \
