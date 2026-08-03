@@ -1,0 +1,82 @@
+name: Close RC10 Publication Docs Once
+
+on:
+  push:
+    branches:
+      - docs/rc10-publication-closure
+    paths:
+      - .github/workflows/close-rc10-publication-docs-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  close:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          ref: docs/rc10-publication-closure
+      - name: Record the actual RC10 publication state
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_one(path_name: str, source: str, target: str) -> None:
+              path = Path(path_name)
+              text = path.read_text(encoding="utf-8")
+              count = text.count(source)
+              if count != 1:
+                  raise SystemExit(f"{path_name}: expected one occurrence, found {count}: {source!r}")
+              path.write_text(text.replace(source, target, 1), encoding="utf-8")
+
+          replace_one(
+              "README.md",
+              """Versione di sviluppo: **3.4.0-alpha.7-rc.10 — candidata interna di qualità prodotto**.\n\nUltima versione pubblica immutabile: **3.4.0-alpha.7-rc.9 — Public Preview**. La RC9 aggiunge estrazione prudente delle righe da PDF OCR etichettati, controllo tra totale sorgente e totale ricalcolato e workflow pilot esclusivamente locale.\n\nLa candidata RC10 migliora chiarezza, gerarchia e coerenza dell’interfaccia: traduce gli identificatori tecnici, elimina decimali inutili, presenta il rischio come priorità di controllo, compatta gli avvisi ripetitivi, separa meglio gli strumenti avanzati e rende più leggibili attività e audit. Non aggiunge azioni economiche autonome né comunicazioni esterne.\n""",
+              """Versione pubblica corrente: **3.4.0-alpha.7-rc.10 — Public Preview**.\n\nLa RC10 migliora chiarezza, gerarchia e coerenza dell’interfaccia: traduce gli identificatori tecnici, elimina decimali inutili, presenta il rischio come priorità di controllo, compatta gli avvisi ripetitivi, separa meglio gli strumenti avanzati e rende più leggibili attività e audit. Mantiene l’estrazione OCR prudente della RC9, la provenienza dei dati e il controllo tra totale sorgente e totale ricalcolato. Non aggiunge azioni economiche autonome né comunicazioni esterne.\n\nLa release è una prerelease immutabile costruita dal commit `fe34da4e1f7cc509f19a34573f6145dd7f720762`, verificata dalla build Windows `30777323794` e pubblicata con checksum, provenienza e attestazioni.\n""",
+          )
+          replace_one(
+              "RELEASE_NOTES.md",
+              "# 3.4.0-alpha.7-rc.10 — qualità del prodotto e linguaggio operativo (candidata interna)",
+              "# 3.4.0-alpha.7-rc.10 — qualità del prodotto e linguaggio operativo",
+          )
+          replace_one(
+              "RELEASE_NOTES.md",
+              "- RC9 resta la Public Preview immutabile finché RC10 non supera tutti i gate e viene pubblicata separatamente.",
+              "- pubblicata come Public Preview immutabile dopo CI, Chromium, PostgreSQL, self-hosted, ciclo Windows, checksum, provenienza e attestazioni verdi sul commit esatto.",
+          )
+          replace_one(
+              "ROADMAP.md",
+              "## Stato attuale — 3.4.0-alpha.7-rc.10 candidata interna di qualità prodotto\n\nUltima Public Preview pubblicata e immutabile: `3.4.0-alpha.7-rc.9`.",
+              "## Stato attuale — 3.4.0-alpha.7-rc.10 Public Preview\n\nRelease pubblica immutabile: `3.4.0-alpha.7-rc.10`, commit `fe34da4e1f7cc509f19a34573f6145dd7f720762`, build Windows `30777323794`.",
+          )
+          replace_one(
+              "docs/BETA_READINESS_STATUS.md",
+              "ThisTinti è in preparazione interna come `3.4.0-alpha.7-rc.10`. L’ultima Public Preview pubblicata e immutabile è `3.4.0-alpha.7-rc.9`. La base tecnica include:",
+              "ThisTinti `3.4.0-alpha.7-rc.10` è pubblicata come Public Preview immutabile. La base tecnica include:",
+          )
+
+          candidate = Path("docs/RC10_INTERNAL_CANDIDATE.md")
+          text = candidate.read_text(encoding="utf-8")
+          text = text.replace("# RC10 internal candidate", "# RC10 candidate promotion record", 1)
+          text = text.replace(
+              "RC10 is the product-quality candidate after the immutable `3.4.0-alpha.7-rc.9` Public Preview.",
+              "RC10 was the product-quality candidate after the immutable `3.4.0-alpha.7-rc.9` Public Preview and has now been promoted to an immutable Public Preview.",
+              1,
+          )
+          text += """\n## Promotion evidence\n\n- source commit: `fe34da4e1f7cc509f19a34573f6145dd7f720762`;\n- source tree: `540f614cf6164c685ab313a5983cbc9fbc7f6503`;\n- Windows workflow run: `30777323794` (#317);\n- publication workflow run: `30777734600` (#12);\n- release tag: `v3.4.0-alpha.7-rc.10`;\n- installer SHA-256: `2a3d90b3ea7e7e1efdfe7a25229641962e7565c91d60f3b26f883690a00c9cb1`.\n\nThe promotion changes no external validation gate: real-document validation, Authenticode, independent security/legal review and human assistive-technology assessment remain open.\n"""
+          candidate.write_text(text, encoding="utf-8")
+
+          quality = Path("docs/PRODUCT_QUALITY_PASS_RC10.md")
+          text = quality.read_text(encoding="utf-8")
+          text += """\n## Publication outcome\n\nThe pass was merged as commit `fe34da4e1f7cc509f19a34573f6145dd7f720762`, passed the complete release and Windows lifecycle gates, and was published as the immutable `v3.4.0-alpha.7-rc.10` Public Preview.\n"""
+          quality.write_text(text, encoding="utf-8")
+          PY
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md RELEASE_NOTES.md ROADMAP.md docs/BETA_READINESS_STATUS.md docs/RC10_INTERNAL_CANDIDATE.md docs/PRODUCT_QUALITY_PASS_RC10.md
+          git commit -m "Record RC10 Public Preview promotion"
+          git push origin HEAD:docs/rc10-publication-closure
