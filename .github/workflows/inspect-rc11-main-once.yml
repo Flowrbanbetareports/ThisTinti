@@ -1,0 +1,36 @@
+name: Inspect RC11 Main Once
+
+on:
+  push:
+    branches:
+      - agent/inspect-rc11-main
+    paths:
+      - .github/workflows/inspect-rc11-main-once.yml
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          ref: agent/inspect-rc11-main
+      - name: Capture current main workflow state
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p builds
+          MAIN_SHA="$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$MAIN_SHA&per_page=30" \
+            --jq '{main_sha: "'"$MAIN_SHA"'", runs: [.workflow_runs[] | select(.event != "dynamic") | {id, name, status, conclusion, run_number, event}]}' \
+            > builds/rc11-main-runs.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add builds/rc11-main-runs.json
+          git commit -m "Capture RC11 main workflow state"
+          git push origin HEAD:agent/inspect-rc11-main
