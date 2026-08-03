@@ -1,0 +1,13 @@
+.operational-learning { display: grid; gap: .9rem; }
+.learning-empty { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem 1.1rem; border: 1px dashed #cfdadc; border-radius: 16px; background: #fafcfc; }
+.learning-empty h3 { margin: .2rem 0; }
+.learning-empty p { margin: 0; color: #687784; }
+.learning-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .85rem; }
+.learning-card { padding: 1rem; border: 1px solid #d8e1e7; border-radius: 16px; background: #fff; }
+.learning-card > div:first-child { display: grid; grid-template-columns: 1fr auto; gap: .25rem 1rem; }
+.learning-card > div:first-child span { color: #687784; }
+.learning-card > div:first-child strong { grid-row: 1 / 3; grid-column: 2; font-size: 1.05rem; }
+.learning-card > div:first-child small { color: #7a8893; }
+.learning-card > p { margin: .8rem 0; color: #43535f; }
+.learning-card-footer { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding-top: .75rem; border-top: 1px solid #edf0f2; }
+@media (max-width: 800px) { .learning-grid { grid-template-columns: 1fr; } .learning-empty, .learning-card-footer { align-items: stretch; flex-direction: column; } }
