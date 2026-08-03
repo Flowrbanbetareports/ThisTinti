@@ -4,7 +4,7 @@ annotated-types==0.7.0
 anyio==4.14.2
 click==8.4.2
 dnspython==2.8.0
-email_validator==2.2.0
+email_validator==2.3.0
 et_xmlfile==2.0.0
 fastapi==0.139.2
 greenlet==3.5.3
