@@ -9,7 +9,12 @@
   const UI_VERSION = '3.4.0-alpha.7-rc.9';
   const versioned = (path) => `${path}?v=${encodeURIComponent(UI_VERSION)}`;
 
-  for (const href of ['/onboarding.css', '/sidebar-scroll.css', '/local-first-run.css']) {
+  for (const href of [
+    '/onboarding.css',
+    '/sidebar-scroll.css',
+    '/local-first-run.css',
+    '/product-polish.css',
+  ]) {
     const style = document.createElement('link');
     style.rel = 'stylesheet';
     style.href = versioned(href);
@@ -27,6 +32,7 @@
 
   loadScript('/app-core.js')
     .then(() => loadScript('/onboarding.js'))
+    .then(() => loadScript('/product-polish.js'))
     .then(() => loadScript('/sidebar-scroll.js'))
     .then(() => loadScript('/local-first-run.js'))
     .then(() => loadScript('/diagnostics-link.js'))
