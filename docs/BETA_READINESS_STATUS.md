@@ -8,7 +8,7 @@
 
 ## Stato attuale
 
-ThisTinti è in preparazione interna come `3.4.0-alpha.7-rc.10`. L’ultima Public Preview pubblicata e immutabile è `3.4.0-alpha.7-rc.9`. La base tecnica include:
+ThisTinti `3.4.0-alpha.7-rc.10` è pubblicata come Public Preview immutabile. La base tecnica include:
 
 - test applicativi e copertura minima del 90%;
 - migrazioni reversibili;

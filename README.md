@@ -6,11 +6,11 @@ ThisTinti non decide, non approva e non certifica nulla. Organizza informazioni 
 
 ## Stato del rilascio
 
-Versione di sviluppo: **3.4.0-alpha.7-rc.10 — candidata interna di qualità prodotto**.
+Versione pubblica corrente: **3.4.0-alpha.7-rc.10 — Public Preview**.
 
-Ultima versione pubblica immutabile: **3.4.0-alpha.7-rc.9 — Public Preview**. La RC9 aggiunge estrazione prudente delle righe da PDF OCR etichettati, controllo tra totale sorgente e totale ricalcolato e workflow pilot esclusivamente locale.
+La RC10 migliora chiarezza, gerarchia e coerenza dell’interfaccia: traduce gli identificatori tecnici, elimina decimali inutili, presenta il rischio come priorità di controllo, compatta gli avvisi ripetitivi, separa meglio gli strumenti avanzati e rende più leggibili attività e audit. Mantiene l’estrazione OCR prudente della RC9, la provenienza dei dati e il controllo tra totale sorgente e totale ricalcolato. Non aggiunge azioni economiche autonome né comunicazioni esterne.
 
-La candidata RC10 migliora chiarezza, gerarchia e coerenza dell’interfaccia: traduce gli identificatori tecnici, elimina decimali inutili, presenta il rischio come priorità di controllo, compatta gli avvisi ripetitivi, separa meglio gli strumenti avanzati e rende più leggibili attività e audit. Non aggiunge azioni economiche autonome né comunicazioni esterne.
+La release è una prerelease immutabile costruita dal commit `fe34da4e1f7cc509f19a34573f6145dd7f720762`, verificata dalla build Windows `30777323794` e pubblicata con checksum, provenienza e attestazioni.
 
 ThisTinti offre due distribuzioni gratuite: una Local Edition per singola postazione e una Self-Hosted Reference Edition con PostgreSQL, worker scalabili, TLS, scanner malware e strumenti operativi per team tecnici. È adatto a sviluppo, dimostrazioni e **pilot controllati con documenti autorizzati e anonimizzati**. La beta validata richiede ancora pilot reale, collaudo manuale con tecnologie assistive e revisioni indipendenti.
 

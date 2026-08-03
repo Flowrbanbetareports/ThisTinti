@@ -24,3 +24,7 @@ This pass raises the product from a technically credible preview to a clearer an
 ## Claim boundary
 
 These changes improve clarity, maintainability and perceived quality. They do not replace an authorised real-document pilot, code signing, an independent security review, a legal/privacy review or a human assistive-technology assessment.
+
+## Publication outcome
+
+The pass was merged as commit `fe34da4e1f7cc509f19a34573f6145dd7f720762`, passed the complete release and Windows lifecycle gates, and was published as the immutable `v3.4.0-alpha.7-rc.10` Public Preview.
