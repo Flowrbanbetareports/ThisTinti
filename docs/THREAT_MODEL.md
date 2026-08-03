@@ -1,4 +1,4 @@
-# Threat model — ThisTinti 3.4.0-alpha.7-rc.9 (candidata interna non pubblicata)
+# Threat model — ThisTinti 3.4.0-alpha.7-rc.10 (candidata interna non pubblicata)
 
 ## Asset
 

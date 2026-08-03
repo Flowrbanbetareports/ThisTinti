@@ -6,13 +6,13 @@ ThisTinti non decide, non approva e non certifica nulla. Organizza informazioni 
 
 ## Stato del rilascio
 
-Versione di sviluppo: **3.4.0-alpha.7-rc.9 — candidata interna non pubblicata**.
+Versione di sviluppo: **3.4.0-alpha.7-rc.10 — candidata interna di qualità prodotto**.
 
-Ultima versione pubblica immutabile: **3.4.0-alpha.7-rc.8 — Public Preview**. La candidata interna aggiunge estrazione prudente delle righe da PDF OCR etichettati, controllo tra totale sorgente e totale ricalcolato e workflow pilot esclusivamente locale.
+Ultima versione pubblica immutabile: **3.4.0-alpha.7-rc.9 — Public Preview**. La RC9 aggiunge estrazione prudente delle righe da PDF OCR etichettati, controllo tra totale sorgente e totale ricalcolato e workflow pilot esclusivamente locale.
 
-Questa preview conserva il motore documentale esistente e offre due distribuzioni gratuite: una Local Edition per singola postazione e una Self-Hosted Reference Edition con PostgreSQL, worker scalabili, TLS, scanner malware e strumenti operativi per team tecnici.
+La candidata RC10 migliora chiarezza, gerarchia e coerenza dell’interfaccia: traduce gli identificatori tecnici, elimina decimali inutili, presenta il rischio come priorità di controllo, compatta gli avvisi ripetitivi, separa meglio gli strumenti avanzati e rende più leggibili attività e audit. Non aggiunge azioni economiche autonome né comunicazioni esterne.
 
-La candidata è adatta a sviluppo, dimostrazioni e **pilot controllati con documenti autorizzati e anonimizzati**. La RC8 mantiene la validazione numerica fail-closed, le evidenze apribili fino all’originale, il centro attività persistente e i collegamenti manuali correggibili, aggiungendo una schermata **Diagnostica** nell’app. Da qui l’utente può verificare servizio, versione, sessione, dati e integrità numerica, quindi scaricare un verbale JSON senza terminale, telemetria o servizi esterni. I test Chromium continuano a usare API, database e worker reali. La beta validata richiede ancora pilot reale, collaudo manuale Windows/accessibilità e revisioni indipendenti.
+ThisTinti offre due distribuzioni gratuite: una Local Edition per singola postazione e una Self-Hosted Reference Edition con PostgreSQL, worker scalabili, TLS, scanner malware e strumenti operativi per team tecnici. È adatto a sviluppo, dimostrazioni e **pilot controllati con documenti autorizzati e anonimizzati**. La beta validata richiede ancora pilot reale, collaudo manuale con tecnologie assistive e revisioni indipendenti.
 
 ## Identità e posizionamento
 

@@ -1,4 +1,18 @@
-# 3.4.0-alpha.7-rc.9 — OCR strutturato e pilot esclusivamente locale (non pubblicata)
+# 3.4.0-alpha.7-rc.10 — qualità del prodotto e linguaggio operativo (candidata interna)
+
+- identificatori tecnici, campi, stati e tipi di anomalia vengono tradotti in italiano comprensibile;
+- quantità e percentuali non mostrano più zeri decimali inutili;
+- il punteggio di rischio viene presentato come priorità di controllo e l’indice tecnico resta secondario e non probabilistico;
+- l’avviso di uso supervisionato è compatto ma sempre disponibile;
+- Regole proposte, Validation Lab e Audit assumono nomi e spiegazioni più vicini al loro scopo reale;
+- il pulsante demo scompare dopo che esistono documenti e la pagina Attività distingue elaborazioni persistenti dagli altri eventi applicativi;
+- i payload di audit restano disponibili dietro un dettaglio tecnico richiudibile;
+- la nuova presentazione è isolata dal core di sicurezza, non usa servizi esterni e non invia messaggi;
+- un controllo Chromium reale verifica gerarchia, terminologia, numeri, rischio, audit e visibilità della demo;
+- un gate impedisce ai moduli già monolitici di continuare a crescere senza estrazione;
+- RC9 resta la Public Preview immutabile finché RC10 non supera tutti i gate e viene pubblicata separatamente.
+
+# 3.4.0-alpha.7-rc.9 — OCR strutturato e pilot esclusivamente locale
 
 - le fatture PDF con campi etichettati possono produrre righe revisionabili da SKU, descrizione, quantità, prezzo unitario, sconto e totale;
 - fornitore, riferimento ordine e riferimento consegna vengono acquisiti soltanto quando esplicitamente indicati;
@@ -7,7 +21,7 @@
 - le righe derivate da OCR mantengono provenienza e confidenza prudente e non diventano decisioni automatiche;
 - il benchmark abbigliamento blocca regressioni se le scansioni sintetiche pulite o a basso contrasto non producono almeno una riga utile;
 - il toolkit per pilot reale resta locale e non contiene invio email, contatti automatici o azioni verso fornitori;
-- questa è un’identità di sviluppo interna: nessun asset RC8 viene sostituito e nessuna RC9 viene pubblicata automaticamente.
+- pubblicata come Public Preview immutabile dopo i gate completi sul commit candidato e sull’installer Windows verificato.
 
 # 3.4.0-alpha.7-rc.8 — Diagnostica e collaudo dentro l’app
 

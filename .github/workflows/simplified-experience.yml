@@ -7,6 +7,8 @@ on:
       - "app/static/app-core.js"
       - "app/static/onboarding.js"
       - "app/static/onboarding.css"
+      - "app/static/product-polish.js"
+      - "app/static/product-polish.css"
       - "app/static/sidebar-scroll.css"
       - "app/static/sidebar-scroll.js"
       - "app/static/local-first-run.js"
@@ -18,8 +20,10 @@ on:
       - "tests/test_frontend_security.py"
       - "tests/test_security_hardening.py"
       - "tests/test_simplified_experience.py"
+      - "tests/test_product_quality_pass.py"
       - "scripts/check_sidebar_browser.py"
       - "scripts/check_evidence_browser.py"
+      - "scripts/check_product_polish_browser.py"
       - "scripts/browser_e2e.py"
       - "scripts/check_job_recovery_browser.py"
       - "scripts/check_chain_links_browser.py"
@@ -34,6 +38,8 @@ on:
       - "app/static/app-core.js"
       - "app/static/onboarding.js"
       - "app/static/onboarding.css"
+      - "app/static/product-polish.js"
+      - "app/static/product-polish.css"
       - "app/static/sidebar-scroll.css"
       - "app/static/sidebar-scroll.js"
       - "app/static/local-first-run.js"
@@ -45,8 +51,10 @@ on:
       - "tests/test_frontend_security.py"
       - "tests/test_security_hardening.py"
       - "tests/test_simplified_experience.py"
+      - "tests/test_product_quality_pass.py"
       - "scripts/check_sidebar_browser.py"
       - "scripts/check_evidence_browser.py"
+      - "scripts/check_product_polish_browser.py"
       - "scripts/browser_e2e.py"
       - "scripts/check_job_recovery_browser.py"
       - "scripts/check_chain_links_browser.py"
@@ -81,6 +89,7 @@ jobs:
           node --check app/static/app.js
           node --check app/static/app-core.js
           node --check app/static/onboarding.js
+          node --check app/static/product-polish.js
           node --check app/static/sidebar-scroll.js
           node --check app/static/local-first-run.js
           node --check app/static/diagnostics.js
@@ -94,6 +103,8 @@ jobs:
         run: python scripts/check_sidebar_browser.py
       - name: Verify evidence workflow in Chromium
         run: python scripts/check_evidence_browser.py
+      - name: Verify product terminology and hierarchy in Chromium
+        run: python scripts/check_product_polish_browser.py
       - name: Verify recovery workflow in Chromium
         run: python scripts/check_job_recovery_browser.py
       - name: Verify supervised chain links in Chromium
@@ -112,4 +123,5 @@ jobs:
           pytest -q \
             tests/test_frontend_security.py \
             tests/test_simplified_experience.py \
+            tests/test_product_quality_pass.py \
             tests/test_security_hardening.py::test_frontend_core_remains_auditable_with_a_bounded_experience_layer

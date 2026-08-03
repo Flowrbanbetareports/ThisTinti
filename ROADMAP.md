@@ -1,8 +1,8 @@
 # Roadmap di ThisTinti
 
-## Stato attuale — 3.4.0-alpha.7-rc.9 candidata interna non pubblicata
+## Stato attuale — 3.4.0-alpha.7-rc.10 candidata interna di qualità prodotto
 
-Ultima Public Preview pubblicata e immutabile: `3.4.0-alpha.7-rc.8`.
+Ultima Public Preview pubblicata e immutabile: `3.4.0-alpha.7-rc.9`.
 
 Completati:
 
@@ -25,6 +25,10 @@ Completati:
 - confronto bloccante tra totale sorgente e totale ricalcolato;
 - benchmark OCR obbligatorio per scansioni sintetiche pulite e a basso contrasto;
 - workflow del pilot mantenuto interamente locale, senza contatti o messaggi automatici.
+- linguaggio operativo ripulito dagli identificatori tecnici visibili;
+- numeri, priorità di controllo, audit e attività presentati con una gerarchia più professionale;
+- nuova responsabilità di presentazione estratta dal core frontend;
+- gate contro l’ulteriore crescita dei moduli monolitici.
 
 ## RC8 — collaudo direttamente nell’app
 
