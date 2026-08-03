@@ -40,6 +40,18 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/apply_rc11_quality.py
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('scripts/check_operational_center_browser.py')
+          text = path.read_text(encoding='utf-8')
+          old = '<div id="caseDialogBody"></div><dialog id="caseDialog"></dialog>\n<div id="chainDialogBody"></div><dialog id="chainDialog"></dialog>\n<div id="documentDialogBody"><div class="lines-table">'
+          new = '<dialog id="caseDialog"><div id="caseDialogBody"></div></dialog>\n<dialog id="chainDialog"><div id="chainDialogBody"></div></dialog>\n<dialog id="documentDialog"><div id="documentDialogBody"><div class="lines-table">'
+          if text.count(old) != 1:
+              raise SystemExit('Browser fixture dialog marker not found exactly once')
+          text = text.replace(old, new, 1)
+          text = text.replace('</div></div><dialog id="documentDialog"></dialog>\n<script>', '</div></div></dialog>\n<script>', 1)
+          path.write_text(text, encoding='utf-8')
+          PY
           python -m pip install -r requirements-dev.txt
           pip install playwright==1.55.0
           python -m playwright install chromium
