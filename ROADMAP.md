@@ -1,8 +1,8 @@
 # Roadmap di ThisTinti
 
-## Stato attuale — 3.4.0-alpha.7-rc.12 Public Preview
+## Stato attuale — 3.4.0-alpha.7-rc.13 candidata interna di sicurezza; 3.4.0-alpha.7-rc.12 Public Preview
 
-La Public Preview pubblica corrente è `3.4.0-alpha.7-rc.12`, distribuita come release immutabile con checksum, provenienza e attestazioni. RC12 mantiene il prodotto gratuito e local-first e aggiunge soltanto una pagina amministratore per metriche pubbliche, un Integration Pack in anteprima e predisposizioni disattivate per piani, sponsor e acquisto digitale.
+La candidata interna corrente è `3.4.0-alpha.7-rc.13` e contiene esclusivamente la correzione pypdf 6.15.0 per due advisory emerse dal dependency audit. La Public Preview pubblica corrente resta `3.4.0-alpha.7-rc.12`, distribuita come release immutabile con checksum, provenienza e attestazioni. RC12 mantiene il prodotto gratuito e local-first e aggiunge soltanto una pagina amministratore per metriche pubbliche, un Integration Pack in anteprima e predisposizioni disattivate per piani, sponsor e acquisto digitale.
 
 Il lavoro successivo non parte automaticamente da una RC13: prima viene completato il collaudo umano end-to-end della RC12 installata. Una nuova candidata è giustificata soltanto da difetti riproducibili, rischi per i dati o i risultati documentali, blocchi UX/accessibilità rilevanti o consolidamenti necessari a correggerli. Il percorso verso la 1.0 è definito in `docs/ROADMAP_TO_1_0.md`.
 

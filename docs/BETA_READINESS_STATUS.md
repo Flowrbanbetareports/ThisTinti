@@ -8,7 +8,7 @@
 
 ## Stato attuale
 
-ThisTinti `3.4.0-alpha.7-rc.12` è la Public Preview pubblicata e immutabile corrente. La pubblicazione è registrata con tag, commit applicativo, checksum, provenienza e attestazioni; non equivale a una beta validata e non chiude alcun gate esterno. La base tecnica include:
+ThisTinti è in preparazione interna come `3.4.0-alpha.7-rc.13`, candidata di sicurezza limitata all'aggiornamento di `pypdf` 6.14.2 → 6.15.0. L'ultima Public Preview pubblicata e immutabile resta `3.4.0-alpha.7-rc.12`. La nuova candidata non equivale a una beta validata e non chiude alcun gate esterno. La base tecnica include:
 
 - test applicativi e copertura minima del 90%;
 - migrazioni reversibili;
