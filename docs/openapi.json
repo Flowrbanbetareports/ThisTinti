@@ -3,7 +3,7 @@
   "info": {
     "title": "ThisTinti",
     "description": "Document integrity and discrepancy review platform.",
-    "version": "3.4.0-alpha.7-rc.12"
+    "version": "3.4.0-alpha.7-rc.13"
   },
   "paths": {
     "/api/health": {

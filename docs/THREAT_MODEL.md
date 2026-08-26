@@ -1,4 +1,4 @@
-# Threat model — ThisTinti 3.4.0-alpha.7-rc.12 (Public Preview)
+# Threat model — ThisTinti 3.4.0-alpha.7-rc.13 (candidata interna non pubblicata)
 
 La RC12 è pubblicata come prerelease immutabile. Questo threat model descrive controlli e rischi residui del prodotto e della reference edition self-hosted; non sostituisce un penetration test indipendente né una revisione dell'infrastruttura finale.
 

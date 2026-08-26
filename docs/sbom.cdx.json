@@ -1,14 +1,14 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
-  "serialNumber": "urn:uuid:e93aebbb-2c9b-5040-d5c4-38fc612debff",
+  "serialNumber": "urn:uuid:b9d76a7d-e4a5-f687-5d84-38988a9a855d",
   "version": 1,
   "metadata": {
     "component": {
       "type": "application",
       "name": "ThisTinti",
-      "version": "3.4.0-alpha.7-rc.12",
-      "bom-ref": "pkg:generic/thistinti@3.4.0-alpha.7-rc.12"
+      "version": "3.4.0-alpha.7-rc.13",
+      "bom-ref": "pkg:generic/thistinti@3.4.0-alpha.7-rc.13"
     },
     "properties": [
       {
@@ -17,7 +17,7 @@
       },
       {
         "name": "thistinti:lock-sha256",
-        "value": "e93aebbb2c9b5040d5c438fc612debffacc7204abafbccb133605cb3bbe0078a"
+        "value": "b9d76a7de4a5f6875d8438988a9a855d4d17f69b528e1eedaf49a9bc5fd923f3"
       },
       {
         "name": "thistinti:vulnerability-audit",
@@ -183,9 +183,9 @@
     {
       "type": "library",
       "name": "pypdf",
-      "version": "6.14.2",
-      "purl": "pkg:pypi/pypdf@6.14.2",
-      "bom-ref": "pkg:pypi/pypdf@6.14.2"
+      "version": "6.15.0",
+      "purl": "pkg:pypi/pypdf@6.15.0",
+      "bom-ref": "pkg:pypi/pypdf@6.15.0"
     },
     {
       "type": "library",
@@ -274,7 +274,7 @@
   ],
   "dependencies": [
     {
-      "ref": "pkg:generic/thistinti@3.4.0-alpha.7-rc.12",
+      "ref": "pkg:generic/thistinti@3.4.0-alpha.7-rc.13",
       "dependsOn": [
         "pkg:pypi/alembic@1.18.4",
         "pkg:pypi/annotated-doc@0.0.4",
@@ -298,7 +298,7 @@
         "pkg:pypi/psycopg-binary@3.3.4",
         "pkg:pypi/pydantic@2.13.4",
         "pkg:pypi/pydantic-core@2.46.4",
-        "pkg:pypi/pypdf@6.14.2",
+        "pkg:pypi/pypdf@6.15.0",
         "pkg:pypi/pypdfium2@5.8.0",
         "pkg:pypi/python-dotenv@1.2.2",
         "pkg:pypi/python-multipart@0.0.32",

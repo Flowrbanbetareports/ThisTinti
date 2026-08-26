@@ -1,3 +1,11 @@
+# 3.4.0-alpha.7-rc.13 — hotfix sicurezza PDF (candidata interna)
+
+- aggiorna `pypdf` da 6.14.2 a 6.15.0 per correggere `PYSEC-2026-3655` e `PYSEC-2026-3656`;
+- nessuna nuova funzionalità, nessuna modifica UI e nessun cambiamento al modello local-first;
+- rigenera lock e SBOM e richiede nuovamente dependency audit, test parser/PDF, CI completa e ciclo Windows sul commit candidato esatto;
+- `3.4.0-alpha.7-rc.12` resta la Public Preview immutabile finché RC13 non supera tutti i gate e viene pubblicata separatamente;
+- pilot reale, pentest indipendente, revisione legale/privacy, WCAG manuale, utenti non istruiti e firma Authenticode restano gate esterni aperti.
+
 # 3.4.0-alpha.7-rc.12 — preparazione commerciale leggera
 
 - nuova pagina amministratore “Progetto e piani”, separata dal lavoro documentale quotidiano;

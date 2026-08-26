@@ -1,4 +1,4 @@
-# Production readiness — ThisTinti 3.4.0-alpha.7-rc.12 (Public Preview, non produzione)
+# Production readiness — ThisTinti 3.4.0-alpha.7-rc.13 (candidata interna, non produzione)
 
 RC12 è pubblicata e verificabile come Public Preview. Questo documento elenca ciò che esiste tecnicamente e ciò che manca per un uso produttivo: la pubblicazione della prerelease non autorizza né implica la produzione.
 
