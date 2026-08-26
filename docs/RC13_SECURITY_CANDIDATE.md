@@ -14,6 +14,10 @@ Il dependency audit online eseguito dopo la pubblicazione RC12 ha rilevato `PYSE
 - nessuna nuova funzione o modifica UI;
 - nessun cambiamento a telemetria, cloud, account, pagamenti o automazioni economiche.
 
+## Evidenza preliminare
+
+Prima del cambio di identità a RC13, la sostituzione isolata della dipendenza è stata eseguita nel draft PR #100 sul commit `2a4e16f6c9e9e2c54ceb77907088b25740c6ece7`: il dependency audit è tornato verde e tutti i check associati a quel commit si sono conclusi senza failure. Questa prova giustifica la preparazione della candidata, ma non sostituisce i gate che devono essere rieseguiti sulla sorgente RC13 finale.
+
 ## Promozione
 
 RC13 può essere pubblicata soltanto dopo CI completa, dependency audit verde, test PDF/parser, prove PostgreSQL/self-hosted, build e ciclo Windows sul commit esatto, checksum e provenienza. `3.4.0-alpha.7-rc.12` resta immutabile fino a quella pubblicazione separata.
