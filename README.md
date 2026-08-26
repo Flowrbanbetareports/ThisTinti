@@ -159,7 +159,10 @@ ThisTinti non invia contestazioni, non esegue o blocca pagamenti reali, non modi
 - `ROADMAP.md`: stato corrente e priorità;
 - `docs/ROADMAP_TO_1_0.md`: criterio di completamento e percorso dalla Public Preview alla 1.0 Stable;
 - `docs/RC13_SECURITY_CANDIDATE.md`: motivazione, promozione ed evidenza storica dell’hotfix RC13;
+- `docs/RC13_HANDS_ON_ACCEPTANCE.md`: protocollo di collaudo umano end-to-end della RC13;
 - `docs/PUBLIC_LAUNCH_CHECKLIST.md`: stato tecnico e gate esterni;
+- `docs/NAME_AND_DOMAIN_CLEARANCE.md`: verifica del nome e del dominio prima di usi commerciali o produttivi;
+- `docs/LICENSE_REVIEW.md`: inventario e revisione delle licenze/distribuzione;
 - `docs/BETA_READINESS_STATUS.md`: distinzione tra Public Preview, beta tecnica e beta validata;
 - `docs/USER_GUIDE_SIMPLE.md`: guida essenziale per nuovi utenti;
 - `docs/PILOT_KIT.md`: materiale per pilot controllati;
