@@ -438,6 +438,7 @@ def build(sources: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
             }
         )
 
+    all_scenarios_required = False
     dataset = {
         "name": "ThisTinti Public Evidence Benchmark 30",
         "version": "1.0.0",
@@ -449,7 +450,7 @@ def build(sources: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
             "min_recall": 0.95,
             "min_f1": 0.95,
             "max_amount_mae": 0.05,
-            "require_all_scenarios_pass": False,
+            "require_all_scenarios_pass": all_scenarios_required,
         },
         "scenarios": scenarios,
     }
