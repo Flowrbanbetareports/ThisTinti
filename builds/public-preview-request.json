@@ -1,9 +1,9 @@
 {
   "schema": "thistinti.public-preview-request.v1",
-  "version": "3.4.0-alpha.7-rc.12",
-  "target_sha": "de4df8a96394b088e434c870971a193b5538d78d",
-  "windows_run_id": "30826987458",
+  "version": "3.4.0-alpha.7-rc.13",
+  "target_sha": "f7609b51aec4c358d0410ca8ff83e60485cac96c",
+  "windows_run_id": "33008478384",
   "requested_as": "Public Preview alpha/RC",
-  "request_id": "rc12-light-commercial-readiness-publication-1",
-  "note": "Publish the exact verified RC12 light-commercial-readiness candidate as a Public Preview prerelease. Preserve immutable RC11 assets and require exact-source CI, live Chromium, PostgreSQL, self-hosted, Windows lifecycle, checksums, provenance and attestations. Checkout, advertising, telemetry and managed services remain disabled."
+  "request_id": "rc13-pypdf-security-hotfix-publication-1",
+  "note": "Publish the exact verified RC13 pypdf security hotfix as a Public Preview prerelease. Preserve immutable RC12 assets and require exact-source CI, live Chromium, PostgreSQL, self-hosted, Windows lifecycle, checksums, provenance and attestations. This release is limited to the pypdf 6.15.0 security remediation and release metadata alignment; no feature, UI, telemetry, managed service or economic-automation expansion is included. Authenticode and all external beta/production gates remain explicitly open."
 }
