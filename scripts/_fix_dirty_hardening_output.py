@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+TEST = ROOT / "tests/test_pdf_semantics.py"
+TEST.write_text(
+    '''from __future__ import annotations
+
+from pathlib import Path
+
+from app.parsers import pdf_text
+
+
+def parse_text(monkeypatch, tmp_path: Path, text: str):
+    monkeypatch.setattr(
+        pdf_text,
+        "_extract_text",
+        lambda _path: (
+            text,
+            {"extraction_method": "local_ocr", "evidence_class": "derived", "ocr_pages": 1},
+            True,
+        ),
+    )
+    path = tmp_path / "scan.pdf"
+    path.write_bytes(b"placeholder")
+    return pdf_text.parse_pdf(path, {"document_type": "proposal"})
+
+
+def test_pdf_semantics_prefers_strong_business_id_and_usd(monkeypatch, tmp_path: Path):
+    text = """PEN-LINK
+QUOTE
+QUO-01487-5Z12C3
+1 COLLECTION MAINTENANCE - PREMIUM
+1 XNET MAINTENANCE - PREMIUM
+1 COLLECTION SUPPORT - PREMIUM
+1 XNET SUPPORT - PREMIUM
+$127,566.67 $127,566.67
+$9,605.00 $9,605.00
+$127,566.67 $127,566.67
+$9,605.00 $9,605.00
+"""
+    result = parse_text(monkeypatch, tmp_path, text)
+    assert result.number == "QUO-01487-5Z12C3"
+    assert result.currency == "USD"
+    assert len(result.lines) == 4
+    assert result.metadata["document_number_recognition"]["status"] == "recognized"
+    assert result.metadata["currency_recognition"]["status"] == "recognized"
+
+
+def test_pdf_semantics_abstains_instead_of_inventing(monkeypatch, tmp_path: Path):
+    result = parse_text(monkeypatch, tmp_path, "PEN-LINK DUTZ LINK\\nNo reliable identifier here")
+    assert result.number is None
+    assert result.currency == "UNK"
+    assert result.metadata["document_number_recognition"]["status"] == "abstained"
+    assert result.metadata["currency_recognition"]["status"] == "abstained"
+
+
+def test_pdf_semantics_extracts_inline_business_rows(monkeypatch, tmp_path: Path):
+    text = """QUOTE
+QUO-04689-V8Y5D0
+1 MASTER DATABASE SERVER $10,607.80 $10,607.80
+1 HARDWARE SHIPPING $106.08 $105.08
+1 CONSULT - ONSITE SERVICES $3,500.00 $3,500.00
+"""
+    result = parse_text(monkeypatch, tmp_path, text)
+    assert result.number == "QUO-04689-V8Y5D0"
+    assert result.currency == "USD"
+    assert len(result.lines) == 3
+    assert result.lines[0].description == "MASTER DATABASE SERVER"
+    assert result.lines[0].unit_price == 10607.80
+''',
+    encoding="utf-8",
+)
