@@ -1,0 +1,3084 @@
+{
+  "name": "ThisTinti Public Evidence Benchmark 30",
+  "version": "1.0.0",
+  "description": "10 normalized public-source baselines, 10 controlled public-source mutations, 10 professional synthetic full chains. Ground truth is separate.",
+  "evidence_level": "synthetic",
+  "automation_eligible": false,
+  "gate": {
+    "min_precision": 0.95,
+    "min_recall": 0.95,
+    "min_f1": 0.95,
+    "max_amount_mae": 0.05,
+    "require_all_scenarios_pass": false
+  },
+  "scenarios": [
+    {
+      "id": "public-baseline-01",
+      "description": "Faithful normalized Portland public record ocds-ptecst-133262; no downstream document inferred.",
+      "documents": [
+        {
+          "filename": "public-baseline-01-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "ocds-ptecst-133262",
+            "document_date": "2025-08-01",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-133262",
+                "description": "PARKS COMPREHENSIVE CUSTODIAL SERVICES",
+                "quantity": 1,
+                "unit_price": 171563.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "source_kind": "public_ocds_normalization",
+              "publisher": "City of Portland, Oregon",
+              "source_id": "PUB-01",
+              "ocid": "ocds-ptecst-133262",
+              "source_title": "PARKS COMPREHENSIVE CUSTODIAL SERVICES",
+              "source_amount": 171563.0,
+              "currency": "USD",
+              "source_status": "complete",
+              "source_start_date": "2025-08-01",
+              "source_end_date": null,
+              "source_note": "1 contract; 40 payments; 4 approvals",
+              "transformation": "minimal normalized representation; no downstream financial facts inferred"
+            }
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "public-baseline-02",
+      "description": "Faithful normalized Portland public record ocds-ptecst-133299; no downstream document inferred.",
+      "documents": [
+        {
+          "filename": "public-baseline-02-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "ocds-ptecst-133299",
+            "document_date": "2025-08-01",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-133299",
+                "description": "Amendment request - 31002617",
+                "quantity": 1,
+                "unit_price": 30735.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "source_kind": "public_ocds_normalization",
+              "publisher": "City of Portland, Oregon",
+              "source_id": "PUB-02",
+              "ocid": "ocds-ptecst-133299",
+              "source_title": "Amendment request - 31002617",
+              "source_amount": 30735.0,
+              "currency": "USD",
+              "source_status": "complete",
+              "source_start_date": "2025-08-01",
+              "source_end_date": null,
+              "source_note": "1 contract; 3 payments; 4 approvals",
+              "transformation": "minimal normalized representation; no downstream financial facts inferred"
+            }
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "public-baseline-03",
+      "description": "Faithful normalized Portland public record ocds-ptecst-133238; no downstream document inferred.",
+      "documents": [
+        {
+          "filename": "public-baseline-03-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "ocds-ptecst-133238",
+            "document_date": "2025-08-01",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-133238",
+                "description": "Amend 30008325 INTEGRATED POWER SERVICES - MOTOR STORAGE & PREVENTATIVE MAINTENANCE - ADD VALUE",
+                "quantity": 1,
+                "unit_price": 38648.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "source_kind": "public_ocds_normalization",
+              "publisher": "City of Portland, Oregon",
+              "source_id": "PUB-03",
+              "ocid": "ocds-ptecst-133238",
+              "source_title": "Amend 30008325 INTEGRATED POWER SERVICES - MOTOR STORAGE & PREVENTATIVE MAINTENANCE - ADD VALUE",
+              "source_amount": 38648.0,
+              "currency": "USD",
+              "source_status": "complete",
+              "source_start_date": "2025-08-01",
+              "source_end_date": null,
+              "source_note": "1 contract; 4 payments; 4 approvals",
+              "transformation": "minimal normalized representation; no downstream financial facts inferred"
+            }
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "public-baseline-04",
+      "description": "Faithful normalized Portland public record ocds-ptecst-132893; no downstream document inferred.",
+      "documents": [
+        {
+          "filename": "public-baseline-04-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "ocds-ptecst-132893",
+            "document_date": "2025-06-13",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-132893",
+                "description": "Citywide HVAC Sales and Service",
+                "quantity": 1,
+                "unit_price": 500000.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "source_kind": "public_ocds_normalization",
+              "publisher": "City of Portland, Oregon",
+              "source_id": "PUB-04",
+              "ocid": "ocds-ptecst-132893",
+              "source_title": "Citywide HVAC Sales and Service",
+              "source_amount": 500000.0,
+              "currency": "USD",
+              "source_status": "complete",
+              "source_start_date": "2025-06-13",
+              "source_end_date": "2025-07-22",
+              "source_note": "payment status: paid",
+              "transformation": "minimal normalized representation; no downstream financial facts inferred"
+            }
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "public-baseline-05",
+      "description": "Faithful normalized Portland public record ocds-ptecst-132928; no downstream document inferred.",
+      "documents": [
+        {
+          "filename": "public-baseline-05-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "ocds-ptecst-132928",
+            "document_date": "2025-06-13",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-132928",
+                "description": "MAINTENANCE REPAIR & OPERATIONS (MRO) SUPPLIES",
+                "quantity": 1,
+                "unit_price": 100000.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "source_kind": "public_ocds_normalization",
+              "publisher": "City of Portland, Oregon",
+              "source_id": "PUB-05",
+              "ocid": "ocds-ptecst-132928",
+              "source_title": "MAINTENANCE REPAIR & OPERATIONS (MRO) SUPPLIES",
+              "source_amount": 100000.0,
+              "currency": "USD",
+              "source_status": "active",
+              "source_start_date": "2025-06-13",
+              "source_end_date": "2025-09-09",
+              "source_note": "contract present",
+              "transformation": "minimal normalized representation; no downstream financial facts inferred"
+            }
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "public-baseline-06",
+      "description": "Faithful normalized Portland public record ocds-ptecst-132925; no downstream document inferred.",
+      "documents": [
+        {
+          "filename": "public-baseline-06-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "ocds-ptecst-132925",
+            "document_date": "2025-07-09",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-132925",
+                "description": "FERC Peer Audit - Sole Source",
+                "quantity": 1,
+                "unit_price": 93975.03,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "source_kind": "public_ocds_normalization",
+              "publisher": "City of Portland, Oregon",
+              "source_id": "PUB-06",
+              "ocid": "ocds-ptecst-132925",
+              "source_title": "FERC Peer Audit - Sole Source",
+              "source_amount": 93975.03,
+              "currency": "USD",
+              "source_status": "active",
+              "source_start_date": "2025-07-09",
+              "source_end_date": "2025-07-10",
+              "source_note": "",
+              "transformation": "minimal normalized representation; no downstream financial facts inferred"
+            }
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "public-baseline-07",
+      "description": "Faithful normalized Portland public record ocds-ptecst-132815; no downstream document inferred.",
+      "documents": [
+        {
+          "filename": "public-baseline-07-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "ocds-ptecst-132815",
+            "document_date": "2025-07-22",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-132815",
+                "description": "New sole source contract with Olympic Foundry",
+                "quantity": 1,
+                "unit_price": 2000000.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "source_kind": "public_ocds_normalization",
+              "publisher": "City of Portland, Oregon",
+              "source_id": "PUB-07",
+              "ocid": "ocds-ptecst-132815",
+              "source_title": "New sole source contract with Olympic Foundry",
+              "source_amount": 2000000.0,
+              "currency": "USD",
+              "source_status": "active",
+              "source_start_date": "2025-07-22",
+              "source_end_date": "2025-07-25",
+              "source_note": "",
+              "transformation": "minimal normalized representation; no downstream financial facts inferred"
+            }
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "public-baseline-08",
+      "description": "Faithful normalized Portland public record ocds-ptecst-133038; no downstream document inferred.",
+      "documents": [
+        {
+          "filename": "public-baseline-08-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "ocds-ptecst-133038",
+            "document_date": "2025-06-18",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-133038",
+                "description": "SE 38th & Market",
+                "quantity": 1,
+                "unit_price": 727000.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "source_kind": "public_ocds_normalization",
+              "publisher": "City of Portland, Oregon",
+              "source_id": "PUB-08",
+              "ocid": "ocds-ptecst-133038",
+              "source_title": "SE 38th & Market",
+              "source_amount": 727000.0,
+              "currency": "USD",
+              "source_status": "active",
+              "source_start_date": "2025-06-18",
+              "source_end_date": "2025-07-24",
+              "source_note": "",
+              "transformation": "minimal normalized representation; no downstream financial facts inferred"
+            }
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "public-baseline-09",
+      "description": "Faithful normalized Portland public record ocds-ptecst-133001; no downstream document inferred.",
+      "documents": [
+        {
+          "filename": "public-baseline-09-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "ocds-ptecst-133001",
+            "document_date": "2025-06-20",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-133001",
+                "description": "Washington Park and Sam Jackson Pump Station Electrical Improvements",
+                "quantity": 1,
+                "unit_price": 800000.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "source_kind": "public_ocds_normalization",
+              "publisher": "City of Portland, Oregon",
+              "source_id": "PUB-09",
+              "ocid": "ocds-ptecst-133001",
+              "source_title": "Washington Park and Sam Jackson Pump Station Electrical Improvements",
+              "source_amount": 800000.0,
+              "currency": "USD",
+              "source_status": "active",
+              "source_start_date": "2025-06-20",
+              "source_end_date": "2025-08-28",
+              "source_note": "",
+              "transformation": "minimal normalized representation; no downstream financial facts inferred"
+            }
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "public-baseline-10",
+      "description": "Faithful normalized Portland public record ocds-ptecst-132953; no downstream document inferred.",
+      "documents": [
+        {
+          "filename": "public-baseline-10-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "ocds-ptecst-132953",
+            "document_date": "2025-07-21",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-132953",
+                "description": "ULTRA BLOCK 5-YR CONTRACT REQUEST",
+                "quantity": 1,
+                "unit_price": 787250.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "source_kind": "public_ocds_normalization",
+              "publisher": "City of Portland, Oregon",
+              "source_id": "PUB-10",
+              "ocid": "ocds-ptecst-132953",
+              "source_title": "ULTRA BLOCK 5-YR CONTRACT REQUEST",
+              "source_amount": 787250.0,
+              "currency": "USD",
+              "source_status": "active",
+              "source_start_date": "2025-07-21",
+              "source_end_date": null,
+              "source_note": "",
+              "transformation": "minimal normalized representation; no downstream financial facts inferred"
+            }
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "public-mutation-01",
+      "description": "Derived from ocds-ptecst-133262 with one frozen controlled mutation: price_over_order.",
+      "documents": [
+        {
+          "filename": "public-mutation-01-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "ocds-ptecst-133262",
+            "document_date": "2025-08-01",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-133262",
+                "description": "PARKS COMPREHENSIVE CUSTODIAL SERVICES",
+                "quantity": 1,
+                "unit_price": 171563.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "source_kind": "public_ocds_normalization",
+              "publisher": "City of Portland, Oregon",
+              "source_id": "PUB-01",
+              "ocid": "ocds-ptecst-133262",
+              "source_title": "PARKS COMPREHENSIVE CUSTODIAL SERVICES",
+              "source_amount": 171563.0,
+              "currency": "USD",
+              "source_status": "complete",
+              "source_start_date": "2025-08-01",
+              "source_end_date": null,
+              "source_note": "1 contract; 40 payments; 4 approvals",
+              "transformation": "minimal normalized representation; no downstream financial facts inferred"
+            },
+            "supplier_name": "Controlled derived supplier 01"
+          }
+        },
+        {
+          "filename": "DDT-PUB-01.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-PUB-01",
+            "document_date": "2025-08-01",
+            "supplier_name": "Controlled derived supplier 01",
+            "references": {
+              "order_numbers": [
+                "ocds-ptecst-133262"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-133262",
+                "description": "PARKS COMPREHENSIVE CUSTODIAL SERVICES",
+                "quantity": 1,
+                "unit_price": 171563.0,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "INV-PUB-01.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-PUB-01",
+            "document_date": "2025-08-01",
+            "supplier_name": "Controlled derived supplier 01",
+            "references": {
+              "order_numbers": [
+                "ocds-ptecst-133262"
+              ],
+              "delivery_numbers": [
+                "DDT-PUB-01"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-133262",
+                "description": "PARKS COMPREHENSIVE CUSTODIAL SERVICES",
+                "quantity": 1,
+                "unit_price": 172063.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "derived_from_ocid": "ocds-ptecst-133262",
+              "mutation_type": "price_over_order",
+              "real_transaction_claim": false
+            }
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "public-mutation-02",
+      "description": "Derived from ocds-ptecst-133299 with one frozen controlled mutation: price_over_order.",
+      "documents": [
+        {
+          "filename": "public-mutation-02-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "ocds-ptecst-133299",
+            "document_date": "2025-08-01",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-133299",
+                "description": "Amendment request - 31002617",
+                "quantity": 1,
+                "unit_price": 30735.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "source_kind": "public_ocds_normalization",
+              "publisher": "City of Portland, Oregon",
+              "source_id": "PUB-02",
+              "ocid": "ocds-ptecst-133299",
+              "source_title": "Amendment request - 31002617",
+              "source_amount": 30735.0,
+              "currency": "USD",
+              "source_status": "complete",
+              "source_start_date": "2025-08-01",
+              "source_end_date": null,
+              "source_note": "1 contract; 3 payments; 4 approvals",
+              "transformation": "minimal normalized representation; no downstream financial facts inferred"
+            },
+            "supplier_name": "Controlled derived supplier 02"
+          }
+        },
+        {
+          "filename": "DDT-PUB-02.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-PUB-02",
+            "document_date": "2025-08-01",
+            "supplier_name": "Controlled derived supplier 02",
+            "references": {
+              "order_numbers": [
+                "ocds-ptecst-133299"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-133299",
+                "description": "Amendment request - 31002617",
+                "quantity": 1,
+                "unit_price": 30735.0,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "INV-PUB-02.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-PUB-02",
+            "document_date": "2025-08-01",
+            "supplier_name": "Controlled derived supplier 02",
+            "references": {
+              "order_numbers": [
+                "ocds-ptecst-133299"
+              ],
+              "delivery_numbers": [
+                "DDT-PUB-02"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-133299",
+                "description": "Amendment request - 31002617",
+                "quantity": 1,
+                "unit_price": 30860.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "derived_from_ocid": "ocds-ptecst-133299",
+              "mutation_type": "price_over_order",
+              "real_transaction_claim": false
+            }
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "public-mutation-03",
+      "description": "Derived from ocds-ptecst-133238 with one frozen controlled mutation: price_over_order.",
+      "documents": [
+        {
+          "filename": "public-mutation-03-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "ocds-ptecst-133238",
+            "document_date": "2025-08-01",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-133238",
+                "description": "Amend 30008325 INTEGRATED POWER SERVICES - MOTOR STORAGE & PREVENTATIVE MAINTENANCE - ADD VALUE",
+                "quantity": 1,
+                "unit_price": 38648.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "source_kind": "public_ocds_normalization",
+              "publisher": "City of Portland, Oregon",
+              "source_id": "PUB-03",
+              "ocid": "ocds-ptecst-133238",
+              "source_title": "Amend 30008325 INTEGRATED POWER SERVICES - MOTOR STORAGE & PREVENTATIVE MAINTENANCE - ADD VALUE",
+              "source_amount": 38648.0,
+              "currency": "USD",
+              "source_status": "complete",
+              "source_start_date": "2025-08-01",
+              "source_end_date": null,
+              "source_note": "1 contract; 4 payments; 4 approvals",
+              "transformation": "minimal normalized representation; no downstream financial facts inferred"
+            },
+            "supplier_name": "Controlled derived supplier 03"
+          }
+        },
+        {
+          "filename": "DDT-PUB-03.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-PUB-03",
+            "document_date": "2025-08-01",
+            "supplier_name": "Controlled derived supplier 03",
+            "references": {
+              "order_numbers": [
+                "ocds-ptecst-133238"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-133238",
+                "description": "Amend 30008325 INTEGRATED POWER SERVICES - MOTOR STORAGE & PREVENTATIVE MAINTENANCE - ADD VALUE",
+                "quantity": 1,
+                "unit_price": 38648.0,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "INV-PUB-03.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-PUB-03",
+            "document_date": "2025-08-01",
+            "supplier_name": "Controlled derived supplier 03",
+            "references": {
+              "order_numbers": [
+                "ocds-ptecst-133238"
+              ],
+              "delivery_numbers": [
+                "DDT-PUB-03"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-133238",
+                "description": "Amend 30008325 INTEGRATED POWER SERVICES - MOTOR STORAGE & PREVENTATIVE MAINTENANCE - ADD VALUE",
+                "quantity": 1,
+                "unit_price": 39648.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "derived_from_ocid": "ocds-ptecst-133238",
+              "mutation_type": "price_over_order",
+              "real_transaction_claim": false
+            }
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "public-mutation-04",
+      "description": "Derived from ocds-ptecst-132893 with one frozen controlled mutation: price_over_order.",
+      "documents": [
+        {
+          "filename": "public-mutation-04-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "ocds-ptecst-132893",
+            "document_date": "2025-06-13",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-132893",
+                "description": "Citywide HVAC Sales and Service",
+                "quantity": 1,
+                "unit_price": 500000.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "source_kind": "public_ocds_normalization",
+              "publisher": "City of Portland, Oregon",
+              "source_id": "PUB-04",
+              "ocid": "ocds-ptecst-132893",
+              "source_title": "Citywide HVAC Sales and Service",
+              "source_amount": 500000.0,
+              "currency": "USD",
+              "source_status": "complete",
+              "source_start_date": "2025-06-13",
+              "source_end_date": "2025-07-22",
+              "source_note": "payment status: paid",
+              "transformation": "minimal normalized representation; no downstream financial facts inferred"
+            },
+            "supplier_name": "Controlled derived supplier 04"
+          }
+        },
+        {
+          "filename": "DDT-PUB-04.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-PUB-04",
+            "document_date": "2025-06-13",
+            "supplier_name": "Controlled derived supplier 04",
+            "references": {
+              "order_numbers": [
+                "ocds-ptecst-132893"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-132893",
+                "description": "Citywide HVAC Sales and Service",
+                "quantity": 1,
+                "unit_price": 500000.0,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "INV-PUB-04.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-PUB-04",
+            "document_date": "2025-06-13",
+            "supplier_name": "Controlled derived supplier 04",
+            "references": {
+              "order_numbers": [
+                "ocds-ptecst-132893"
+              ],
+              "delivery_numbers": [
+                "DDT-PUB-04"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-132893",
+                "description": "Citywide HVAC Sales and Service",
+                "quantity": 1,
+                "unit_price": 500250.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "derived_from_ocid": "ocds-ptecst-132893",
+              "mutation_type": "price_over_order",
+              "real_transaction_claim": false
+            }
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "public-mutation-05",
+      "description": "Derived from ocds-ptecst-132928 with one frozen controlled mutation: invoiced_over_received.",
+      "documents": [
+        {
+          "filename": "public-mutation-05-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "ocds-ptecst-132928",
+            "document_date": "2025-06-13",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-132928",
+                "description": "MAINTENANCE REPAIR & OPERATIONS (MRO) SUPPLIES",
+                "quantity": 1,
+                "unit_price": 100000.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "source_kind": "public_ocds_normalization",
+              "publisher": "City of Portland, Oregon",
+              "source_id": "PUB-05",
+              "ocid": "ocds-ptecst-132928",
+              "source_title": "MAINTENANCE REPAIR & OPERATIONS (MRO) SUPPLIES",
+              "source_amount": 100000.0,
+              "currency": "USD",
+              "source_status": "active",
+              "source_start_date": "2025-06-13",
+              "source_end_date": "2025-09-09",
+              "source_note": "contract present",
+              "transformation": "minimal normalized representation; no downstream financial facts inferred"
+            },
+            "supplier_name": "Controlled derived supplier 05"
+          }
+        },
+        {
+          "filename": "DDT-PUB-05.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-PUB-05",
+            "document_date": "2025-06-13",
+            "supplier_name": "Controlled derived supplier 05",
+            "references": {
+              "order_numbers": [
+                "ocds-ptecst-132928"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-132928",
+                "description": "MAINTENANCE REPAIR & OPERATIONS (MRO) SUPPLIES",
+                "quantity": 0.8,
+                "unit_price": 100000.0,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "INV-PUB-05.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-PUB-05",
+            "document_date": "2025-06-13",
+            "supplier_name": "Controlled derived supplier 05",
+            "references": {
+              "order_numbers": [
+                "ocds-ptecst-132928"
+              ],
+              "delivery_numbers": [
+                "DDT-PUB-05"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-132928",
+                "description": "MAINTENANCE REPAIR & OPERATIONS (MRO) SUPPLIES",
+                "quantity": 1,
+                "unit_price": 100000.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "derived_from_ocid": "ocds-ptecst-132928",
+              "mutation_type": "invoiced_over_received",
+              "real_transaction_claim": false
+            }
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "public-mutation-06",
+      "description": "Derived from ocds-ptecst-132925 with one frozen controlled mutation: invoiced_over_received.",
+      "documents": [
+        {
+          "filename": "public-mutation-06-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "ocds-ptecst-132925",
+            "document_date": "2025-07-09",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-132925",
+                "description": "FERC Peer Audit - Sole Source",
+                "quantity": 1,
+                "unit_price": 93975.03,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "source_kind": "public_ocds_normalization",
+              "publisher": "City of Portland, Oregon",
+              "source_id": "PUB-06",
+              "ocid": "ocds-ptecst-132925",
+              "source_title": "FERC Peer Audit - Sole Source",
+              "source_amount": 93975.03,
+              "currency": "USD",
+              "source_status": "active",
+              "source_start_date": "2025-07-09",
+              "source_end_date": "2025-07-10",
+              "source_note": "",
+              "transformation": "minimal normalized representation; no downstream financial facts inferred"
+            },
+            "supplier_name": "Controlled derived supplier 06"
+          }
+        },
+        {
+          "filename": "DDT-PUB-06.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-PUB-06",
+            "document_date": "2025-07-09",
+            "supplier_name": "Controlled derived supplier 06",
+            "references": {
+              "order_numbers": [
+                "ocds-ptecst-132925"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-132925",
+                "description": "FERC Peer Audit - Sole Source",
+                "quantity": 0.8,
+                "unit_price": 93975.03,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "INV-PUB-06.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-PUB-06",
+            "document_date": "2025-07-09",
+            "supplier_name": "Controlled derived supplier 06",
+            "references": {
+              "order_numbers": [
+                "ocds-ptecst-132925"
+              ],
+              "delivery_numbers": [
+                "DDT-PUB-06"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-132925",
+                "description": "FERC Peer Audit - Sole Source",
+                "quantity": 1,
+                "unit_price": 93975.03,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "derived_from_ocid": "ocds-ptecst-132925",
+              "mutation_type": "invoiced_over_received",
+              "real_transaction_claim": false
+            }
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "public-mutation-07",
+      "description": "Derived from ocds-ptecst-132815 with one frozen controlled mutation: discount_missing.",
+      "documents": [
+        {
+          "filename": "public-mutation-07-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "ocds-ptecst-132815",
+            "document_date": "2025-07-22",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-132815",
+                "description": "New sole source contract with Olympic Foundry",
+                "quantity": 1,
+                "unit_price": 2000000.0,
+                "discount_rate": 5
+              }
+            ],
+            "_benchmark_provenance": {
+              "source_kind": "public_ocds_normalization",
+              "publisher": "City of Portland, Oregon",
+              "source_id": "PUB-07",
+              "ocid": "ocds-ptecst-132815",
+              "source_title": "New sole source contract with Olympic Foundry",
+              "source_amount": 2000000.0,
+              "currency": "USD",
+              "source_status": "active",
+              "source_start_date": "2025-07-22",
+              "source_end_date": "2025-07-25",
+              "source_note": "",
+              "transformation": "minimal normalized representation; no downstream financial facts inferred"
+            },
+            "supplier_name": "Controlled derived supplier 07"
+          }
+        },
+        {
+          "filename": "DDT-PUB-07.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-PUB-07",
+            "document_date": "2025-07-22",
+            "supplier_name": "Controlled derived supplier 07",
+            "references": {
+              "order_numbers": [
+                "ocds-ptecst-132815"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-132815",
+                "description": "New sole source contract with Olympic Foundry",
+                "quantity": 1,
+                "unit_price": 2000000.0,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "INV-PUB-07.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-PUB-07",
+            "document_date": "2025-07-22",
+            "supplier_name": "Controlled derived supplier 07",
+            "references": {
+              "order_numbers": [
+                "ocds-ptecst-132815"
+              ],
+              "delivery_numbers": [
+                "DDT-PUB-07"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-132815",
+                "description": "New sole source contract with Olympic Foundry",
+                "quantity": 1,
+                "unit_price": 2000000.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "derived_from_ocid": "ocds-ptecst-132815",
+              "mutation_type": "discount_missing",
+              "real_transaction_claim": false
+            }
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "public-mutation-08",
+      "description": "Derived from ocds-ptecst-133038 with one frozen controlled mutation: discount_missing.",
+      "documents": [
+        {
+          "filename": "public-mutation-08-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "ocds-ptecst-133038",
+            "document_date": "2025-06-18",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-133038",
+                "description": "SE 38th & Market",
+                "quantity": 1,
+                "unit_price": 727000.0,
+                "discount_rate": 5
+              }
+            ],
+            "_benchmark_provenance": {
+              "source_kind": "public_ocds_normalization",
+              "publisher": "City of Portland, Oregon",
+              "source_id": "PUB-08",
+              "ocid": "ocds-ptecst-133038",
+              "source_title": "SE 38th & Market",
+              "source_amount": 727000.0,
+              "currency": "USD",
+              "source_status": "active",
+              "source_start_date": "2025-06-18",
+              "source_end_date": "2025-07-24",
+              "source_note": "",
+              "transformation": "minimal normalized representation; no downstream financial facts inferred"
+            },
+            "supplier_name": "Controlled derived supplier 08"
+          }
+        },
+        {
+          "filename": "DDT-PUB-08.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-PUB-08",
+            "document_date": "2025-06-18",
+            "supplier_name": "Controlled derived supplier 08",
+            "references": {
+              "order_numbers": [
+                "ocds-ptecst-133038"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-133038",
+                "description": "SE 38th & Market",
+                "quantity": 1,
+                "unit_price": 727000.0,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "INV-PUB-08.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-PUB-08",
+            "document_date": "2025-06-18",
+            "supplier_name": "Controlled derived supplier 08",
+            "references": {
+              "order_numbers": [
+                "ocds-ptecst-133038"
+              ],
+              "delivery_numbers": [
+                "DDT-PUB-08"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-133038",
+                "description": "SE 38th & Market",
+                "quantity": 1,
+                "unit_price": 727000.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "derived_from_ocid": "ocds-ptecst-133038",
+              "mutation_type": "discount_missing",
+              "real_transaction_claim": false
+            }
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "public-mutation-09",
+      "description": "Derived from ocds-ptecst-133001 with one frozen controlled mutation: unmatched_invoice_line.",
+      "documents": [
+        {
+          "filename": "public-mutation-09-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "ocds-ptecst-133001",
+            "document_date": "2025-06-20",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-133001",
+                "description": "Washington Park and Sam Jackson Pump Station Electrical Improvements",
+                "quantity": 1,
+                "unit_price": 800000.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "source_kind": "public_ocds_normalization",
+              "publisher": "City of Portland, Oregon",
+              "source_id": "PUB-09",
+              "ocid": "ocds-ptecst-133001",
+              "source_title": "Washington Park and Sam Jackson Pump Station Electrical Improvements",
+              "source_amount": 800000.0,
+              "currency": "USD",
+              "source_status": "active",
+              "source_start_date": "2025-06-20",
+              "source_end_date": "2025-08-28",
+              "source_note": "",
+              "transformation": "minimal normalized representation; no downstream financial facts inferred"
+            },
+            "supplier_name": "Controlled derived supplier 09"
+          }
+        },
+        {
+          "filename": "DDT-PUB-09.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-PUB-09",
+            "document_date": "2025-06-20",
+            "supplier_name": "Controlled derived supplier 09",
+            "references": {
+              "order_numbers": [
+                "ocds-ptecst-133001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-133001",
+                "description": "Washington Park and Sam Jackson Pump Station Electrical Improvements",
+                "quantity": 1,
+                "unit_price": 800000.0,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "INV-PUB-09.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-PUB-09",
+            "document_date": "2025-06-20",
+            "supplier_name": "Controlled derived supplier 09",
+            "references": {
+              "order_numbers": [
+                "ocds-ptecst-133001"
+              ],
+              "delivery_numbers": [
+                "DDT-PUB-09"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-133001",
+                "description": "Washington Park and Sam Jackson Pump Station Electrical Improvements",
+                "quantity": 1,
+                "unit_price": 800000.0,
+                "discount_rate": 0
+              },
+              {
+                "line_no": 2,
+                "sku": "EXTRA-PUB-09",
+                "description": "Controlled unmatched charge",
+                "quantity": 1,
+                "unit_price": 333.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "derived_from_ocid": "ocds-ptecst-133001",
+              "mutation_type": "unmatched_invoice_line",
+              "real_transaction_claim": false
+            }
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "public-mutation-10",
+      "description": "Derived from ocds-ptecst-132953 with one frozen controlled mutation: unmatched_invoice_line.",
+      "documents": [
+        {
+          "filename": "public-mutation-10-order.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "ocds-ptecst-132953",
+            "document_date": "2025-07-21",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-132953",
+                "description": "ULTRA BLOCK 5-YR CONTRACT REQUEST",
+                "quantity": 1,
+                "unit_price": 787250.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "source_kind": "public_ocds_normalization",
+              "publisher": "City of Portland, Oregon",
+              "source_id": "PUB-10",
+              "ocid": "ocds-ptecst-132953",
+              "source_title": "ULTRA BLOCK 5-YR CONTRACT REQUEST",
+              "source_amount": 787250.0,
+              "currency": "USD",
+              "source_status": "active",
+              "source_start_date": "2025-07-21",
+              "source_end_date": null,
+              "source_note": "",
+              "transformation": "minimal normalized representation; no downstream financial facts inferred"
+            },
+            "supplier_name": "Controlled derived supplier 10"
+          }
+        },
+        {
+          "filename": "DDT-PUB-10.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-PUB-10",
+            "document_date": "2025-07-21",
+            "supplier_name": "Controlled derived supplier 10",
+            "references": {
+              "order_numbers": [
+                "ocds-ptecst-132953"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-132953",
+                "description": "ULTRA BLOCK 5-YR CONTRACT REQUEST",
+                "quantity": 1,
+                "unit_price": 787250.0,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "INV-PUB-10.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-PUB-10",
+            "document_date": "2025-07-21",
+            "supplier_name": "Controlled derived supplier 10",
+            "references": {
+              "order_numbers": [
+                "ocds-ptecst-132953"
+              ],
+              "delivery_numbers": [
+                "DDT-PUB-10"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "OCDS-132953",
+                "description": "ULTRA BLOCK 5-YR CONTRACT REQUEST",
+                "quantity": 1,
+                "unit_price": 787250.0,
+                "discount_rate": 0
+              },
+              {
+                "line_no": 2,
+                "sku": "EXTRA-PUB-10",
+                "description": "Controlled unmatched charge",
+                "quantity": 1,
+                "unit_price": 777.0,
+                "discount_rate": 0
+              }
+            ],
+            "_benchmark_provenance": {
+              "derived_from_ocid": "ocds-ptecst-132953",
+              "mutation_type": "unmatched_invoice_line",
+              "real_transaction_claim": false
+            }
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "synthetic-full-chain-01",
+      "description": "Professional synthetic end-to-end chain: clean.",
+      "documents": [
+        {
+          "filename": "PROP-001.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "proposal",
+            "number": "PROP-001",
+            "document_date": "2026-08-01",
+            "supplier_name": "Synthetic Professional Supplier 01",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-001",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 105,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "PO-001.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-001",
+            "document_date": "2026-08-02",
+            "supplier_name": "Synthetic Professional Supplier 01",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-001",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 105,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "CONF-001.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "confirmation",
+            "number": "CONF-001",
+            "document_date": "2026-08-03",
+            "supplier_name": "Synthetic Professional Supplier 01",
+            "references": {
+              "order_numbers": [
+                "PO-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-001",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 105,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "DDT-001.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-001",
+            "document_date": "2026-08-04",
+            "supplier_name": "Synthetic Professional Supplier 01",
+            "references": {
+              "order_numbers": [
+                "PO-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-001",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 105,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "INV-001.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-001",
+            "document_date": "2026-08-05",
+            "supplier_name": "Synthetic Professional Supplier 01",
+            "references": {
+              "order_numbers": [
+                "PO-001"
+              ],
+              "delivery_numbers": [
+                "DDT-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-001",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 105,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "PAY-001.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "payment",
+            "number": "PAY-001",
+            "document_date": "2026-08-07",
+            "supplier_name": "Synthetic Professional Supplier 01",
+            "references": {
+              "invoice_numbers": [
+                "INV-001"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PAY-001",
+                "description": "Payment for INV-001",
+                "quantity": 1,
+                "unit_price": 1050.0,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "synthetic-full-chain-02",
+      "description": "Professional synthetic end-to-end chain: clean.",
+      "documents": [
+        {
+          "filename": "PROP-002.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "proposal",
+            "number": "PROP-002",
+            "document_date": "2026-08-01",
+            "supplier_name": "Synthetic Professional Supplier 02",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-002",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 110,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "PO-002.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-002",
+            "document_date": "2026-08-02",
+            "supplier_name": "Synthetic Professional Supplier 02",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-002",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 110,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "CONF-002.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "confirmation",
+            "number": "CONF-002",
+            "document_date": "2026-08-03",
+            "supplier_name": "Synthetic Professional Supplier 02",
+            "references": {
+              "order_numbers": [
+                "PO-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-002",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 110,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "DDT-002.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-002",
+            "document_date": "2026-08-04",
+            "supplier_name": "Synthetic Professional Supplier 02",
+            "references": {
+              "order_numbers": [
+                "PO-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-002",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 110,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "INV-002.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-002",
+            "document_date": "2026-08-05",
+            "supplier_name": "Synthetic Professional Supplier 02",
+            "references": {
+              "order_numbers": [
+                "PO-002"
+              ],
+              "delivery_numbers": [
+                "DDT-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-002",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 110,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "PAY-002.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "payment",
+            "number": "PAY-002",
+            "document_date": "2026-08-07",
+            "supplier_name": "Synthetic Professional Supplier 02",
+            "references": {
+              "invoice_numbers": [
+                "INV-002"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PAY-002",
+                "description": "Payment for INV-002",
+                "quantity": 1,
+                "unit_price": 1100.0,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "synthetic-full-chain-03",
+      "description": "Professional synthetic end-to-end chain: price_over_order.",
+      "documents": [
+        {
+          "filename": "PROP-003.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "proposal",
+            "number": "PROP-003",
+            "document_date": "2026-08-01",
+            "supplier_name": "Synthetic Professional Supplier 03",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-003",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 115,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "PO-003.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-003",
+            "document_date": "2026-08-02",
+            "supplier_name": "Synthetic Professional Supplier 03",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-003",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 115,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "CONF-003.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "confirmation",
+            "number": "CONF-003",
+            "document_date": "2026-08-03",
+            "supplier_name": "Synthetic Professional Supplier 03",
+            "references": {
+              "order_numbers": [
+                "PO-003"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-003",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 115,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "DDT-003.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-003",
+            "document_date": "2026-08-04",
+            "supplier_name": "Synthetic Professional Supplier 03",
+            "references": {
+              "order_numbers": [
+                "PO-003"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-003",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 115,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "INV-003.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-003",
+            "document_date": "2026-08-05",
+            "supplier_name": "Synthetic Professional Supplier 03",
+            "references": {
+              "order_numbers": [
+                "PO-003"
+              ],
+              "delivery_numbers": [
+                "DDT-003"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-003",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 120.0,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "PAY-003.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "payment",
+            "number": "PAY-003",
+            "document_date": "2026-08-07",
+            "supplier_name": "Synthetic Professional Supplier 03",
+            "references": {
+              "invoice_numbers": [
+                "INV-003"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PAY-003",
+                "description": "Payment for INV-003",
+                "quantity": 1,
+                "unit_price": 1200.0,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "synthetic-full-chain-04",
+      "description": "Professional synthetic end-to-end chain: invoiced_over_received.",
+      "documents": [
+        {
+          "filename": "PROP-004.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "proposal",
+            "number": "PROP-004",
+            "document_date": "2026-08-01",
+            "supplier_name": "Synthetic Professional Supplier 04",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-004",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 120,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "PO-004.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-004",
+            "document_date": "2026-08-02",
+            "supplier_name": "Synthetic Professional Supplier 04",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-004",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 120,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "CONF-004.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "confirmation",
+            "number": "CONF-004",
+            "document_date": "2026-08-03",
+            "supplier_name": "Synthetic Professional Supplier 04",
+            "references": {
+              "order_numbers": [
+                "PO-004"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-004",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 120,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "DDT-004.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-004",
+            "document_date": "2026-08-04",
+            "supplier_name": "Synthetic Professional Supplier 04",
+            "references": {
+              "order_numbers": [
+                "PO-004"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-004",
+                "description": "Professional benchmark service",
+                "quantity": 8,
+                "unit_price": 120,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "INV-004.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-004",
+            "document_date": "2026-08-05",
+            "supplier_name": "Synthetic Professional Supplier 04",
+            "references": {
+              "order_numbers": [
+                "PO-004"
+              ],
+              "delivery_numbers": [
+                "DDT-004"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-004",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 120,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "PAY-004.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "payment",
+            "number": "PAY-004",
+            "document_date": "2026-08-07",
+            "supplier_name": "Synthetic Professional Supplier 04",
+            "references": {
+              "invoice_numbers": [
+                "INV-004"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PAY-004",
+                "description": "Payment for INV-004",
+                "quantity": 1,
+                "unit_price": 1200.0,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "synthetic-full-chain-05",
+      "description": "Professional synthetic end-to-end chain: discount_missing.",
+      "documents": [
+        {
+          "filename": "PROP-005.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "proposal",
+            "number": "PROP-005",
+            "document_date": "2026-08-01",
+            "supplier_name": "Synthetic Professional Supplier 05",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-005",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 125,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "PO-005.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-005",
+            "document_date": "2026-08-02",
+            "supplier_name": "Synthetic Professional Supplier 05",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-005",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 125,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "CONF-005.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "confirmation",
+            "number": "CONF-005",
+            "document_date": "2026-08-03",
+            "supplier_name": "Synthetic Professional Supplier 05",
+            "references": {
+              "order_numbers": [
+                "PO-005"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-005",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 125,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "DDT-005.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-005",
+            "document_date": "2026-08-04",
+            "supplier_name": "Synthetic Professional Supplier 05",
+            "references": {
+              "order_numbers": [
+                "PO-005"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-005",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 125,
+                "discount_rate": 5
+              }
+            ]
+          }
+        },
+        {
+          "filename": "INV-005.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-005",
+            "document_date": "2026-08-05",
+            "supplier_name": "Synthetic Professional Supplier 05",
+            "references": {
+              "order_numbers": [
+                "PO-005"
+              ],
+              "delivery_numbers": [
+                "DDT-005"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-005",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 125,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "PAY-005.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "payment",
+            "number": "PAY-005",
+            "document_date": "2026-08-07",
+            "supplier_name": "Synthetic Professional Supplier 05",
+            "references": {
+              "invoice_numbers": [
+                "INV-005"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PAY-005",
+                "description": "Payment for INV-005",
+                "quantity": 1,
+                "unit_price": 1250.0,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "synthetic-full-chain-06",
+      "description": "Professional synthetic end-to-end chain: unmatched_invoice_line.",
+      "documents": [
+        {
+          "filename": "PROP-006.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "proposal",
+            "number": "PROP-006",
+            "document_date": "2026-08-01",
+            "supplier_name": "Synthetic Professional Supplier 06",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-006",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 130,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "PO-006.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-006",
+            "document_date": "2026-08-02",
+            "supplier_name": "Synthetic Professional Supplier 06",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-006",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 130,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "CONF-006.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "confirmation",
+            "number": "CONF-006",
+            "document_date": "2026-08-03",
+            "supplier_name": "Synthetic Professional Supplier 06",
+            "references": {
+              "order_numbers": [
+                "PO-006"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-006",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 130,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "DDT-006.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-006",
+            "document_date": "2026-08-04",
+            "supplier_name": "Synthetic Professional Supplier 06",
+            "references": {
+              "order_numbers": [
+                "PO-006"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-006",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 130,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "INV-006.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-006",
+            "document_date": "2026-08-05",
+            "supplier_name": "Synthetic Professional Supplier 06",
+            "references": {
+              "order_numbers": [
+                "PO-006"
+              ],
+              "delivery_numbers": [
+                "DDT-006"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-006",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 130,
+                "discount_rate": 0
+              },
+              {
+                "line_no": 2,
+                "sku": "EXTRA-006",
+                "description": "Synthetic handling fee",
+                "quantity": 1,
+                "unit_price": 75.0,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "PAY-006.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "payment",
+            "number": "PAY-006",
+            "document_date": "2026-08-07",
+            "supplier_name": "Synthetic Professional Supplier 06",
+            "references": {
+              "invoice_numbers": [
+                "INV-006"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PAY-006",
+                "description": "Payment for INV-006",
+                "quantity": 1,
+                "unit_price": 1375.0,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "synthetic-full-chain-07",
+      "description": "Professional synthetic end-to-end chain: return_without_credit.",
+      "documents": [
+        {
+          "filename": "PROP-007.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "proposal",
+            "number": "PROP-007",
+            "document_date": "2026-08-01",
+            "supplier_name": "Synthetic Professional Supplier 07",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-007",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 135,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "PO-007.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-007",
+            "document_date": "2026-08-02",
+            "supplier_name": "Synthetic Professional Supplier 07",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-007",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 135,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "CONF-007.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "confirmation",
+            "number": "CONF-007",
+            "document_date": "2026-08-03",
+            "supplier_name": "Synthetic Professional Supplier 07",
+            "references": {
+              "order_numbers": [
+                "PO-007"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-007",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 135,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "DDT-007.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-007",
+            "document_date": "2026-08-04",
+            "supplier_name": "Synthetic Professional Supplier 07",
+            "references": {
+              "order_numbers": [
+                "PO-007"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-007",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 135,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "INV-007.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-007",
+            "document_date": "2026-08-05",
+            "supplier_name": "Synthetic Professional Supplier 07",
+            "references": {
+              "order_numbers": [
+                "PO-007"
+              ],
+              "delivery_numbers": [
+                "DDT-007"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-007",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 135,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "PAY-007.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "payment",
+            "number": "PAY-007",
+            "document_date": "2026-08-07",
+            "supplier_name": "Synthetic Professional Supplier 07",
+            "references": {
+              "invoice_numbers": [
+                "INV-007"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PAY-007",
+                "description": "Payment for INV-007",
+                "quantity": 1,
+                "unit_price": 1350.0,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "RET-007.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "return",
+            "number": "RET-007",
+            "document_date": "2026-08-08",
+            "supplier_name": "Synthetic Professional Supplier 07",
+            "references": {
+              "order_numbers": [
+                "PO-007"
+              ],
+              "invoice_numbers": [
+                "INV-007"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-007",
+                "description": "Professional benchmark service",
+                "quantity": 2,
+                "unit_price": 135,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "synthetic-full-chain-08",
+      "description": "Professional synthetic end-to-end chain: credit_below_return.",
+      "documents": [
+        {
+          "filename": "PROP-008.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "proposal",
+            "number": "PROP-008",
+            "document_date": "2026-08-01",
+            "supplier_name": "Synthetic Professional Supplier 08",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-008",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 140,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "PO-008.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-008",
+            "document_date": "2026-08-02",
+            "supplier_name": "Synthetic Professional Supplier 08",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-008",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 140,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "CONF-008.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "confirmation",
+            "number": "CONF-008",
+            "document_date": "2026-08-03",
+            "supplier_name": "Synthetic Professional Supplier 08",
+            "references": {
+              "order_numbers": [
+                "PO-008"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-008",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 140,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "DDT-008.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-008",
+            "document_date": "2026-08-04",
+            "supplier_name": "Synthetic Professional Supplier 08",
+            "references": {
+              "order_numbers": [
+                "PO-008"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-008",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 140,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "INV-008.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-008",
+            "document_date": "2026-08-05",
+            "supplier_name": "Synthetic Professional Supplier 08",
+            "references": {
+              "order_numbers": [
+                "PO-008"
+              ],
+              "delivery_numbers": [
+                "DDT-008"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-008",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 140,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "PAY-008.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "payment",
+            "number": "PAY-008",
+            "document_date": "2026-08-07",
+            "supplier_name": "Synthetic Professional Supplier 08",
+            "references": {
+              "invoice_numbers": [
+                "INV-008"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PAY-008",
+                "description": "Payment for INV-008",
+                "quantity": 1,
+                "unit_price": 1400.0,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "RET-008.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "return",
+            "number": "RET-008",
+            "document_date": "2026-08-08",
+            "supplier_name": "Synthetic Professional Supplier 08",
+            "references": {
+              "order_numbers": [
+                "PO-008"
+              ],
+              "invoice_numbers": [
+                "INV-008"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-008",
+                "description": "Professional benchmark service",
+                "quantity": 3,
+                "unit_price": 140,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "CN-008.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "credit_note",
+            "number": "CN-008",
+            "document_date": "2026-08-10",
+            "supplier_name": "Synthetic Professional Supplier 08",
+            "references": {
+              "order_numbers": [
+                "PO-008"
+              ],
+              "invoice_numbers": [
+                "INV-008"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-008",
+                "description": "Professional benchmark service",
+                "quantity": 1,
+                "unit_price": 140,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "synthetic-full-chain-09",
+      "description": "Professional synthetic end-to-end chain: price_over_order.",
+      "documents": [
+        {
+          "filename": "PROP-009.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "proposal",
+            "number": "PROP-009",
+            "document_date": "2026-08-01",
+            "supplier_name": "Synthetic Professional Supplier 09",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-009",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 145,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "PO-009.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-009",
+            "document_date": "2026-08-02",
+            "supplier_name": "Synthetic Professional Supplier 09",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-009",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 145,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "CONF-009.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "confirmation",
+            "number": "CONF-009",
+            "document_date": "2026-08-03",
+            "supplier_name": "Synthetic Professional Supplier 09",
+            "references": {
+              "order_numbers": [
+                "PO-009"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-009",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 145,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "DDT-009.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-009",
+            "document_date": "2026-08-04",
+            "supplier_name": "Synthetic Professional Supplier 09",
+            "references": {
+              "order_numbers": [
+                "PO-009"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-009",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 145,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "INV-009.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-009",
+            "document_date": "2026-08-05",
+            "supplier_name": "Synthetic Professional Supplier 09",
+            "references": {
+              "order_numbers": [
+                "PO-009"
+              ],
+              "delivery_numbers": [
+                "DDT-009"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-009",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 157.0,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "PAY-009.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "payment",
+            "number": "PAY-009",
+            "document_date": "2026-08-07",
+            "supplier_name": "Synthetic Professional Supplier 09",
+            "references": {
+              "invoice_numbers": [
+                "INV-009"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PAY-009",
+                "description": "Payment for INV-009",
+                "quantity": 1,
+                "unit_price": 1570.0,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    },
+    {
+      "id": "synthetic-full-chain-10",
+      "description": "Professional synthetic end-to-end chain: clean.",
+      "documents": [
+        {
+          "filename": "PROP-010.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "proposal",
+            "number": "PROP-010",
+            "document_date": "2026-08-01",
+            "supplier_name": "Synthetic Professional Supplier 10",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-010",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 150,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "PO-010.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "order",
+            "number": "PO-010",
+            "document_date": "2026-08-02",
+            "supplier_name": "Synthetic Professional Supplier 10",
+            "references": {},
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-010",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 150,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "CONF-010.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "confirmation",
+            "number": "CONF-010",
+            "document_date": "2026-08-03",
+            "supplier_name": "Synthetic Professional Supplier 10",
+            "references": {
+              "order_numbers": [
+                "PO-010"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-010",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 150,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "DDT-010.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "delivery",
+            "number": "DDT-010",
+            "document_date": "2026-08-04",
+            "supplier_name": "Synthetic Professional Supplier 10",
+            "references": {
+              "order_numbers": [
+                "PO-010"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-010",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 150,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "INV-010.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "invoice",
+            "number": "INV-010",
+            "document_date": "2026-08-05",
+            "supplier_name": "Synthetic Professional Supplier 10",
+            "references": {
+              "order_numbers": [
+                "PO-010"
+              ],
+              "delivery_numbers": [
+                "DDT-010"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "SVC-010",
+                "description": "Professional benchmark service",
+                "quantity": 10,
+                "unit_price": 150,
+                "discount_rate": 0
+              }
+            ]
+          }
+        },
+        {
+          "filename": "PAY-010.json",
+          "mime_type": "application/json",
+          "content": {
+            "document_type": "payment",
+            "number": "PAY-010",
+            "document_date": "2026-08-07",
+            "supplier_name": "Synthetic Professional Supplier 10",
+            "references": {
+              "invoice_numbers": [
+                "INV-010"
+              ]
+            },
+            "lines": [
+              {
+                "line_no": 1,
+                "sku": "PAY-010",
+                "description": "Payment for INV-010",
+                "quantity": 1,
+                "unit_price": 1500.0,
+                "discount_rate": 0
+              }
+            ]
+          }
+        }
+      ],
+      "expected": [],
+      "ignore_unexpected_types": []
+    }
+  ]
+}
