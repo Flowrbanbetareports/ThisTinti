@@ -6,13 +6,13 @@ ThisTinti non decide, non approva e non certifica nulla. Organizza informazioni 
 
 ## Stato del rilascio
 
-Versione pubblica corrente: **3.4.0-alpha.7-rc.12 — Public Preview**.
+Versione di sviluppo: **3.4.0-alpha.7-rc.13 — candidata interna di sicurezza**.
 
-La RC12 è una prerelease immutabile costruita dal commit applicativo `de4df8a96394b088e434c870971a193b5538d78d` e pubblicata come tag `v3.4.0-alpha.7-rc.12` con checksum, provenienza e attestazioni. La pubblicazione non chiude i gate esterni necessari per una beta validata o per la produzione.
+Versione pubblica corrente: **3.4.0-alpha.7-rc.12 — Public Preview**. La RC12 resta una prerelease immutabile costruita dal commit applicativo `de4df8a96394b088e434c870971a193b5538d78d` e pubblicata come tag `v3.4.0-alpha.7-rc.12` con checksum, provenienza e attestazioni.
 
-RC12 aggiunge una piccola area amministratore “Progetto e piani”: conta i download pubblici GitHub senza chiamarli utenti o installazioni, mostra metriche pubbliche del repository, offre un Integration Pack tecnico in anteprima e mantiene disattivate le predisposizioni per catalogo, sponsor e pagamenti. Non introduce telemetria, account centrale, pubblicità esterna, checkout o un servizio SaaS gestito.
+RC13 è deliberatamente limitata alla correzione delle vulnerabilità `PYSEC-2026-3655` e `PYSEC-2026-3656` nella dipendenza PDF `pypdf`, aggiornata da 6.14.2 a 6.15.0. Non aggiunge funzionalità, non modifica il modello local-first e non anticipa il collaudo umano complessivo della RC12/RC13. Diventerà pubblica soltanto se supera nuovamente i gate completi e il ciclo Windows sul commit candidato esatto.
 
-Il lavoro successivo parte dal collaudo umano end-to-end della RC12 installata; una RC13 non viene creata automaticamente per aggiungere funzioni. Il percorso e i criteri sono descritti in `docs/ROADMAP_TO_1_0.md` e `docs/RC12_HANDS_ON_ACCEPTANCE.md`.
+La pubblicazione di una RC non chiude i gate esterni necessari per una beta validata o per la produzione.
 
 ## Identità e posizionamento
 
@@ -74,7 +74,7 @@ Il Validation Gate sintetico serve soltanto alla regressione tecnica e non può 
 - memoria privata e pattern anonimi con soglia minima, senza documenti, nomi, importi o riferimenti;
 - fascicoli di prova, revisione umana, audit con sequenza canonica e catena hash;
 - Adaptive Discovery con regole apprese sempre soggette a conferma;
-- Validation Lab, backup/restore, PostgreSQL RLS, rate limiting condiviso, OpenAPI e SBOM.
+- Validation Lab, backup/restore, PostgreSQL RLS, rate limiting condiviso, OpenAPI e SBOM;
 - diagnostica locale integrata con esiti espliciti e verbale JSON scaricabile.
 
 ## Avvio locale
@@ -176,6 +176,7 @@ ThisTinti non invia contestazioni, non esegue o blocca pagamenti reali, non modi
 - `ROADMAP.md`: priorità dalla alpha alla preparazione operativa;
 - `docs/ROADMAP_TO_1_0.md`: criterio di completamento e percorso dalla Public Preview alla 1.0 Stable;
 - `docs/RC12_HANDS_ON_ACCEPTANCE.md`: collaudo umano end-to-end della Public Preview installata;
+- `docs/RC13_SECURITY_CANDIDATE.md`: perimetro e criterio della candidata sicurezza RC13;
 - `TERMS_OF_USE.md`: condizioni, rischi, responsabilità e approvazione specifica;
 - `DISCLAIMER.md`: avviso essenziale;
 - `PRIVACY.md`: dati locali e responsabilità dell'organizzazione;
