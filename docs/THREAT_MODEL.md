@@ -1,6 +1,8 @@
-# Threat model — ThisTinti 3.4.0-alpha.7-rc.13 (candidata interna non pubblicata)
+# Threat model — ThisTinti 3.4.0-alpha.7-rc.13 — Public Preview
 
-La RC12 è pubblicata come prerelease immutabile. Questo threat model descrive controlli e rischi residui del prodotto e della reference edition self-hosted; non sostituisce un penetration test indipendente né una revisione dell'infrastruttura finale.
+RC13 è pubblicata come Public Preview prerelease. Questo threat model descrive controlli e rischi residui del prodotto e della reference edition self-hosted; non sostituisce un penetration test indipendente né una revisione dell'infrastruttura finale.
+
+RC13 include la correzione `pypdf` 6.14.2 → 6.15.0 per `PYSEC-2026-3655` e `PYSEC-2026-3656`. La correzione riduce il rischio noto relativo al parser PDF ma non elimina il rischio residuo di vulnerabilità future o zero-day nelle librerie che elaborano file non fidati.
 
 ## Asset
 
@@ -36,9 +38,9 @@ Mitigazioni: dipendenze server-side per ruolo/scope, protezione ultimo admin, re
 
 ### File malevolo
 
-Mitigazioni: quarantena, whitelist, limiti, nomi sanitizzati, blocco magic eseguibili, EICAR, scanner esterno, XML senza DTD/entità, P7M verificato, ZIP/XLSX anti-bomb, OCR limitato.
+Mitigazioni: quarantena, whitelist, limiti, nomi sanitizzati, blocco magic eseguibili, EICAR, scanner esterno, XML senza DTD/entità, P7M verificato, ZIP/XLSX anti-bomb, OCR limitato, audit dipendenze e aggiornamento di sicurezza del parser PDF in RC13.
 
-Rischio residuo: vulnerabilità zero-day nel parser/scanner, firme obsolete, file passivo conservato. Isolare worker e scanner e mantenere firme/immagini aggiornate.
+Rischio residuo: vulnerabilità zero-day nel parser/scanner, firme obsolete, file passivo conservato. Isolare worker e scanner e mantenere firme/immagini/dipendenze aggiornate.
 
 ### Denial of service
 
@@ -66,15 +68,15 @@ Rischio residuo: contratti, listini, cambi, eccezioni fiscali o semantica non pr
 
 ### Supply chain
 
-Mitigazioni: lock, SBOM, CI, Ruff, Bandit, scansione segreti, `pip-audit` bloccante quando la rete è disponibile.
+Mitigazioni: lock, SBOM, CI, Ruff, Bandit, scansione segreti, `pip-audit` bloccante con rete, checksum, provenienza e attestazioni degli artefatti pubblici.
 
-Rischio residuo: l'ambiente locale di generazione non ha potuto interrogare l'indice vulnerabilità per assenza rete; il gate va eseguito nella CI/release environment.
+Per RC13 il dependency audit con rete è stato rieseguito e il rischio noto `pypdf` che ha motivato l’hotfix è stato corretto. Il rischio residuo include nuove advisory future, compromissione upstream, dipendenze transitive e strumenti di build; il controllo deve quindi restare continuo per ogni nuova candidata.
 
 ### Perdita dati e backup inutilizzabile
 
 Mitigazioni: backup coerente, hash, verifica, restore protetto, retention e procedure operative.
 
-Rischio residuo: chiavi di cifratura perse, backup non off-site, restore mai provato. La responsabilità resta infrastrutturale.
+Rischio residuo: chiavi di cifratura perse, backup non off-site, restore mai provato nell’ambiente definitivo. La responsabilità resta infrastrutturale.
 
 ## Decisioni deliberate
 
@@ -85,7 +87,6 @@ Rischio residuo: chiavi di cifratura perse, backup non off-site, restore mai pro
 - OCR e dati derivati mantengono provenienza e confidenza;
 - produzione fail-closed se mancano PostgreSQL, worker, rate limiting condiviso o scanner operativo.
 
-
 ## Rischi del livello Intelligence 3.2
 
 - **falsa certezza del rischio**: punteggio, confidenza e importo sono spiegati e `safe_to_automate` resta falso senza calibrazione;
@@ -95,7 +96,6 @@ Rischio residuo: chiavi di cifratura perse, backup non off-site, restore mai pro
 - **self-red-team con effetti collaterali**: gli scenari lavorano su rappresentazioni sintetiche e non mutano documenti o pagamenti;
 - **ricevuta OCR interpretata male**: importo con confidenza ridotta, evidenza esplicita e revisione raccomandata.
 
-
 ## Rischi specifici del self-hosted
 
 - **configurazione errata dell’operatore**: preflight, segreti separati e avvio fail-closed riducono gli errori, ma non sostituiscono revisione dell’infrastruttura;
@@ -104,3 +104,7 @@ Rischio residuo: chiavi di cifratura perse, backup non off-site, restore mai pro
 - **scanner non pronto o firme obsolete**: readiness fallisce se il daemon non risponde, ma età firme e aggiornamenti restano responsabilità operativa;
 - **backup sullo stesso host**: lo script crea un archivio verificabile, ma copie off-site, cifratura, retention e prove di restore sono a carico dell’organizzazione;
 - **falsa percezione di supporto enterprise**: la configurazione è una reference edition open source, senza hosting, SLA, reperibilità o certificazione.
+
+## Gate esterno residuo
+
+Il threat model è un documento tecnico interno. Prima di una beta validata o della produzione deve essere confrontato con un penetration test indipendente e con la configurazione effettiva dell'organizzazione. I rilievi critici e alti devono essere corretti e retestati; il documento non va usato come autocertificazione di sicurezza.
