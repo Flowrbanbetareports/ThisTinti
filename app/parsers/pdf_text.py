@@ -359,7 +359,7 @@ def _extract_document_number(text: str) -> tuple[str | None, dict[str, Any]]:
     for match in LABELLED_DOCUMENT_ID_RE.finditer(text):
         candidate = _normalize_document_id(match.group(1))
         if candidate:
-            candidates.append((4, candidate, "explicit_label"))
+            candidates.append((6, candidate, "explicit_label"))
 
     if not candidates:
         return None, {"status": "abstained", "reason": "no_reliable_candidate", "candidates": []}
