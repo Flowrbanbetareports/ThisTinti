@@ -1,9 +1,11 @@
-# 3.4.0-alpha.7-rc.13 — hotfix sicurezza PDF (candidata interna)
+# 3.4.0-alpha.7-rc.13 — hotfix sicurezza PDF — Public Preview
 
 - aggiorna `pypdf` da 6.14.2 a 6.15.0 per correggere `PYSEC-2026-3655` e `PYSEC-2026-3656`;
 - nessuna nuova funzionalità, nessuna modifica UI e nessun cambiamento al modello local-first;
-- rigenera lock e SBOM e richiede nuovamente dependency audit, test parser/PDF, CI completa e ciclo Windows sul commit candidato esatto;
-- `3.4.0-alpha.7-rc.12` resta la Public Preview immutabile finché RC13 non supera tutti i gate e viene pubblicata separatamente;
+- lock e SBOM riallineati; dependency audit, test parser/PDF, CI completa e ciclo Windows rieseguiti sul commit esatto;
+- pubblicata come Public Preview prerelease `v3.4.0-alpha.7-rc.13` il 2026-08-26 dopo verifica completa sul commit `f7609b51aec4c358d0410ca8ff83e60485cac96c`, tree `e1a5ea29d4bbef7e1431d96fa5a5149dc4a46e3c` e Windows run `33008478384` / build `394`;
+- installer `ThisTinti-Setup-3.4.0-alpha.7-rc.13-x64.exe`, SHA-256 `505532c67d324a29487d77acd9ae0d1f1e5b918a4f2ccbb996bc3b2be774622f`;
+- RC12 resta immutabile come release storica; RC13 è la Public Preview corrente;
 - pilot reale, pentest indipendente, revisione legale/privacy, WCAG manuale, utenti non istruiti e firma Authenticode restano gate esterni aperti.
 
 # 3.4.0-alpha.7-rc.12 — preparazione commerciale leggera
