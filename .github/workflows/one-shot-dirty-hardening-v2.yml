@@ -31,6 +31,9 @@ jobs:
         run: |
           python scripts/_apply_dirty_parser_hardening.py
           python scripts/_fix_dirty_hardening_output.py
+          # The GitHub Actions token may push source changes but may not update workflow files.
+          # Keep the existing corpus workflow unchanged in the bot-generated commit; cleanup is done separately.
+          git checkout -- .github/workflows/dirty-public-corpus-22.yml
       - name: Format touched Python files
         run: |
           ruff format app/parsers/pdf_text.py scripts/run_dirty_public_corpus.py scripts/local_distribution_smoke.py tests/test_dirty_public_corpus.py tests/test_pdf_semantics.py
@@ -49,12 +52,10 @@ jobs:
           PY
       - name: Run focused semantic tests
         run: pytest -q tests/test_pdf_semantics.py tests/test_dirty_public_corpus.py
-      - name: Remove one-shot machinery
+      - name: Remove source one-shot helpers
         run: |
           rm scripts/_apply_dirty_parser_hardening.py
           rm scripts/_fix_dirty_hardening_output.py
-          rm .github/workflows/one-shot-dirty-hardening.yml
-          rm .github/workflows/one-shot-dirty-hardening-v2.yml
       - name: Commit hardened branch
         run: |
           git config user.name 'github-actions[bot]'
