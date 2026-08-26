@@ -1,4 +1,6 @@
-# Manuale operativo — ThisTinti 3.4.0-alpha.7-rc.12 (candidata interna non pubblicata)
+# Manuale operativo — ThisTinti 3.4.0-alpha.7-rc.12 (Public Preview)
+
+Questa guida descrive i profili e i controlli operativi disponibili nella RC12 pubblicata. La presenza di un profilo `production` e dei relativi controlli fail-closed non costituisce certificazione di produzione: restano necessari i gate esterni descritti in `docs/PRODUCTION_READINESS.md`.
 
 ## Profili di ambiente
 
