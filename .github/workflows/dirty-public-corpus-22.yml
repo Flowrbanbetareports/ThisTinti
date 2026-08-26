@@ -48,6 +48,8 @@ jobs:
           tesseract --list-langs
       - name: Install dependencies
         run: python -m pip install -r requirements-dev.txt
+      - name: Show formatter diff
+        run: ruff format --diff scripts/run_dirty_public_corpus.py tests/test_dirty_public_corpus.py || true
       - name: Validate corpus governance contract
         run: pytest -q tests/test_dirty_public_corpus.py
       - name: Run raw external corpus
