@@ -1,0 +1,476 @@
+{
+  "schema": "thistinti.public-evidence-ground-truth.v1",
+  "benchmark_name": "ThisTinti Public Evidence Benchmark 30",
+  "benchmark_version": "1.0.0",
+  "frozen_at": "2026-08-26T21:30:00Z",
+  "evaluator_contract": "Engine ingestion receives benchmark documents only; expected findings are injected solely for post-output comparison.",
+  "categories": {
+    "public_record_baseline": 10,
+    "public_record_mutation": 10,
+    "synthetic_full_chain": 10
+  },
+  "source_manifest": "samples/public_evidence_benchmark_30_sources.json",
+  "scenarios": [
+    {
+      "id": "public-baseline-01",
+      "category": "public_record_baseline",
+      "source_id": "PUB-01",
+      "ocid": "ocds-ptecst-133262",
+      "expected": [],
+      "mutation_type": null,
+      "mutation": null,
+      "ground_truth_rationale": "No anomaly is asserted; checks parsing and false-positive behavior on explicit public facts."
+    },
+    {
+      "id": "public-baseline-02",
+      "category": "public_record_baseline",
+      "source_id": "PUB-02",
+      "ocid": "ocds-ptecst-133299",
+      "expected": [],
+      "mutation_type": null,
+      "mutation": null,
+      "ground_truth_rationale": "No anomaly is asserted; checks parsing and false-positive behavior on explicit public facts."
+    },
+    {
+      "id": "public-baseline-03",
+      "category": "public_record_baseline",
+      "source_id": "PUB-03",
+      "ocid": "ocds-ptecst-133238",
+      "expected": [],
+      "mutation_type": null,
+      "mutation": null,
+      "ground_truth_rationale": "No anomaly is asserted; checks parsing and false-positive behavior on explicit public facts."
+    },
+    {
+      "id": "public-baseline-04",
+      "category": "public_record_baseline",
+      "source_id": "PUB-04",
+      "ocid": "ocds-ptecst-132893",
+      "expected": [],
+      "mutation_type": null,
+      "mutation": null,
+      "ground_truth_rationale": "No anomaly is asserted; checks parsing and false-positive behavior on explicit public facts."
+    },
+    {
+      "id": "public-baseline-05",
+      "category": "public_record_baseline",
+      "source_id": "PUB-05",
+      "ocid": "ocds-ptecst-132928",
+      "expected": [],
+      "mutation_type": null,
+      "mutation": null,
+      "ground_truth_rationale": "No anomaly is asserted; checks parsing and false-positive behavior on explicit public facts."
+    },
+    {
+      "id": "public-baseline-06",
+      "category": "public_record_baseline",
+      "source_id": "PUB-06",
+      "ocid": "ocds-ptecst-132925",
+      "expected": [],
+      "mutation_type": null,
+      "mutation": null,
+      "ground_truth_rationale": "No anomaly is asserted; checks parsing and false-positive behavior on explicit public facts."
+    },
+    {
+      "id": "public-baseline-07",
+      "category": "public_record_baseline",
+      "source_id": "PUB-07",
+      "ocid": "ocds-ptecst-132815",
+      "expected": [],
+      "mutation_type": null,
+      "mutation": null,
+      "ground_truth_rationale": "No anomaly is asserted; checks parsing and false-positive behavior on explicit public facts."
+    },
+    {
+      "id": "public-baseline-08",
+      "category": "public_record_baseline",
+      "source_id": "PUB-08",
+      "ocid": "ocds-ptecst-133038",
+      "expected": [],
+      "mutation_type": null,
+      "mutation": null,
+      "ground_truth_rationale": "No anomaly is asserted; checks parsing and false-positive behavior on explicit public facts."
+    },
+    {
+      "id": "public-baseline-09",
+      "category": "public_record_baseline",
+      "source_id": "PUB-09",
+      "ocid": "ocds-ptecst-133001",
+      "expected": [],
+      "mutation_type": null,
+      "mutation": null,
+      "ground_truth_rationale": "No anomaly is asserted; checks parsing and false-positive behavior on explicit public facts."
+    },
+    {
+      "id": "public-baseline-10",
+      "category": "public_record_baseline",
+      "source_id": "PUB-10",
+      "ocid": "ocds-ptecst-132953",
+      "expected": [],
+      "mutation_type": null,
+      "mutation": null,
+      "ground_truth_rationale": "No anomaly is asserted; checks parsing and false-positive behavior on explicit public facts."
+    },
+    {
+      "id": "public-mutation-01",
+      "category": "public_record_mutation",
+      "source_id": "PUB-01",
+      "ocid": "ocds-ptecst-133262",
+      "expected": [
+        {
+          "case_type": "price_over_order",
+          "amount": 500.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "mutation_type": "price_over_order",
+      "mutation": {
+        "field": "invoice.lines[0].unit_price",
+        "baseline": 171563.0,
+        "mutated": 172063.0
+      },
+      "ground_truth_rationale": "Expected result frozen from the single declared mutation before engine execution."
+    },
+    {
+      "id": "public-mutation-02",
+      "category": "public_record_mutation",
+      "source_id": "PUB-02",
+      "ocid": "ocds-ptecst-133299",
+      "expected": [
+        {
+          "case_type": "price_over_order",
+          "amount": 125.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "mutation_type": "price_over_order",
+      "mutation": {
+        "field": "invoice.lines[0].unit_price",
+        "baseline": 30735.0,
+        "mutated": 30860.0
+      },
+      "ground_truth_rationale": "Expected result frozen from the single declared mutation before engine execution."
+    },
+    {
+      "id": "public-mutation-03",
+      "category": "public_record_mutation",
+      "source_id": "PUB-03",
+      "ocid": "ocds-ptecst-133238",
+      "expected": [
+        {
+          "case_type": "price_over_order",
+          "amount": 1000.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "mutation_type": "price_over_order",
+      "mutation": {
+        "field": "invoice.lines[0].unit_price",
+        "baseline": 38648.0,
+        "mutated": 39648.0
+      },
+      "ground_truth_rationale": "Expected result frozen from the single declared mutation before engine execution."
+    },
+    {
+      "id": "public-mutation-04",
+      "category": "public_record_mutation",
+      "source_id": "PUB-04",
+      "ocid": "ocds-ptecst-132893",
+      "expected": [
+        {
+          "case_type": "price_over_order",
+          "amount": 250.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "mutation_type": "price_over_order",
+      "mutation": {
+        "field": "invoice.lines[0].unit_price",
+        "baseline": 500000.0,
+        "mutated": 500250.0
+      },
+      "ground_truth_rationale": "Expected result frozen from the single declared mutation before engine execution."
+    },
+    {
+      "id": "public-mutation-05",
+      "category": "public_record_mutation",
+      "source_id": "PUB-05",
+      "ocid": "ocds-ptecst-132928",
+      "expected": [
+        {
+          "case_type": "invoiced_over_received",
+          "amount": 20000.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "mutation_type": "invoiced_over_received",
+      "mutation": {
+        "field": "delivery.lines[0].quantity",
+        "baseline": 1,
+        "mutated": 0.8
+      },
+      "ground_truth_rationale": "Expected result frozen from the single declared mutation before engine execution."
+    },
+    {
+      "id": "public-mutation-06",
+      "category": "public_record_mutation",
+      "source_id": "PUB-06",
+      "ocid": "ocds-ptecst-132925",
+      "expected": [
+        {
+          "case_type": "invoiced_over_received",
+          "amount": 18795.01,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "mutation_type": "invoiced_over_received",
+      "mutation": {
+        "field": "delivery.lines[0].quantity",
+        "baseline": 1,
+        "mutated": 0.8
+      },
+      "ground_truth_rationale": "Expected result frozen from the single declared mutation before engine execution."
+    },
+    {
+      "id": "public-mutation-07",
+      "category": "public_record_mutation",
+      "source_id": "PUB-07",
+      "ocid": "ocds-ptecst-132815",
+      "expected": [
+        {
+          "case_type": "discount_missing",
+          "amount": 100000.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "mutation_type": "discount_missing",
+      "mutation": {
+        "field": "invoice.lines[0].discount_rate",
+        "baseline": 5,
+        "mutated": 0
+      },
+      "ground_truth_rationale": "Expected result frozen from the single declared mutation before engine execution."
+    },
+    {
+      "id": "public-mutation-08",
+      "category": "public_record_mutation",
+      "source_id": "PUB-08",
+      "ocid": "ocds-ptecst-133038",
+      "expected": [
+        {
+          "case_type": "discount_missing",
+          "amount": 36350.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "mutation_type": "discount_missing",
+      "mutation": {
+        "field": "invoice.lines[0].discount_rate",
+        "baseline": 5,
+        "mutated": 0
+      },
+      "ground_truth_rationale": "Expected result frozen from the single declared mutation before engine execution."
+    },
+    {
+      "id": "public-mutation-09",
+      "category": "public_record_mutation",
+      "source_id": "PUB-09",
+      "ocid": "ocds-ptecst-133001",
+      "expected": [
+        {
+          "case_type": "unmatched_invoice_line",
+          "amount": 333.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "mutation_type": "unmatched_invoice_line",
+      "mutation": {
+        "field": "invoice.lines",
+        "baseline_count": 1,
+        "mutated_count": 2,
+        "added_line_amount": 333.0
+      },
+      "ground_truth_rationale": "Expected result frozen from the single declared mutation before engine execution."
+    },
+    {
+      "id": "public-mutation-10",
+      "category": "public_record_mutation",
+      "source_id": "PUB-10",
+      "ocid": "ocds-ptecst-132953",
+      "expected": [
+        {
+          "case_type": "unmatched_invoice_line",
+          "amount": 777.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "mutation_type": "unmatched_invoice_line",
+      "mutation": {
+        "field": "invoice.lines",
+        "baseline_count": 1,
+        "mutated_count": 2,
+        "added_line_amount": 777.0
+      },
+      "ground_truth_rationale": "Expected result frozen from the single declared mutation before engine execution."
+    },
+    {
+      "id": "synthetic-full-chain-01",
+      "category": "synthetic_full_chain",
+      "source_id": null,
+      "ocid": null,
+      "expected": [],
+      "mutation_type": null,
+      "mutation": null,
+      "ground_truth_rationale": "Fully synthetic professional chain with expected result frozen before execution."
+    },
+    {
+      "id": "synthetic-full-chain-02",
+      "category": "synthetic_full_chain",
+      "source_id": null,
+      "ocid": null,
+      "expected": [],
+      "mutation_type": null,
+      "mutation": null,
+      "ground_truth_rationale": "Fully synthetic professional chain with expected result frozen before execution."
+    },
+    {
+      "id": "synthetic-full-chain-03",
+      "category": "synthetic_full_chain",
+      "source_id": null,
+      "ocid": null,
+      "expected": [
+        {
+          "case_type": "price_over_order",
+          "amount": 50.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "mutation_type": "price_over_order",
+      "mutation": null,
+      "ground_truth_rationale": "Fully synthetic professional chain with expected result frozen before execution."
+    },
+    {
+      "id": "synthetic-full-chain-04",
+      "category": "synthetic_full_chain",
+      "source_id": null,
+      "ocid": null,
+      "expected": [
+        {
+          "case_type": "invoiced_over_received",
+          "amount": 240,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "mutation_type": "invoiced_over_received",
+      "mutation": null,
+      "ground_truth_rationale": "Fully synthetic professional chain with expected result frozen before execution."
+    },
+    {
+      "id": "synthetic-full-chain-05",
+      "category": "synthetic_full_chain",
+      "source_id": null,
+      "ocid": null,
+      "expected": [
+        {
+          "case_type": "discount_missing",
+          "amount": 62.5,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "mutation_type": "discount_missing",
+      "mutation": null,
+      "ground_truth_rationale": "Fully synthetic professional chain with expected result frozen before execution."
+    },
+    {
+      "id": "synthetic-full-chain-06",
+      "category": "synthetic_full_chain",
+      "source_id": null,
+      "ocid": null,
+      "expected": [
+        {
+          "case_type": "unmatched_invoice_line",
+          "amount": 75.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "mutation_type": "unmatched_invoice_line",
+      "mutation": null,
+      "ground_truth_rationale": "Fully synthetic professional chain with expected result frozen before execution."
+    },
+    {
+      "id": "synthetic-full-chain-07",
+      "category": "synthetic_full_chain",
+      "source_id": null,
+      "ocid": null,
+      "expected": [
+        {
+          "case_type": "return_without_credit",
+          "amount": 270,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "mutation_type": "return_without_credit",
+      "mutation": null,
+      "ground_truth_rationale": "Fully synthetic professional chain with expected result frozen before execution."
+    },
+    {
+      "id": "synthetic-full-chain-08",
+      "category": "synthetic_full_chain",
+      "source_id": null,
+      "ocid": null,
+      "expected": [
+        {
+          "case_type": "credit_below_return",
+          "amount": 280,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "mutation_type": "credit_below_return",
+      "mutation": null,
+      "ground_truth_rationale": "Fully synthetic professional chain with expected result frozen before execution."
+    },
+    {
+      "id": "synthetic-full-chain-09",
+      "category": "synthetic_full_chain",
+      "source_id": null,
+      "ocid": null,
+      "expected": [
+        {
+          "case_type": "price_over_order",
+          "amount": 120.0,
+          "amount_tolerance": 0.0,
+          "absolute_tolerance": 0.05
+        }
+      ],
+      "mutation_type": "price_over_order",
+      "mutation": null,
+      "ground_truth_rationale": "Fully synthetic professional chain with expected result frozen before execution."
+    },
+    {
+      "id": "synthetic-full-chain-10",
+      "category": "synthetic_full_chain",
+      "source_id": null,
+      "ocid": null,
+      "expected": [],
+      "mutation_type": null,
+      "mutation": null,
+      "ground_truth_rationale": "Fully synthetic professional chain with expected result frozen before execution."
+    }
+  ]
+}

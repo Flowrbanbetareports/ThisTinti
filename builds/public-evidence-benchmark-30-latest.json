@@ -1,0 +1,870 @@
+{
+  "schema": "thistinti.public-evidence-benchmark-result.v1",
+  "generated_at": "2026-08-26T21:51:17.682841+00:00",
+  "product": {
+    "name": "ThisTinti",
+    "engine_version": "3.4.0-alpha.7-rc.13"
+  },
+  "classification": {
+    "evidence_level": "synthetic",
+    "contains_public_source_normalizations": true,
+    "contains_controlled_mutations": true,
+    "real_pilot_completed": false,
+    "commercial_accuracy_claim_allowed": false,
+    "automation_eligible": false
+  },
+  "integrity": {
+    "dataset_sha256": "5ef5805d2c7da0a0de8ad1cee07e700bffbda462e24c23b3c1123609c7fcff1a",
+    "ground_truth_sha256": "eabbbdec535777d18b39754b1394be31f778daad344544131aec918abc95589c",
+    "public_source_records": 10,
+    "controlled_mutations": 10,
+    "ground_truth_separate_from_input": true
+  },
+  "metrics": {
+    "scenario_count": 30,
+    "document_count": 103,
+    "expected_finding_count": 17,
+    "overall": {
+      "true_positives": 17,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0
+    },
+    "amount_mae": 0.0,
+    "gate_passed": true,
+    "elapsed_seconds": 1.161,
+    "average_seconds_per_scenario": 0.039,
+    "by_category": {
+      "public_record_baseline": {
+        "scenario_count": 10,
+        "true_positives": 0,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0
+      },
+      "public_record_mutation": {
+        "scenario_count": 10,
+        "true_positives": 10,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0
+      },
+      "synthetic_full_chain": {
+        "scenario_count": 10,
+        "true_positives": 7,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0
+      }
+    }
+  },
+  "scenario_results": [
+    {
+      "id": "public-baseline-01",
+      "description": "Faithful normalized Portland public record ocds-ptecst-133262; no downstream document inferred.",
+      "expected_count": 0,
+      "found_count": 0,
+      "found": [],
+      "parse_failures": [],
+      "matches": [],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 0,
+      "passed": true,
+      "category": "public_record_baseline",
+      "source_id": "PUB-01",
+      "ocid": "ocds-ptecst-133262",
+      "mutation_type": null
+    },
+    {
+      "id": "public-baseline-02",
+      "description": "Faithful normalized Portland public record ocds-ptecst-133299; no downstream document inferred.",
+      "expected_count": 0,
+      "found_count": 0,
+      "found": [],
+      "parse_failures": [],
+      "matches": [],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 0,
+      "passed": true,
+      "category": "public_record_baseline",
+      "source_id": "PUB-02",
+      "ocid": "ocds-ptecst-133299",
+      "mutation_type": null
+    },
+    {
+      "id": "public-baseline-03",
+      "description": "Faithful normalized Portland public record ocds-ptecst-133238; no downstream document inferred.",
+      "expected_count": 0,
+      "found_count": 0,
+      "found": [],
+      "parse_failures": [],
+      "matches": [],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 0,
+      "passed": true,
+      "category": "public_record_baseline",
+      "source_id": "PUB-03",
+      "ocid": "ocds-ptecst-133238",
+      "mutation_type": null
+    },
+    {
+      "id": "public-baseline-04",
+      "description": "Faithful normalized Portland public record ocds-ptecst-132893; no downstream document inferred.",
+      "expected_count": 0,
+      "found_count": 0,
+      "found": [],
+      "parse_failures": [],
+      "matches": [],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 0,
+      "passed": true,
+      "category": "public_record_baseline",
+      "source_id": "PUB-04",
+      "ocid": "ocds-ptecst-132893",
+      "mutation_type": null
+    },
+    {
+      "id": "public-baseline-05",
+      "description": "Faithful normalized Portland public record ocds-ptecst-132928; no downstream document inferred.",
+      "expected_count": 0,
+      "found_count": 0,
+      "found": [],
+      "parse_failures": [],
+      "matches": [],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 0,
+      "passed": true,
+      "category": "public_record_baseline",
+      "source_id": "PUB-05",
+      "ocid": "ocds-ptecst-132928",
+      "mutation_type": null
+    },
+    {
+      "id": "public-baseline-06",
+      "description": "Faithful normalized Portland public record ocds-ptecst-132925; no downstream document inferred.",
+      "expected_count": 0,
+      "found_count": 0,
+      "found": [],
+      "parse_failures": [],
+      "matches": [],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 0,
+      "passed": true,
+      "category": "public_record_baseline",
+      "source_id": "PUB-06",
+      "ocid": "ocds-ptecst-132925",
+      "mutation_type": null
+    },
+    {
+      "id": "public-baseline-07",
+      "description": "Faithful normalized Portland public record ocds-ptecst-132815; no downstream document inferred.",
+      "expected_count": 0,
+      "found_count": 0,
+      "found": [],
+      "parse_failures": [],
+      "matches": [],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 0,
+      "passed": true,
+      "category": "public_record_baseline",
+      "source_id": "PUB-07",
+      "ocid": "ocds-ptecst-132815",
+      "mutation_type": null
+    },
+    {
+      "id": "public-baseline-08",
+      "description": "Faithful normalized Portland public record ocds-ptecst-133038; no downstream document inferred.",
+      "expected_count": 0,
+      "found_count": 0,
+      "found": [],
+      "parse_failures": [],
+      "matches": [],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 0,
+      "passed": true,
+      "category": "public_record_baseline",
+      "source_id": "PUB-08",
+      "ocid": "ocds-ptecst-133038",
+      "mutation_type": null
+    },
+    {
+      "id": "public-baseline-09",
+      "description": "Faithful normalized Portland public record ocds-ptecst-133001; no downstream document inferred.",
+      "expected_count": 0,
+      "found_count": 0,
+      "found": [],
+      "parse_failures": [],
+      "matches": [],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 0,
+      "passed": true,
+      "category": "public_record_baseline",
+      "source_id": "PUB-09",
+      "ocid": "ocds-ptecst-133001",
+      "mutation_type": null
+    },
+    {
+      "id": "public-baseline-10",
+      "description": "Faithful normalized Portland public record ocds-ptecst-132953; no downstream document inferred.",
+      "expected_count": 0,
+      "found_count": 0,
+      "found": [],
+      "parse_failures": [],
+      "matches": [],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 0,
+      "passed": true,
+      "category": "public_record_baseline",
+      "source_id": "PUB-10",
+      "ocid": "ocds-ptecst-132953",
+      "mutation_type": null
+    },
+    {
+      "id": "public-mutation-01",
+      "description": "Derived from ocds-ptecst-133262 with one frozen controlled mutation: price_over_order.",
+      "expected_count": 1,
+      "found_count": 1,
+      "found": [
+        {
+          "case_type": "price_over_order",
+          "amount": 500.0,
+          "confidence": 0.98,
+          "severity": "high",
+          "title": "Prezzo fatturato superiore al riferimento commerciale"
+        }
+      ],
+      "parse_failures": [],
+      "matches": [
+        {
+          "expected_index": 0,
+          "found_index": 0,
+          "case_type": "price_over_order",
+          "expected_amount": 500.0,
+          "found_amount": 500.0,
+          "amount_error": 0.0
+        }
+      ],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 1,
+      "passed": true,
+      "category": "public_record_mutation",
+      "source_id": "PUB-01",
+      "ocid": "ocds-ptecst-133262",
+      "mutation_type": "price_over_order"
+    },
+    {
+      "id": "public-mutation-02",
+      "description": "Derived from ocds-ptecst-133299 with one frozen controlled mutation: price_over_order.",
+      "expected_count": 1,
+      "found_count": 1,
+      "found": [
+        {
+          "case_type": "price_over_order",
+          "amount": 125.0,
+          "confidence": 0.98,
+          "severity": "high",
+          "title": "Prezzo fatturato superiore al riferimento commerciale"
+        }
+      ],
+      "parse_failures": [],
+      "matches": [
+        {
+          "expected_index": 0,
+          "found_index": 0,
+          "case_type": "price_over_order",
+          "expected_amount": 125.0,
+          "found_amount": 125.0,
+          "amount_error": 0.0
+        }
+      ],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 1,
+      "passed": true,
+      "category": "public_record_mutation",
+      "source_id": "PUB-02",
+      "ocid": "ocds-ptecst-133299",
+      "mutation_type": "price_over_order"
+    },
+    {
+      "id": "public-mutation-03",
+      "description": "Derived from ocds-ptecst-133238 with one frozen controlled mutation: price_over_order.",
+      "expected_count": 1,
+      "found_count": 1,
+      "found": [
+        {
+          "case_type": "price_over_order",
+          "amount": 1000.0,
+          "confidence": 0.98,
+          "severity": "high",
+          "title": "Prezzo fatturato superiore al riferimento commerciale"
+        }
+      ],
+      "parse_failures": [],
+      "matches": [
+        {
+          "expected_index": 0,
+          "found_index": 0,
+          "case_type": "price_over_order",
+          "expected_amount": 1000.0,
+          "found_amount": 1000.0,
+          "amount_error": 0.0
+        }
+      ],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 1,
+      "passed": true,
+      "category": "public_record_mutation",
+      "source_id": "PUB-03",
+      "ocid": "ocds-ptecst-133238",
+      "mutation_type": "price_over_order"
+    },
+    {
+      "id": "public-mutation-04",
+      "description": "Derived from ocds-ptecst-132893 with one frozen controlled mutation: price_over_order.",
+      "expected_count": 1,
+      "found_count": 1,
+      "found": [
+        {
+          "case_type": "price_over_order",
+          "amount": 250.0,
+          "confidence": 0.98,
+          "severity": "high",
+          "title": "Prezzo fatturato superiore al riferimento commerciale"
+        }
+      ],
+      "parse_failures": [],
+      "matches": [
+        {
+          "expected_index": 0,
+          "found_index": 0,
+          "case_type": "price_over_order",
+          "expected_amount": 250.0,
+          "found_amount": 250.0,
+          "amount_error": 0.0
+        }
+      ],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 1,
+      "passed": true,
+      "category": "public_record_mutation",
+      "source_id": "PUB-04",
+      "ocid": "ocds-ptecst-132893",
+      "mutation_type": "price_over_order"
+    },
+    {
+      "id": "public-mutation-05",
+      "description": "Derived from ocds-ptecst-132928 with one frozen controlled mutation: invoiced_over_received.",
+      "expected_count": 1,
+      "found_count": 1,
+      "found": [
+        {
+          "case_type": "invoiced_over_received",
+          "amount": 20000.0,
+          "confidence": 0.99,
+          "severity": "high",
+          "title": "Quantità fatturata superiore a quella verificata"
+        }
+      ],
+      "parse_failures": [],
+      "matches": [
+        {
+          "expected_index": 0,
+          "found_index": 0,
+          "case_type": "invoiced_over_received",
+          "expected_amount": 20000.0,
+          "found_amount": 20000.0,
+          "amount_error": 0.0
+        }
+      ],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 1,
+      "passed": true,
+      "category": "public_record_mutation",
+      "source_id": "PUB-05",
+      "ocid": "ocds-ptecst-132928",
+      "mutation_type": "invoiced_over_received"
+    },
+    {
+      "id": "public-mutation-06",
+      "description": "Derived from ocds-ptecst-132925 with one frozen controlled mutation: invoiced_over_received.",
+      "expected_count": 1,
+      "found_count": 1,
+      "found": [
+        {
+          "case_type": "invoiced_over_received",
+          "amount": 18795.01,
+          "confidence": 0.99,
+          "severity": "high",
+          "title": "Quantità fatturata superiore a quella verificata"
+        }
+      ],
+      "parse_failures": [],
+      "matches": [
+        {
+          "expected_index": 0,
+          "found_index": 0,
+          "case_type": "invoiced_over_received",
+          "expected_amount": 18795.01,
+          "found_amount": 18795.01,
+          "amount_error": 0.0
+        }
+      ],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 1,
+      "passed": true,
+      "category": "public_record_mutation",
+      "source_id": "PUB-06",
+      "ocid": "ocds-ptecst-132925",
+      "mutation_type": "invoiced_over_received"
+    },
+    {
+      "id": "public-mutation-07",
+      "description": "Derived from ocds-ptecst-132815 with one frozen controlled mutation: discount_missing.",
+      "expected_count": 1,
+      "found_count": 1,
+      "found": [
+        {
+          "case_type": "discount_missing",
+          "amount": 100000.0,
+          "confidence": 0.96,
+          "severity": "high",
+          "title": "Sconto dell'ordine non applicato integralmente"
+        }
+      ],
+      "parse_failures": [],
+      "matches": [
+        {
+          "expected_index": 0,
+          "found_index": 0,
+          "case_type": "discount_missing",
+          "expected_amount": 100000.0,
+          "found_amount": 100000.0,
+          "amount_error": 0.0
+        }
+      ],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 1,
+      "passed": true,
+      "category": "public_record_mutation",
+      "source_id": "PUB-07",
+      "ocid": "ocds-ptecst-132815",
+      "mutation_type": "discount_missing"
+    },
+    {
+      "id": "public-mutation-08",
+      "description": "Derived from ocds-ptecst-133038 with one frozen controlled mutation: discount_missing.",
+      "expected_count": 1,
+      "found_count": 1,
+      "found": [
+        {
+          "case_type": "discount_missing",
+          "amount": 36350.0,
+          "confidence": 0.96,
+          "severity": "high",
+          "title": "Sconto dell'ordine non applicato integralmente"
+        }
+      ],
+      "parse_failures": [],
+      "matches": [
+        {
+          "expected_index": 0,
+          "found_index": 0,
+          "case_type": "discount_missing",
+          "expected_amount": 36350.0,
+          "found_amount": 36350.0,
+          "amount_error": 0.0
+        }
+      ],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 1,
+      "passed": true,
+      "category": "public_record_mutation",
+      "source_id": "PUB-08",
+      "ocid": "ocds-ptecst-133038",
+      "mutation_type": "discount_missing"
+    },
+    {
+      "id": "public-mutation-09",
+      "description": "Derived from ocds-ptecst-133001 with one frozen controlled mutation: unmatched_invoice_line.",
+      "expected_count": 1,
+      "found_count": 1,
+      "found": [
+        {
+          "case_type": "unmatched_invoice_line",
+          "amount": 333.0,
+          "confidence": 0.72,
+          "severity": "low",
+          "title": "Riga fattura senza corrispondenza"
+        }
+      ],
+      "parse_failures": [],
+      "matches": [
+        {
+          "expected_index": 0,
+          "found_index": 0,
+          "case_type": "unmatched_invoice_line",
+          "expected_amount": 333.0,
+          "found_amount": 333.0,
+          "amount_error": 0.0
+        }
+      ],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 1,
+      "passed": true,
+      "category": "public_record_mutation",
+      "source_id": "PUB-09",
+      "ocid": "ocds-ptecst-133001",
+      "mutation_type": "unmatched_invoice_line"
+    },
+    {
+      "id": "public-mutation-10",
+      "description": "Derived from ocds-ptecst-132953 with one frozen controlled mutation: unmatched_invoice_line.",
+      "expected_count": 1,
+      "found_count": 1,
+      "found": [
+        {
+          "case_type": "unmatched_invoice_line",
+          "amount": 777.0,
+          "confidence": 0.72,
+          "severity": "low",
+          "title": "Riga fattura senza corrispondenza"
+        }
+      ],
+      "parse_failures": [],
+      "matches": [
+        {
+          "expected_index": 0,
+          "found_index": 0,
+          "case_type": "unmatched_invoice_line",
+          "expected_amount": 777.0,
+          "found_amount": 777.0,
+          "amount_error": 0.0
+        }
+      ],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 1,
+      "passed": true,
+      "category": "public_record_mutation",
+      "source_id": "PUB-10",
+      "ocid": "ocds-ptecst-132953",
+      "mutation_type": "unmatched_invoice_line"
+    },
+    {
+      "id": "synthetic-full-chain-01",
+      "description": "Professional synthetic end-to-end chain: clean.",
+      "expected_count": 0,
+      "found_count": 0,
+      "found": [],
+      "parse_failures": [],
+      "matches": [],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 0,
+      "passed": true,
+      "category": "synthetic_full_chain",
+      "source_id": null,
+      "ocid": null,
+      "mutation_type": null
+    },
+    {
+      "id": "synthetic-full-chain-02",
+      "description": "Professional synthetic end-to-end chain: clean.",
+      "expected_count": 0,
+      "found_count": 0,
+      "found": [],
+      "parse_failures": [],
+      "matches": [],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 0,
+      "passed": true,
+      "category": "synthetic_full_chain",
+      "source_id": null,
+      "ocid": null,
+      "mutation_type": null
+    },
+    {
+      "id": "synthetic-full-chain-03",
+      "description": "Professional synthetic end-to-end chain: price_over_order.",
+      "expected_count": 1,
+      "found_count": 1,
+      "found": [
+        {
+          "case_type": "price_over_order",
+          "amount": 50.0,
+          "confidence": 0.98,
+          "severity": "high",
+          "title": "Prezzo fatturato superiore al riferimento commerciale"
+        }
+      ],
+      "parse_failures": [],
+      "matches": [
+        {
+          "expected_index": 0,
+          "found_index": 0,
+          "case_type": "price_over_order",
+          "expected_amount": 50.0,
+          "found_amount": 50.0,
+          "amount_error": 0.0
+        }
+      ],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 1,
+      "passed": true,
+      "category": "synthetic_full_chain",
+      "source_id": null,
+      "ocid": null,
+      "mutation_type": "price_over_order"
+    },
+    {
+      "id": "synthetic-full-chain-04",
+      "description": "Professional synthetic end-to-end chain: invoiced_over_received.",
+      "expected_count": 1,
+      "found_count": 1,
+      "found": [
+        {
+          "case_type": "invoiced_over_received",
+          "amount": 240.0,
+          "confidence": 0.99,
+          "severity": "high",
+          "title": "Quantità fatturata superiore a quella verificata"
+        }
+      ],
+      "parse_failures": [],
+      "matches": [
+        {
+          "expected_index": 0,
+          "found_index": 0,
+          "case_type": "invoiced_over_received",
+          "expected_amount": 240.0,
+          "found_amount": 240.0,
+          "amount_error": 0.0
+        }
+      ],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 1,
+      "passed": true,
+      "category": "synthetic_full_chain",
+      "source_id": null,
+      "ocid": null,
+      "mutation_type": "invoiced_over_received"
+    },
+    {
+      "id": "synthetic-full-chain-05",
+      "description": "Professional synthetic end-to-end chain: discount_missing.",
+      "expected_count": 1,
+      "found_count": 1,
+      "found": [
+        {
+          "case_type": "discount_missing",
+          "amount": 62.5,
+          "confidence": 0.96,
+          "severity": "high",
+          "title": "Sconto dell'ordine non applicato integralmente"
+        }
+      ],
+      "parse_failures": [],
+      "matches": [
+        {
+          "expected_index": 0,
+          "found_index": 0,
+          "case_type": "discount_missing",
+          "expected_amount": 62.5,
+          "found_amount": 62.5,
+          "amount_error": 0.0
+        }
+      ],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 1,
+      "passed": true,
+      "category": "synthetic_full_chain",
+      "source_id": null,
+      "ocid": null,
+      "mutation_type": "discount_missing"
+    },
+    {
+      "id": "synthetic-full-chain-06",
+      "description": "Professional synthetic end-to-end chain: unmatched_invoice_line.",
+      "expected_count": 1,
+      "found_count": 1,
+      "found": [
+        {
+          "case_type": "unmatched_invoice_line",
+          "amount": 75.0,
+          "confidence": 0.72,
+          "severity": "medium",
+          "title": "Riga fattura senza corrispondenza"
+        }
+      ],
+      "parse_failures": [],
+      "matches": [
+        {
+          "expected_index": 0,
+          "found_index": 0,
+          "case_type": "unmatched_invoice_line",
+          "expected_amount": 75.0,
+          "found_amount": 75.0,
+          "amount_error": 0.0
+        }
+      ],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 1,
+      "passed": true,
+      "category": "synthetic_full_chain",
+      "source_id": null,
+      "ocid": null,
+      "mutation_type": "unmatched_invoice_line"
+    },
+    {
+      "id": "synthetic-full-chain-07",
+      "description": "Professional synthetic end-to-end chain: return_without_credit.",
+      "expected_count": 1,
+      "found_count": 1,
+      "found": [
+        {
+          "case_type": "return_without_credit",
+          "amount": 270.0,
+          "confidence": 0.92,
+          "severity": "high",
+          "title": "Reso senza nota di credito collegata"
+        }
+      ],
+      "parse_failures": [],
+      "matches": [
+        {
+          "expected_index": 0,
+          "found_index": 0,
+          "case_type": "return_without_credit",
+          "expected_amount": 270.0,
+          "found_amount": 270.0,
+          "amount_error": 0.0
+        }
+      ],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 1,
+      "passed": true,
+      "category": "synthetic_full_chain",
+      "source_id": null,
+      "ocid": null,
+      "mutation_type": "return_without_credit"
+    },
+    {
+      "id": "synthetic-full-chain-08",
+      "description": "Professional synthetic end-to-end chain: credit_below_return.",
+      "expected_count": 1,
+      "found_count": 1,
+      "found": [
+        {
+          "case_type": "credit_below_return",
+          "amount": 280.0,
+          "confidence": 0.97,
+          "severity": "high",
+          "title": "Note di credito inferiori al reso"
+        }
+      ],
+      "parse_failures": [],
+      "matches": [
+        {
+          "expected_index": 0,
+          "found_index": 0,
+          "case_type": "credit_below_return",
+          "expected_amount": 280.0,
+          "found_amount": 280.0,
+          "amount_error": 0.0
+        }
+      ],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 1,
+      "passed": true,
+      "category": "synthetic_full_chain",
+      "source_id": null,
+      "ocid": null,
+      "mutation_type": "credit_below_return"
+    },
+    {
+      "id": "synthetic-full-chain-09",
+      "description": "Professional synthetic end-to-end chain: price_over_order.",
+      "expected_count": 1,
+      "found_count": 1,
+      "found": [
+        {
+          "case_type": "price_over_order",
+          "amount": 120.0,
+          "confidence": 0.98,
+          "severity": "high",
+          "title": "Prezzo fatturato superiore al riferimento commerciale"
+        }
+      ],
+      "parse_failures": [],
+      "matches": [
+        {
+          "expected_index": 0,
+          "found_index": 0,
+          "case_type": "price_over_order",
+          "expected_amount": 120.0,
+          "found_amount": 120.0,
+          "amount_error": 0.0
+        }
+      ],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 1,
+      "passed": true,
+      "category": "synthetic_full_chain",
+      "source_id": null,
+      "ocid": null,
+      "mutation_type": "price_over_order"
+    },
+    {
+      "id": "synthetic-full-chain-10",
+      "description": "Professional synthetic end-to-end chain: clean.",
+      "expected_count": 0,
+      "found_count": 0,
+      "found": [],
+      "parse_failures": [],
+      "matches": [],
+      "false_positives": [],
+      "false_negatives": [],
+      "true_positives": 0,
+      "passed": true,
+      "category": "synthetic_full_chain",
+      "source_id": null,
+      "ocid": null,
+      "mutation_type": null
+    }
+  ]
+}

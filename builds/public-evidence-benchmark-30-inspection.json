@@ -1,0 +1,34 @@
+{
+  "schema": "thistinti.pilot-dataset-inspection.v1",
+  "sha256": "5ef5805d2c7da0a0de8ad1cee07e700bffbda462e24c23b3c1123609c7fcff1a",
+  "name": "ThisTinti Public Evidence Benchmark 30",
+  "version": "1.0.0",
+  "evidence_level": "synthetic",
+  "scenario_count": 30,
+  "document_count": 103,
+  "expected_finding_count": 0,
+  "document_types": {
+    "confirmation": 10,
+    "credit_note": 1,
+    "delivery": 20,
+    "invoice": 20,
+    "order": 30,
+    "payment": 10,
+    "proposal": 10,
+    "return": 2
+  },
+  "mime_types": {
+    "application/json": 103
+  },
+  "expected_case_types": {},
+  "governance": {
+    "evidence_metadata_present": false,
+    "authorized_use_confirmed": false,
+    "anonymization_confirmed": false,
+    "reviewer_count": 0,
+    "ground_truth_method_documented": false,
+    "scope_documented": false
+  },
+  "warnings": [],
+  "ready_for_controlled_pilot": false
+}
