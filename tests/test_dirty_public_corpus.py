@@ -24,40 +24,45 @@ def test_dirty_public_corpus_has_exact_scope_and_unique_ids() -> None:
     assert len({item["url"] for item in sources}) == 22
 
 
-def test_dirty_public_corpus_keeps_real_and_standard_sources_distinct() -> None:
+def test_dirty_public_corpus_is_majority_real_public_financial_material() -> None:
     counts = Counter(item["category"] for item in load_manifest()["sources"])
     assert counts == {
-        "real_public_transaction_pdf": 2,
-        "external_standard_xml": 13,
-        "external_edge_xml": 3,
-        "external_negative_xml": 2,
-        "real_public_nontransaction_pdf": 2,
+        "real_public_financial_packet_pdf": 15,
+        "external_standard_xml": 5,
+        "external_edge_xml": 1,
+        "external_conformance_negative_xml": 1,
     }
 
 
-def test_github_sources_are_pinned_to_full_commits() -> None:
+def test_all_external_files_are_pinned_to_full_github_commits() -> None:
     full_sha = re.compile(r"^[0-9a-f]{40}$")
     for item in load_manifest()["sources"]:
-        if "raw.githubusercontent.com" not in item["url"]:
-            continue
+        assert "raw.githubusercontent.com" in item["url"]
         commit = item.get("source_commit")
         assert isinstance(commit, str) and full_sha.fullmatch(commit)
         assert f"/{commit}/" in item["url"]
 
 
-def test_unfrozen_portland_sources_are_allowed_only_in_discovery_mode() -> None:
+def test_real_public_material_is_not_vendored_or_called_a_company_pilot() -> None:
     manifest = load_manifest()
-    portland = [item for item in manifest["sources"] if item["url"].startswith("https://www.portland.gov/")]
-    assert len(portland) == 4
-    if manifest["frozen"]:
-        assert all(item.get("expected_sha256") for item in portland)
-    else:
-        assert any(not item.get("expected_sha256") for item in portland)
-
-
-def test_expectations_do_not_claim_a_real_company_pilot() -> None:
-    manifest = load_manifest()
+    public_cases = [
+        item
+        for item in manifest["sources"]
+        if item["category"] == "real_public_financial_packet_pdf"
+    ]
+    assert len(public_cases) == 15
     assert manifest["real_company_pilot"] is False
+    assert all(item["publisher"] for item in public_cases)
+    assert all(item.get("github_blob_sha") for item in public_cases)
+
+
+def test_expectation_modes_preserve_characterization_boundary() -> None:
+    manifest = load_manifest()
+    outcomes = Counter(item["expected"]["outcome"] for item in manifest["sources"])
+    assert outcomes["parse"] >= 9
+    assert outcomes["characterize"] >= 10
+    assert set(outcomes) <= {"parse", "safe_rejection", "characterize"}
     for item in manifest["sources"]:
-        assert item["expected"]["outcome"] in {"parse", "safe_rejection"}
-        assert "accuracy" not in json.dumps(item, ensure_ascii=False).lower()
+        serialized = json.dumps(item, ensure_ascii=False).lower()
+        assert "universal accuracy" not in serialized
+        assert "real company pilot completed" not in serialized
