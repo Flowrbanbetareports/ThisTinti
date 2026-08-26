@@ -73,6 +73,23 @@ jobs:
             builds/public-evidence-benchmark-30-ground-truth.json \
             --report builds/public-evidence-benchmark-30-latest.json \
             --markdown builds/public-evidence-benchmark-30-latest.md
+      - name: Print benchmark summary
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("builds/public-evidence-benchmark-30-latest.json")
+          if not path.is_file():
+              print("benchmark report not produced")
+              raise SystemExit(0)
+          report = json.loads(path.read_text(encoding="utf-8"))
+          print(json.dumps({
+              "classification": report["classification"],
+              "integrity": report["integrity"],
+              "metrics": report["metrics"],
+          }, ensure_ascii=False, indent=2))
+          PY
       - name: Upload reproducible benchmark evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
