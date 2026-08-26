@@ -1,0 +1,29 @@
+{
+  "schema": "thistinti.public-evidence-sources.v1",
+  "frozen_at": "2026-08-26T21:30:00Z",
+  "classification": "public_source_metadata",
+  "primary_source": {
+    "publisher": "City of Portland, Oregon",
+    "official_publication": "https://www.portland.gov/business-opportunities/ocds/ocds-data-publication",
+    "publication_policy": "https://www.portland.gov/business-opportunities/ocds/pdx-ocds-publication-policy",
+    "explorer": "https://portland-ocds.wegov.nyc/",
+    "ocid_prefix": "ocds-ptecst",
+    "notes": "Portland states that its OCDS publication is produced from BuySpeed, SAP and B2G source systems. Values below are frozen source facts used only to build reproducible normalized benchmark inputs."
+  },
+  "secondary_sources": {
+    "cotai_registry": "https://data.open-contracting.org/en/publication/114",
+    "peppol_billing": "https://docs.peppol.eu/poacc/billing/3.0/bis/"
+  },
+  "records": [
+    {"source_id":"PUB-01","ocid":"ocds-ptecst-133262","title":"PARKS COMPREHENSIVE CUSTODIAL SERVICES","amount":171563.00,"currency":"USD","start_date":"2025-08-01","end_date":null,"status":"complete","note":"1 contract; 40 payments; 4 approvals"},
+    {"source_id":"PUB-02","ocid":"ocds-ptecst-133299","title":"Amendment request - 31002617","amount":30735.00,"currency":"USD","start_date":"2025-08-01","end_date":null,"status":"complete","note":"1 contract; 3 payments; 4 approvals"},
+    {"source_id":"PUB-03","ocid":"ocds-ptecst-133238","title":"Amend 30008325 INTEGRATED POWER SERVICES - MOTOR STORAGE & PREVENTATIVE MAINTENANCE - ADD VALUE","amount":38648.00,"currency":"USD","start_date":"2025-08-01","end_date":null,"status":"complete","note":"1 contract; 4 payments; 4 approvals"},
+    {"source_id":"PUB-04","ocid":"ocds-ptecst-132893","title":"Citywide HVAC Sales and Service","amount":500000.00,"currency":"USD","start_date":"2025-06-13","end_date":"2025-07-22","status":"complete","note":"payment status: paid"},
+    {"source_id":"PUB-05","ocid":"ocds-ptecst-132928","title":"MAINTENANCE REPAIR & OPERATIONS (MRO) SUPPLIES","amount":100000.00,"currency":"USD","start_date":"2025-06-13","end_date":"2025-09-09","status":"active","note":"contract present"},
+    {"source_id":"PUB-06","ocid":"ocds-ptecst-132925","title":"FERC Peer Audit - Sole Source","amount":93975.03,"currency":"USD","start_date":"2025-07-09","end_date":"2025-07-10","status":"active","note":""},
+    {"source_id":"PUB-07","ocid":"ocds-ptecst-132815","title":"New sole source contract with Olympic Foundry","amount":2000000.00,"currency":"USD","start_date":"2025-07-22","end_date":"2025-07-25","status":"active","note":""},
+    {"source_id":"PUB-08","ocid":"ocds-ptecst-133038","title":"SE 38th & Market","amount":727000.00,"currency":"USD","start_date":"2025-06-18","end_date":"2025-07-24","status":"active","note":""},
+    {"source_id":"PUB-09","ocid":"ocds-ptecst-133001","title":"Washington Park and Sam Jackson Pump Station Electrical Improvements","amount":800000.00,"currency":"USD","start_date":"2025-06-20","end_date":"2025-08-28","status":"active","note":""},
+    {"source_id":"PUB-10","ocid":"ocds-ptecst-132953","title":"ULTRA BLOCK 5-YR CONTRACT REQUEST","amount":787250.00,"currency":"USD","start_date":"2025-07-21","end_date":null,"status":"active","note":""}
+  ]
+}
