@@ -16,4 +16,4 @@ It must not be used to claim:
 - legal, accounting or tax correctness outside the encoded assertions;
 - OCR performance on arbitrary scans.
 
-The controlled pilot gate remains separate and unchanged.
+A discovery failure is evidence, not something to hide: source-based expectations must not be weakened merely to turn the workflow green. The controlled pilot gate remains separate and unchanged.
