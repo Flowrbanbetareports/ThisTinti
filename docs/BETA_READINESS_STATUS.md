@@ -8,7 +8,7 @@
 
 ## Stato attuale
 
-ThisTinti è in preparazione interna come `3.4.0-alpha.7-rc.12`. L’ultima Public Preview pubblicata e immutabile è `3.4.0-alpha.7-rc.11`. La base tecnica include:
+ThisTinti `3.4.0-alpha.7-rc.12` è la Public Preview pubblicata e immutabile corrente. La pubblicazione è registrata con tag, commit applicativo, checksum, provenienza e attestazioni; non equivale a una beta validata e non chiude alcun gate esterno. La base tecnica include:
 
 - test applicativi e copertura minima del 90%;
 - migrazioni reversibili;
@@ -29,22 +29,23 @@ ThisTinti è in preparazione interna come `3.4.0-alpha.7-rc.12`. L’ultima Publ
 - browser E2E dei flussi di recupero e collegamento contro API, database e worker reali;
 - reflow equivalente al 125%, 150% e 200%, apertura delle catene da tastiera e navigazione mobile compatta;
 - identità di build incorporata in ogni archivio portable e verificata insieme alla provenienza del candidato;
-- protocollo di pilot senza telemetria per misurare comprensione e completamento del primo percorso.
-- diagnostica locale in-app con esiti non ambigui, test numerico reale e verbale JSON scaricabile.
+- protocollo di pilot senza telemetria per misurare comprensione e completamento del primo percorso;
+- diagnostica locale in-app con esiti non ambigui, test numerico reale e verbale JSON scaricabile;
 - estrazione OCR prudente di righe etichettate, con valori numerici fail-closed e confronto dei totali;
 - gate sintetico bloccante su scansioni pulite e a basso contrasto;
-- toolkit pilot locale senza comunicazioni o azioni esterne automatiche.
+- toolkit pilot locale senza comunicazioni o azioni esterne automatiche;
 - centro operativo con pratiche raggruppate, priorità spiegata e storico della revisione;
 - correzione supervisionata delle righe estratte con audit, provenienza e rianalisi;
 - prova Chromium reale del percorso operativo e rapporto con misure non inventate;
-- suggerimenti di apprendimento non automatici e vincolati a decisioni umane sufficienti.
+- suggerimenti di apprendimento non automatici e vincolati a decisioni umane sufficienti;
 - terminologia operativa, numeri e priorità ripuliti senza alterare i dati o le decisioni umane;
 - controllo Chromium dedicato alla qualità percepita e alla gerarchia dell’interfaccia;
-- gate di dimensione per impedire ulteriore crescita dei moduli principali.
+- gate di dimensione per impedire ulteriore crescita dei moduli principali;
+- pre-pilot sintetico riproducibile di 30 pratiche nel flusso abbigliamento, utile come regressione tecnica ma non sostitutivo del pilot reale.
 
 ## Gate interni
 
-I gate interni sono verificati da `scripts/check_beta_readiness.py`, dal workflow `Beta Readiness` e dal workflow `Simplified Product Experience`. Devono restare verdi sul commit esatto candidato alla distribuzione. Le evidenze automatiche vengono conservate come artifact temporanei associati al run e al commit. Ogni modifica successiva invalida l'esito precedente e richiede una nuova esecuzione completa.
+I gate interni sono verificati da `scripts/check_beta_readiness.py`, dal workflow `Beta Readiness` e dal workflow `Simplified Product Experience`. Devono restare verdi sul commit esatto candidato alla distribuzione. Le evidenze automatiche vengono conservate come artifact temporanei associati al run e al commit. Ogni modifica successiva del prodotto invalida l'esito precedente e richiede una nuova esecuzione completa per una nuova candidata; la Public Preview RC12 già pubblicata resta immutabile.
 
 ## Gate esterni non autocertificabili
 
