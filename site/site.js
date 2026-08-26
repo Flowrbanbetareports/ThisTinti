@@ -4,6 +4,7 @@
   const installer = document.querySelector('#downloadInstaller');
   const portable = document.querySelector('#downloadPortable');
   const checksum = document.querySelector('#downloadChecksum');
+  const releasePage = document.querySelector('#releasePageLink');
   const sourcePackage = document.querySelector('#downloadSourcePackage');
   const status = document.querySelector('#releaseStatus');
   const releasePill = document.querySelector('#releasePill');
@@ -84,6 +85,14 @@
     }
   }
 
+  function releaseHasVerifiedInstaller(release) {
+    if (!release || release.draft) return false;
+    const releaseAssets = Array.isArray(release.assets) ? release.assets : [];
+    const setup = releaseAssets.find(asset => /ThisTinti-Setup-.*-x64\.exe$/i.test(asset.name));
+    if (!setup) return false;
+    return releaseAssets.some(asset => asset.name === `${setup.name}.sha256`);
+  }
+
   initializeSectionReveals();
   acceptance?.addEventListener('change', applyDownloadState);
   copyShareButton?.addEventListener('click', copyShareMessage);
@@ -110,17 +119,13 @@
     })
     .then(releases => {
       if (!Array.isArray(releases)) throw new Error('invalid release response');
-      const release = releases.find(item => {
-        if (item.draft) return false;
-        const releaseAssets = Array.isArray(item.assets) ? item.assets : [];
-        return releaseAssets.some(asset => /ThisTinti-Setup-.*-x64\.exe$/i.test(asset.name));
-      });
-      if (!release) throw new Error('installer unavailable');
+      const release = releases.find(releaseHasVerifiedInstaller);
+      if (!release) throw new Error('verified installer unavailable');
 
       const releaseAssets = Array.isArray(release.assets) ? release.assets : [];
       const setup = releaseAssets.find(asset => /ThisTinti-Setup-.*-x64\.exe$/i.test(asset.name));
       const zip = releaseAssets.find(asset => /ThisTinti-Portable-.*-x64\.zip$/i.test(asset.name));
-      const setupHash = releaseAssets.find(asset => /ThisTinti-Setup-.*-x64\.exe\.sha256$/i.test(asset.name));
+      const setupHash = releaseAssets.find(asset => asset.name === `${setup.name}.sha256`);
       const sourceArchive = releaseAssets.find(asset => /ThisTinti-.*-self-hosted-source\.zip$/i.test(asset.name));
       assets = {
         setup: setup.browser_download_url,
@@ -133,6 +138,10 @@
         checksum.href = setupHash.browser_download_url;
         checksum.classList.remove('hidden');
       }
+      if (releasePage && release.html_url) {
+        releasePage.href = release.html_url;
+        releasePage.classList.remove('hidden');
+      }
       if (sourceArchive && sourcePackage) {
         sourcePackage.href = sourceArchive.browser_download_url;
         sourcePackage.classList.remove('disabled');
@@ -141,7 +150,7 @@
       }
       const channel = release.prerelease ? 'Public Preview' : 'Release';
       if (releasePill) releasePill.textContent = `${channel} · Local Edition`;
-      if (status) status.textContent = `${release.tag_name} · ${setup.download_count.toLocaleString('it-IT')} download installer`;
+      if (status) status.textContent = `${release.tag_name} · ${setup.download_count.toLocaleString('it-IT')} download installer · checksum disponibile`;
       applyDownloadState();
     })
     .catch(() => {
@@ -151,6 +160,6 @@
         installer.classList.add('disabled');
         installer.setAttribute('aria-disabled', 'true');
       }
-      if (status) status.textContent = 'La pagina resta disponibile, ma il download non è raggiungibile in questo momento.';
+      if (status) status.textContent = 'La pagina resta disponibile, ma un installer con checksum verificabile non è raggiungibile in questo momento.';
     });
 })();
