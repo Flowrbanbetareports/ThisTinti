@@ -17,7 +17,16 @@ def _build(tmp_path: Path) -> tuple[dict, dict]:
     dataset = tmp_path / "dataset.json"
     truth = tmp_path / "ground-truth.json"
     subprocess.run(
-        [sys.executable, str(BUILDER), "--sources", str(SOURCES), "--dataset", str(dataset), "--ground-truth", str(truth)],
+        [
+            sys.executable,
+            str(BUILDER),
+            "--sources",
+            str(SOURCES),
+            "--dataset",
+            str(dataset),
+            "--ground-truth",
+            str(truth),
+        ],
         check=True,
     )
     return json.loads(dataset.read_text(encoding="utf-8")), json.loads(truth.read_text(encoding="utf-8"))

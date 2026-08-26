@@ -67,7 +67,7 @@ def validate_contract(raw: dict[str, Any], truth: dict[str, Any]) -> ValidationD
     if len(truth_by_id) != 30 or ids != set(truth_by_id):
         raise ValueError("Input and ground truth must have a 1:1 scenario mapping")
     counts = Counter(item["category"] for item in truth["scenarios"])
-    if counts != {"public_record_baseline":10,"public_record_mutation":10,"synthetic_full_chain":10}:
+    if counts != {"public_record_baseline": 10, "public_record_mutation": 10, "synthetic_full_chain": 10}:
         raise ValueError(f"Invalid benchmark category distribution: {dict(counts)}")
     merged = copy.deepcopy(raw)
     for scenario in merged["scenarios"]:
@@ -80,32 +80,42 @@ def markdown(report: dict[str, Any]) -> str:
     rows = []
     for name, item in report["metrics"]["by_category"].items():
         rows.append(
-            f"| {name} | {item['scenario_count']} | {item['true_positives']} | {item['false_positives']} | "
-            f"{item['false_negatives']} | {item['precision']:.3f} | {item['recall']:.3f} | {item['f1_score']:.3f} |"
+            f"| {name} | {item['scenario_count']} | {item['true_positives']} | "
+            f"{item['false_positives']} | {item['false_negatives']} | "
+            f"{item['precision']:.3f} | {item['recall']:.3f} | {item['f1_score']:.3f} |"
         )
-    return f"""# Public Evidence Benchmark 30 — risultato\n\n"
-Generated: `{report['generated_at']}`  \nEngine: `{report['product']['engine_version']}`\n\n"
-## Evidenza\n\n"
-Questo è un benchmark indipendente, non un pilot aziendale reale. I 10 casi pubblici sono rappresentazioni normalizzate di record Portland; i 10 casi mutati sono derivati controllati; gli ultimi 10 sono sintetici professionali. La ground truth è separata dall'input e viene usata solo dall'evaluator dopo l'ingestione.\n\n"
-## Metriche\n\n"
-- scenari: **{report['metrics']['scenario_count']}**\n"
-- documenti: **{report['metrics']['document_count']}**\n"
-- anomalie attese: **{report['metrics']['expected_finding_count']}**\n"
-- TP / FP / FN: **{overall['true_positives']} / {overall['false_positives']} / {overall['false_negatives']}**\n"
-- precisione: **{overall['precision']:.3f}**\n"
-- recall: **{overall['recall']:.3f}**\n"
-- F1: **{overall['f1_score']:.3f}**\n"
-- MAE importi: **{report['metrics']['amount_mae']:.2f}**\n"
-- gate: **{'PASS' if report['metrics']['gate_passed'] else 'FAIL'}**\n"
-- tempo: **{report['metrics']['elapsed_seconds']:.3f} s**\n\n"
-| Categoria | Scenari | TP | FP | FN | Precisione | Recall | F1 |\n"
-|---|---:|---:|---:|---:|---:|---:|---:|\n"
-{chr(10).join(rows)}\n\n"
-## Integrità\n\n"
-- SHA-256 input: `{report['integrity']['dataset_sha256']}`\n"
-- SHA-256 ground truth: `{report['integrity']['ground_truth_sha256']}`\n"
-- ground truth separata: **sì**\n"
-- pilot reale completato: **no**\n"
+    return f"""# Public Evidence Benchmark 30 — risultato
+
+Generated: `{report["generated_at"]}`  
+Engine: `{report["product"]["engine_version"]}`
+
+## Evidenza
+
+Questo è un benchmark indipendente, non un pilot aziendale reale. I 10 casi pubblici sono rappresentazioni normalizzate di record Portland; i 10 casi mutati sono derivati controllati; gli ultimi 10 sono sintetici professionali. La ground truth è separata dall'input e viene usata solo dall'evaluator dopo l'ingestione.
+
+## Metriche
+
+- scenari: **{report["metrics"]["scenario_count"]}**
+- documenti: **{report["metrics"]["document_count"]}**
+- anomalie attese: **{report["metrics"]["expected_finding_count"]}**
+- TP / FP / FN: **{overall["true_positives"]} / {overall["false_positives"]} / {overall["false_negatives"]}**
+- precisione: **{overall["precision"]:.3f}**
+- recall: **{overall["recall"]:.3f}**
+- F1: **{overall["f1_score"]:.3f}**
+- MAE importi: **{report["metrics"]["amount_mae"]:.2f}**
+- gate: **{"PASS" if report["metrics"]["gate_passed"] else "FAIL"}**
+- tempo: **{report["metrics"]["elapsed_seconds"]:.3f} s**
+
+| Categoria | Scenari | TP | FP | FN | Precisione | Recall | F1 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+{chr(10).join(rows)}
+
+## Integrità
+
+- SHA-256 input: `{report["integrity"]["dataset_sha256"]}`
+- SHA-256 ground truth: `{report["integrity"]["ground_truth_sha256"]}`
+- ground truth separata: **sì**
+- pilot reale completato: **no**
 """
 
 
@@ -136,7 +146,7 @@ def main() -> int:
         db.commit()
         details = json.loads(run.details_json or "{}")
 
-        accum = defaultdict(lambda: {"scenario_count":0,"tp":0,"fp":0,"fn":0})
+        accum = defaultdict(lambda: {"scenario_count": 0, "tp": 0, "fp": 0, "fn": 0})
         results = []
         for result in details.get("scenarios", []):
             truth_item = truth_by_id[result["id"]]
@@ -146,49 +156,56 @@ def main() -> int:
             block["tp"] += int(result.get("true_positives", 0))
             block["fp"] += len(result.get("false_positives", []))
             block["fn"] += len(result.get("false_negatives", []))
-            results.append({
-                **result,
-                "category": category,
-                "source_id": truth_item.get("source_id"),
-                "ocid": truth_item.get("ocid"),
-                "mutation_type": truth_item.get("mutation_type"),
-            })
+            results.append(
+                {
+                    **result,
+                    "category": category,
+                    "source_id": truth_item.get("source_id"),
+                    "ocid": truth_item.get("ocid"),
+                    "mutation_type": truth_item.get("mutation_type"),
+                }
+            )
         by_category = {}
         for name in ("public_record_baseline", "public_record_mutation", "synthetic_full_chain"):
             item = accum[name]
-            by_category[name] = {"scenario_count": item["scenario_count"], **metrics(item["tp"], item["fp"], item["fn"])}
+            by_category[name] = {
+                "scenario_count": item["scenario_count"],
+                **metrics(item["tp"], item["fp"], item["fn"]),
+            }
 
         report = {
             "schema": "thistinti.public-evidence-benchmark-result.v1",
             "generated_at": datetime.now(timezone.utc).isoformat(),
-            "product": {"name":"ThisTinti","engine_version":RELEASE_VERSION},
+            "product": {"name": "ThisTinti", "engine_version": RELEASE_VERSION},
             "classification": {
-                "evidence_level":"synthetic",
-                "contains_public_source_normalizations":True,
-                "contains_controlled_mutations":True,
-                "real_pilot_completed":False,
-                "commercial_accuracy_claim_allowed":False,
-                "automation_eligible":False,
+                "evidence_level": "synthetic",
+                "contains_public_source_normalizations": True,
+                "contains_controlled_mutations": True,
+                "real_pilot_completed": False,
+                "commercial_accuracy_claim_allowed": False,
+                "automation_eligible": False,
             },
             "integrity": {
-                "dataset_sha256":digest(args.dataset),
-                "ground_truth_sha256":digest(args.ground_truth),
-                "public_source_records":10,
-                "controlled_mutations":10,
-                "ground_truth_separate_from_input":True,
+                "dataset_sha256": digest(args.dataset),
+                "ground_truth_sha256": digest(args.ground_truth),
+                "public_source_records": 10,
+                "controlled_mutations": 10,
+                "ground_truth_separate_from_input": True,
             },
             "metrics": {
-                "scenario_count":len(payload.scenarios),
-                "document_count":sum(len(item.documents) for item in payload.scenarios),
-                "expected_finding_count":sum(len(item.expected) for item in payload.scenarios),
-                "overall":metrics(int(run.true_positives or 0), int(run.false_positives or 0), int(run.false_negatives or 0)),
-                "amount_mae":float(run.amount_mae or 0),
-                "gate_passed":bool(run.gate_passed),
-                "elapsed_seconds":round(elapsed,3),
-                "average_seconds_per_scenario":round(elapsed / len(payload.scenarios),3),
-                "by_category":by_category,
+                "scenario_count": len(payload.scenarios),
+                "document_count": sum(len(item.documents) for item in payload.scenarios),
+                "expected_finding_count": sum(len(item.expected) for item in payload.scenarios),
+                "overall": metrics(
+                    int(run.true_positives or 0), int(run.false_positives or 0), int(run.false_negatives or 0)
+                ),
+                "amount_mae": float(run.amount_mae or 0),
+                "gate_passed": bool(run.gate_passed),
+                "elapsed_seconds": round(elapsed, 3),
+                "average_seconds_per_scenario": round(elapsed / len(payload.scenarios), 3),
+                "by_category": by_category,
             },
-            "scenario_results":results,
+            "scenario_results": results,
         }
         args.report.parent.mkdir(parents=True, exist_ok=True)
         args.report.write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str) + "\n", encoding="utf-8")
@@ -196,7 +213,9 @@ def main() -> int:
         if run.status != "completed":
             raise SystemExit(f"Benchmark engine failed: {run.error_message}")
         if not run.gate_passed:
-            raise SystemExit(f"Benchmark gate failed: precision={run.precision} recall={run.recall} f1={run.f1_score} mae={run.amount_mae}")
+            raise SystemExit(
+                f"Benchmark gate failed: precision={run.precision} recall={run.recall} f1={run.f1_score} mae={run.amount_mae}"
+            )
         return 0
     finally:
         db.close()
