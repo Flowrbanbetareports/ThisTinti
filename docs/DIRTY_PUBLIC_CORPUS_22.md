@@ -10,61 +10,65 @@ It is not a real company pilot and it must never be described as one.
 
 ## Corpus composition
 
-The discovery version contains 22 files:
+Discovery version `0.2` contains exactly 22 files:
 
-- 2 genuine City of Portland purchase-order PDFs published for supplier/procurement guidance;
-- 2 other genuine Portland public PDFs that are not transaction documents and should be rejected safely when no document type is supplied;
-- 13 pinned OpenPeppol XML invoice examples, including current ViDA pilot files and Peppol BIS Billing examples;
-- 3 pinned EN16931 edge examples;
-- 2 pinned negative/invalid EN16931 examples that should be rejected with a structured `ParseError`, never crash the parser.
+- **15 raw public financial/procurement PDFs** from the Lucy Parsons Labs `1505-documents` repository. Its README describes the collection as mostly FOIA records received from Chicago-area law-enforcement agencies and specifically notes outgoing checks and purchases made from 1505/asset-forfeiture funds;
+- **5 pinned OpenPeppol XML documents**, including current ViDA pilot material and a Peppol BIS Billing example;
+- **1 pinned EN16931 credit-note example**;
+- **1 pinned EN16931 negative/conformance example** used to document the boundary between structural UBL parsing and full business-rule validation.
 
-The Portland purchase orders are important because they are not formatted for ThisTinti. They use a real public-sector SAP-style layout, multi-page tables, English labels, thousands separators and line structures that differ substantially from the app's own fixtures.
+The fifteen public PDFs are not copied into this repository. The manifest points to the external public repository at immutable Git commits and records each upstream Git blob SHA. They include clean vendor quotes as well as multi-document FOIA packets containing requisitions, checks, invoices, approvals and supporting material. That messiness is deliberate.
 
-## Discovery first, gate second
+## Discovery first, frozen gate second
 
-Version `0.1-discovery` deliberately has `frozen: false`.
+The initial corpus remains `frozen: false` while its behavior is characterized.
 
 During discovery the workflow:
 
 1. downloads every source without transforming it;
 2. records final URL, response metadata, size and SHA-256;
 3. runs the raw file through `app.parsers.parse_file`;
-4. records structured parse output or structured `ParseError`;
-5. evaluates manually declared expectations;
-6. fails immediately on download failures or unhandled parser exceptions;
-7. does **not** fail merely because a declared parser expectation is missed while the corpus is still being characterized.
+4. records structured parse output, structured `ParseError`, or an unhandled exception;
+5. evaluates source-based assertions for files that can be annotated unambiguously;
+6. marks mixed packets as `characterize`, so their parser behavior is recorded without inventing a fake single-document ground truth;
+7. fails immediately on download failures or unhandled parser exceptions;
+8. reports all source-assertion mismatches even before the corpus is frozen.
 
-This is not a way to hide failures. The report prints every mismatch. It exists so external-source hashes and genuine parser limitations can be observed before the corpus is frozen.
+Discovery mode is not permission to weaken failures. It prevents us from pretending that a mixed FOIA packet has one obvious invoice/order answer when it does not.
 
-After discovery:
+After characterization:
 
-- the four mutable Portland URLs receive their observed SHA-256 values in the manifest;
-- expectations are reviewed against source truth, not weakened to match the software;
-- `frozen` becomes `true`;
-- from that point every expectation mismatch fails CI.
+- source-based expectations are reviewed against the upstream material, not against whatever ThisTinti happened to output;
+- genuine parser gaps that fall inside product scope are fixed and turned into regressions;
+- the corpus is set to `frozen: true`;
+- from that point every source assertion and integrity requirement becomes a CI gate.
 
 ## What counts as useful failure
 
-Examples of useful failures include:
+Useful failures include:
 
-- a Portland purchase order is readable but the number is not recognized;
-- line tables are not extracted;
-- the currency defaults incorrectly;
-- a valid Peppol/EN16931 invoice is rejected;
+- a real public vendor quote is readable but its quote number is not recognized;
+- USD is interpreted as EUR;
+- a real quote table produces no business lines;
+- a valid Peppol/EN16931 document is rejected;
 - a credit note is classified as an invoice;
-- an intentionally invalid example is accepted without warning;
-- a malformed external document causes an unhandled exception instead of a structured `ParseError`.
+- a malformed external document causes an unhandled exception instead of a structured `ParseError`;
+- a multi-document public packet shows that ThisTinti needs document segmentation before stronger assertions are possible.
 
-Those failures are the point of this suite. They should become parser improvements and permanent regressions, not be removed by weakening the benchmark.
+Those failures are evidence. They should become parser improvements or explicit product boundaries, not disappear because the expectation was changed to make CI green.
+
+## Important standards boundary
+
+The current UBL parser is a **structural business-document parser**. It is not a complete EN16931/Peppol Schematron conformance engine. A file intentionally invalid under a standards rule may therefore still parse structurally. The corpus records that fact instead of incorrectly demanding `ParseError` from a validator that the product does not claim to contain.
 
 ## Governance boundary
 
-A future PASS means only that the frozen assertions for these 22 raw public/external documents are satisfied. It does **not** mean:
+A future PASS means only that the frozen assertions for these 22 raw public/external documents are satisfied and that the characterized packets do not crash the parser. It does **not** mean:
 
 - 100% real-world accuracy;
 - OCR robustness on arbitrary scans;
 - a completed authorized company pilot;
-- legal/accounting validation;
+- legal/accounting/tax validation;
 - production readiness by itself.
 
 The controlled company pilot remains a separate gate.
