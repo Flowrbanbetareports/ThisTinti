@@ -45,11 +45,7 @@ def test_all_external_files_are_pinned_to_full_github_commits() -> None:
 
 def test_real_public_material_is_not_vendored_or_called_a_company_pilot() -> None:
     manifest = load_manifest()
-    public_cases = [
-        item
-        for item in manifest["sources"]
-        if item["category"] == "real_public_financial_packet_pdf"
-    ]
+    public_cases = [item for item in manifest["sources"] if item["category"] == "real_public_financial_packet_pdf"]
     assert len(public_cases) == 15
     assert manifest["real_company_pilot"] is False
     assert all(item["publisher"] for item in public_cases)

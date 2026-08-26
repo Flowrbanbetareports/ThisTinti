@@ -1,11 +1,4 @@
-#!/usr/bin/env python3
-from decimal import Decimal
-from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[1]
-TEST = ROOT / "tests/test_pdf_semantics.py"
-TEST.write_text(
-    '''from __future__ import annotations
+from __future__ import annotations
 
 from decimal import Decimal
 from pathlib import Path
@@ -50,7 +43,7 @@ $9,605.00 $9,605.00
 
 
 def test_pdf_semantics_abstains_instead_of_inventing(monkeypatch, tmp_path: Path):
-    result = parse_text(monkeypatch, tmp_path, "PEN-LINK DUTZ LINK\\nNo reliable identifier here")
+    result = parse_text(monkeypatch, tmp_path, "PEN-LINK DUTZ LINK\nNo reliable identifier here")
     assert result.number is None
     assert result.currency == "UNK"
     assert result.metadata["document_number_recognition"]["status"] == "abstained"
@@ -70,6 +63,3 @@ QUO-04689-V8Y5D0
     assert len(result.lines) == 3
     assert result.lines[0].description == "MASTER DATABASE SERVER"
     assert result.lines[0].unit_price == Decimal("10607.80")
-''',
-    encoding="utf-8",
-)
