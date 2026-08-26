@@ -6,11 +6,13 @@ ThisTinti non decide, non approva e non certifica nulla. Organizza informazioni 
 
 ## Stato del rilascio
 
-Versione di sviluppo: **3.4.0-alpha.7-rc.12 — candidata interna preparazione commerciale leggera**.
+Versione pubblica corrente: **3.4.0-alpha.7-rc.12 — Public Preview**.
 
-Ultima versione pubblica immutabile: **3.4.0-alpha.7-rc.11 — Public Preview**. La RC11 resta disponibile con checksum, provenienza e attestazioni e non viene modificata da questo sviluppo.
+La RC12 è una prerelease immutabile costruita dal commit applicativo `de4df8a96394b088e434c870971a193b5538d78d` e pubblicata come tag `v3.4.0-alpha.7-rc.12` con checksum, provenienza e attestazioni. La pubblicazione non chiude i gate esterni necessari per una beta validata o per la produzione.
 
-La candidata RC12 aggiunge una piccola area amministratore “Progetto e piani”: conta i download pubblici GitHub senza chiamarli utenti o installazioni, mostra metriche pubbliche del repository, offre un Integration Pack tecnico in anteprima e predispone catalogo, sponsor e pagamenti futuri mantenendoli disattivati. Non introduce telemetria, account centrale, pubblicità esterna o checkout.
+RC12 aggiunge una piccola area amministratore “Progetto e piani”: conta i download pubblici GitHub senza chiamarli utenti o installazioni, mostra metriche pubbliche del repository, offre un Integration Pack tecnico in anteprima e mantiene disattivate le predisposizioni per catalogo, sponsor e pagamenti. Non introduce telemetria, account centrale, pubblicità esterna, checkout o un servizio SaaS gestito.
+
+Il lavoro successivo parte dal collaudo umano end-to-end della RC12 installata; una RC13 non viene creata automaticamente per aggiungere funzioni. Il percorso e i criteri sono descritti in `docs/ROADMAP_TO_1_0.md` e `docs/RC12_HANDS_ON_ACCEPTANCE.md`.
 
 ## Identità e posizionamento
 
@@ -172,6 +174,8 @@ ThisTinti non invia contestazioni, non esegue o blocca pagamenti reali, non modi
 
 - `GOVERNANCE.md`: identità, obiettivo, canali ufficiali e processo decisionale;
 - `ROADMAP.md`: priorità dalla alpha alla preparazione operativa;
+- `docs/ROADMAP_TO_1_0.md`: criterio di completamento e percorso dalla Public Preview alla 1.0 Stable;
+- `docs/RC12_HANDS_ON_ACCEPTANCE.md`: collaudo umano end-to-end della Public Preview installata;
 - `TERMS_OF_USE.md`: condizioni, rischi, responsabilità e approvazione specifica;
 - `DISCLAIMER.md`: avviso essenziale;
 - `PRIVACY.md`: dati locali e responsabilità dell'organizzazione;

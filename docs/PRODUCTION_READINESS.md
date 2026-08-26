@@ -1,4 +1,6 @@
-# Production readiness — ThisTinti 3.4.0-alpha.7-rc.12 (candidata interna non pubblicata)
+# Production readiness — ThisTinti 3.4.0-alpha.7-rc.12 (Public Preview, non produzione)
+
+RC12 è pubblicata e verificabile come Public Preview. Questo documento elenca ciò che esiste tecnicamente e ciò che manca per un uso produttivo: la pubblicazione della prerelease non autorizza né implica la produzione.
 
 ## Gate tecnici interni implementati
 
@@ -23,7 +25,7 @@
 - calibrazione obbligatoria: pilot reale, almeno 30 scenari, motore corrente e
   approvazione amministrativa del run esatto prima di abilitare qualunque
   automazione suggerita dai controlli temporali;
-- vincoli database e revoca automatica dell'idoneità a ogni nuova validazione.
+- vincoli database e revoca automatica dell'idoneità a ogni nuova validazione;
 - diagnostica locale integrata con verbale scaricabile; non sostituisce i gate esterni.
 
 ## Gate esterni obbligatori prima di dati sensibili

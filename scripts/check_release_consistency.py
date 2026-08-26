@@ -58,6 +58,44 @@ def validate_release_records(failures: list[str]) -> None:
             failures.append(f"Latest release verification has invalid {field}")
 
 
+def has_public_preview_line(text: str, version: str) -> bool:
+    return any(version in line and "Public Preview" in line for line in text.splitlines())
+
+
+def validate_publication_document_state(failures: list[str]) -> None:
+    publication = load_json(ROOT / "builds" / "publication-latest.json")
+    version = str(publication.get("version") or "")
+    if not version:
+        failures.append("Latest publication evidence has no version")
+        return
+
+    # These public-facing documents must always identify the latest immutable
+    # publication on the same line as its Public Preview status. This remains
+    # valid when development later moves to a newer internal candidate.
+    for relative in ("README.md", "ROADMAP.md", "docs/BETA_READINESS_STATUS.md"):
+        text = (ROOT / relative).read_text(encoding="utf-8")
+        if not has_public_preview_line(text, version):
+            failures.append(f"{relative} does not identify published {version} as a Public Preview")
+
+    release_notes = (ROOT / "RELEASE_NOTES.md").read_text(encoding="utf-8")
+    section_match = re.search(
+        rf"(?ms)^# {re.escape(version)}\b.*?(?=^# |\Z)",
+        release_notes,
+    )
+    if section_match is None or "Public Preview" not in section_match.group(0):
+        failures.append(f"RELEASE_NOTES.md does not record {version} as a published Public Preview")
+
+    # When the current source version is exactly the published version, the
+    # operational documents must not still call it an unpublished candidate.
+    if version == RELEASE_VERSION:
+        for relative in ("docs/OPERATIONS.md", "docs/PRODUCTION_READINESS.md", "docs/THREAT_MODEL.md"):
+            text = (ROOT / relative).read_text(encoding="utf-8")
+            if not has_public_preview_line(text, version):
+                failures.append(f"{relative} still does not identify current {version} as Public Preview")
+            if "candidata interna non pubblicata" in text:
+                failures.append(f"{relative} still describes published {version} as unpublished")
+
+
 def validate_windows_baseline(failures: list[str]) -> None:
     baseline = load_json(ROOT / "builds" / "windows-upgrade-baseline.json")
     required = {
@@ -121,6 +159,7 @@ def validate_release_consistency() -> list[str]:
     validate_generated_file(ROOT / "docs" / "openapi.json", render_openapi(), failures)
     validate_generated_file(ROOT / "docs" / "sbom.cdx.json", render_sbom(), failures)
     validate_release_records(failures)
+    validate_publication_document_state(failures)
     validate_windows_baseline(failures)
     return failures
 

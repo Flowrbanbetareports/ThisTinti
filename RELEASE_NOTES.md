@@ -1,4 +1,4 @@
-# 3.4.0-alpha.7-rc.12 — preparazione commerciale leggera (candidata interna)
+# 3.4.0-alpha.7-rc.12 — preparazione commerciale leggera
 
 - nuova pagina amministratore “Progetto e piani”, separata dal lavoro documentale quotidiano;
 - contatore dei download pubblici GitHub per installer, portable e self-hosted, dichiarato esplicitamente distinto da utenti e installazioni attive;
@@ -8,9 +8,9 @@
 - spazio sponsor esclusivamente dimostrativo, privo di reti esterne, profilazione e inserzioni nelle schermate operative;
 - politica di acquisto digitale futura predisposta senza rinunce assolute a reclami legittimi o diritti inderogabili;
 - nessuna telemetria, nessun documento o dato utente inviato all’autore;
-- RC11 resta la Public Preview immutabile finché RC12 non supera i gate e viene pubblicata separatamente.
+- pubblicata come Public Preview immutabile `v3.4.0-alpha.7-rc.12` dopo i gate completi, con checksum, provenienza e attestazioni sul commit applicativo verificato; i gate esterni di beta/produzione restano aperti.
 
-# 3.4.0-alpha.7-rc.11 — centro operativo e revisione supervisionata (candidata interna)
+# 3.4.0-alpha.7-rc.11 — centro operativo e revisione supervisionata
 
 - la home indica cosa controllare adesso e propone la prossima verifica in base a gravità, stato, valore indicativo e data;
 - le segnalazioni della stessa operazione vengono raggruppate in un unico fascicolo di pratica;
@@ -22,7 +22,7 @@
 - il rapporto operativo è esportabile in JSON e in una vista stampabile/PDF, lasciando nulli i dati di pilot non realmente misurati;
 - l’apprendimento propone una revisione delle soglie soltanto dopo almeno cinque decisioni umane coerenti e non applica mai modifiche automatiche;
 - Chromium verifica sia la presentazione isolata sia il flusso reale contro API, database, audit e rianalisi;
-- RC10 resta la Public Preview immutabile finché RC11 non supera tutti i gate e viene pubblicata separatamente.
+- pubblicata come Public Preview immutabile dopo i gate completi sul commit candidato e sull’installer Windows verificato.
 
 # 3.4.0-alpha.7-rc.10 — qualità del prodotto e linguaggio operativo
 
