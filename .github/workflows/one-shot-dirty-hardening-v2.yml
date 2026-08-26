@@ -35,6 +35,18 @@ jobs:
         run: |
           ruff format app/parsers/pdf_text.py scripts/run_dirty_public_corpus.py scripts/local_distribution_smoke.py tests/test_dirty_public_corpus.py tests/test_pdf_semantics.py
           ruff check app/parsers/pdf_text.py scripts/run_dirty_public_corpus.py scripts/local_distribution_smoke.py tests/test_dirty_public_corpus.py tests/test_pdf_semantics.py
+      - name: Normalize trailing whitespace
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("scripts/run_dirty_public_corpus.py")
+          text = path.read_text(encoding="utf-8")
+          path.write_text(
+              "\n".join(line.rstrip() for line in text.splitlines()) + "\n",
+              encoding="utf-8",
+          )
+          PY
       - name: Run focused semantic tests
         run: pytest -q tests/test_pdf_semantics.py tests/test_dirty_public_corpus.py
       - name: Remove one-shot machinery
