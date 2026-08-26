@@ -6,19 +6,28 @@ ThisTinti non decide, non approva e non certifica nulla. Organizza informazioni 
 
 ## Stato del rilascio
 
-Versione di sviluppo: **3.4.0-alpha.7-rc.13 — candidata interna di sicurezza**.
+Versione pubblica corrente: **3.4.0-alpha.7-rc.13 — Public Preview**.
 
-Versione pubblica corrente: **3.4.0-alpha.7-rc.12 — Public Preview**. La RC12 resta una prerelease immutabile costruita dal commit applicativo `de4df8a96394b088e434c870971a193b5538d78d` e pubblicata come tag `v3.4.0-alpha.7-rc.12` con checksum, provenienza e attestazioni.
+RC13 è un hotfix di sicurezza deliberatamente limitato: aggiorna `pypdf` da 6.14.2 a 6.15.0 per correggere `PYSEC-2026-3655` e `PYSEC-2026-3656`, senza nuove funzionalità o modifiche UI e senza cambiare il modello local-first.
 
-RC13 è deliberatamente limitata alla correzione delle vulnerabilità `PYSEC-2026-3655` e `PYSEC-2026-3656` nella dipendenza PDF `pypdf`, aggiornata da 6.14.2 a 6.15.0. Non aggiunge funzionalità, non modifica il modello local-first e non anticipa il collaudo umano complessivo della RC12/RC13. Diventerà pubblica soltanto se supera nuovamente i gate completi e il ciclo Windows sul commit candidato esatto.
+Evidenza della Public Preview RC13:
 
-La pubblicazione di una RC non chiude i gate esterni necessari per una beta validata o per la produzione.
+- tag: `v3.4.0-alpha.7-rc.13`;
+- commit applicativo: `f7609b51aec4c358d0410ca8ff83e60485cac96c`;
+- tree Git: `e1a5ea29d4bbef7e1431d96fa5a5149dc4a46e3c`;
+- workflow Windows: run `33008478384`, build `394`;
+- installer: `ThisTinti-Setup-3.4.0-alpha.7-rc.13-x64.exe`;
+- SHA-256 installer: `505532c67d324a29487d77acd9ae0d1f1e5b918a4f2ccbb996bc3b2be774622f`;
+- pubblicazione GitHub: `2026-08-26T20:17:41Z`;
+- release: https://github.com/Flowrbanbetareports/ThisTinti/releases/tag/v3.4.0-alpha.7-rc.13
+
+La pubblicazione della RC13 non chiude i gate esterni necessari per una beta validata o per la produzione: pilot reale, revisione indipendente di sicurezza e legale/privacy, collaudo WCAG manuale con tecnologie assistive, test con utenti non istruiti, firma Authenticode e prove sull’infrastruttura definitiva restano separati e devono produrre evidenza reale.
 
 ## Identità e posizionamento
 
 Il nome ufficiale del progetto è **ThisTinti**. `Flowrbanbetareports` è soltanto l'account tecnico GitHub che ospita il repository e non costituisce un secondo marchio o una parte del prodotto.
 
-Nel periodo alpha ThisTinti resta open source, gratuito, local-first e destinato a demo e pilot supervisionati. Non viene offerto come SaaS o servizio gestito. Decisioni, manutenzione, canali ufficiali e gate produttivi sono definiti in `GOVERNANCE.md` e `ROADMAP.md`.
+Nel periodo alpha ThisTinti resta open source, gratuito, local-first e destinato a demo e pilot supervisionati. Non viene offerto come SaaS o servizio gestito. Decisioni, manutenzione, canali ufficiali e gate produttivi sono definiti in `GOVERNANCE.md`, `ROADMAP.md` e `docs/ROADMAP_TO_1_0.md`.
 
 ## Download locale gratuito
 
@@ -26,13 +35,17 @@ La Local Edition è progettata per essere usata senza un servizio gestito da Thi
 
 - nessun account centrale e nessun cloud obbligatorio;
 - nessuna telemetria e nessun documento inviato all'autore;
-- database, file e backup conservati sul computer dell'azienda;
+- database, file e backup conservati sul computer dell'organizzazione;
 - launcher che avvia automaticamente API e worker e apre il browser;
 - installer Windows per utente singolo, senza privilegi amministrativi;
 - archivio portable e checksum SHA-256;
 - sorgente corrispondente incluso ed esportabile sotto licenza Apache 2.0.
 
-La build pubblica viene generata da `.github/workflows/windows-release.yml`. Prima di pubblicare un tag, il workflow esegue test, controlli di sicurezza e uno smoke test sull'eseguibile congelato che comprende caricamento, worker, arresto, riavvio e persistenza. Vedere `docs/LOCAL_EDITION.md` e `docs/RELEASE_AUTHENTICITY.md`.
+Download installer RC13:
+
+https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.13/ThisTinti-Setup-3.4.0-alpha.7-rc.13-x64.exe
+
+La build pubblica viene generata da `.github/workflows/windows-release.yml`. Prima della pubblicazione il percorso di rilascio esegue test, controlli di sicurezza, build congelata, installazione della baseline, aggiornamento, persistenza dei dati, smoke test dell’app installata, Diagnostica reale, disinstallazione, checksum, provenienza e attestazioni.
 
 ## Self-Hosted Reference Edition gratuita
 
@@ -48,13 +61,11 @@ python scripts/enterprise_init.py \
 python scripts/enterprise_preflight.py --directory deploy/enterprise
 ```
 
-Vedere `docs/ENTERPRISE_SELF_HOSTED.md`, `docs/RESPONSIBILITY_MATRIX.md` e `docs/ENTERPRISE_ACCEPTANCE_CHECKLIST.md`.
-
-### Governance dell'automazione
+## Governance dell’automazione
 
 I dataset reali sono accettati come `anonymized_pilot` o `production` soltanto con almeno 30 scenari, autorizzazione esplicita, perimetro documentato, ground truth e due revisori distinti. Prima del caricamento possono essere controllati con `python scripts/validate_pilot_dataset.py pilot.json`; ogni run può esportare un rapporto redatto JSON o Markdown.
 
-Il Validation Gate sintetico serve soltanto alla regressione tecnica e non può abilitare automazioni. `safe_to_automate` può diventare vero soltanto quando esiste un dataset `anonymized_pilot` o `production`, composto da almeno 30 scenari, eseguito con la versione corrente del motore e approvato esplicitamente da un amministratore sullo specifico run. Ogni nuova esecuzione sul dataset revoca l'idoneità precedente fino a una nuova revisione. Vincoli equivalenti sono applicati anche dal database.
+Il Validation Gate sintetico serve soltanto alla regressione tecnica e non può abilitare automazioni economiche. Le azioni economiche restano sotto controllo umano.
 
 ## Capacità principali
 
@@ -62,22 +73,18 @@ Il Validation Gate sintetico serve soltanto alla regressione tecnica e non può 
 - upload singolo e batch, quarantena e worker persistente con retry;
 - FatturaPA, P7M, UBL/Peppol, JSON, CSV, XLSX/XLSM e PDF con OCR locale;
 - documenti `proposal`, `order`, `confirmation`, `delivery`, `invoice`, `payment`, `return`, `credit_note`;
-- ricevute PDF di pagamento con riconoscimento prudente dell'importo;
 - matching molti-a-molti e calcoli economici `Decimal`;
-- **Proof Graph**: grafo delle prove, collegamenti, forza delle evidenze e campi in conflitto;
-- **controllo dei documenti attesi**: segnala documenti mancanti e scadenze euristiche o apprese dallo storico privato;
-- **stima preventiva supervisionata**: indicatore euristico di rischio e importo potenzialmente esposto, senza approvare o bloccare operazioni;
-- riconciliazione fattura–pagamento, sovrapagamenti, pagamenti orfani e possibili duplicati;
-- **controllo incrociato a tre fonti** tra estrazione, aritmetica e coerenza dei collegamenti;
-- **confronto euristico del processo** con il percorso dominante osservato nell’organizzazione;
-- **test sintetico degli scenari di errore** manuale o persistente, senza alterare i documenti originali;
-- memoria privata e pattern anonimi con soglia minima, senza documenti, nomi, importi o riferimenti;
-- fascicoli di prova, revisione umana, audit con sequenza canonica e catena hash;
+- Proof Graph con collegamenti, forza delle evidenze e campi in conflitto;
+- controllo dei documenti attesi e riconciliazione fattura–pagamento;
+- sovrapagamenti, pagamenti orfani e possibili duplicati;
+- controllo incrociato tra estrazione, aritmetica e coerenza dei collegamenti;
+- correzione supervisionata con audit e rianalisi;
+- fascicoli di prova, revisione umana e catena hash dell’audit;
 - Adaptive Discovery con regole apprese sempre soggette a conferma;
 - Validation Lab, backup/restore, PostgreSQL RLS, rate limiting condiviso, OpenAPI e SBOM;
 - diagnostica locale integrata con esiti espliciti e verbale JSON scaricabile.
 
-## Avvio locale
+## Avvio locale da sorgente
 
 Requisiti: Python 3.11–3.13. Node.js è necessario solo per il controllo sintattico del frontend. Per OCR servono Poppler e Tesseract.
 
@@ -94,47 +101,39 @@ uvicorn app.main:app --host 127.0.0.1 --port 8000
 
 Aprire `http://127.0.0.1:8000`, creare il primo tenant e usare **Carica esempio**.
 
-## Elaborazione asincrona
-
-Per usare il percorso raccomandato anche localmente:
+Per usare il percorso asincrono raccomandato:
 
 ```env
 THISTINTI_ASYNC_INGESTION_ENABLED=true
 THISTINTI_ALLOW_SYNCHRONOUS_INGESTION=false
 ```
 
-Avviare API e worker in processi separati:
-
 ```bash
 uvicorn app.main:app --host 127.0.0.1 --port 8000
 python scripts/run_worker.py --poll-seconds 1
 ```
 
-I documenti vengono prima salvati in quarantena. Il worker li scansiona, analizza e trasferisce nello storage definitivo. Gli endpoint `/api/jobs/*` espongono stato, errori, tentativi e cancellazione.
-
 ## Docker e PostgreSQL
 
 ```bash
 cp .env.docker.example .env
-# Sostituire password e segreto; configurare lo scanner esterno per produzione.
+# Sostituire password e segreto; configurare uno scanner reale per produzione.
 docker compose up --build
 ```
 
-Il servizio `migrate` applica Alembic una sola volta; `app` e `worker` partono separatamente. In produzione sono obbligatori PostgreSQL, HTTPS, registrazione pubblica disabilitata, ingestion asincrona, rate limiting DB e scanner malware operativo.
-
-Il compose incluso è una base di deploy, non una certificazione dell'infrastruttura. Lo scanner esterno deve essere installato o fornito dall'ambiente e il comando indicato da `THISTINTI_MALWARE_SCANNER_COMMAND` deve eseguire una scansione reale.
+Il compose incluso è una base di deploy, non una certificazione dell'infrastruttura. Per un ambiente produttivo servono configurazione, responsabilità operative e prove esterne specifiche.
 
 ## Backup e ripristino
 
 ```bash
 python scripts/backup_system.py /backup/thistinti-$(date +%F).zip
-python scripts/verify_backup.py /backup/thistinti-2026-07-19.zip
-python scripts/restore_backup.py /backup/thistinti-2026-07-19.zip \
+python scripts/verify_backup.py /backup/thistinti-2026-08-26.zip
+python scripts/restore_backup.py /backup/thistinti-2026-08-26.zip \
   --sqlite-database /restore/thistinti.db \
   --storage-dir /restore/data
 ```
 
-Per PostgreSQL vengono usati `pg_dump` e `pg_restore`. Il backup contiene manifest, versione, hash dei componenti e copia dello storage; il restore rifiuta sovrascritture implicite. Conservazione, disinstallazione e cancellazione completa sono descritte in `docs/DATA_LIFECYCLE.md`.
+Per PostgreSQL vengono usati `pg_dump` e `pg_restore`. Conservazione, disinstallazione e cancellazione completa sono descritte in `docs/DATA_LIFECYCLE.md`.
 
 ## Verifica del rilascio
 
@@ -144,48 +143,30 @@ make verify
 python scripts/verify_release.py
 ```
 
-La verifica esegue lint, format, Bandit, compileall, JavaScript, test, copertura minima 90%, dipendenze dichiarate, migrazioni upgrade/downgrade, Validation Gate, smoke HTTP, backup/verify/restore, SBOM, OpenAPI e ricerca di segreti/token browser storage.
+La verifica comprende lint, format, Bandit, compileall, JavaScript, test, copertura minima, dipendenze dichiarate, migrazioni upgrade/downgrade, Validation Gate, smoke HTTP, backup/verify/restore, SBOM, OpenAPI e ricerca di segreti/token browser storage. `pip-audit` è bloccante in CI quando è disponibile la rete.
 
-`pip-audit` resta bloccante in CI quando è disponibile la rete. La verifica locale non può sostituire PostgreSQL live, load test, scanner reale o penetration test.
-
-## Verifica esterna gratuita
-
-Il workflow `.github/workflows/ci.yml` include una prova cloud a costo zero su runner GitHub effimero con PostgreSQL 16, ruoli owner/runtime separati, migrazioni Alembic, RLS, app, worker, ingestione asincrona e verifica della persistenza dopo il riavvio. Le evidenze vengono caricate come artifact temporaneo di GitHub Actions.
-
-Il comando usato dalla prova è riutilizzabile anche su uno staging proprio:
-
-```bash
-python scripts/external_cloud_proof.py bootstrap --state evidence/state.json --report evidence/report.json
-# riavviare app e worker
-python scripts/external_cloud_proof.py verify --state evidence/state.json --report evidence/report.json
-```
-
-Una prova PostgreSQL/RLS separata è già stata eseguita sul progetto Supabase gratuito dedicato `thistinti-staging`: ciascun tenant ha visto soltanto la propria riga e un inserimento cross-tenant è stato rifiutato con SQLSTATE `42501`. La prova completa dell'app su GitHub Actions richiede che il repository venga pubblicato tramite un account GitHub autenticato.
+La verifica automatica non sostituisce pilot reali, penetration test indipendente, revisione professionale legale/privacy, collaudo con tecnologie assistive o firma Authenticode.
 
 ## Uso responsabile e condizioni
 
-Prima dell'uso leggere `TERMS_OF_USE.md`, `DISCLAIMER.md`, `PRIVACY.md` e `TRADEMARKS.md`. La distribuzione ufficiale richiede una doppia conferma nell'installer e al primo avvio. Gli output sono indicativi e devono essere verificati sui documenti originali.
+Prima dell'uso leggere `TERMS_OF_USE.md`, `DISCLAIMER.md`, `PRIVACY.md` e `TRADEMARKS.md`. Gli output sono indicativi e devono essere verificati sui documenti originali.
 
-## Confini deliberati
-
-ThisTinti non invia contestazioni, non esegue o blocca pagamenti reali, non modifica la contabilità e non decide autonomamente se pagare una fattura. Non tratta una regola appresa come verità solo perché ha confidenza elevata. Il sistema prepara evidenze e raccomandazioni; le azioni economiche restano sotto controllo umano.
+ThisTinti non invia contestazioni, non esegue o blocca pagamenti reali, non modifica la contabilità e non decide autonomamente se pagare una fattura. Il sistema prepara evidenze e raccomandazioni; le azioni economiche restano sotto controllo umano.
 
 ## Documentazione
 
 - `GOVERNANCE.md`: identità, obiettivo, canali ufficiali e processo decisionale;
-- `ROADMAP.md`: priorità dalla alpha alla preparazione operativa;
+- `ROADMAP.md`: stato corrente e priorità;
 - `docs/ROADMAP_TO_1_0.md`: criterio di completamento e percorso dalla Public Preview alla 1.0 Stable;
-- `docs/RC12_HANDS_ON_ACCEPTANCE.md`: collaudo umano end-to-end della Public Preview installata;
-- `docs/RC13_SECURITY_CANDIDATE.md`: perimetro e criterio della candidata sicurezza RC13;
-- `TERMS_OF_USE.md`: condizioni, rischi, responsabilità e approvazione specifica;
-- `DISCLAIMER.md`: avviso essenziale;
-- `PRIVACY.md`: dati locali e responsabilità dell'organizzazione;
-- `TRADEMARKS.md`: uso del nome e versioni modificate;
-- `SECURITY.md`: controlli, versioni supportate e segnalazione responsabile;
-- `docs/LOCAL_EDITION.md`: installazione, dati locali, backup e distribuzione gratuita;
-- `docs/DATA_LIFECYCLE.md`: conservazione, disinstallazione e cancellazione completa;
-- `docs/PUBLIC_LAUNCH_CHECKLIST.md`: gate manuali e tecnici prima di ogni pubblicazione;
-- `docs/NAME_AND_DOMAIN_CLEARANCE.md`: stato delle verifiche preliminari su nome e dominio;
-- `docs/USER_GUIDE_SIMPLE.md`: guida essenziale destinata ai nuovi utenti;
-- `docs/PILOT_KIT.md`: perimetro e materiale per pilot controllati;
-- `docs/LICENSE_REVIEW.md`: revisione delle licenze e dei componenti distribuiti.
+- `docs/RC13_SECURITY_CANDIDATE.md`: motivazione, promozione ed evidenza storica dell’hotfix RC13;
+- `docs/RC13_HANDS_ON_ACCEPTANCE.md`: protocollo di collaudo umano end-to-end della RC13;
+- `docs/PUBLIC_LAUNCH_CHECKLIST.md`: stato tecnico e gate esterni;
+- `docs/NAME_AND_DOMAIN_CLEARANCE.md`: verifica del nome e del dominio prima di usi commerciali o produttivi;
+- `docs/LICENSE_REVIEW.md`: inventario e revisione delle licenze/distribuzione;
+- `docs/BETA_READINESS_STATUS.md`: distinzione tra Public Preview, beta tecnica e beta validata;
+- `docs/USER_GUIDE_SIMPLE.md`: guida essenziale per nuovi utenti;
+- `docs/PILOT_KIT.md`: materiale per pilot controllati;
+- `docs/LOCAL_EDITION.md`: installazione e gestione della Local Edition;
+- `docs/DATA_LIFECYCLE.md`: conservazione e cancellazione dati;
+- `SECURITY.md`: controlli e segnalazione responsabile;
+- `RELEASE_NOTES.md`: cronologia delle release.

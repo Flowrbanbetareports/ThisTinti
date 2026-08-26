@@ -2,67 +2,69 @@
 
 ## Definizioni
 
+- **Public Preview alpha/RC**: release pubblica verificata tecnicamente, destinata a demo, valutazione e pilot supervisionati.
 - **Beta tecnica candidata**: il codice, la distribuzione e le procedure interne superano i gate automatici e sono adatti a un pilot controllato.
-- **Beta validata**: oltre ai gate tecnici, esistono evidenze indipendenti su accuratezza reale, sicurezza, privacy, accessibilità e operazioni.
-- **Produzione**: non è implicata dalla parola beta e richiede una decisione formale dell'organizzazione che gestisce il sistema.
+- **Beta validata**: oltre ai gate tecnici, esistono evidenze reali e indipendenti su accuratezza, sicurezza, privacy, accessibilità ed operazioni.
+- **Produzione / 1.0 Stable**: non è implicata dalla parola beta e richiede il completamento dei gate tecnici, umani ed esterni e una decisione formale dell'organizzazione che gestisce il sistema.
 
 ## Stato attuale
 
-ThisTinti è in preparazione interna come `3.4.0-alpha.7-rc.13`, candidata di sicurezza limitata all'aggiornamento di `pypdf` 6.14.2 → 6.15.0. L'ultima Public Preview pubblicata e immutabile resta `3.4.0-alpha.7-rc.12`. La nuova candidata non equivale a una beta validata e non chiude alcun gate esterno. La base tecnica include:
+ThisTinti è pubblicato come `3.4.0-alpha.7-rc.13 — Public Preview`. RC13 è un hotfix di sicurezza limitato all'aggiornamento di `pypdf` 6.14.2 → 6.15.0 per `PYSEC-2026-3655` e `PYSEC-2026-3656`; non aggiunge funzionalità o modifiche UI.
 
-- test applicativi e copertura minima del 90%;
+La release è costruita dal commit applicativo `f7609b51aec4c358d0410ca8ff83e60485cac96c`, tree `e1a5ea29d4bbef7e1431d96fa5a5149dc4a46e3c`, con Windows run `33008478384` / build `394`. L’installer pubblicato ha SHA-256 `505532c67d324a29487d77acd9ae0d1f1e5b918a4f2ccbb996bc3b2be774622f`.
+
+La base tecnica verificata comprende:
+
+- test applicativi e copertura minima prevista dal gate;
 - migrazioni reversibili;
 - PostgreSQL con ruoli separati e RLS;
 - prova self-hosted con backup, ripristino e riavvio;
 - ciclo Windows di installazione, aggiornamento e disinstallazione con conservazione dei dati;
-- audit delle dipendenze, SBOM, checksum e workflow con action bloccate a commit immutabili;
+- smoke test dell’eseguibile congelato e dell’app installata;
+- Diagnostica eseguita contro il vero `ThisTinti.exe` installato;
+- dependency audit, SBOM, checksum, provenienza e attestazioni;
 - governance del Validation Lab e validatore preventivo dei dataset pilota;
-- controlli automatici di accessibilità strutturale e prestazioni di base;
-- esperienza iniziale semplificata con anteprima senza account, guida permanente e progressive disclosure;
-- navigazione laterale con overflow reale verificato in Chromium e gestione di touchpad, rotella e tastiera sull’intera colonna blu;
-- percorso locale di creazione o accesso selezionato automaticamente in base allo stato del database;
+- controlli automatici di accessibilità strutturale, tastiera/reflow di regressione e prestazioni di base;
+- esperienza iniziale semplificata con anteprima, guida permanente e progressive disclosure;
 - validazione numerica fail-closed e gestione leggibile degli input documentali non validi;
 - evidenze apribili dal caso fino al documento originale e alla riga estratta;
 - severità `critical` distinta e ordinata prima delle altre priorità;
 - centro attività persistente con stato, errore, retry, cancellazione e rielaborazione guidata;
 - collegamenti proposti spiegati e collegamento/scollegamento manuale con rianalisi;
 - browser E2E dei flussi di recupero e collegamento contro API, database e worker reali;
-- reflow equivalente al 125%, 150% e 200%, apertura delle catene da tastiera e navigazione mobile compatta;
-- identità di build incorporata in ogni archivio portable e verificata insieme alla provenienza del candidato;
-- protocollo di pilot senza telemetria per misurare comprensione e completamento del primo percorso;
-- diagnostica locale in-app con esiti non ambigui, test numerico reale e verbale JSON scaricabile;
-- estrazione OCR prudente di righe etichettate, con valori numerici fail-closed e confronto dei totali;
-- gate sintetico bloccante su scansioni pulite e a basso contrasto;
+- identità di build incorporata negli artefatti e verificata insieme alla provenienza;
+- protocollo di pilot senza telemetria;
+- estrazione OCR prudente con valori numerici fail-closed e confronto dei totali;
 - toolkit pilot locale senza comunicazioni o azioni esterne automatiche;
 - centro operativo con pratiche raggruppate, priorità spiegata e storico della revisione;
 - correzione supervisionata delle righe estratte con audit, provenienza e rianalisi;
-- prova Chromium reale del percorso operativo e rapporto con misure non inventate;
 - suggerimenti di apprendimento non automatici e vincolati a decisioni umane sufficienti;
-- terminologia operativa, numeri e priorità ripuliti senza alterare i dati o le decisioni umane;
-- controllo Chromium dedicato alla qualità percepita e alla gerarchia dell’interfaccia;
-- gate di dimensione per impedire ulteriore crescita dei moduli principali;
-- pre-pilot sintetico riproducibile di 30 pratiche nel flusso abbigliamento, utile come regressione tecnica ma non sostitutivo del pilot reale.
+- pre-pilot sintetico riproducibile di 30 pratiche, usato esclusivamente come regressione tecnica.
 
 ## Gate interni
 
-I gate interni sono verificati da `scripts/check_beta_readiness.py`, dal workflow `Beta Readiness` e dal workflow `Simplified Product Experience`. Devono restare verdi sul commit esatto candidato alla distribuzione. Le evidenze automatiche vengono conservate come artifact temporanei associati al run e al commit. Ogni modifica successiva del prodotto invalida l'esito precedente e richiede una nuova esecuzione completa per una nuova candidata; la Public Preview RC12 già pubblicata resta immutabile.
+I gate interni sono verificati da `scripts/check_beta_readiness.py` e dai workflow dedicati. Devono restare verdi sul commit esatto candidato alla distribuzione. Le evidenze automatiche vengono associate a run e commit; ogni modifica del prodotto richiede una nuova esecuzione completa per essere promossa.
 
-## Gate esterni non autocertificabili
+La Public Preview RC13 già pubblicata non viene modificata silenziosamente: eventuali correzioni future richiedono una nuova versione e una nuova catena di verifica.
+
+## Gate umani ed esterni non autocertificabili
 
 La beta non può essere dichiarata validata senza:
 
-1. almeno 30 scenari documentali reali, autorizzati e anonimizzati;
-2. ground truth definita prima dell'esecuzione da revisori competenti;
-3. rapporto pilot revisionato con precisione, richiamo, falsi positivi e falsi negativi;
-4. penetration test indipendente e chiusura dei rilievi critici o alti;
-5. revisione professionale di privacy, condizioni d'uso e nome/marchio;
-6. collaudo WCAG 2.2 AA con tecnologie assistive e verifica manuale;
-7. prova di carico, backup e ripristino sull'infrastruttura definitiva;
-8. firma Authenticode degli artefatti Windows destinati a utenti non tecnici;
-9. sessioni con utenti non istruiti che confermino la comprensione del primo percorso.
+1. collaudo umano end-to-end della RC13 installata;
+2. almeno 30 scenari documentali reali, autorizzati e anonimizzati quando necessario;
+3. ground truth definita prima dell'esecuzione da revisori competenti;
+4. rapporto pilot revisionato con precisione, richiamo, falsi positivi e falsi negativi;
+5. penetration test indipendente e chiusura/retest dei rilievi critici o alti;
+6. revisione professionale di privacy, condizioni d'uso, licenze e nome/marchio;
+7. collaudo WCAG 2.2 AA con tecnologie assistive e verifica manuale/professionale;
+8. prova di carico, backup e ripristino sull'infrastruttura definitiva;
+9. firma Authenticode degli artefatti Windows destinati a utenti non tecnici;
+10. sessioni con utenti non istruiti che confermino la comprensione del primo percorso;
+11. accettazione formale dei rischi residui per il perimetro operativo previsto.
 
-Lo stato di questi gate è registrato in `docs/evidence/beta/external-gates.json`. Un valore `false` è un blocco intenzionale, non un difetto del controllo.
+Lo stato dei gate esterni è registrato in `docs/evidence/beta/external-gates.json`. Un valore `false` è un blocco intenzionale e veritiero, non un difetto del controllo.
 
 ## Regola di rilascio
 
-Finché almeno un gate esterno resta aperto, il prodotto può essere distribuito soltanto come alpha/RC per demo o pilot supervisionati. Non deve essere descritto come certificato, infallibile, pronto per qualsiasi azienda o idoneo a decisioni economiche autonome.
+Finché almeno un gate umano o esterno resta aperto, il prodotto può essere distribuito come Public Preview alpha/RC per demo, valutazione o pilot supervisionati. Non deve essere descritto come certificato, infallibile, beta validata, pronto per qualsiasi azienda o idoneo a decisioni economiche autonome.

@@ -1,6 +1,8 @@
-# Manuale operativo — ThisTinti 3.4.0-alpha.7-rc.13 (candidata interna non pubblicata)
+# Manuale operativo — ThisTinti 3.4.0-alpha.7-rc.13 — Public Preview
 
-Questa guida descrive i profili e i controlli operativi disponibili nella RC12 pubblicata. La presenza di un profilo `production` e dei relativi controlli fail-closed non costituisce certificazione di produzione: restano necessari i gate esterni descritti in `docs/PRODUCTION_READINESS.md`.
+Questa guida descrive i profili e i controlli operativi disponibili nella Public Preview RC13. La presenza di un profilo `production` e dei relativi controlli fail-closed non costituisce certificazione di produzione: restano necessari i gate esterni descritti in `docs/PRODUCTION_READINESS.md`.
+
+RC13 è una prerelease pubblicata e verificabile; non è una beta validata né una release di produzione.
 
 ## Profili di ambiente
 
@@ -105,7 +107,7 @@ Revocare una chiave non più necessaria e preferire chiavi separate per integraz
 ### Creazione
 
 ```bash
-python scripts/backup_system.py /secure-backups/thistinti-2026-07-19.zip
+python scripts/backup_system.py /secure-backups/thistinti-2026-08-26.zip
 ```
 
 Per SQLite viene usata l'API backup coerente. Per PostgreSQL viene creato un dump custom tramite `pg_dump`. Lo storage viene incluso salvo `--database-only`.
@@ -113,7 +115,7 @@ Per SQLite viene usata l'API backup coerente. Per PostgreSQL viene creato un dum
 ### Verifica
 
 ```bash
-python scripts/verify_backup.py /secure-backups/thistinti-2026-07-19.zip
+python scripts/verify_backup.py /secure-backups/thistinti-2026-08-26.zip
 ```
 
 La verifica controlla percorsi, duplicati, manifest, hash, integrità SQLite o leggibilità del dump PostgreSQL.
@@ -121,14 +123,14 @@ La verifica controlla percorsi, duplicati, manifest, hash, integrità SQLite o l
 ### Ripristino
 
 ```bash
-python scripts/restore_backup.py /secure-backups/thistinti-2026-07-19.zip \
+python scripts/restore_backup.py /secure-backups/thistinti-2026-08-26.zip \
   --sqlite-database /restore/thistinti.db \
   --storage-dir /restore/data
 ```
 
 Il restore non sovrascrive destinazioni esistenti senza opzione esplicita. Per PostgreSQL usare un database vuoto e la conferma richiesta dallo script.
 
-Un backup è valido soltanto dopo una prova periodica di restore con: readiness verde, download di un campione, audit valido e conteggi confrontati.
+Un backup è valido soltanto dopo una prova periodica di restore con readiness verde, download di un campione, audit valido e conteggi confrontati.
 
 ## Monitoraggio minimo
 
