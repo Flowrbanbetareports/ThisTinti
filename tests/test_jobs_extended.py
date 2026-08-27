@@ -11,6 +11,7 @@ from sqlalchemy import select
 from app.config import settings
 from app.db import SessionLocal
 from app.models import ProcessingJob, RateLimitCounter, WorkerHeartbeat, utcnow
+from app.services import jobs as jobs_service
 from app.services.jobs import claim_next_job, execute_job, recover_stale_jobs, run_maintenance
 from scripts.run_worker import run_once
 
@@ -112,6 +113,47 @@ def test_failed_job_is_retried_then_moved_to_terminal_failure(client, auth):
         db.commit()
         assert job.status == "failed"
         assert "Documento da rielaborare non trovato" in job.error_message
+
+
+def test_execute_job_recovers_after_transaction_invalidating_error(client, auth, monkeypatch):
+    me = client.get("/api/auth/me", headers=auth).json()
+    duplicate_worker_id = "transaction-failure-sentinel"
+    with SessionLocal() as db:
+        db.add(WorkerHeartbeat(worker_id=duplicate_worker_id, hostname="existing"))
+        job = ProcessingJob(
+            tenant_id=me["tenant_id"],
+            created_by=me["id"],
+            job_type="reanalyze_tenant",
+            input_json="{}",
+            max_attempts=2,
+        )
+        db.add(job)
+        db.commit()
+        job_id = job.id
+
+    with SessionLocal() as db:
+        claimed = claim_next_job(db, "transaction-failure-worker")
+        assert claimed and claimed.id == job_id
+        db.commit()
+
+    def break_transaction(db, _tenant_id):
+        db.add(WorkerHeartbeat(worker_id=duplicate_worker_id, hostname="duplicate"))
+        db.flush()
+        return 0
+
+    monkeypatch.setattr(jobs_service, "_reanalyze_tenant", break_transaction)
+    with SessionLocal() as db:
+        claimed = db.get(ProcessingJob, job_id)
+        jobs_service.execute_job(db, claimed)
+        db.commit()
+
+    with SessionLocal() as db:
+        recovered = db.get(ProcessingJob, job_id)
+        assert recovered.status == "queued"
+        assert recovered.locked_at is None
+        assert recovered.locked_by is None
+        assert "IntegrityError" in recovered.error_message
+        assert recovered.attempts == 1
 
 
 def test_stale_lease_recovery_and_maintenance_cleanup(client, auth):
