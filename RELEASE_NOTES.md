@@ -1,3 +1,14 @@
+# 3.4.0-alpha.7-rc.15 — Pilot-Ready — candidato in qualificazione, non pubblicato
+
+- completa il workflow supervisionato di pratica per operatori non tecnici: intake, stati di acquisizione/revisione/blocco, correzione e rielaborazione, catena documentale ed evidenze consultabili;
+- rende auditabile il ciclo di vita delle segnalazioni, incluso reopen, con motivazione obbligatoria per le decisioni umane conseguenti e separazione tra gravità tecnica, confidenza, esposizione potenziale e perdita confermata;
+- integra il pilot workspace con autorizzazione, due riferimenti revisore, ground truth congelabile/versionata, hash di dataset/configurazione/applicazione e report redatto riproducibile;
+- aggiunge profilo azienda v1 e ciclo di vita della pratica con configurazione versionata, export con manifest, archivio e cancellazione esplicita con tombstone non sensibile;
+- espone attributi commerciali strutturati senza introdurre un motore decisionale LLM cloud o decisioni economiche autonome;
+- allinea versione applicativa, pacchetto Python, installer Windows, OpenAPI, SBOM e registry dei gate al candidato RC15;
+- RC14 resta l’ultima Public Preview pubblicata finché RC15 non supera tutti i gate canonici sul medesimo commit e la verifica successiva su `main`;
+- i gate esterni reali restano deliberatamente aperti: pilot autorizzato, sicurezza indipendente, revisione legale/privacy/trademark, WCAG manuale, infrastruttura produttiva, firma Authenticode e onboarding con utenti non istruiti non vengono autocertificati dall’automazione.
+
 # 3.4.0-alpha.7-rc.14 — validazione documentale e hotfix upgrade Windows — Public Preview
 
 - consolida il benchmark controllato da 30 scenari documentali con ground truth separata e gate quantitativi riproducibili;
@@ -52,7 +63,7 @@
 - quantità e percentuali non mostrano più zeri decimali inutili;
 - il punteggio di rischio viene presentato come priorità di controllo e l’indice tecnico resta secondario e non probabilistico;
 - l’avviso di uso supervisionato è compatto ma sempre disponibile;
-- Regole proposte, Validation Lab e Audit assumono nomi e spiegazioni più vicini al loro scopo reale;
+- Regole proposte, Validation Lab e Audit assumono nomi e spiegazioni più vicine al loro scopo reale;
 - il pulsante demo scompare dopo che esistono documenti e la pagina Attività distingue elaborazioni persistenti dagli altri eventi applicativi;
 - i payload di audit restano disponibili dietro un dettaglio tecnico richiudibile;
 - la nuova presentazione è isolata dal core di sicurezza, non usa servizi esterni e non invia messaggi;
