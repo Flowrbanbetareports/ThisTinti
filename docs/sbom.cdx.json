@@ -7,8 +7,8 @@
     "component": {
       "type": "application",
       "name": "ThisTinti",
-      "version": "3.4.0-alpha.7-rc.14",
-      "bom-ref": "pkg:generic/thistinti@3.4.0-alpha.7-rc.14"
+      "version": "3.4.0-alpha.7-rc.15",
+      "bom-ref": "pkg:generic/thistinti@3.4.0-alpha.7-rc.15"
     },
     "properties": [
       {
@@ -274,7 +274,7 @@
   ],
   "dependencies": [
     {
-      "ref": "pkg:generic/thistinti@3.4.0-alpha.7-rc.14",
+      "ref": "pkg:generic/thistinti@3.4.0-alpha.7-rc.15",
       "dependsOn": [
         "pkg:pypi/alembic@1.18.4",
         "pkg:pypi/annotated-doc@0.0.4",

@@ -8,6 +8,8 @@ ThisTinti non decide, non approva e non certifica nulla. Organizza informazioni 
 
 Release pubblica corrente: **3.4.0-alpha.7-rc.14 — Public Preview**.
 
+Candidato in qualificazione: **3.4.0-alpha.7-rc.15 — RC15 Pilot-Ready**. Non è ancora una release pubblicata: RC14 resta la Public Preview corrente finché tutti i gate canonici non risultano verdi sul medesimo commit finale, seguiti dalla verifica sul commit finale di `main`.
+
 RC14 consolida gli hardening e le evidenze post-RC13: benchmark controllato da 30 scenari, corpus esterno/raw da 22 documenti, irrobustimento PDF/OCR e backup/restore, oltre alla correzione dell’upgrade Windows quando una precedente installazione di ThisTinti è ancora in esecuzione.
 
 La RC14 resta una Public Preview supervisionata. È stata pubblicata dopo i gate sul commit esatto e sull’installer Windows corrispondente; non chiude i gate esterni necessari per una beta validata o per la produzione: pilot reale, revisione indipendente di sicurezza e legale/privacy, collaudo WCAG manuale con tecnologie assistive, test con utenti non istruiti, firma Authenticode e prove sull’infrastruttura definitiva restano separati e devono produrre evidenza reale.

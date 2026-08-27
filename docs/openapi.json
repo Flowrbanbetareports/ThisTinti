@@ -3,7 +3,7 @@
   "info": {
     "title": "ThisTinti",
     "description": "Document integrity and discrepancy review platform.",
-    "version": "3.4.0-alpha.7-rc.14"
+    "version": "3.4.0-alpha.7-rc.15"
   },
   "paths": {
     "/api/health": {
@@ -3660,6 +3660,1363 @@
           }
         }
       }
+    },
+    "/api/rc15/status": {
+      "get": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Status",
+        "operationId": "rc15_status_api_rc15_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Rc15 Status Api Rc15 Status Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/rc15/intake": {
+      "get": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Intake Center",
+        "operationId": "intake_center_api_rc15_intake_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "include_success",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Include Success"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response Intake Center Api Rc15 Intake Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rc15/intake/{subject_type}/{subject_id}/classify": {
+      "post": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Classify Intake Subject",
+        "operationId": "classify_intake_subject_api_rc15_intake__subject_type___subject_id__classify_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "subject_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "document",
+                "job"
+              ],
+              "type": "string",
+              "title": "Subject Type"
+            }
+          },
+          {
+            "name": "subject_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Subject Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntakeClassificationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Classify Intake Subject Api Rc15 Intake  Subject Type   Subject Id  Classify Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rc15/intake/documents/{document_id}/retry": {
+      "post": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Retry Intake Document",
+        "operationId": "retry_intake_document_api_rc15_intake_documents__document_id__retry_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Document Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DocumentRetryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Retry Intake Document Api Rc15 Intake Documents  Document Id  Retry Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rc15/cases/{case_id}": {
+      "get": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Case Detail",
+        "operationId": "rc15_case_detail_api_rc15_cases__case_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Rc15 Case Detail Api Rc15 Cases  Case Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rc15/cases/{case_id}/transition": {
+      "post": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Case Transition",
+        "operationId": "rc15_case_transition_api_rc15_cases__case_id__transition_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaseTransitionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Rc15 Case Transition Api Rc15 Cases  Case Id  Transition Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rc15/cases/{case_id}/economic": {
+      "put": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Case Economic",
+        "operationId": "rc15_case_economic_api_rc15_cases__case_id__economic_put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EconomicAssessmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Rc15 Case Economic Api Rc15 Cases  Case Id  Economic Put"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rc15/company-profile": {
+      "get": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Company Profile",
+        "operationId": "rc15_company_profile_api_rc15_company_profile_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Rc15 Company Profile Api Rc15 Company Profile Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/rc15/company-profile/versions": {
+      "get": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Company Profile Versions",
+        "operationId": "rc15_company_profile_versions_api_rc15_company_profile_versions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "type": "array",
+                  "title": "Response Rc15 Company Profile Versions Api Rc15 Company Profile Versions Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Create Company Profile",
+        "operationId": "rc15_create_company_profile_api_rc15_company_profile_versions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyProfileCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Rc15 Create Company Profile Api Rc15 Company Profile Versions Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/rc15/practices": {
+      "get": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Practices",
+        "operationId": "rc15_practices_api_rc15_practices_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "include_deleted",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Include Deleted"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response Rc15 Practices Api Rc15 Practices Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rc15/practices/from-chain/{chain_id}": {
+      "post": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Create Practice",
+        "operationId": "rc15_create_practice_api_rc15_practices_from_chain__chain_id__post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "chain_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Chain Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PracticeCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Rc15 Create Practice Api Rc15 Practices From Chain  Chain Id  Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rc15/practices/{practice_id}": {
+      "get": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Practice Detail",
+        "operationId": "rc15_practice_detail_api_rc15_practices__practice_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "practice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Practice Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Rc15 Practice Detail Api Rc15 Practices  Practice Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Delete Practice",
+        "operationId": "rc15_delete_practice_api_rc15_practices__practice_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "practice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Practice Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PracticeDeleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Rc15 Delete Practice Api Rc15 Practices  Practice Id  Delete"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rc15/practices/{practice_id}/archive": {
+      "post": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Archive Practice",
+        "operationId": "rc15_archive_practice_api_rc15_practices__practice_id__archive_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "practice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Practice Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Rc15 Archive Practice Api Rc15 Practices  Practice Id  Archive Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rc15/practices/{practice_id}/restore": {
+      "post": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Restore Practice",
+        "operationId": "rc15_restore_practice_api_rc15_practices__practice_id__restore_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "practice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Practice Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Rc15 Restore Practice Api Rc15 Practices  Practice Id  Restore Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rc15/practices/{practice_id}/export": {
+      "get": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Export Practice",
+        "operationId": "rc15_export_practice_api_rc15_practices__practice_id__export_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "practice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Practice Id"
+            }
+          },
+          {
+            "name": "include_originals",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Include Originals"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Archivio ZIP verificabile della pratica",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rc15/pilots": {
+      "get": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Pilots",
+        "operationId": "rc15_pilots_api_rc15_pilots_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "include_archived",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Include Archived"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response Rc15 Pilots Api Rc15 Pilots Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Create Pilot",
+        "operationId": "rc15_create_pilot_api_rc15_pilots_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PilotCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Rc15 Create Pilot Api Rc15 Pilots Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rc15/pilots/{pilot_id}": {
+      "get": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Pilot Detail",
+        "operationId": "rc15_pilot_detail_api_rc15_pilots__pilot_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pilot_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pilot Id"
+            }
+          },
+          {
+            "name": "include_ground_truth",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Include Ground Truth"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Rc15 Pilot Detail Api Rc15 Pilots  Pilot Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rc15/pilots/{pilot_id}/practices": {
+      "post": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Add Pilot Practice",
+        "operationId": "rc15_add_pilot_practice_api_rc15_pilots__pilot_id__practices_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pilot_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pilot Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PilotPracticeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Rc15 Add Pilot Practice Api Rc15 Pilots  Pilot Id  Practices Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rc15/pilots/{pilot_id}/cases/{pilot_case_id}": {
+      "patch": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Update Pilot Case",
+        "operationId": "rc15_update_pilot_case_api_rc15_pilots__pilot_id__cases__pilot_case_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pilot_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pilot Id"
+            }
+          },
+          {
+            "name": "pilot_case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pilot Case Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PilotCaseUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Rc15 Update Pilot Case Api Rc15 Pilots  Pilot Id  Cases  Pilot Case Id  Patch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rc15/pilots/{pilot_id}/freeze": {
+      "post": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Freeze Pilot",
+        "operationId": "rc15_freeze_pilot_api_rc15_pilots__pilot_id__freeze_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pilot_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pilot Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Rc15 Freeze Pilot Api Rc15 Pilots  Pilot Id  Freeze Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rc15/pilots/{pilot_id}/run": {
+      "post": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Run Pilot",
+        "operationId": "rc15_run_pilot_api_rc15_pilots__pilot_id__run_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pilot_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pilot Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Rc15 Run Pilot Api Rc15 Pilots  Pilot Id  Run Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rc15/pilots/{pilot_id}/report": {
+      "get": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Pilot Report",
+        "operationId": "rc15_pilot_report_api_rc15_pilots__pilot_id__report_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pilot_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pilot Id"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "json",
+                "markdown"
+              ],
+              "type": "string",
+              "default": "json",
+              "title": "Format"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rapporto pilot redatto in JSON o Markdown",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rc15/pilots/{pilot_id}/archive": {
+      "post": {
+        "tags": [
+          "RC15 Pilot-Ready"
+        ],
+        "summary": "Rc15 Archive Pilot",
+        "operationId": "rc15_archive_pilot_api_rc15_pilots__pilot_id__archive_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pilot_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pilot Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Rc15 Archive Pilot Api Rc15 Pilots  Pilot Id  Archive Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -4043,6 +5400,33 @@
         ],
         "title": "Body_upload_document_batch_api_documents_batch_post"
       },
+      "CaseTransitionRequest": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "needs_review",
+              "confirmed",
+              "dismissed",
+              "resolved",
+              "reopen"
+            ],
+            "title": "Action"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 3,
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "action",
+          "note"
+        ],
+        "title": "CaseTransitionRequest"
+      },
       "ChainAttachRequest": {
         "properties": {
           "document_id": {
@@ -4311,6 +5695,74 @@
         ],
         "title": "ChainLinkedDocumentResponse"
       },
+      "CompanyProfileConfig": {
+        "properties": {
+          "default_currency": {
+            "type": "string",
+            "maxLength": 8,
+            "minLength": 3,
+            "title": "Default Currency",
+            "default": "EUR"
+          },
+          "rounding_decimals": {
+            "type": "integer",
+            "maximum": 6.0,
+            "minimum": 0.0,
+            "title": "Rounding Decimals",
+            "default": 2
+          },
+          "price_tolerance_percent": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Price Tolerance Percent",
+            "default": 1.0
+          },
+          "quantity_tolerance_percent": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Quantity Tolerance Percent",
+            "default": 0.0
+          },
+          "unit_aliases": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Unit Aliases"
+          },
+          "significant_terms": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "title": "Significant Terms"
+          }
+        },
+        "type": "object",
+        "title": "CompanyProfileConfig"
+      },
+      "CompanyProfileCreateRequest": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 180,
+            "minLength": 2,
+            "title": "Label"
+          },
+          "config": {
+            "$ref": "#/components/schemas/CompanyProfileConfig"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "config"
+        ],
+        "title": "CompanyProfileCreateRequest"
+      },
       "DashboardResponse": {
         "properties": {
           "documents": {
@@ -4509,6 +5961,141 @@
         ],
         "title": "DocumentLineCorrectionRequest"
       },
+      "DocumentRetryRequest": {
+        "properties": {
+          "document_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "proposal",
+                  "order",
+                  "confirmation",
+                  "delivery",
+                  "invoice",
+                  "payment",
+                  "return",
+                  "credit_note"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Type"
+          },
+          "supplier_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 240
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplier Name"
+          },
+          "number": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Number"
+          },
+          "document_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Date"
+          }
+        },
+        "type": "object",
+        "title": "DocumentRetryRequest"
+      },
+      "EconomicAssessmentRequest": {
+        "properties": {
+          "state": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "unknown",
+                  "estimated",
+                  "confirmed_zero",
+                  "loss_confirmed",
+                  "not_applicable"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "State"
+          },
+          "potential_exposure": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,16}|(?=[\\d.]{1,19}0*$)\\d{0,16}\\.\\d{0,2}0*$)"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Potential Exposure"
+          },
+          "confirmed_loss": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,16}|(?=[\\d.]{1,19}0*$)\\d{0,16}\\.\\d{0,2}0*$)"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confirmed Loss"
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 8,
+            "minLength": 3,
+            "title": "Currency",
+            "default": "EUR"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 3,
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "note"
+        ],
+        "title": "EconomicAssessmentRequest"
+      },
       "ExpectationResponse": {
         "properties": {
           "role": {
@@ -4582,6 +6169,74 @@
         ],
         "title": "ExpectationResponse"
       },
+      "GroundTruthFinding": {
+        "properties": {
+          "case_type": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "Case Type"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "title": "Severity",
+            "default": "medium"
+          },
+          "potential_exposure": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,16}|(?=[\\d.]{1,19}0*$)\\d{0,16}\\.\\d{0,2}0*$)"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Potential Exposure"
+          }
+        },
+        "type": "object",
+        "required": [
+          "case_type"
+        ],
+        "title": "GroundTruthFinding"
+      },
+      "GroundTruthPayload": {
+        "properties": {
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/GroundTruthFinding"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "title": "Findings"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 3000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "title": "GroundTruthPayload"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -4594,6 +6249,71 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "IntakeClassificationRequest": {
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "acquired",
+              "review_required",
+              "not_acquired",
+              "blocked",
+              "out_of_scope"
+            ],
+            "title": "State"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "degraded",
+              "hostile",
+              "out_of_scope",
+              "parser_limit",
+              "operator_input",
+              "security_block"
+            ],
+            "title": "Category"
+          },
+          "phase": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phase"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 3000,
+            "minLength": 3,
+            "title": "Reason"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 3000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "state",
+          "category",
+          "reason"
+        ],
+        "title": "IntakeClassificationRequest"
       },
       "IntelligenceSimulationRequest": {
         "properties": {
@@ -4684,6 +6404,190 @@
           "new_password"
         ],
         "title": "PasswordChangeRequest"
+      },
+      "PilotCaseUpdateRequest": {
+        "properties": {
+          "reviewer_primary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GroundTruthPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reviewer_secondary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GroundTruthPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "adjudicated": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GroundTruthPayload"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "manual_seconds": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manual Seconds"
+          },
+          "assisted_seconds": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assisted Seconds"
+          },
+          "user_score": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 5.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Score"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 3000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "title": "PilotCaseUpdateRequest"
+      },
+      "PilotCreateRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 180,
+            "minLength": 2,
+            "title": "Name"
+          },
+          "authorization_reference": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 3,
+            "title": "Authorization Reference"
+          },
+          "reviewer_primary": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Reviewer Primary"
+          },
+          "reviewer_secondary": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Reviewer Secondary"
+          },
+          "scope": {
+            "type": "string",
+            "maxLength": 3000,
+            "minLength": 10,
+            "title": "Scope"
+          },
+          "retention_end": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retention End"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "authorization_reference",
+          "reviewer_primary",
+          "reviewer_secondary",
+          "scope"
+        ],
+        "title": "PilotCreateRequest"
+      },
+      "PilotPracticeRequest": {
+        "properties": {
+          "practice_id": {
+            "type": "string",
+            "title": "Practice Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "practice_id"
+        ],
+        "title": "PilotPracticeRequest"
+      },
+      "PracticeCreateRequest": {
+        "properties": {
+          "retention_end": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retention End"
+          }
+        },
+        "type": "object",
+        "title": "PracticeCreateRequest"
+      },
+      "PracticeDeleteRequest": {
+        "properties": {
+          "confirm_practice_id": {
+            "type": "string",
+            "title": "Confirm Practice Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "confirm_practice_id"
+        ],
+        "title": "PracticeDeleteRequest"
       },
       "ProcessingJobContextResponse": {
         "properties": {

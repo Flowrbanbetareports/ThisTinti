@@ -135,7 +135,7 @@ jobs:
         run: |
           alembic upgrade head
           alembic check
-          test "$(alembic current | grep -c d42a0f61be90)" -eq 1
+          test "$(alembic current | grep -c e15c0a7f4d21)" -eq 1
       - name: Prove PostgreSQL RLS and cross-tenant guards as runtime
         env:
           THISTINTI_PROCESS_ROLE: app

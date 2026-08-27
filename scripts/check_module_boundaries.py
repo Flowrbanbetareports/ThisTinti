@@ -6,11 +6,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 LIMITS = {
-    "app/main.py": 3300,
+    "app/main.py": 80,
+    "app/api.py": 3300,
+    "app/rc15_api.py": 900,
+    "app/services/rc15.py": 1600,
     "app/services/intelligence.py": 1450,
     "app/services/rules.py": 1000,
     "app/services/discovery.py": 850,
     "app/static/app-core.js": 1150,
+    "app/static/rc15.js": 1200,
 }
 
 

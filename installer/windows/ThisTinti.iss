@@ -1,6 +1,6 @@
 #define MyAppName "ThisTinti Local"
 #ifndef MyAppVersion
-  #define MyAppVersion "3.4.0-alpha.7-rc.14"
+  #define MyAppVersion "3.4.0-alpha.7-rc.15"
 #endif
 #define MyAppPublisher "Lorenzo Tinti"
 #define MyAppExeName "ThisTinti.exe"
