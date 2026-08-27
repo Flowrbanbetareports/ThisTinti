@@ -1,0 +1,37 @@
+name: RC14 Regenerate Temporary
+
+on:
+  push:
+    branches:
+      - release/rc14-running-upgrade-hotfix
+    paths:
+      - .github/workflows/rc14-regenerate-temporary.yml
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: release/rc14-running-upgrade-hotfix
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install project dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Regenerate committed release contracts
+        run: |
+          python scripts/generate_openapi.py --output docs/openapi.json
+          python scripts/generate_sbom.py --output docs/sbom.cdx.json
+      - name: Remove temporary workflow and commit generated contracts
+        run: |
+          git rm .github/workflows/rc14-regenerate-temporary.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/openapi.json docs/sbom.cdx.json
+          git commit -m 'Release: regenerate RC14 OpenAPI and SBOM'
+          git push origin HEAD:release/rc14-running-upgrade-hotfix
