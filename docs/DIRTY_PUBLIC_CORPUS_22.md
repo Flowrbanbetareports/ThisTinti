@@ -19,9 +19,9 @@ Discovery version `0.2` contains exactly 22 files:
 
 The fifteen public PDFs are not copied into this repository. The manifest points to the external public repository at immutable Git commits and records each upstream Git blob SHA. They include clean vendor quotes as well as multi-document FOIA packets containing requisitions, checks, invoices, approvals and supporting material. That messiness is deliberate.
 
-## Discovery first, frozen gate second
+## Discovery and frozen gate
 
-The initial corpus remains `frozen: false` while its behavior is characterized.
+The characterization phase is complete for the pinned 22-file baseline. The manifest and reviewed nine-case semantic ground truth are now `frozen: true`; source SHA-256 integrity is enforced by the corpus runner.
 
 During discovery the workflow:
 
@@ -72,3 +72,7 @@ A future PASS means only that the frozen assertions for these 22 raw public/exte
 - production readiness by itself.
 
 The controlled company pilot remains a separate gate.
+
+## Frozen baseline recorded
+
+Corpus version `1.0-frozen` pins every one of the 22 upstream payloads by SHA-256 in addition to the immutable upstream Git commit/blob references. The nine independently reviewed semantic cases are frozen under the same version. A changed payload, a failed download, an unhandled parser exception, or a failed frozen assertion now fails the corpus gate. The thirteen mixed-packet cases remain characterization-only and are not promoted to correctness passes.

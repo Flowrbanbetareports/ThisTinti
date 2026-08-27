@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import sys
 import tempfile
 import time
@@ -23,6 +24,7 @@ from app.version import RELEASE_VERSION  # noqa: E402
 
 DEFAULT_MANIFEST = ROOT / "samples" / "dirty_public_corpus_22.json"
 MAX_SOURCE_BYTES = 25 * 1024 * 1024
+SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
 
 def parse_args() -> argparse.Namespace:
@@ -168,6 +170,8 @@ A raw external-document characterization suite. Files are downloaded as publishe
 - characterization-only cases: **{metrics["characterization_case_count"]}**
 - download failures: **{metrics["download_failures"]}**
 - unhandled exceptions: **{metrics["unhandled_exceptions"]}**
+- source-integrity checks: **{metrics["source_integrity_checks"]}**
+- source-integrity failures: **{metrics["source_integrity_failures"]}**
 - parsed: **{metrics["parse_status_counts"].get("parsed", 0)}**
 - structured rejections: **{metrics["parse_status_counts"].get("parse_error", 0)}**
 - asserted fields correct: **{metrics["asserted_field_correct"]}/{metrics["asserted_field_count"]}**
@@ -229,6 +233,8 @@ def run_case(
         "github_blob_sha": source.get("github_blob_sha"),
         "filename": source["filename"],
         "expectation_mode": outcome,
+        "expected_sha256": source.get("sha256"),
+        "integrity_passed": None,
         "source_truth": expected.get("source_truth"),
         "standards_conformance": expected.get("standards_conformance"),
         "observed_sha256": "",
@@ -248,6 +254,13 @@ def run_case(
         return result
 
     result["observed_sha256"] = sha256_bytes(payload)
+    expected_sha256 = result["expected_sha256"]
+    if expected_sha256 is not None:
+        result["integrity_passed"] = result["observed_sha256"] == expected_sha256
+        if not result["integrity_passed"]:
+            result["expectation_failures"].append(
+                f"source SHA-256 expected {expected_sha256}, got {result['observed_sha256']}"
+            )
     result["download"] = {"status": "downloaded", **download_metadata}
     source_path = workdir / source["filename"]
     source_path.write_bytes(payload)
@@ -306,6 +319,16 @@ def main() -> int:
     if len(sources) != 22:
         raise SystemExit(f"Dirty Public Corpus v1 must contain exactly 22 cases, got {len(sources)}")
 
+    frozen = bool(manifest.get("frozen"))
+    if frozen:
+        invalid_hashes = [
+            source["id"]
+            for source in sources
+            if not isinstance(source.get("sha256"), str) or not SHA256_PATTERN.fullmatch(source["sha256"])
+        ]
+        if invalid_hashes:
+            raise SystemExit(f"Frozen corpus requires valid SHA-256 for every source: {invalid_hashes}")
+
     started = time.perf_counter()
     with tempfile.TemporaryDirectory(prefix="thistinti-dirty-public-") as temp_dir:
         workdir = Path(temp_dir)
@@ -319,6 +342,8 @@ def main() -> int:
     parse_status_counts = Counter(item["parse"]["status"] for item in cases)
     download_failures = sum(item["download"]["status"] != "downloaded" for item in cases)
     unhandled = parse_status_counts.get("unhandled_exception", 0)
+    integrity_cases = [item for item in cases if item.get("expected_sha256") is not None]
+    integrity_failures = sum(item.get("integrity_passed") is not True for item in integrity_cases)
     assertion_cases = [item for item in cases if item["expectation_mode"] != "characterize"]
     assertion_failures = sum(not item["expectation_passed"] for item in assertion_cases)
     assertion_passes = len(assertion_cases) - assertion_failures
@@ -330,8 +355,7 @@ def main() -> int:
     field_wrong_non_null = field_status_counts.get("wrong_non_null", 0)
     field_abstentions = field_status_counts.get("abstained", 0)
 
-    frozen = bool(manifest.get("frozen"))
-    reproducible = download_failures == 0 and unhandled == 0
+    reproducible = download_failures == 0 and unhandled == 0 and integrity_failures == 0
     gate_passed = reproducible and (not frozen or assertion_failures == 0)
 
     report = {
@@ -356,6 +380,8 @@ def main() -> int:
             "characterization_case_count": len(characterization_cases),
             "download_failures": download_failures,
             "unhandled_exceptions": unhandled,
+            "source_integrity_checks": len(integrity_cases),
+            "source_integrity_failures": integrity_failures,
             "parse_status_counts": dict(parse_status_counts),
             "asserted_field_count": field_total,
             "asserted_field_correct": field_correct,

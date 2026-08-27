@@ -1,67 +1,138 @@
 {
   "schema": "thistinti.dirty-public-ground-truth.v1",
   "corpus": "ThisTinti Dirty Public Corpus 22",
-  "version": "0.2-discovery",
-  "frozen": false,
+  "version": "1.0-frozen",
+  "frozen": true,
   "real_company_pilot": false,
   "policy": "Only fields independently readable from pinned upstream sources are scored. Omitted fields are unknown, not failures.",
   "cases": {
     "lpl-penlink-quote-01487": {
-      "fields": {"document_type": "proposal", "number": "QUO-01487-5Z12C3", "currency": "USD"},
+      "fields": {
+        "document_type": "proposal",
+        "number": "QUO-01487-5Z12C3",
+        "currency": "USD"
+      },
       "minimum_lines": 4,
       "logical_document_count": 1
     },
     "lpl-penlink-quote-04689": {
-      "fields": {"document_type": "proposal", "number": "QUO-04689-V8Y5D0", "currency": "USD"},
+      "fields": {
+        "document_type": "proposal",
+        "number": "QUO-04689-V8Y5D0",
+        "currency": "USD"
+      },
       "minimum_lines": 3,
       "logical_document_count": 1
     },
     "vida-hp001-at-be": {
-      "fields": {"document_type": "invoice", "number": "NW-HP-001 - AT-BE", "document_date": "2026-02-10", "currency": "EUR", "supplier_name": "AT-Verkauf GmbH"},
-      "references": {"order_numbers": ["PO-54321"], "contract_numbers": ["Contract ABC"]},
+      "fields": {
+        "document_type": "invoice",
+        "number": "NW-HP-001 - AT-BE",
+        "document_date": "2026-02-10",
+        "currency": "EUR",
+        "supplier_name": "AT-Verkauf GmbH"
+      },
+      "references": {
+        "order_numbers": [
+          "PO-54321"
+        ],
+        "contract_numbers": [
+          "Contract ABC"
+        ]
+      },
       "derived_subtotal": "915",
       "derived_tax": "0",
       "line_scope": "complete",
       "lines": [
-        {"sku": "GG-100124", "quantity": "3", "unit_price": "102", "tax_rate": "0", "line_total": "306"},
-        {"sku": "GG-100993", "quantity": "7", "unit_price": "87", "tax_rate": "0", "line_total": "609"}
+        {
+          "sku": "GG-100124",
+          "quantity": "3",
+          "unit_price": "102",
+          "tax_rate": "0",
+          "line_total": "306"
+        },
+        {
+          "sku": "GG-100993",
+          "quantity": "7",
+          "unit_price": "87",
+          "tax_rate": "0",
+          "line_total": "609"
+        }
       ],
       "logical_document_count": 1
     },
     "vida-hp002-at-no": {
-      "fields": {"document_type": "invoice", "number": "NW-HP-002 - AT-NO", "document_date": "2026-02-10", "currency": "EUR", "supplier_name": "AT-Verkauf GmbH"},
-      "references": {"order_numbers": ["PO-54321"], "contract_numbers": ["Contract ABC"]},
+      "fields": {
+        "document_type": "invoice",
+        "number": "NW-HP-002 - AT-NO",
+        "document_date": "2026-02-10",
+        "currency": "EUR",
+        "supplier_name": "AT-Verkauf GmbH"
+      },
+      "references": {
+        "order_numbers": [
+          "PO-54321"
+        ],
+        "contract_numbers": [
+          "Contract ABC"
+        ]
+      },
       "derived_subtotal": "5952",
       "derived_tax": "0",
       "line_scope": "complete",
       "lines": [
-        {"sku": "SS-RC-100123", "quantity": "16", "unit_price": "124", "tax_rate": "0", "line_total": "1984"},
-        {"sku": "SS-RC-100321", "quantity": "32", "unit_price": "124", "tax_rate": "0", "line_total": "3968"}
+        {
+          "sku": "SS-RC-100123",
+          "quantity": "16",
+          "unit_price": "124",
+          "tax_rate": "0",
+          "line_total": "1984"
+        },
+        {
+          "sku": "SS-RC-100321",
+          "quantity": "32",
+          "unit_price": "124",
+          "tax_rate": "0",
+          "line_total": "3968"
+        }
       ],
       "logical_document_count": 1
     },
     "vida-hp006-at-be": {
-      "fields": {"document_type": "invoice", "currency": "EUR"},
+      "fields": {
+        "document_type": "invoice",
+        "currency": "EUR"
+      },
       "minimum_lines": 2,
       "logical_document_count": 1
     },
     "vida-hp008-at-be": {
-      "fields": {"document_type": "credit_note", "currency": "EUR"},
+      "fields": {
+        "document_type": "credit_note",
+        "currency": "EUR"
+      },
       "minimum_lines": 2,
       "logical_document_count": 1
     },
     "peppol-base-example": {
-      "fields": {"document_type": "invoice", "currency": "EUR"},
+      "fields": {
+        "document_type": "invoice",
+        "currency": "EUR"
+      },
       "minimum_lines": 1,
       "logical_document_count": 1
     },
     "en16931-creditnote1": {
-      "fields": {"document_type": "credit_note"},
+      "fields": {
+        "document_type": "credit_note"
+      },
       "minimum_lines": 1,
       "logical_document_count": 1
     },
     "en16931-negative-example": {
-      "fields": {"document_type": "invoice"},
+      "fields": {
+        "document_type": "invoice"
+      },
       "minimum_lines": 1,
       "logical_document_count": 1
     }

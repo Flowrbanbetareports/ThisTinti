@@ -56,3 +56,7 @@ Linux CI OCR availability is not sufficient for the Local Edition. The frozen Wi
 ## Evidence boundary
 
 Neither this corpus nor the future unseen corpus is a real-company pilot. They provide reproducible external-document evidence and generalization evidence respectively. A controlled authorized company pilot remains a separate gate.
+
+## Corpus 1 frozen baseline
+
+The branch records Corpus 1 as version `1.0-frozen`: all 22 source payload SHA-256 values are pinned and enforced, and the nine-case semantic ground truth is frozen. This does not convert the thirteen mixed FOIA packets into semantic passes; they remain characterization-only until a document-segmentation layer can support stronger source-based assertions. Corpus 2 remains reserved for a future previously unseen generalization test.
