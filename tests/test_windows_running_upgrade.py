@@ -6,9 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_installer_stops_only_the_installed_copy_before_upgrade() -> None:
     installer = (ROOT / "installer" / "windows" / "ThisTinti.iss").read_text(encoding="utf-8")
-    helper = (ROOT / "installer" / "windows" / "stop_running_thistinti.ps1").read_text(
-        encoding="utf-8"
-    )
+    helper = (ROOT / "installer" / "windows" / "stop_running_thistinti.ps1").read_text(encoding="utf-8")
 
     assert 'Source: "stop_running_thistinti.ps1"; Flags: dontcopy' in installer
     assert "function PrepareToInstall(var NeedsRestart: Boolean): String;" in installer
@@ -23,9 +21,7 @@ def test_installer_stops_only_the_installed_copy_before_upgrade() -> None:
 
 
 def test_running_upgrade_workflow_reproduces_locked_executable_case() -> None:
-    workflow = (ROOT / ".github" / "workflows" / "windows-running-upgrade.yml").read_text(
-        encoding="utf-8"
-    )
+    workflow = (ROOT / ".github" / "workflows" / "windows-running-upgrade.yml").read_text(encoding="utf-8")
 
     assert "Launch previous Windows alpha and keep it running" in workflow
     assert '"--no-browser"' in workflow
