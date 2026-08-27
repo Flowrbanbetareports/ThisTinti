@@ -1,0 +1,140 @@
+name: One-shot audit correction round 2
+
+on:
+  push:
+    branches:
+      - hardening/repository-audit-2026-08-27
+    paths:
+      - .github/workflows/audit-fix-round2.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          ref: hardening/repository-audit-2026-08-27
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.13"
+      - name: Apply targeted audit corrections
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          # The entrypoint intentionally needs a tiny privileged bootstrap to read
+          # Docker secrets, then it setgid/setuid's before exec'ing the application.
+          path = Path("Dockerfile")
+          text = path.read_text(encoding="utf-8")
+          old = '\nUSER thistinti\n\nENTRYPOINT ["python", "scripts/container_entrypoint.py"]\n'
+          new = (
+              '\n# container_entrypoint.py stages root-readable Docker secrets and immediately '\
+              'drops to the thistinti account before exec.\n'
+              'ENTRYPOINT ["python", "scripts/container_entrypoint.py"]\n'
+          )
+          assert old in text
+          path.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+          # Replace the old symbol-only USD inference with explicit currency codes,
+          # or a dollar symbol plus an independently observed US state/ZIP address.
+          path = Path("app/parsers/pdf_text.py")
+          text = path.read_text(encoding="utf-8")
+          start = text.index("def _extract_currency(text: str) -> tuple[str, dict[str, Any]]:\n")
+          end = text.index("\n\ndef _money_decimal", start)
+          replacement = r'''def _extract_currency(text: str) -> tuple[str, dict[str, Any]]:
+              upper = text.upper()
+              explicit_patterns = {
+                  "USD": r"\bUSD\b|\bUS\s*DOLLARS?\b|US\s*\$",
+                  "EUR": r"\bEUR\b|\bEUROS?\b|€",
+                  "CAD": r"\bCAD\b|\bCANADIAN\s+DOLLARS?\b|C\s*\$",
+                  "AUD": r"\bAUD\b|\bAUSTRALIAN\s+DOLLARS?\b|A\s*\$",
+                  "NZD": r"\bNZD\b|\bNEW\s+ZEALAND\s+DOLLARS?\b|NZ\s*\$",
+                  "SGD": r"\bSGD\b|\bSINGAPORE\s+DOLLARS?\b|S\s*\$",
+                  "HKD": r"\bHKD\b|\bHONG\s+KONG\s+DOLLARS?\b|HK\s*\$",
+                  "MXN": r"\bMXN\b|\bMEXICAN\s+PESOS?\b",
+              }
+              explicit = [code for code, pattern in explicit_patterns.items() if re.search(pattern, upper)]
+              if len(explicit) > 1:
+                  return "UNK", {
+                      "status": "abstained",
+                      "reason": "conflicting_currency_evidence",
+                      "candidates": explicit,
+                  }
+              if explicit:
+                  return explicit[0], {"status": "recognized", "source": "explicit_currency_evidence"}
+
+              if "$" not in text:
+                  return "UNK", {"status": "abstained", "reason": "no_currency_evidence"}
+
+              us_states = (
+                  "AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|"
+                  "NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC"
+              )
+              us_postal_context = bool(re.search(rf"\b(?:{us_states})\s+\d{{5}}(?:-\d{{4}})?\b", upper))
+              if us_postal_context:
+                  return "USD", {
+                      "status": "recognized",
+                      "source": "dollar_symbol_plus_us_postal_context",
+                  }
+              return "UNK", {"status": "abstained", "reason": "ambiguous_dollar_symbol"}
+          '''
+          replacement = "\n".join(line[14:] if line.startswith("              ") else line for line in replacement.splitlines())
+          path.write_text(text[:start] + replacement + text[end:], encoding="utf-8")
+
+          path = Path("tests/test_pdf_semantics.py")
+          text = path.read_text(encoding="utf-8")
+          marker = '''def test_pdf_semantics_extracts_inline_business_rows(monkeypatch, tmp_path: Path):\n'''
+          assert marker in text
+          extra = '''def test_pdf_semantics_recognizes_usd_from_dollar_plus_us_postal_context(monkeypatch, tmp_path: Path):\n    text = """PEN-LINK\nQUOTE\nQUO-01487-5Z12C3\n5944 VanDervoort Drive | Lincoln, NE 68516\n1 SERVICE $10.00 $10.00\n"""\n    result = parse_text(monkeypatch, tmp_path, text)\n    assert result.currency == "USD"\n    assert result.metadata["currency_recognition"]["source"] == "dollar_symbol_plus_us_postal_context"\n\n\ndef test_pdf_semantics_explicit_other_dollar_currency_beats_us_context(monkeypatch, tmp_path: Path):\n    text = """QUOTE\nQUO-101-A2\nCurrency: CAD\nLincoln, NE 68516\n1 SERVICE $10.00 $10.00\n"""\n    result = parse_text(monkeypatch, tmp_path, text)\n    assert result.currency == "CAD"\n    assert result.metadata["currency_recognition"]["source"] == "explicit_currency_evidence"\n\n\n'''
+          path.write_text(text.replace(marker, extra + marker, 1), encoding="utf-8")
+
+          path = Path("tests/test_repository_governance.py")
+          text = path.read_text(encoding="utf-8")
+          old = '''def test_runtime_container_drops_root_identity() -> None:\n    dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")\n    user_position = dockerfile.find("\\nUSER thistinti\\n")\n    entrypoint_position = dockerfile.find("\\nENTRYPOINT ")\n    assert user_position >= 0\n    assert entrypoint_position > user_position\n'''
+          new = '''def test_runtime_entrypoint_drops_root_before_application_exec() -> None:\n    dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")\n    entrypoint = (ROOT / "scripts" / "container_entrypoint.py").read_text(encoding="utf-8")\n    assert 'ENTRYPOINT ["python", "scripts/container_entrypoint.py"]' in dockerfile\n    assert "if os.geteuid() == 0:" in entrypoint\n    assert "os.setgid(account.pw_gid)" in entrypoint\n    assert "os.setuid(account.pw_uid)" in entrypoint\n    assert "os.execvpe(argv[0], argv, os.environ)" in entrypoint\n'''
+          assert old in text
+          path.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+          path = Path(".github/workflows/enterprise-self-hosted.yml")
+          text = path.read_text(encoding="utf-8")
+          marker = '''      - name: Create first administrator without public registration\n'''
+          assert marker in text
+          proof = '''      - name: Prove runtime application processes dropped root\n        working-directory: deploy/enterprise\n        shell: bash\n        run: |\n          set -euo pipefail\n          probe='from pathlib import Path; import sys; needle=sys.argv[1]; hits=[];\nfor proc in Path("/proc").iterdir():\n    if not proc.name.isdigit(): continue\n    try:\n        cmd=(proc/"cmdline").read_bytes().replace(b"\\x00",b" ").decode(errors="ignore")\n        if needle not in cmd: continue\n        uid_line=next(x for x in (proc/"status").read_text().splitlines() if x.startswith("Uid:"))\n        uid=int(uid_line.split()[1]); hits.append((proc.name,uid,cmd))\n    except (OSError, StopIteration): pass\nassert hits and all(uid != 0 for _,uid,_ in hits), hits\nprint(hits)'\n          docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml exec -T --user 0 app python -c "$probe" "app.main:app"\n          docker compose -f docker-compose.enterprise.yml -f docker-compose.ci.yml exec -T --user 0 worker python -c "$probe" "scripts/run_worker.py"\n'''
+          path.write_text(text.replace(marker, proof + marker, 1), encoding="utf-8")
+
+          path = Path("docs/REPOSITORY_AUDIT_2026-08-27.md")
+          text = path.read_text(encoding="utf-8")
+          text = text.replace(
+              "- The runtime Docker image explicitly drops root privileges with `USER thistinti`.",
+              "- The container entrypoint uses a minimal root bootstrap only to stage protected Docker secrets, then `setgid`/`setuid` drops to `thistinti` before the application command is executed; the enterprise proof verifies the effective runtime process identity.",
+          )
+          text = text.replace(
+              "- Heuristic PDF parsing abstains on a bare dollar symbol and rejects weak OCR row alignments whose source totals contradict the proposed pairing.",
+              "- Heuristic PDF parsing abstains on an unsupported bare dollar symbol; USD requires explicit evidence or dollar amounts plus US state/ZIP context, explicit CAD/AUD/NZD/SGD/HKD/MXN evidence takes precedence, and weak OCR row alignments whose source totals contradict the proposed pairing are rejected.",
+          )
+          text = text.replace(
+              "root container regressions",
+              "runtime privilege-drop regressions",
+          )
+          path.write_text(text, encoding="utf-8")
+          PY
+
+          python -m pip install ruff==0.15.22
+          ruff format app/parsers/pdf_text.py tests/test_pdf_semantics.py tests/test_repository_governance.py
+          git rm .github/workflows/audit-fix-round2.yml
+          git diff --check
+          git status --short
+      - name: Commit targeted corrections and self-remove
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "ThisTinti Audit Bot"
+          git config user.email "flowrbanbetareports@gmail.com"
+          git add Dockerfile app/parsers/pdf_text.py tests/test_pdf_semantics.py tests/test_repository_governance.py .github/workflows/enterprise-self-hosted.yml docs/REPOSITORY_AUDIT_2026-08-27.md .github/workflows/audit-fix-round2.yml
+          git commit -m "Correct container privilege drop and contextual currency inference"
+          git push origin HEAD:hardening/repository-audit-2026-08-27
