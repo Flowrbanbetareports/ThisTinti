@@ -50,7 +50,9 @@ def test_partial_line_truth_does_not_claim_false_positive_precision() -> None:
 
 
 def test_unknown_fields_are_not_scored() -> None:
-    result = evaluate_case({"fields": {"document_type": "invoice"}}, _observed(document_type="invoice", number="SOMETHING"))
+    result = evaluate_case(
+        {"fields": {"document_type": "invoice"}}, _observed(document_type="invoice", number="SOMETHING")
+    )
     assert result["passed"] is True
     assert result["scored_fields"] == 1
     assert result["hallucinations"] == []

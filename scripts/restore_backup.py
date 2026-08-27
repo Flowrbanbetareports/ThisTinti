@@ -179,14 +179,15 @@ def restore_postgres(
         storage_target.parent.mkdir(parents=True, exist_ok=True)
         if _target_nonempty(storage_target) and not force_storage:
             raise FileExistsError(f"Refusing to overwrite non-empty {storage_target}; pass --force")
-        staged_storage_root = tempfile.TemporaryDirectory(
-            prefix=".thistinti-storage-stage-", dir=storage_target.parent
-        )
+        staged_storage_root = tempfile.TemporaryDirectory(prefix=".thistinti-storage-stage-", dir=storage_target.parent)
         staged_storage = Path(staged_storage_root.name) / "storage"
         _stage_storage(bundle, staged_storage)
 
     try:
-        with zipfile.ZipFile(bundle) as archive, tempfile.TemporaryDirectory(prefix="thistinti-pg-restore-") as temporary:
+        with (
+            zipfile.ZipFile(bundle) as archive,
+            tempfile.TemporaryDirectory(prefix="thistinti-pg-restore-") as temporary,
+        ):
             dump = Path(temporary) / "database.dump"
             with archive.open("database.dump") as source, dump.open("wb") as destination:
                 shutil.copyfileobj(source, destination, length=1024 * 1024)
