@@ -14,12 +14,11 @@ from app.services.rc15 import (
     _automatic_job_intake,
     _json,
     _money,
-    add_pilot_practice,
     ensure_practice_for_chain,
     normalize_company_profile,
     record_document_retry,
-    update_pilot_case,
 )
+from app.services.rc15_pilot import add_pilot_practice, update_pilot_case
 
 
 def _identity() -> tuple[str, str]:
@@ -64,8 +63,8 @@ def test_rc15_supervised_workflow_end_to_end(client, auth):
     assert pending_intake.status_code == 200
     assert any(item["subject_id"] == document_id for item in pending_intake.json())
 
+    tenant_id, user_id = _identity()
     with SessionLocal() as db:
-        tenant_id, user_id = _identity()
         record_document_retry(db, tenant_id, document_id)
         db.commit()
 
@@ -193,7 +192,6 @@ def test_rc15_supervised_workflow_end_to_end(client, auth):
     assert pilot_response.status_code == 201, pilot_response.text
     pilot_id = pilot_response.json()["id"]
 
-    tenant_id, user_id = _identity()
     practice_ids: list[str] = []
     pilot_case_ids: list[str] = []
     truth = {"findings": [], "notes": "Nessuna anomalia attesa"}
