@@ -450,9 +450,58 @@ def _process_reprocess(db: Session, job: ProcessingJob, payload: dict) -> dict:
     }
 
 
+def _record_execution_failure(
+    db: Session,
+    *,
+    job_id: str,
+    tenant_id: str,
+    payload: dict,
+    error_message: str,
+) -> None:
+    """Persist retry/failure state even when the handler invalidated the transaction."""
+    db.rollback()
+    set_tenant_context(db, tenant_id)
+    job = db.get(ProcessingJob, job_id)
+    if job is None:
+        raise RuntimeError(f"Processing job disappeared after rollback: {job_id}")
+
+    job.error_message = error_message[:4000]
+    job.locked_at = None
+    job.locked_by = None
+    if job.attempts < job.max_attempts:
+        job.status = "queued"
+        job.available_at = utcnow() + timedelta(seconds=min(300, 5 * (2 ** max(0, job.attempts - 1))))
+    else:
+        job.status = "failed"
+        job.completed_at = utcnow()
+        staged = payload.get("staged_path")
+        if staged:
+            try:
+                source = _safe_staged_path(staged)
+                target = settings.rejected_dir / f"{job.id}-{source.name}"
+                target.parent.mkdir(parents=True, exist_ok=True)
+                source.replace(target)
+                payload["rejected_path"] = str(target)
+                job.input_json = json.dumps(payload, ensure_ascii=False, default=str)
+            except (OSError, ParseError):
+                pass
+        add_audit(
+            db,
+            job.tenant_id,
+            "job.failed",
+            job_actor_id(job),
+            "processing_job",
+            job.id,
+            {"job_type": job.job_type, "attempts": job.attempts, "error": job.error_message},
+        )
+    db.flush()
+
+
 def execute_job(db: Session, job: ProcessingJob) -> None:
-    set_tenant_context(db, job.tenant_id)
-    payload = json.loads(job.input_json or "{}")
+    job_id = job.id
+    tenant_id = job.tenant_id
+    payload = _job_payload(job)
+    set_tenant_context(db, tenant_id)
     try:
         if job.job_type == "ingest_document":
             result = _process_document(db, job, payload)
@@ -499,33 +548,10 @@ def execute_job(db: Session, job: ProcessingJob) -> None:
         if staged:
             _safe_staged_path(staged).unlink(missing_ok=True)
     except Exception as exc:
-        job.error_message = f"{type(exc).__name__}: {exc}"[:4000]
-        job.locked_at = None
-        job.locked_by = None
-        if job.attempts < job.max_attempts:
-            job.status = "queued"
-            job.available_at = utcnow() + timedelta(seconds=min(300, 5 * (2 ** (job.attempts - 1))))
-        else:
-            job.status = "failed"
-            job.completed_at = utcnow()
-            staged = payload.get("staged_path")
-            if staged:
-                try:
-                    source = _safe_staged_path(staged)
-                    target = settings.rejected_dir / f"{job.id}-{source.name}"
-                    target.parent.mkdir(parents=True, exist_ok=True)
-                    source.replace(target)
-                    payload["rejected_path"] = str(target)
-                    job.input_json = json.dumps(payload, ensure_ascii=False, default=str)
-                except (OSError, ParseError):
-                    pass
-            add_audit(
-                db,
-                job.tenant_id,
-                "job.failed",
-                job_actor_id(job),
-                "processing_job",
-                job.id,
-                {"job_type": job.job_type, "attempts": job.attempts, "error": job.error_message},
-            )
-        db.flush()
+        _record_execution_failure(
+            db,
+            job_id=job_id,
+            tenant_id=tenant_id,
+            payload=payload,
+            error_message=f"{type(exc).__name__}: {exc}",
+        )
