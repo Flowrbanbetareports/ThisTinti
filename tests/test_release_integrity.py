@@ -396,7 +396,9 @@ def test_latest_release_records_and_upgrade_baseline_are_coherent():
         for asset in publication["assets"]
     )
 
-    assert baseline["installer"] == f"ThisTinti-Setup-{baseline_version}-x64.exe"
-    assert baseline["release_commit"] != release["release_commit"]
-    assert Version(to_python_package_version(baseline_version)) < Version(to_python_package_version(published_version))
+    assert baseline_version == published_version
+    assert baseline["tag"] == release["tag"]
+    assert baseline["installer"] == f"ThisTinti-Setup-{published_version}-x64.exe"
+    assert baseline["release_commit"] == release["release_commit"]
+    assert baseline["sha256"] == release["verification"]["installer_sha256"]
     assert Version(to_python_package_version(published_version)) <= Version(PYTHON_PACKAGE_VERSION)
