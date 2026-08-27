@@ -7,14 +7,14 @@ ROOT = Path(__file__).resolve().parents[1]
 WORKFLOWS = ROOT / ".github" / "workflows"
 
 
-def test_actions_workflows_do_not_push_directly_to_main() -> None:
+def test_actions_workflows_do_not_push_repository_refs() -> None:
     violations: list[str] = []
     for workflow in sorted(WORKFLOWS.glob("*.yml")):
         text = workflow.read_text(encoding="utf-8")
         for line_no, line in enumerate(text.splitlines(), start=1):
-            if re.search(r"\bgit\s+push\b.*(?:HEAD:main|\bmain\b)", line):
+            if re.search(r"^\s*git\s+push\b", line):
                 violations.append(f"{workflow.name}:{line_no}: {line.strip()}")
-    assert violations == [], "Actions must not advance main directly:\n" + "\n".join(violations)
+    assert violations == [], "Actions must not advance repository refs directly:\n" + "\n".join(violations)
 
 
 def test_benchmark_workflows_are_read_only_and_artifact_backed() -> None:
@@ -23,6 +23,14 @@ def test_benchmark_workflows_are_read_only_and_artifact_backed() -> None:
         assert "contents: read" in text
         assert "contents: write" not in text
         assert "actions/upload-artifact@" in text
+
+
+def test_windows_release_workflow_is_read_only_and_artifact_backed() -> None:
+    text = (WORKFLOWS / "windows-release.yml").read_text(encoding="utf-8")
+    assert "contents: read" in text
+    assert "contents: write" not in text
+    assert "actions/upload-artifact@" in text
+    assert "Record successful main build" not in text
 
 
 def test_runtime_entrypoint_drops_root_before_application_exec() -> None:
