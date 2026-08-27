@@ -296,6 +296,41 @@ def parse_date(value: Any) -> date | None:
     return None
 
 
+def _postprocess_pdf_result(parsed: ParsedDocument) -> ParsedDocument:
+    """Apply fail-closed guards to heuristic PDF-only recognizers."""
+    recognition = parsed.metadata.get("currency_recognition")
+    if isinstance(recognition, dict) and recognition.get("source") == "unambiguous_dollar_symbol":
+        parsed.currency = "UNK"
+        parsed.metadata["currency_recognition"] = {
+            "status": "abstained",
+            "reason": "ambiguous_dollar_symbol",
+            "previous_source": "unambiguous_dollar_symbol",
+        }
+
+    aligned = [
+        line
+        for line in parsed.lines
+        if isinstance(line.raw, dict) and line.raw.get("line_extraction_method") == "ocr_aligned_business_rows"
+    ]
+    if aligned:
+        complete_alignment = len(aligned) == len(parsed.lines)
+        totals_consistent = all(line.raw.get("line_total_consistent") is True for line in aligned)
+        if complete_alignment and not totals_consistent:
+            parsed.metadata["discarded_ocr_aligned_rows"] = len(aligned)
+            parsed.metadata["line_extraction_method"] = "abstained_ocr_alignment"
+            parsed.lines.clear()
+            parsed.confidence = min(parsed.confidence, 0.32)
+            parsed.message = "Righe OCR allineate scartate: i totali non supportano un abbinamento affidabile."
+        else:
+            for line in aligned:
+                line.confidence = min(line.confidence, 0.55)
+            parsed.metadata["aligned_rows_require_review"] = True
+            parsed.confidence = min(parsed.confidence, 0.50)
+            if not parsed.message:
+                parsed.message = "Righe OCR allineate per posizione: revisione umana necessaria."
+    return parsed
+
+
 def parse_file(path: Path, filename: str, content_type: str | None, overrides: dict[str, Any]) -> ParsedDocument:
     try:
         suffix = path.suffix.lower()
@@ -314,7 +349,7 @@ def parse_file(path: Path, filename: str, content_type: str | None, overrides: d
         if suffix == ".pdf":
             from .pdf_text import parse_pdf
 
-            return parse_pdf(path, overrides)
+            return _postprocess_pdf_result(parse_pdf(path, overrides))
         if suffix == ".json":
             from .structured_json import parse_json
 
