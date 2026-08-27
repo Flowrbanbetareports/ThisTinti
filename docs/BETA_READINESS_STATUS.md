@@ -9,11 +9,9 @@
 
 ## Stato attuale
 
-ThisTinti è pubblicato come `3.4.0-alpha.7-rc.13 — Public Preview`. RC13 è un hotfix di sicurezza limitato all'aggiornamento di `pypdf` 6.14.2 → 6.15.0 per `PYSEC-2026-3655` e `PYSEC-2026-3656`; non aggiunge funzionalità o modifiche UI.
+ThisTinti è pubblicato come **3.4.0-alpha.7-rc.14 — Public Preview**. RC14 consolida il benchmark controllato da 30 scenari, il corpus esterno/raw da 22 documenti, gli hardening PDF/OCR e backup/restore e la correzione dell'upgrade Windows quando una precedente installazione di ThisTinti è ancora in esecuzione.
 
-Il candidato successivo è **3.4.0-alpha.7-rc.14 — Public Preview**. RC14 incorpora gli hardening e le evidenze post-RC13 e corregge l'upgrade Windows quando una precedente installazione di ThisTinti è ancora in esecuzione. Fino alla pubblicazione immutabile della RC14, RC13 resta l'ultima release pubblicata.
-
-La release RC13 è costruita dal commit applicativo `f7609b51aec4c358d0410ca8ff83e60485cac96c`, tree `e1a5ea29d4bbef7e1431d96fa5a5149dc4a46e3c`, con Windows run `33008478384` / build `394`. L’installer pubblicato ha SHA-256 `505532c67d324a29487d77acd9ae0d1f1e5b918a4f2ccbb996bc3b2be774622f`.
+Il candidato successivo è **3.4.0-alpha.7-rc.15 — RC15 Pilot-Ready**, attualmente in qualificazione e non ancora pubblicato. RC15 completa il workflow supervisionato di pratica, il lifecycle auditabile delle segnalazioni, il pilot workspace integrato, il profilo azienda versionato e le operazioni esplicite di export, archivio e cancellazione. RC14 resta l'ultima release pubblica finché RC15 non supera tutti i gate canonici sul medesimo commit finale, la verifica successiva su `main` e il ciclo Windows previsto per la pubblicazione.
 
 La base tecnica verificata comprende:
 
@@ -43,13 +41,17 @@ La base tecnica verificata comprende:
 - suggerimenti di apprendimento non automatici e vincolati a decisioni umane sufficienti;
 - pre-pilot sintetico riproducibile di 30 pratiche, usato esclusivamente come regressione tecnica;
 - corpus esterno/raw congelato di 22 documenti con ground truth separata e valutazione semantica prudente;
-- prova Windows dedicata dell'aggiornamento con la precedente applicazione realmente in esecuzione.
+- prova Windows dedicata dell'aggiornamento con la precedente applicazione realmente in esecuzione;
+- intake RC15 con stati espliciti di acquisizione, revisione, rifiuto, blocco e fuori perimetro;
+- lifecycle RC15 delle segnalazioni con riapertura, motivazioni e storico immutabile delle decisioni;
+- pilot workspace RC15 con autorizzazione, due riferimenti revisore, ground truth versionata e report riproducibile;
+- profilo azienda RC15 versionato e lifecycle della pratica con export verificabile, archivio e cancellazione esplicita.
 
 ## Gate interni
 
 I gate interni sono verificati da `scripts/check_beta_readiness.py` e dai workflow dedicati. Devono restare verdi sul commit esatto candidato alla distribuzione. Le evidenze automatiche vengono associate a run e commit; ogni modifica del prodotto richiede una nuova esecuzione completa per essere promossa.
 
-La Public Preview RC13 già pubblicata non viene modificata silenziosamente: la RC14 usa una nuova versione e una nuova catena di verifica.
+La Public Preview RC14 già pubblicata non viene modificata silenziosamente: RC15 usa una nuova versione e una nuova catena di verifica.
 
 ## Gate umani ed esterni non autocertificabili
 
