@@ -41,3 +41,5 @@ jobs:
             git commit -m 'Format semantic evaluator'
             git push origin HEAD:benchmark/dirty-public-corpus-22
           fi
+
+# One-shot trigger: remove this workflow after the formatter commit lands.
