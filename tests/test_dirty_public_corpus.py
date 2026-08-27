@@ -71,5 +71,5 @@ def test_frozen_corpus_has_exact_sha256_and_matching_truth_version() -> None:
     sha256 = re.compile(r"^[0-9a-f]{64}$")
     assert manifest["frozen"] is True
     assert truth["frozen"] is True
-    assert manifest["version"] == truth["version"] == "1.0-frozen"
+    assert manifest["version"] == truth["version"] == "1.1-frozen"
     assert all(sha256.fullmatch(item.get("sha256", "")) for item in manifest["sources"])
