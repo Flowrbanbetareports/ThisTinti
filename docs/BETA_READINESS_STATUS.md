@@ -9,9 +9,9 @@
 
 ## Stato attuale
 
-ThisTinti è pubblicato come **3.4.0-alpha.7-rc.14 — Public Preview**. RC14 consolida il benchmark controllato da 30 scenari, il corpus esterno/raw da 22 documenti, gli hardening PDF/OCR e backup/restore e la correzione dell'upgrade Windows quando una precedente installazione di ThisTinti è ancora in esecuzione.
+ThisTinti è pubblicato come **3.4.0-alpha.7-rc.15 — RC15 Pilot-Ready — Public Preview**. RC15 completa il workflow supervisionato di pratica, il lifecycle auditabile delle segnalazioni, il pilot workspace integrato, il profilo azienda versionato e le operazioni esplicite di export, archivio e cancellazione.
 
-Il candidato successivo è **3.4.0-alpha.7-rc.15 — RC15 Pilot-Ready**, attualmente in qualificazione e non ancora pubblicato. RC15 completa il workflow supervisionato di pratica, il lifecycle auditabile delle segnalazioni, il pilot workspace integrato, il profilo azienda versionato e le operazioni esplicite di export, archivio e cancellazione. RC14 resta l'ultima release pubblica finché RC15 non supera tutti i gate canonici sul medesimo commit finale, la verifica successiva su `main` e il ciclo Windows previsto per la pubblicazione.
+RC15 ha superato i gate tecnici automatici sul commit applicativo `0c99155d17374ce195db4ec65200a8edcf1bcdd1`, incluso il ciclo Windows RC14→RC15, ed è stata pubblicata come prerelease verificata. Resta una **Public Preview supervisionata**, non una beta validata: pilot reale, revisioni indipendenti, accessibilità manuale, infrastruttura definitiva, firma Authenticode e test con utenti non istruiti restano gate esterni aperti.
 
 La base tecnica verificata comprende:
 
@@ -51,7 +51,7 @@ La base tecnica verificata comprende:
 
 I gate interni sono verificati da `scripts/check_beta_readiness.py` e dai workflow dedicati. Devono restare verdi sul commit esatto candidato alla distribuzione. Le evidenze automatiche vengono associate a run e commit; ogni modifica del prodotto richiede una nuova esecuzione completa per essere promossa.
 
-La Public Preview RC14 già pubblicata non viene modificata silenziosamente: RC15 usa una nuova versione e una nuova catena di verifica.
+Le Public Preview storiche non vengono modificate silenziosamente: RC15 usa il proprio tag, commit applicativo, tree Git, artefatti e catena di verifica separata dalle release precedenti.
 
 ## Gate umani ed esterni non autocertificabili
 
