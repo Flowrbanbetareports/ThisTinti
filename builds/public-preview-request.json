@@ -1,9 +1,9 @@
 {
   "schema": "thistinti.public-preview-request.v1",
-  "version": "3.4.0-alpha.7-rc.13",
-  "target_sha": "f7609b51aec4c358d0410ca8ff83e60485cac96c",
-  "windows_run_id": "33008478384",
+  "version": "3.4.0-alpha.7-rc.14",
+  "target_sha": "6bbb980256869896bf66f0e125ccff6c047540e3",
+  "windows_run_id": "33104580870",
   "requested_as": "Public Preview alpha/RC",
-  "request_id": "rc13-pypdf-security-hotfix-publication-1",
-  "note": "Publish the exact verified RC13 pypdf security hotfix as a Public Preview prerelease. Preserve immutable RC12 assets and require exact-source CI, live Chromium, PostgreSQL, self-hosted, Windows lifecycle, checksums, provenance and attestations. This release is limited to the pypdf 6.15.0 security remediation and release metadata alignment; no feature, UI, telemetry, managed service or economic-automation expansion is included. Authenticode and all external beta/production gates remain explicitly open."
+  "request_id": "rc14-running-upgrade-hotfix-publication-1",
+  "note": "Publish the exact verified RC14 Public Preview from main commit 6bbb980256869896bf66f0e125ccff6c047540e3 and Windows run 33104580870. RC14 includes the repository hardening, benchmark methodology corrections, dirty public corpus validation and the Windows upgrade fix that closes only the installed ThisTinti process before replacing files. Preserve immutable earlier releases and require exact-source CI, PostgreSQL, enterprise proof, running-upgrade proof, Windows lifecycle, checksums, provenance and attestations. This remains a supervised Public Preview; Authenticode and external pilot/security/legal/privacy/WCAG/production-environment gates remain explicitly open."
 }
