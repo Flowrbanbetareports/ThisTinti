@@ -27,8 +27,11 @@ jobs:
         with:
           python-version: "3.13"
           cache: pip
-      - name: Install generator dependencies
-        run: pip install -r requirements-dev.txt
+      - name: Install release-gate dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openssl poppler-utils tesseract-ocr tesseract-ocr-eng tesseract-ocr-ita
+          pip install -r requirements-dev.txt
       - name: Describe non-JSON RC15 responses explicitly
         shell: bash
         run: |
@@ -56,11 +59,7 @@ jobs:
           ruff format --check app/rc15_api.py
           python scripts/generate_openapi.py --output docs/openapi.json
           git diff --check
-      - name: Diagnose extended regression explicitly
-        env:
-          PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
-        run: pytest -vv tests/test_extended.py --tb=long
-      - name: Verify OpenAPI contract
+      - name: Verify complete release gate
         run: python scripts/verify_release.py
       - name: Commit fix when changed
         shell: bash
