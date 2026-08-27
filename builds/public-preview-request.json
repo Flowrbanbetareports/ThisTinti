@@ -1,9 +1,9 @@
 {
   "schema": "thistinti.public-preview-request.v1",
-  "version": "3.4.0-alpha.7-rc.14",
-  "target_sha": "6bbb980256869896bf66f0e125ccff6c047540e3",
-  "windows_run_id": "33104580870",
+  "version": "3.4.0-alpha.7-rc.15",
+  "target_sha": "0c99155d17374ce195db4ec65200a8edcf1bcdd1",
+  "windows_run_id": "33125242692",
   "requested_as": "Public Preview alpha/RC",
-  "request_id": "rc14-running-upgrade-hardening-publication-1",
-  "note": "Publish the exact verified RC14 Public Preview from main. Require exact-source CI, PostgreSQL/RLS proof, Enterprise Self-Hosted proof, Beta Readiness, Windows running-upgrade proof, Windows lifecycle, diagnostics, checksums, provenance and GitHub attestations for target commit 6bbb980256869896bf66f0e125ccff6c047540e3 and Windows run 33104580870. RC14 includes the repository hardening audit, controlled/public benchmark corrections, OCR/PDF fail-closed safeguards, staged backup/restore hardening and the Windows running-upgrade fix. It remains a supervised Public Preview; Authenticode, independent pentest, external pilot and legal/WCAG review remain external gates."
+  "request_id": "rc15-pilot-ready-publication-1",
+  "note": "Publish the exact verified RC15 Pilot-Ready Public Preview from main. Require exact-source CI, PostgreSQL/RLS proof, Enterprise Self-Hosted proof, Beta Readiness, Simplified Product Experience, Windows running-upgrade proof, Windows lifecycle, diagnostics, checksums, provenance and GitHub attestations for target commit 0c99155d17374ce195db4ec65200a8edcf1bcdd1 and Windows run 33125242692. RC15 adds the supervised practice workflow, audited case lifecycle, company profile/versioning, pilot workspace and verified practice export. It remains a supervised Public Preview; Authenticode, independent security/legal/WCAG review, external pilot, production-infrastructure proof and untrained-user onboarding remain external gates."
 }
