@@ -26,9 +26,7 @@ DEFAULT_TRUTH = ROOT / "samples" / "dirty_public_corpus_22_ground_truth.json"
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Evaluate granular semantics on the dirty public corpus"
-    )
+    parser = argparse.ArgumentParser(description="Evaluate granular semantics on the dirty public corpus")
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--truth", type=Path, default=DEFAULT_TRUTH)
     parser.add_argument("--report", type=Path, required=True)
@@ -70,24 +68,15 @@ def normalize_observed(parsed: Any) -> dict[str, Any]:
                 "confidence": float(line.confidence),
             }
         )
-    subtotal = sum(
-        (Decimal(item["line_total"] or "0") for item in lines), Decimal("0")
-    )
+    subtotal = sum((Decimal(item["line_total"] or "0") for item in lines), Decimal("0"))
     tax = sum(
-        (
-            Decimal(item["line_total"] or "0")
-            * Decimal(item["tax_rate"] or "0")
-            / Decimal("100")
-            for item in lines
-        ),
+        (Decimal(item["line_total"] or "0") * Decimal(item["tax_rate"] or "0") / Decimal("100") for item in lines),
         Decimal("0"),
     )
     return {
         "document_type": parsed.document_type,
         "number": parsed.number,
-        "document_date": (
-            None if parsed.document_date is None else str(parsed.document_date)
-        ),
+        "document_date": (None if parsed.document_date is None else str(parsed.document_date)),
         "currency": parsed.currency,
         "supplier_name": normalize_text(parsed.supplier_name),
         "supplier_vat": normalize_text(parsed.supplier_vat),
@@ -118,16 +107,12 @@ def line_matches(expected: dict[str, Any], observed: dict[str, Any]) -> bool:
         if key in expected and not values_equal(expected[key], observed.get(key)):
             return False
     needle = expected.get("description_contains")
-    if needle and str(needle).casefold() not in str(
-        observed.get("description") or ""
-    ).casefold():
+    if needle and str(needle).casefold() not in str(observed.get("description") or "").casefold():
         return False
     return True
 
 
-def evaluate_lines(
-    expected: list[dict[str, Any]], observed: list[dict[str, Any]], complete: bool
-) -> dict[str, Any]:
+def evaluate_lines(expected: list[dict[str, Any]], observed: list[dict[str, Any]], complete: bool) -> dict[str, Any]:
     remaining = set(range(len(observed)))
     matched: list[tuple[int, int]] = []
     for expected_index, expected_line in enumerate(expected):
@@ -173,21 +158,14 @@ def evaluate_case(truth: dict[str, Any], observed: dict[str, Any]) -> dict[str, 
     reference_results: dict[str, bool] = {}
     for key, expected_values in (truth.get("references") or {}).items():
         actual_values = (observed.get("references") or {}).get(key) or []
-        reference_results[key] = set(map(str, actual_values)) == set(
-            map(str, expected_values)
-        )
+        reference_results[key] = set(map(str, actual_values)) == set(map(str, expected_values))
 
     minimum_lines = truth.get("minimum_lines")
-    minimum_lines_passed = (
-        True
-        if minimum_lines is None
-        else observed["line_count"] >= int(minimum_lines)
-    )
+    minimum_lines_passed = True if minimum_lines is None else observed["line_count"] >= int(minimum_lines)
     subtotal_passed = (
         True
         if "derived_subtotal" not in truth
-        else decimal_text(truth["derived_subtotal"])
-        == decimal_text(observed["derived_subtotal"])
+        else decimal_text(truth["derived_subtotal"]) == decimal_text(observed["derived_subtotal"])
     )
     tax_passed = (
         True
@@ -195,28 +173,16 @@ def evaluate_case(truth: dict[str, Any], observed: dict[str, Any]) -> dict[str, 
         else decimal_text(truth["derived_tax"]) == decimal_text(observed["derived_tax"])
     )
     expected_lines = truth.get("lines") or []
-    line_metrics = evaluate_lines(
-        expected_lines, observed["lines"], truth.get("line_scope") == "complete"
-    )
-    lines_passed = not expected_lines or (
-        line_metrics["fn"] == 0 and line_metrics["fp"] == 0
-    )
+    line_metrics = evaluate_lines(expected_lines, observed["lines"], truth.get("line_scope") == "complete")
+    lines_passed = not expected_lines or (line_metrics["fn"] == 0 and line_metrics["fp"] == 0)
 
     logical_document_count = truth.get("logical_document_count")
     segmentation_evaluable = logical_document_count is not None
-    segmentation_passed = (
-        True if logical_document_count is None else int(logical_document_count) == 1
-    )
+    segmentation_passed = True if logical_document_count is None else int(logical_document_count) == 1
 
     failures: list[str] = []
-    failures.extend(
-        f"field:{key}" for key, passed in field_results.items() if not passed
-    )
-    failures.extend(
-        f"reference:{key}"
-        for key, passed in reference_results.items()
-        if not passed
-    )
+    failures.extend(f"field:{key}" for key, passed in field_results.items() if not passed)
+    failures.extend(f"reference:{key}" for key, passed in reference_results.items() if not passed)
     if not minimum_lines_passed:
         failures.append("minimum_lines")
     if not subtotal_passed:
@@ -262,23 +228,23 @@ def markdown(report: dict[str, Any]) -> str:
     frozen = str(report["ground_truth"]["frozen"]).lower()
     return f"""# Dirty Public Corpus 22 — granular semantic evaluation
 
-Generated: `{report['generated_at']}`  
-Engine: `{report['product']['engine_version']}`  
+Generated: `{report["generated_at"]}`  
+Engine: `{report["product"]["engine_version"]}`  
 Ground truth frozen: **{frozen}**
 
 ## Metrics
 
-- evaluated cases: **{metrics['case_count']}**
-- passed cases: **{metrics['passed_cases']}**
-- failed cases: **{metrics['failed_cases']}**
-- field accuracy: **{metrics['field_accuracy']:.3f}** ({metrics['correct_fields']}/{metrics['scored_fields']})
-- line precision: **{metrics['line_precision']:.3f}**
-- line recall: **{metrics['line_recall']:.3f}**
-- line F1: **{metrics['line_f1']:.3f}**
-- hallucinated scored-null fields: **{metrics['hallucination_count']}**
-- segmentation checks passed: **{metrics['segmentation_passes']}/{metrics['segmentation_evaluable']}**
-- mean confidence, correct cases: **{metrics['mean_confidence_correct']:.3f}**
-- mean confidence, incorrect cases: **{metrics['mean_confidence_incorrect']:.3f}**
+- evaluated cases: **{metrics["case_count"]}**
+- passed cases: **{metrics["passed_cases"]}**
+- failed cases: **{metrics["failed_cases"]}**
+- field accuracy: **{metrics["field_accuracy"]:.3f}** ({metrics["correct_fields"]}/{metrics["scored_fields"]})
+- line precision: **{metrics["line_precision"]:.3f}**
+- line recall: **{metrics["line_recall"]:.3f}**
+- line F1: **{metrics["line_f1"]:.3f}**
+- hallucinated scored-null fields: **{metrics["hallucination_count"]}**
+- segmentation checks passed: **{metrics["segmentation_passes"]}/{metrics["segmentation_evaluable"]}**
+- mean confidence, correct cases: **{metrics["mean_confidence_correct"]:.3f}**
+- mean confidence, incorrect cases: **{metrics["mean_confidence_incorrect"]:.3f}**
 - gate: **{gate}**
 
 | Case | Type | Number | Lines | Result |
@@ -347,9 +313,7 @@ def parse_case(
                 "f1": 0.0,
                 "matched": [],
             },
-            "segmentation_evaluable": (
-                case_truth.get("logical_document_count") is not None
-            ),
+            "segmentation_evaluable": (case_truth.get("logical_document_count") is not None),
             "segmentation_passed": False,
         }
         return "parse_error", {"code": exc.code, "message": str(exc)}, observed, evaluation
@@ -363,28 +327,12 @@ def summarize(cases: list[dict[str, Any]], frozen: bool, elapsed: float) -> dict
     line_fn = sum(case["evaluation"]["line_metrics"]["fn"] for case in cases)
     line_precision = line_tp / (line_tp + line_fp) if line_tp + line_fp else 1.0
     line_recall = line_tp / (line_tp + line_fn) if line_tp + line_fn else 1.0
-    line_f1 = (
-        2 * line_precision * line_recall / (line_precision + line_recall)
-        if line_precision + line_recall
-        else 0.0
-    )
-    correct_conf = [
-        case["observed"]["confidence"]
-        for case in cases
-        if case["evaluation"]["passed"]
-    ]
-    incorrect_conf = [
-        case["observed"]["confidence"]
-        for case in cases
-        if not case["evaluation"]["passed"]
-    ]
-    segmentation_evaluable = sum(
-        case["evaluation"]["segmentation_evaluable"] for case in cases
-    )
+    line_f1 = 2 * line_precision * line_recall / (line_precision + line_recall) if line_precision + line_recall else 0.0
+    correct_conf = [case["observed"]["confidence"] for case in cases if case["evaluation"]["passed"]]
+    incorrect_conf = [case["observed"]["confidence"] for case in cases if not case["evaluation"]["passed"]]
+    segmentation_evaluable = sum(case["evaluation"]["segmentation_evaluable"] for case in cases)
     segmentation_passes = sum(
-        case["evaluation"]["segmentation_passed"]
-        for case in cases
-        if case["evaluation"]["segmentation_evaluable"]
+        case["evaluation"]["segmentation_passed"] for case in cases if case["evaluation"]["segmentation_evaluable"]
     )
     failed_cases = sum(not case["evaluation"]["passed"] for case in cases)
     return {
@@ -400,17 +348,11 @@ def summarize(cases: list[dict[str, Any]], frozen: bool, elapsed: float) -> dict
         "line_precision": line_precision,
         "line_recall": line_recall,
         "line_f1": line_f1,
-        "hallucination_count": sum(
-            len(case["evaluation"]["hallucinations"]) for case in cases
-        ),
+        "hallucination_count": sum(len(case["evaluation"]["hallucinations"]) for case in cases),
         "segmentation_evaluable": segmentation_evaluable,
         "segmentation_passes": segmentation_passes,
-        "mean_confidence_correct": (
-            sum(correct_conf) / len(correct_conf) if correct_conf else 0.0
-        ),
-        "mean_confidence_incorrect": (
-            sum(incorrect_conf) / len(incorrect_conf) if incorrect_conf else 0.0
-        ),
+        "mean_confidence_correct": (sum(correct_conf) / len(correct_conf) if correct_conf else 0.0),
+        "mean_confidence_incorrect": (sum(incorrect_conf) / len(incorrect_conf) if incorrect_conf else 0.0),
         "gate_passed": not frozen or failed_cases == 0,
         "elapsed_seconds": round(elapsed, 3),
     }
@@ -428,23 +370,17 @@ def main() -> int:
         workdir = Path(temp_dir)
         timeout = httpx.Timeout(90.0)
         headers = {"User-Agent": "ThisTinti-dirty-semantics/1.0"}
-        with httpx.Client(
-            follow_redirects=True, timeout=timeout, headers=headers
-        ) as client:
+        with httpx.Client(follow_redirects=True, timeout=timeout, headers=headers) as client:
             for case_id, case_truth in truth["cases"].items():
                 source = sources.get(case_id)
                 if source is None:
-                    raise SystemExit(
-                        f"Ground-truth case missing from manifest: {case_id}"
-                    )
+                    raise SystemExit(f"Ground-truth case missing from manifest: {case_id}")
                 response = client.get(source["url"])
                 response.raise_for_status()
                 payload = response.content
                 path = workdir / source["filename"]
                 path.write_bytes(payload)
-                parse_status, parse_error, observed, evaluation = parse_case(
-                    path, source, case_truth
-                )
+                parse_status, parse_error, observed, evaluation = parse_case(path, source, case_truth)
                 cases.append(
                     {
                         "id": case_id,
@@ -471,9 +407,7 @@ def main() -> int:
         "cases": cases,
     }
     args.report.parent.mkdir(parents=True, exist_ok=True)
-    args.report.write_text(
-        json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
+    args.report.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     args.markdown.write_text(markdown(report), encoding="utf-8")
     print(json.dumps(metrics, ensure_ascii=False, indent=2))
     return 0 if metrics["gate_passed"] else 1
