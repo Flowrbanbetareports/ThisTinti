@@ -20,8 +20,8 @@ COPY --chown=thistinti:thistinti . .
 RUN mkdir -p /app/data/uploads /app/data/quarantine /app/data/rejected \
     && chown -R thistinti:thistinti /app/data
 
-USER thistinti
-
+# The entrypoint stages root-readable Docker secrets, then drops to the
+# unprivileged thistinti account before executing the application command.
 ENTRYPOINT ["python", "scripts/container_entrypoint.py"]
 EXPOSE 8000
 
