@@ -59,8 +59,11 @@ jobs:
           ruff format --check app/rc15_api.py
           python scripts/generate_openapi.py --output docs/openapi.json
           git diff --check
-      - name: Verify complete release gate
-        run: python scripts/verify_release.py
+      - name: Verify complete release gate in final repository shape
+        shell: bash
+        run: |
+          rm -f .github/workflows/rc15-openapi-response-fix.yml
+          python scripts/verify_release.py
       - name: Commit fix when changed
         shell: bash
         run: |
