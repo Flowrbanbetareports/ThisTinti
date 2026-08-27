@@ -1,7 +1,7 @@
 {
   "schema": "thistinti.dirty-public-corpus.v1",
   "name": "ThisTinti Dirty Public Corpus 22",
-  "version": "1.0-frozen",
+  "version": "1.1-frozen",
   "frozen": true,
   "evidence_level": "public_external_raw",
   "real_company_pilot": false,
@@ -23,8 +23,7 @@
         "outcome": "parse",
         "document_type": "proposal",
         "number": "QUO-01487-5Z12C3",
-        "minimum_lines": 4,
-        "currency": "USD"
+        "minimum_lines": 4
       },
       "sha256": "d5ceef2dfd13fc8fe205754b1e8ecaf787d5f6721ee1e8ef87fa27ee3c2c24e0"
     },
@@ -44,8 +43,7 @@
         "outcome": "parse",
         "document_type": "proposal",
         "number": "QUO-04689-V8Y5D0",
-        "minimum_lines": 3,
-        "currency": "USD"
+        "minimum_lines": 3
       },
       "sha256": "7df49881ff272e22e2048b38d726b71f805baa9aa4014ed92328cafbc7123e98"
     },

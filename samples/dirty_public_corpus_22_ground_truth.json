@@ -1,16 +1,15 @@
 {
   "schema": "thistinti.dirty-public-ground-truth.v1",
   "corpus": "ThisTinti Dirty Public Corpus 22",
-  "version": "1.0-frozen",
+  "version": "1.1-frozen",
   "frozen": true,
   "real_company_pilot": false,
-  "policy": "Only fields independently readable from pinned upstream sources are scored. Omitted fields are unknown, not failures.",
+  "policy": "Only fields independently readable from pinned upstream sources are scored. Omitted fields are unknown, not failures. A bare dollar symbol without an explicit currency code is not sufficient ground truth for ISO currency.",
   "cases": {
     "lpl-penlink-quote-01487": {
       "fields": {
         "document_type": "proposal",
-        "number": "QUO-01487-5Z12C3",
-        "currency": "USD"
+        "number": "QUO-01487-5Z12C3"
       },
       "minimum_lines": 4,
       "logical_document_count": 1
@@ -18,8 +17,7 @@
     "lpl-penlink-quote-04689": {
       "fields": {
         "document_type": "proposal",
-        "number": "QUO-04689-V8Y5D0",
-        "currency": "USD"
+        "number": "QUO-04689-V8Y5D0"
       },
       "minimum_lines": 3,
       "logical_document_count": 1

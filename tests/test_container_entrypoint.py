@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
+from scripts import container_entrypoint
 from scripts.container_entrypoint import prepare_writable_directories, stage_secret_files
 
 
@@ -28,3 +30,28 @@ def test_stage_secret_files_rewrites_only_existing_thistinti_file_variables(tmp_
 def test_prepare_writable_directories_rejects_paths_outside_allow_list(tmp_path: Path):
     with pytest.raises(RuntimeError, match="not allow-listed"):
         prepare_writable_directories(str(tmp_path), uid=os.getuid(), gid=os.getgid())
+
+
+def test_privileged_bootstrap_drops_identity_before_exec(tmp_path: Path, monkeypatch) -> None:
+    events: list[str] = []
+    account = SimpleNamespace(pw_name="thistinti", pw_uid=1234, pw_gid=1234)
+
+    monkeypatch.setattr(container_entrypoint.os, "geteuid", lambda: 0)
+    monkeypatch.setattr(container_entrypoint.pwd, "getpwnam", lambda _name: account)
+    monkeypatch.setattr(container_entrypoint.tempfile, "mkdtemp", lambda **_kwargs: str(tmp_path / "secrets"))
+    monkeypatch.setattr(container_entrypoint, "stage_secret_files", lambda *_args, **_kwargs: {})
+    monkeypatch.setattr(container_entrypoint, "prepare_writable_directories", lambda *_args, **_kwargs: [])
+    monkeypatch.setattr(container_entrypoint.os, "initgroups", lambda *_args: events.append("initgroups"))
+    monkeypatch.setattr(container_entrypoint.os, "setgid", lambda *_args: events.append("setgid"))
+    monkeypatch.setattr(container_entrypoint.os, "setuid", lambda *_args: events.append("setuid"))
+
+    def fake_exec(*_args) -> None:
+        events.append("exec")
+        raise RuntimeError("exec intercepted")
+
+    monkeypatch.setattr(container_entrypoint.os, "execvpe", fake_exec)
+
+    with pytest.raises(RuntimeError, match="exec intercepted"):
+        container_entrypoint.drop_privileges_and_exec(["python", "-V"])
+
+    assert events == ["initgroups", "setgid", "setuid", "exec"]

@@ -173,29 +173,23 @@ jobs:
             --notes-file public-preview-notes.md \
             --prerelease
 
-      - name: Record publication evidence
+      - name: Generate immutable publication evidence
         shell: bash
         run: |
           set -euo pipefail
-          git checkout main
-          git pull --ff-only origin main
-          test "$(python -c 'from app.version import RELEASE_VERSION; print(RELEASE_VERSION)')" = "$VERSION"
+          mkdir -p publication-evidence
           python scripts/record_github_publication.py \
             --repository "$GITHUB_REPOSITORY" \
             --tag "$TAG" \
             --source-commit "$TARGET_SHA" \
             --source-tree "$SOURCE_TREE" \
             --artifact-directory dist \
-            --release-output /tmp/release-latest.json \
-            --publication-output /tmp/publication-latest.json
-          cp /tmp/release-latest.json builds/release-latest.json
-          cp /tmp/publication-latest.json builds/publication-latest.json
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add builds/release-latest.json builds/publication-latest.json
-          if git diff --cached --quiet; then
-            echo "Publication evidence was already current"
-          else
-            git commit -m "Record Public Preview $VERSION publication"
-            git push origin main
-          fi
+            --release-output publication-evidence/release-latest.json \
+            --publication-output publication-evidence/publication-latest.json
+
+      - name: Upload publication evidence without mutating main
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: public-preview-publication-${{ env.TARGET_SHA }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: publication-evidence/
+          retention-days: 90

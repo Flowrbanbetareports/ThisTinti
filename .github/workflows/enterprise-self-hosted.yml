@@ -23,7 +23,7 @@ jobs:
           python-version: "3.13"
           cache: pip
       - name: Install probe dependencies
-        run: pip install PyYAML
+        run: python -m pip install PyYAML==6.0.3
       - name: Generate operator-managed configuration locally
         run: |
           python scripts/enterprise_init.py \

@@ -24,7 +24,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: apparel-pre-pilot-30-${{ github.ref }}
@@ -123,26 +123,3 @@ jobs:
             builds/apparel-pre-pilot-30-latest.md
             builds/apparel-real-pilot-measurements.csv
           retention-days: 30
-      - name: Record latest benchmark evidence on main
-        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add \
-            builds/apparel-pre-pilot-30-inspection.json \
-            builds/apparel-pre-pilot-30-latest.json \
-            builds/apparel-pre-pilot-30-latest.md \
-            builds/apparel-real-pilot-measurements.csv
-          if git diff --cached --quiet; then
-            echo "Benchmark evidence already current"
-            exit 0
-          fi
-          git fetch origin main
-          if [[ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]]; then
-            echo "Main moved while the benchmark ran; evidence remains available as an artifact"
-            exit 0
-          fi
-          git commit -m "Record current apparel pre-pilot evidence"
-          git push origin HEAD:main
