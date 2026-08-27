@@ -13,6 +13,8 @@ line-length = 120
 
 [tool.ruff.lint.per-file-ignores]
 "tests/conftest.py" = ["E402"]
+"app/rc15_api.py" = ["F401"]
+"app/services/rc15.py" = ["F401"]
 
 [tool.coverage.run]
 source = ["app"]
