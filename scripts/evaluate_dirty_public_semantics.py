@@ -7,7 +7,6 @@ import json
 import sys
 import tempfile
 import time
-from collections import Counter
 from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
