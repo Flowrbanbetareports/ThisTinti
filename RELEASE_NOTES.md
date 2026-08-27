@@ -1,3 +1,15 @@
+# 3.4.0-alpha.7-rc.14 — validazione documentale e hotfix upgrade Windows — Public Preview
+
+- consolida il benchmark controllato da 30 scenari documentali con ground truth separata e gate quantitativi riproducibili;
+- aggiunge un corpus esterno “sporco” di 22 documenti pubblici/raw e una valutazione semantica separata per misurare parsing, campi, righe, astensione e segmentazione senza trasformare il corpus in materiale di training;
+- irrobustisce la lettura PDF/OCR locale per identificativi documento espliciti, valuta e righe commerciali, privilegiando l’astensione rispetto a valori inventati quando l’evidenza non è sufficiente;
+- rafforza backup/restore e i relativi test di persistenza;
+- corregge l’aggiornamento Windows quando una precedente installazione di ThisTinti è ancora in esecuzione: l’installer chiude soltanto il processo appartenente alla cartella che sta aggiornando prima di sostituire i file;
+- aggiunge una prova Windows dedicata che installa una versione precedente, la avvia realmente, la lascia in esecuzione durante l’upgrade e verifica chiusura del vecchio processo, aggiornamento, avvio, diagnostica e conservazione dati;
+- rigenera i contratti OpenAPI e SBOM della RC14 dopo l’allineamento finale di versione, così i gate di release verificano gli artefatti committati contro lo stesso candidato;
+- mantiene il modello local-first e supervisionato: gli output restano evidenze da verificare sui documenti originali, non decisioni o certificazioni automatiche;
+- pilot reale con documenti aziendali autorizzati, pentest indipendente, revisione legale/privacy, WCAG manuale, utenti non istruiti e firma Authenticode restano gate esterni aperti.
+
 # 3.4.0-alpha.7-rc.13 — hotfix sicurezza PDF — Public Preview
 
 - aggiorna `pypdf` da 6.14.2 a 6.15.0 per correggere `PYSEC-2026-3655` e `PYSEC-2026-3656`;

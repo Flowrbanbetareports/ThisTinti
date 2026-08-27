@@ -6,11 +6,15 @@ ThisTinti non decide, non approva e non certifica nulla. Organizza informazioni 
 
 ## Stato del rilascio
 
-Versione pubblica corrente: **3.4.0-alpha.7-rc.13 — Public Preview**.
+Candidato corrente: **3.4.0-alpha.7-rc.14 — Public Preview**.
 
-RC13 è un hotfix di sicurezza deliberatamente limitato: aggiorna `pypdf` da 6.14.2 a 6.15.0 per correggere `PYSEC-2026-3655` e `PYSEC-2026-3656`, senza nuove funzionalità o modifiche UI e senza cambiare il modello local-first.
+RC14 consolida gli hardening e le evidenze post-RC13: benchmark controllato da 30 scenari, corpus esterno/raw da 22 documenti, irrobustimento PDF/OCR e backup/restore, oltre alla correzione dell’upgrade Windows quando una precedente installazione di ThisTinti è ancora in esecuzione.
 
-Evidenza della Public Preview RC13:
+La RC14 resta una Public Preview supervisionata. La pubblicazione è consentita soltanto dopo i gate sul commit esatto e sull’installer Windows corrispondente; non chiude i gate esterni necessari per una beta validata o per la produzione: pilot reale, revisione indipendente di sicurezza e legale/privacy, collaudo WCAG manuale con tecnologie assistive, test con utenti non istruiti, firma Authenticode e prove sull’infrastruttura definitiva restano separati e devono produrre evidenza reale.
+
+Ultima release pubblicata prima della promozione RC14: **3.4.0-alpha.7-rc.13 — Public Preview**.
+
+Evidenza storica della Public Preview RC13:
 
 - tag: `v3.4.0-alpha.7-rc.13`;
 - commit applicativo: `f7609b51aec4c358d0410ca8ff83e60485cac96c`;
@@ -20,8 +24,6 @@ Evidenza della Public Preview RC13:
 - SHA-256 installer: `505532c67d324a29487d77acd9ae0d1f1e5b918a4f2ccbb996bc3b2be774622f`;
 - pubblicazione GitHub: `2026-08-26T20:17:41Z`;
 - release: https://github.com/Flowrbanbetareports/ThisTinti/releases/tag/v3.4.0-alpha.7-rc.13
-
-La pubblicazione della RC13 non chiude i gate esterni necessari per una beta validata o per la produzione: pilot reale, revisione indipendente di sicurezza e legale/privacy, collaudo WCAG manuale con tecnologie assistive, test con utenti non istruiti, firma Authenticode e prove sull’infrastruttura definitiva restano separati e devono produrre evidenza reale.
 
 ## Identità e posizionamento
 
@@ -41,7 +43,11 @@ La Local Edition è progettata per essere usata senza un servizio gestito da Thi
 - archivio portable e checksum SHA-256;
 - sorgente corrispondente incluso ed esportabile sotto licenza Apache 2.0.
 
-Download installer RC13:
+URL previsto per RC14, che diventa valido soltanto dopo la pubblicazione verificata della release:
+
+https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.14/ThisTinti-Setup-3.4.0-alpha.7-rc.14-x64.exe
+
+Fino a quel momento la release pubblica precedente resta RC13:
 
 https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.13/ThisTinti-Setup-3.4.0-alpha.7-rc.13-x64.exe
 
