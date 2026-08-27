@@ -1,0 +1,411 @@
+{
+  "schema": "thistinti.dirty-public-corpus.v1",
+  "name": "ThisTinti Dirty Public Corpus 22",
+  "version": "1.0-frozen",
+  "frozen": true,
+  "evidence_level": "public_external_raw",
+  "real_company_pilot": false,
+  "purpose": "Characterize raw public financial/procurement packets and external e-invoice files without normalizing them into ThisTinti's preferred schema.",
+  "sources": [
+    {
+      "id": "lpl-penlink-quote-01487",
+      "category": "real_public_financial_packet_pdf",
+      "publisher": "Chicago Police Department record obtained by Lucy Parsons Labs via FOIA",
+      "filename": "penlink-quote-01487.pdf",
+      "url": "https://raw.githubusercontent.com/lucyparsons/1505-documents/8a47f5029547dd35aaa523b55706bfbaa596635c/2014/%23177699%20PenLink/PenLinkQuote.pdf",
+      "source_commit": "8a47f5029547dd35aaa523b55706bfbaa596635c",
+      "github_blob_sha": "3a5b7a69e5e0b22500fd1c9f27265ef2451263d8",
+      "content_type": "application/pdf",
+      "overrides": {
+        "document_type": "proposal"
+      },
+      "expected": {
+        "outcome": "parse",
+        "document_type": "proposal",
+        "number": "QUO-01487-5Z12C3",
+        "minimum_lines": 4,
+        "currency": "USD"
+      },
+      "sha256": "d5ceef2dfd13fc8fe205754b1e8ecaf787d5f6721ee1e8ef87fa27ee3c2c24e0"
+    },
+    {
+      "id": "lpl-penlink-quote-04689",
+      "category": "real_public_financial_packet_pdf",
+      "publisher": "Chicago Police Department record obtained by Lucy Parsons Labs via FOIA",
+      "filename": "penlink-quote-04689.pdf",
+      "url": "https://raw.githubusercontent.com/lucyparsons/1505-documents/8a47f5029547dd35aaa523b55706bfbaa596635c/2014/%23177699%20PenLink/PenLink%20QUO-04689-V8Y5D0Redacted.pdf",
+      "source_commit": "8a47f5029547dd35aaa523b55706bfbaa596635c",
+      "github_blob_sha": "46bd52439102f73e2d7a5dd5bf02c7c090c99e84",
+      "content_type": "application/pdf",
+      "overrides": {
+        "document_type": "proposal"
+      },
+      "expected": {
+        "outcome": "parse",
+        "document_type": "proposal",
+        "number": "QUO-04689-V8Y5D0",
+        "minimum_lines": 3,
+        "currency": "USD"
+      },
+      "sha256": "7df49881ff272e22e2048b38d726b71f805baa9aa4014ed92328cafbc7123e98"
+    },
+    {
+      "id": "lpl-cook-county-cellebrite",
+      "category": "real_public_financial_packet_pdf",
+      "publisher": "Cook County Sheriff's Office record obtained by Lucy Parsons Labs via FOIA",
+      "filename": "cook-county-cellebrite-redacted.pdf",
+      "url": "https://raw.githubusercontent.com/lucyparsons/1505-documents/8a47f5029547dd35aaa523b55706bfbaa596635c/CookCountySherr_Cellbrite_Redacted.pdf",
+      "source_commit": "8a47f5029547dd35aaa523b55706bfbaa596635c",
+      "github_blob_sha": "2adebaeaf986f0dc7266581b62cf2da34041363b",
+      "content_type": "application/pdf",
+      "overrides": {
+        "document_type": "proposal"
+      },
+      "expected": {
+        "outcome": "characterize",
+        "source_truth": "mixed requisition, authorization and vendor quote packet"
+      },
+      "sha256": "72ff43f69f834804dacf89ae0bd6009533349f92c5353519ca672bb57b59afee"
+    },
+    {
+      "id": "lpl-cellebrite-foia-15-3895",
+      "category": "real_public_financial_packet_pdf",
+      "publisher": "Chicago Police Department record obtained by Lucy Parsons Labs via FOIA",
+      "filename": "cellebrite-foia-15-3895.pdf",
+      "url": "https://raw.githubusercontent.com/lucyparsons/1505-documents/8a47f5029547dd35aaa523b55706bfbaa596635c/CelleBriteFOIA15-3895.pdf",
+      "source_commit": "8a47f5029547dd35aaa523b55706bfbaa596635c",
+      "github_blob_sha": "6b68667d8f4d71fb982c33d0e04ab8f8d7756662",
+      "content_type": "application/pdf",
+      "overrides": {
+        "document_type": "invoice"
+      },
+      "expected": {
+        "outcome": "characterize",
+        "source_truth": "FOIA response packet containing commercial records"
+      },
+      "sha256": "d899c565ba7c81b4626239947d6c9691279f29cd9f10d985e1f3bbb7ea972d06"
+    },
+    {
+      "id": "lpl-cpd-foia-15-2549",
+      "category": "real_public_financial_packet_pdf",
+      "publisher": "Chicago Police Department record obtained by Lucy Parsons Labs via FOIA",
+      "filename": "cpd-foia-15-2549.pdf",
+      "url": "https://raw.githubusercontent.com/lucyparsons/1505-documents/8a47f5029547dd35aaa523b55706bfbaa596635c/CPD%20FOIA%2015-2549.pdf",
+      "source_commit": "8a47f5029547dd35aaa523b55706bfbaa596635c",
+      "github_blob_sha": "5445de7de283ecc4754d391edb7cf08643adad48",
+      "content_type": "application/pdf",
+      "overrides": {
+        "document_type": "invoice"
+      },
+      "expected": {
+        "outcome": "characterize",
+        "source_truth": "FOIA financial records packet"
+      },
+      "sha256": "b7464397f0f9aa22a0e96860309167b6a6f90416d8ff09a31fe1befb83bfc9a4"
+    },
+    {
+      "id": "lpl-cpd-checks-15-4684",
+      "category": "real_public_financial_packet_pdf",
+      "publisher": "Chicago Police Department record obtained by Lucy Parsons Labs via FOIA",
+      "filename": "cpd-checks-15-4684.pdf",
+      "url": "https://raw.githubusercontent.com/lucyparsons/1505-documents/8a47f5029547dd35aaa523b55706bfbaa596635c/CPD_FOIA15-4684RequestForChecks.pdf",
+      "source_commit": "8a47f5029547dd35aaa523b55706bfbaa596635c",
+      "github_blob_sha": "033a611815811e00b342e606ac1bf34171892846",
+      "content_type": "application/pdf",
+      "overrides": {
+        "document_type": "payment"
+      },
+      "expected": {
+        "outcome": "characterize",
+        "source_truth": "request-for-checks packet with financial attachments"
+      },
+      "sha256": "881c052ec600df63afeba4b439271e33b3f0a99ba1a94d812f20e48818ca745a"
+    },
+    {
+      "id": "lpl-cpd-checks-15-5293",
+      "category": "real_public_financial_packet_pdf",
+      "publisher": "Chicago Police Department record obtained by Lucy Parsons Labs via FOIA",
+      "filename": "cpd-checks-15-5293.pdf",
+      "url": "https://raw.githubusercontent.com/lucyparsons/1505-documents/8a47f5029547dd35aaa523b55706bfbaa596635c/CPD_FOIA15-5293RequestForChecks.pdf",
+      "source_commit": "8a47f5029547dd35aaa523b55706bfbaa596635c",
+      "github_blob_sha": "597a02cf3390061e8c005e8a3db94286647554b4",
+      "content_type": "application/pdf",
+      "overrides": {
+        "document_type": "payment"
+      },
+      "expected": {
+        "outcome": "characterize",
+        "source_truth": "request-for-checks packet with invoices or supporting records"
+      },
+      "sha256": "b9196b778c3c9e9dcb8699bc5e64caefd1b76603db68ef2a2ffe97ed1d6fb574"
+    },
+    {
+      "id": "lpl-cpd-checks-15-5691",
+      "category": "real_public_financial_packet_pdf",
+      "publisher": "Chicago Police Department record obtained by Lucy Parsons Labs via FOIA",
+      "filename": "cpd-checks-15-5691.pdf",
+      "url": "https://raw.githubusercontent.com/lucyparsons/1505-documents/8a47f5029547dd35aaa523b55706bfbaa596635c/CPD_FOIA15-5691RequestForChecks.pdf",
+      "source_commit": "8a47f5029547dd35aaa523b55706bfbaa596635c",
+      "github_blob_sha": "7e6346f0a25ab30cb2d5d065c0b047fe3cddf0dd",
+      "content_type": "application/pdf",
+      "overrides": {
+        "document_type": "payment"
+      },
+      "expected": {
+        "outcome": "characterize",
+        "source_truth": "request-for-checks packet with invoices or supporting records"
+      },
+      "sha256": "4c59ad452058652aa017ab7da62db0d01bf7a28a0d73dea933aed02a21945066"
+    },
+    {
+      "id": "lpl-cpd-foia-15-6571",
+      "category": "real_public_financial_packet_pdf",
+      "publisher": "Chicago Police Department record obtained by Lucy Parsons Labs via FOIA",
+      "filename": "cpd-foia-15-6571.pdf",
+      "url": "https://raw.githubusercontent.com/lucyparsons/1505-documents/8a47f5029547dd35aaa523b55706bfbaa596635c/CPD_FOIA15-6571.pdf",
+      "source_commit": "8a47f5029547dd35aaa523b55706bfbaa596635c",
+      "github_blob_sha": "aef905d9bb143cf2b260a9c1c433a86d4c4cfb71",
+      "content_type": "application/pdf",
+      "overrides": {
+        "document_type": "invoice"
+      },
+      "expected": {
+        "outcome": "characterize",
+        "source_truth": "FOIA packet containing invoices"
+      },
+      "sha256": "25a0a6d1a444fb78264e5a07e501f8b8cdbf3ee3836bfa40c65f67547eb2bdf7"
+    },
+    {
+      "id": "lpl-cpd-checks-15-6690",
+      "category": "real_public_financial_packet_pdf",
+      "publisher": "Chicago Police Department record obtained by Lucy Parsons Labs via FOIA",
+      "filename": "cpd-checks-15-6690.pdf",
+      "url": "https://raw.githubusercontent.com/lucyparsons/1505-documents/8a47f5029547dd35aaa523b55706bfbaa596635c/CPD_FOIA15-6690RequestForChecks.pdf",
+      "source_commit": "8a47f5029547dd35aaa523b55706bfbaa596635c",
+      "github_blob_sha": "99902d5d4ce5d56f77d10786bf6dac2f8e9b3d5d",
+      "content_type": "application/pdf",
+      "overrides": {
+        "document_type": "payment"
+      },
+      "expected": {
+        "outcome": "characterize",
+        "source_truth": "request-for-checks packet with invoices or supporting records"
+      },
+      "sha256": "4a14482d6489e65e8dd95b94d8247a5c7a4196808b815ba1e087485ec7555690"
+    },
+    {
+      "id": "lpl-cpd-checks-15-6708",
+      "category": "real_public_financial_packet_pdf",
+      "publisher": "Chicago Police Department record obtained by Lucy Parsons Labs via FOIA",
+      "filename": "cpd-checks-15-6708.pdf",
+      "url": "https://raw.githubusercontent.com/lucyparsons/1505-documents/8a47f5029547dd35aaa523b55706bfbaa596635c/CPD_FOIA15-6708RequestForChecks.pdf",
+      "source_commit": "8a47f5029547dd35aaa523b55706bfbaa596635c",
+      "github_blob_sha": "9f7eecbd87422f85b5ec48e694cddcc3840d4405",
+      "content_type": "application/pdf",
+      "overrides": {
+        "document_type": "payment"
+      },
+      "expected": {
+        "outcome": "characterize",
+        "source_truth": "request-for-checks packet with invoices or supporting records"
+      },
+      "sha256": "3d987120151ddcd68a27d3b25df14b2b24a2becd1524ff281410796fc944c24f"
+    },
+    {
+      "id": "lpl-cpd-checks-15-7069",
+      "category": "real_public_financial_packet_pdf",
+      "publisher": "Chicago Police Department record obtained by Lucy Parsons Labs via FOIA",
+      "filename": "cpd-checks-15-7069.pdf",
+      "url": "https://raw.githubusercontent.com/lucyparsons/1505-documents/8a47f5029547dd35aaa523b55706bfbaa596635c/CPD_FOIA15-7069RequestForChecks.pdf",
+      "source_commit": "8a47f5029547dd35aaa523b55706bfbaa596635c",
+      "github_blob_sha": "c0b9ae4cadace0cd5673a24c7abfa687d2075f38",
+      "content_type": "application/pdf",
+      "overrides": {
+        "document_type": "payment"
+      },
+      "expected": {
+        "outcome": "characterize",
+        "source_truth": "request-for-checks packet with invoices or supporting records"
+      },
+      "sha256": "b78231e7cbef9c5add5e822b5297ad6829bc2d860b976a6d7bbe56bcc7c5836b"
+    },
+    {
+      "id": "lpl-cpd-imsi-response",
+      "category": "real_public_financial_packet_pdf",
+      "publisher": "Chicago Police Department record obtained by Lucy Parsons Labs via FOIA",
+      "filename": "cpd-imsi-response.pdf",
+      "url": "https://raw.githubusercontent.com/lucyparsons/1505-documents/8a47f5029547dd35aaa523b55706bfbaa596635c/IMSICatchers/CPD_FOIA14-5298%20Response.pdf",
+      "source_commit": "8a47f5029547dd35aaa523b55706bfbaa596635c",
+      "github_blob_sha": "a9338251e8aaf21788e4fae6b72dd72f0e60d5ed",
+      "content_type": "application/pdf",
+      "overrides": {
+        "document_type": "invoice"
+      },
+      "expected": {
+        "outcome": "characterize",
+        "source_truth": "FOIA packet containing procurement and invoice material"
+      },
+      "sha256": "5b7e9a70718fb2b6680769dec469570d5e31c3a4c0ce336ae161cb4f3b1dc0c8"
+    },
+    {
+      "id": "lpl-cpd-imsi-hailstorm",
+      "category": "real_public_financial_packet_pdf",
+      "publisher": "Chicago Police Department record obtained by Lucy Parsons Labs via FOIA",
+      "filename": "cpd-imsi-hailstorm.pdf",
+      "url": "https://raw.githubusercontent.com/lucyparsons/1505-documents/8a47f5029547dd35aaa523b55706bfbaa596635c/IMSICatchers/CPD_FOIA14-5298Hailstorm.pdf",
+      "source_commit": "8a47f5029547dd35aaa523b55706bfbaa596635c",
+      "github_blob_sha": "ee6a6ff0b43157471a0c3456cd6a93394f3b80b8",
+      "content_type": "application/pdf",
+      "overrides": {
+        "document_type": "invoice"
+      },
+      "expected": {
+        "outcome": "characterize",
+        "source_truth": "public procurement/supporting financial document"
+      },
+      "sha256": "5252cea9cb2d850e987e8681badea7a4c153cce1c55e883119ebf584aa49c908"
+    },
+    {
+      "id": "lpl-ccso-money-laundering",
+      "category": "real_public_financial_packet_pdf",
+      "publisher": "Cook County Sheriff's Office record obtained by Lucy Parsons Labs via FOIA",
+      "filename": "ccso-money-laundering-redacted.pdf",
+      "url": "https://raw.githubusercontent.com/lucyparsons/1505-documents/8a47f5029547dd35aaa523b55706bfbaa596635c/CCSO/CCSO_FOIA1505_Money_Laundering_Redacted.pdf",
+      "source_commit": "8a47f5029547dd35aaa523b55706bfbaa596635c",
+      "github_blob_sha": "66492e23ec8ef0f622032ae227ce0fb324a9c8db",
+      "content_type": "application/pdf",
+      "overrides": {
+        "document_type": "payment"
+      },
+      "expected": {
+        "outcome": "characterize",
+        "source_truth": "public financial/forfeiture packet"
+      },
+      "sha256": "7c3022e6716aa137ede3f77a926d127fd704916e94a41598d60bf3bbd6d9e522"
+    },
+    {
+      "id": "vida-hp001-at-be",
+      "category": "external_standard_xml",
+      "publisher": "OpenPeppol",
+      "filename": "NW-HP-001.AT-BE.PeppolBIS.xml",
+      "url": "https://raw.githubusercontent.com/OpenPEPPOL/vida-pilot-testing/4a2506b2671d8811d469bd1190ff586d5d3d119e/NW-HP-001/NW-HP-001.AT-BE.PeppolBIS.xml",
+      "source_commit": "4a2506b2671d8811d469bd1190ff586d5d3d119e",
+      "github_blob_sha": "f3afc0b3e8415e5c6cea7d291d8a56a317b7e5cf",
+      "content_type": "application/xml",
+      "overrides": {},
+      "expected": {
+        "outcome": "parse",
+        "document_type": "invoice",
+        "minimum_lines": 2,
+        "currency": "EUR"
+      },
+      "sha256": "32bba956c43b2a0d494b282c894d3df4974758972f0a7e995bccd5c0af7f002f"
+    },
+    {
+      "id": "vida-hp002-at-no",
+      "category": "external_standard_xml",
+      "publisher": "OpenPeppol",
+      "filename": "NW-HP-002.AT-NO.PeppolBIS.xml",
+      "url": "https://raw.githubusercontent.com/OpenPEPPOL/vida-pilot-testing/4a2506b2671d8811d469bd1190ff586d5d3d119e/NW-HP-002/NW-HP-002.AT-NO.PeppolBIS.xml",
+      "source_commit": "4a2506b2671d8811d469bd1190ff586d5d3d119e",
+      "github_blob_sha": "3ca0142b4126e20417d142092f08f0f7555dbe9e",
+      "content_type": "application/xml",
+      "overrides": {},
+      "expected": {
+        "outcome": "parse",
+        "document_type": "invoice",
+        "minimum_lines": 2,
+        "currency": "EUR"
+      },
+      "sha256": "83e7914ea273bfa96909c683adc0297cbcac94843e5bad536454f021035840dd"
+    },
+    {
+      "id": "vida-hp006-at-be",
+      "category": "external_standard_xml",
+      "publisher": "OpenPeppol",
+      "filename": "NW-HP-006.AT-BE.PeppolBIS.xml",
+      "url": "https://raw.githubusercontent.com/OpenPEPPOL/vida-pilot-testing/4a2506b2671d8811d469bd1190ff586d5d3d119e/NW-HP-006/NW-HP-006.AT-BE.PeppolBIS.xml",
+      "source_commit": "4a2506b2671d8811d469bd1190ff586d5d3d119e",
+      "github_blob_sha": "a83582fca348e1153b50e6a4544aca959b313b5f",
+      "content_type": "application/xml",
+      "overrides": {},
+      "expected": {
+        "outcome": "parse",
+        "document_type": "invoice",
+        "minimum_lines": 2,
+        "currency": "EUR"
+      },
+      "sha256": "d97a750b68d4229325ef49c20a50222c68fb14a17199376785df6cc64b82f0de"
+    },
+    {
+      "id": "vida-hp008-at-be",
+      "category": "external_standard_xml",
+      "publisher": "OpenPeppol",
+      "filename": "NW-HP-008.AT-BE.PeppolBIS.xml",
+      "url": "https://raw.githubusercontent.com/OpenPEPPOL/vida-pilot-testing/4a2506b2671d8811d469bd1190ff586d5d3d119e/NW-HP-008/NW-HP-008.AT-BE.PeppolBIS.xml",
+      "source_commit": "4a2506b2671d8811d469bd1190ff586d5d3d119e",
+      "github_blob_sha": "ca1ced1484e8a3bf8b577868c4430d95d2409a64",
+      "content_type": "application/xml",
+      "overrides": {},
+      "expected": {
+        "outcome": "parse",
+        "document_type": "credit_note",
+        "minimum_lines": 2,
+        "currency": "EUR"
+      },
+      "sha256": "99483c5566f8c8ebbae890ece86a08a4d7e5b123d0015e066ef85ecf4da47e22"
+    },
+    {
+      "id": "peppol-base-example",
+      "category": "external_standard_xml",
+      "publisher": "OpenPeppol",
+      "filename": "base-example.xml",
+      "url": "https://raw.githubusercontent.com/OpenPEPPOL/peppol-bis-invoice-3/261c458474e27d58a25be629cccac28883171c92/rules/examples/base-example.xml",
+      "source_commit": "261c458474e27d58a25be629cccac28883171c92",
+      "content_type": "application/xml",
+      "overrides": {},
+      "expected": {
+        "outcome": "parse",
+        "document_type": "invoice",
+        "minimum_lines": 1,
+        "currency": "EUR"
+      },
+      "sha256": "1b7cc3ff1834c8963f2c93f30f171b58002cbf0b2c52dc8765e7e83aebb9f7c9"
+    },
+    {
+      "id": "en16931-creditnote1",
+      "category": "external_edge_xml",
+      "publisher": "ConnectingEurope",
+      "filename": "ubl-tc434-creditnote1.xml",
+      "url": "https://raw.githubusercontent.com/ConnectingEurope/eInvoicing-EN16931/b6c9e06a59812fb1a83585da40923b3678a649ad/ubl/examples/ubl-tc434-creditnote1.xml",
+      "source_commit": "b6c9e06a59812fb1a83585da40923b3678a649ad",
+      "github_blob_sha": "b9380fb3d8afe60a4396dd56860502af3f89b3d9",
+      "content_type": "application/xml",
+      "overrides": {},
+      "expected": {
+        "outcome": "parse",
+        "document_type": "credit_note",
+        "minimum_lines": 1
+      },
+      "sha256": "911d7ac2cb4fa72d21331c76914468e7d94eda03629e0def75c64ab18e3e9dce"
+    },
+    {
+      "id": "en16931-negative-example",
+      "category": "external_conformance_negative_xml",
+      "publisher": "ConnectingEurope",
+      "filename": "BIS3_Invoice_negativ.XML",
+      "url": "https://raw.githubusercontent.com/ConnectingEurope/eInvoicing-EN16931/b6c9e06a59812fb1a83585da40923b3678a649ad/ubl/examples/BIS3_Invoice_negativ.XML",
+      "source_commit": "b6c9e06a59812fb1a83585da40923b3678a649ad",
+      "github_blob_sha": "05c21d2bcb4d7d4527d806d2ee28e7f178e614f8",
+      "content_type": "application/xml",
+      "overrides": {},
+      "expected": {
+        "outcome": "parse",
+        "document_type": "invoice",
+        "minimum_lines": 1,
+        "standards_conformance": "negative_test_material_not_validated_by_structural_parser"
+      },
+      "sha256": "8563b0537944baa16b85980e6bf95cb95c22df71cde946952d22c2a90e7315a7"
+    }
+  ]
+}

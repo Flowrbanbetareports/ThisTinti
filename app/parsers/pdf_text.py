@@ -321,10 +321,237 @@ def _extract_labelled_lines(
     return lines, warnings
 
 
+MONEY_TOKEN_RE = re.compile(
+    r"(?<!\w)(?:US\s*)?\$\s*[0-9OIl][0-9OIl.,? ]*[0-9OIl](?!\w)",
+    re.IGNORECASE,
+)
+STRONG_DOCUMENT_ID_RE = re.compile(
+    r"\b(?:QUO|INV|INVOICE|PO|ORD|ORDER)[-_/][A-Z0-9][A-Z0-9._/-]{2,80}\b",
+    re.IGNORECASE,
+)
+LABELLED_DOCUMENT_ID_RE = re.compile(
+    r"(?:^|\n)\s*(?:QUOTE|QUOTATION|INVOICE|DOCUMENT|DOCUMENTO|NUMERO|NUMBER)"
+    r"\s*(?:#|NO\.?|N\.?|NUMBER|NUMERO)?\s*[:=-]?\s*"
+    r"([A-Z0-9][A-Z0-9._/'~-]{2,80})",
+    re.IGNORECASE,
+)
+
+
+def _normalize_document_id(value: str) -> str | None:
+    normalized = unicodedata.normalize("NFKC", value).upper().strip()
+    normalized = normalized.replace("–", "-").replace("—", "-").replace("~", "-")
+    normalized = normalized.replace("'", "").replace('"', "")
+    normalized = re.sub(r"^[^A-Z0-9]+|[^A-Z0-9]+$", "", normalized)
+    normalized = re.sub(r"-{2,}", "-", normalized)
+    if not re.fullmatch(r"[A-Z0-9][A-Z0-9._/-]{2,80}", normalized):
+        return None
+    if not re.search(r"[A-Z]", normalized) or not re.search(r"\d", normalized):
+        return None
+    return normalized
+
+
+def _extract_document_number(text: str) -> tuple[str | None, dict[str, Any]]:
+    candidates: list[tuple[int, str, str]] = []
+    for match in STRONG_DOCUMENT_ID_RE.finditer(text):
+        candidate = _normalize_document_id(match.group(0))
+        if candidate:
+            candidates.append((5, candidate, "strong_business_id"))
+    for match in LABELLED_DOCUMENT_ID_RE.finditer(text):
+        candidate = _normalize_document_id(match.group(1))
+        if candidate:
+            candidates.append((6, candidate, "explicit_label"))
+
+    if not candidates:
+        return None, {"status": "abstained", "reason": "no_reliable_candidate", "candidates": []}
+
+    best_score = max(score for score, _, _ in candidates)
+    best = [(value, source) for score, value, source in candidates if score == best_score]
+    counts: dict[str, int] = {}
+    for value, _ in best:
+        counts[value] = counts.get(value, 0) + 1
+    top_count = max(counts.values())
+    winners = sorted(value for value, count in counts.items() if count == top_count)
+    if len(winners) != 1:
+        return None, {
+            "status": "abstained",
+            "reason": "conflicting_candidates",
+            "candidates": [value for _, value, _ in candidates],
+        }
+    winner = winners[0]
+    source = next(source for value, source in best if value == winner)
+    return winner, {
+        "status": "recognized",
+        "source": source,
+        "score": best_score,
+        "candidates": [value for _, value, _ in candidates],
+    }
+
+
+def _extract_currency(text: str) -> tuple[str, dict[str, Any]]:
+    upper = text.upper()
+    usd_explicit = bool(re.search(r"\bUSD\b|\bUS\s*DOLLARS?\b|US\s*\$", upper))
+    eur_explicit = bool(re.search(r"\bEUR\b|\bEURO\b|€", upper))
+    dollar_symbol = "$" in text
+    if usd_explicit or (dollar_symbol and not eur_explicit):
+        if eur_explicit:
+            return "UNK", {"status": "abstained", "reason": "conflicting_currency_evidence"}
+        return "USD", {
+            "status": "recognized",
+            "source": "explicit_usd" if usd_explicit else "unambiguous_dollar_symbol",
+        }
+    if eur_explicit:
+        return "EUR", {"status": "recognized", "source": "explicit_eur"}
+    return "UNK", {"status": "abstained", "reason": "no_currency_evidence"}
+
+
+def _money_decimal(token: str) -> Decimal | None:
+    cleaned = token.upper().replace("US", "").replace("$", "").replace(" ", "")
+    cleaned = cleaned.translate(str.maketrans({"O": "0", "I": "1", "L": "1"}))
+    cleaned = re.sub(r"[^0-9.,]", "", cleaned)
+    if not cleaned or not re.search(r"\d", cleaned):
+        return None
+    separators = [index for index, char in enumerate(cleaned) if char in ",."]
+    if separators:
+        last = separators[-1]
+        decimals = len(cleaned) - last - 1
+        if decimals == 2:
+            integer = re.sub(r"[.,]", "", cleaned[:last]) or "0"
+            cleaned = f"{integer}.{cleaned[last + 1 :]}"
+        else:
+            cleaned = re.sub(r"[.,]", "", cleaned)
+    try:
+        value = Decimal(cleaned)
+    except Exception:
+        return None
+    if not value.is_finite() or value < 0:
+        return None
+    return value
+
+
+def _money_values(line: str) -> list[Decimal]:
+    values: list[Decimal] = []
+    for match in MONEY_TOKEN_RE.finditer(line):
+        value = _money_decimal(match.group(0))
+        if value is not None:
+            values.append(value)
+    return values
+
+
+def _business_line(
+    *,
+    line_no: int,
+    quantity: Decimal,
+    description: str,
+    unit_price: Decimal,
+    source_total: Decimal | None,
+    used_ocr: bool,
+    extraction_method: object,
+    source: str,
+) -> ParsedLine:
+    derived = quantity * unit_price
+    delta = None if source_total is None else abs(source_total - derived)
+    consistent = None if delta is None else delta <= max(TOTAL_TOLERANCE, derived * Decimal("0.02"))
+    confidence = 0.52 if used_ocr else 0.68
+    if consistent is True:
+        confidence += 0.05
+    elif consistent is False:
+        confidence -= 0.15
+    return ParsedLine(
+        line_no=line_no,
+        description=re.sub(r"\s+", " ", description).strip()[:1000],
+        quantity=quantity,
+        unit_price=unit_price,
+        line_total=derived,
+        confidence=max(0.20, min(confidence, 0.78)),
+        raw={
+            "extraction_method": extraction_method,
+            "line_extraction_method": source,
+            "source_line_total": None if source_total is None else str(source_total),
+            "derived_line_total": str(derived),
+            "line_total_consistent": consistent,
+            "numeric_provenance": {
+                "quantity": "source",
+                "unit_price": "source",
+                "price_base_quantity": "defaulted",
+                "discount_rate": "missing",
+                "tax_rate": "missing",
+                "line_total": "derived_checked_against_source" if source_total is not None else "derived",
+            },
+        },
+    )
+
+
+def _extract_business_rows(
+    text: str,
+    *,
+    used_ocr: bool,
+    extraction_method: object,
+) -> list[ParsedLine]:
+    parsed: list[ParsedLine] = []
+    pending: list[tuple[int, Decimal, str]] = []
+    price_rows: list[tuple[int, list[Decimal]]] = []
+    for line_no, raw_line in enumerate(text.splitlines(), start=1):
+        line = re.sub(r"\s+", " ", raw_line).strip()
+        if not line:
+            continue
+        item = re.match(r"^(\d{1,5})\s+(?![.\d])(.{4,})$", line)
+        if not item:
+            continue
+        quantity = Decimal(item.group(1))
+        remainder = item.group(2).strip()
+        amounts = _money_values(remainder)
+        description = MONEY_TOKEN_RE.sub(" ", remainder)
+        description = re.sub(r"\s+", " ", description).strip(" -|.")
+        if amounts and description:
+            unit_price = amounts[-2] if len(amounts) >= 2 else amounts[-1]
+            source_total = amounts[-1] if len(amounts) >= 2 else None
+            parsed.append(
+                _business_line(
+                    line_no=line_no,
+                    quantity=quantity,
+                    description=description,
+                    unit_price=unit_price,
+                    source_total=source_total,
+                    used_ocr=used_ocr,
+                    extraction_method=extraction_method,
+                    source="ocr_inline_business_row",
+                )
+            )
+        elif not amounts and len(description) >= 6:
+            pending.append((line_no, quantity, description))
+
+    if parsed:
+        return parsed
+
+    for line_no, raw_line in enumerate(text.splitlines(), start=1):
+        amounts = _money_values(raw_line)
+        if len(amounts) >= 2:
+            price_rows.append((line_no, amounts))
+    if not pending or len(price_rows) < len(pending):
+        return []
+    for (line_no, quantity, description), (_, amounts) in zip(pending, price_rows, strict=False):
+        unit_price = amounts[-2]
+        source_total = amounts[-1]
+        parsed.append(
+            _business_line(
+                line_no=line_no,
+                quantity=quantity,
+                description=description,
+                unit_price=unit_price,
+                source_total=source_total,
+                used_ocr=used_ocr,
+                extraction_method=extraction_method,
+                source="ocr_aligned_business_rows",
+            )
+        )
+    return parsed
+
+
 def parse_pdf(path: Path, overrides: dict) -> ParsedDocument:
     text, extraction_metadata, used_ocr = _extract_text(path)
 
-    number_match = re.search(r"(?:NUMERO|N\.?|DOCUMENTO)\s*[:#-]?\s*([A-Z0-9/_-]{2,})", text, re.I)
+    number_value, number_metadata = _extract_document_number(text)
+    currency_value, currency_metadata = _extract_currency(text)
     date_match = re.search(r"\b(\d{2}[/-]\d{2}[/-]\d{4}|\d{4}-\d{2}-\d{2})\b", text)
     base_confidence = 0.45 if used_ocr else 0.58
     references: dict[str, list[str]] = {}
@@ -356,12 +583,18 @@ def parse_pdf(path: Path, overrides: dict) -> ParsedDocument:
 
     doc = ParsedDocument(
         document_type=overrides.get("document_type"),
-        number=overrides.get("number") or (number_match.group(1) if number_match else None),
+        number=overrides.get("number") or number_value,
         document_date=parse_date(overrides.get("document_date") or (date_match.group(1) if date_match else None)),
+        currency=overrides.get("currency") or currency_value,
         supplier_name=overrides.get("supplier_name") or _extract_supplier(text),
         references=references,
         confidence=base_confidence,
-        metadata={**extraction_metadata, "text_preview": text[:1000]},
+        metadata={
+            **extraction_metadata,
+            "text_preview": text[:1000],
+            "document_number_recognition": number_metadata,
+            "currency_recognition": currency_metadata,
+        },
     )
     if not doc.document_type:
         raise ParseError("Per i PDF è necessario indicare il tipo documento")
@@ -446,6 +679,17 @@ def parse_pdf(path: Path, overrides: dict) -> ParsedDocument:
             doc.metadata["labelled_line_count"] = len(labelled_lines)
         if labelled_warnings:
             doc.metadata["line_warnings"] = labelled_warnings
+
+    if not doc.lines and doc.document_type != "payment":
+        business_lines = _extract_business_rows(
+            text,
+            used_ocr=used_ocr,
+            extraction_method=extraction_metadata["extraction_method"],
+        )
+        if business_lines:
+            doc.lines.extend(business_lines)
+            doc.metadata["line_extraction_method"] = business_lines[0].raw["line_extraction_method"]
+            doc.metadata["business_line_count"] = len(business_lines)
 
     if not doc.lines and doc.document_type == "payment":
         payment_amount = _extract_payment_amount(text)

@@ -204,6 +204,45 @@ def main() -> int:
         if len(original_documents) != 1:
             raise RuntimeError(f"Expected one document, got {len(original_documents)}")
 
+        ocr_sample = ROOT / "samples" / "ocr_invoice.pdf"
+        with ocr_sample.open("rb") as source:
+            queued_ocr = client.post(
+                "/api/jobs/documents",
+                headers={**auth, "Idempotency-Key": "local-distribution-smoke-ocr-invoice"},
+                files={"file": ("ocr_invoice.pdf", source, "application/pdf")},
+                data={"document_type": "invoice"},
+            )
+        queued_ocr.raise_for_status()
+        ocr_job_id = queued_ocr.json()["job"]["id"]
+        ocr_job = wait_json(
+            client,
+            f"/api/jobs/{ocr_job_id}",
+            lambda response, payload: response.status_code == 200 and payload.get("status") in {"completed", "failed"},
+            timeout=120.0,
+            watched=[("server", server, logs / "server.log"), ("worker", worker, logs / "worker.log")],
+        )
+        if ocr_job["status"] != "completed":
+            raise RuntimeError(
+                f"Frozen local OCR job failed: {ocr_job}\n"
+                f"{process_diagnostics([('worker', worker, logs / 'worker.log')])}"
+            )
+        ocr_documents_response = client.get("/api/documents", headers=auth)
+        ocr_documents_response.raise_for_status()
+        ocr_documents = [
+            item for item in ocr_documents_response.json() if item.get("source_filename") == "ocr_invoice.pdf"
+        ]
+        if len(ocr_documents) != 1:
+            raise RuntimeError(f"Expected exactly one OCR smoke document, got {len(ocr_documents)}")
+        ocr_document = ocr_documents[0]
+        if ocr_document.get("document_type") != "invoice" or ocr_document.get("number") != "INV-OCR-123":
+            raise RuntimeError(f"Frozen Windows OCR extraction mismatch: {ocr_document}")
+        report["ocr"] = {
+            "job": ocr_job["status"],
+            "document_type": ocr_document.get("document_type"),
+            "number": ocr_document.get("number"),
+            "line_count": ocr_document.get("line_count"),
+        }
+
         exported = client.get("/api/export", headers=auth)
         exported.raise_for_status()
         if len(exported.content) < 100 or "zip" not in exported.headers.get("content-type", "").lower():
