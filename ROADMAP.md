@@ -1,18 +1,18 @@
 # Roadmap di ThisTinti
 
-## Stato attuale — 3.4.0-alpha.7-rc.14 Public Preview
+## Stato attuale — 3.4.0-alpha.7-rc.15 RC15 Pilot-Ready — Public Preview
 
-La Public Preview corrente è `3.4.0-alpha.7-rc.14`. RC14 consolida l’hardening del repository e della distribuzione: benchmark pubblico con metodologia resa fail-closed e provenienza verificata, salvaguardie OCR/PDF più conservative, restore staged/esatto, recupero dei job dopo errori transazionali e aggiornamento Windows verificato anche mentre la versione precedente è in esecuzione.
+La Public Preview corrente è `3.4.0-alpha.7-rc.15`. RC15 completa il workflow supervisionato di pratica, il lifecycle auditabile delle segnalazioni, il pilot workspace integrato, il profilo azienda versionato e le operazioni esplicite di export, archivio e cancellazione, mantenendo gli hardening documentali e di distribuzione consolidati nelle release precedenti.
 
-La RC14 è stata costruita e verificata sul commit applicativo `6bbb980256869896bf66f0e125ccff6c047540e3`, tree `ab827cbc9b5aa408e8c9e50c8868bf62ab444208`, Windows run `33104580870` / build `477`. L’installer pubblicato ha SHA-256 `87c7f720566d003399e816fddd3f4c2ecc4c321d53083f27aeda6eef53b7c0d0`.
+La RC15 è stata costruita e verificata sul commit applicativo `0c99155d17374ce195db4ec65200a8edcf1bcdd1`, tree `8e91471fbaa833c10011e1863cd0049740c64225`, Windows run `33125242692` / build `513`. L’installer pubblicato ha SHA-256 `48429173e92ff189d1d968609749695a8ac9354519710850e61fd954c7d9c832`.
 
-La RC13 resta la prerelease storica dell’hotfix di sicurezza `pypdf` 6.14.2 → 6.15.0 per `PYSEC-2026-3655` e `PYSEC-2026-3656`; RC14 la sostituisce come versione da usare per i collaudi successivi. La pubblicazione di RC14 non rimuove i gate esterni: resta una Public Preview supervisionata, non una beta validata o una release di produzione.
+La RC14 resta la prerelease storica che ha consolidato benchmark, PDF/OCR, backup/restore e aggiornamento Windows; RC15 la sostituisce come versione da usare per i collaudi successivi. La pubblicazione di RC15 non rimuove i gate esterni: resta una Public Preview supervisionata, non una beta validata o una release di produzione.
 
 Il percorso verso la 1.0 è definito in `docs/ROADMAP_TO_1_0.md`. Una nuova versione non viene creata per inerzia: deve essere giustificata da difetti riproducibili, rischi per dati o risultati, rilievi UX/accessibilità, evidenze del pilot o necessità di manutenzione/sicurezza.
 
-## Priorità immediata — collaudo umano RC14
+## Priorità immediata — collaudo umano RC15
 
-La priorità dopo la pubblicazione è il collaudo end-to-end della RC14 installata:
+La priorità dopo la pubblicazione è il collaudo end-to-end della RC15 installata:
 
 - installazione e primo avvio su Windows reale;
 - percorso demo, worker, attività, retry, riavvio e persistenza;

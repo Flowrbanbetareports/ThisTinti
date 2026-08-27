@@ -1,8 +1,8 @@
-# Manuale operativo — ThisTinti 3.4.0-alpha.7-rc.14 — Public Preview
+# Manuale operativo — ThisTinti 3.4.0-alpha.7-rc.15 — Public Preview
 
-Questa guida descrive i profili e i controlli operativi disponibili nella Public Preview RC14. La presenza di un profilo `production` e dei relativi controlli fail-closed non costituisce certificazione di produzione: restano necessari i gate esterni descritti in `docs/PRODUCTION_READINESS.md`.
+Questa guida descrive i profili e i controlli operativi disponibili nella Public Preview RC15. La presenza di un profilo `production` e dei relativi controlli fail-closed non costituisce certificazione di produzione: restano necessari i gate esterni descritti in `docs/PRODUCTION_READINESS.md`.
 
-RC14 è una prerelease pubblicata e verificabile; non è una beta validata né una release di produzione.
+RC15 è una prerelease pubblicata e verificabile; non è una beta validata né una release di produzione.
 
 ## Profili di ambiente
 
@@ -128,7 +128,7 @@ python scripts/restore_backup.py /secure-backups/thistinti-2026-08-26.zip \
   --storage-dir /restore/data
 ```
 
-Il restore non sovrascrive destinazioni esistenti senza opzione esplicita. In RC14 il ripristino viene preparato in staging prima della sostituzione: con `--force` lo storage di destinazione viene rimpiazzato esattamente, evitando file residui; per PostgreSQL il restore usa una singola transazione quando supportato. Per PostgreSQL usare un database destinazione appropriato e la conferma richiesta dallo script.
+Il restore non sovrascrive destinazioni esistenti senza opzione esplicita. RC15 mantiene il ripristino preparato in staging prima della sostituzione: con `--force` lo storage di destinazione viene rimpiazzato esattamente, evitando file residui; per PostgreSQL il restore usa una singola transazione quando supportato. Per PostgreSQL usare un database destinazione appropriato e la conferma richiesta dallo script.
 
 Un backup è valido soltanto dopo una prova periodica di restore con readiness verde, download di un campione, audit valido e conteggi confrontati.
 

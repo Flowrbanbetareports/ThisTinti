@@ -1,11 +1,11 @@
 {
   "schema": "thistinti.windows-upgrade-baseline.v1",
-  "version": "3.4.0-alpha.7-rc.14",
-  "tag": "v3.4.0-alpha.7-rc.14",
-  "release_commit": "6bbb980256869896bf66f0e125ccff6c047540e3",
-  "installer": "ThisTinti-Setup-3.4.0-alpha.7-rc.14-x64.exe",
-  "sha256": "87c7f720566d003399e816fddd3f4c2ecc4c321d53083f27aeda6eef53b7c0d0",
-  "release_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/tag/v3.4.0-alpha.7-rc.14",
-  "verified_at": "2026-08-27T19:00:15Z",
+  "version": "3.4.0-alpha.7-rc.15",
+  "tag": "v3.4.0-alpha.7-rc.15",
+  "release_commit": "0c99155d17374ce195db4ec65200a8edcf1bcdd1",
+  "installer": "ThisTinti-Setup-3.4.0-alpha.7-rc.15-x64.exe",
+  "sha256": "48429173e92ff189d1d968609749695a8ac9354519710850e61fd954c7d9c832",
+  "release_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/tag/v3.4.0-alpha.7-rc.15",
+  "verified_at": "2026-08-27T23:32:18Z",
   "verification_source": "GitHub release tag commit and installer asset digest"
 }

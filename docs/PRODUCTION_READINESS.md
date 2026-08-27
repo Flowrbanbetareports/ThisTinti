@@ -1,6 +1,6 @@
-# Production readiness — ThisTinti 3.4.0-alpha.7-rc.14 — Public Preview, non produzione
+# Production readiness — ThisTinti 3.4.0-alpha.7-rc.15 — Public Preview, non produzione
 
-RC14 è pubblicata e verificabile come Public Preview. Questo documento elenca ciò che esiste tecnicamente e ciò che manca per un uso produttivo: la pubblicazione della prerelease non autorizza né implica la produzione.
+RC15 è pubblicata e verificabile come Public Preview. Questo documento elenca ciò che esiste tecnicamente e ciò che manca per un uso produttivo: la pubblicazione della prerelease non autorizza né implica la produzione.
 
 ## Gate tecnici interni implementati
 
@@ -24,10 +24,11 @@ RC14 è pubblicata e verificabile come Public Preview. Questo documento elenca c
 - calibrazione obbligatoria: pilot reale, almeno 30 scenari, motore corrente e approvazione amministrativa del run esatto prima di abilitare qualunque automazione suggerita dai controlli temporali;
 - vincoli database e revoca automatica dell'idoneità a ogni nuova validazione;
 - diagnostica locale integrata con verbale scaricabile; non sostituisce i gate esterni;
-- ciclo Windows RC14 verificato sul commit applicativo `6bbb980256869896bf66f0e125ccff6c047540e3` con Windows run `33104580870` / build `477`;
-- aggiornamento Windows RC14 verificato anche con la precedente alpha in esecuzione, inclusi chiusura del vecchio processo, smoke della versione aggiornata, diagnostica, disinstallazione e conservazione dei dati;
-- dependency audit RC14 verde; resta inclusa la correzione `pypdf` 6.14.2 → 6.15.0 per `PYSEC-2026-3655` e `PYSEC-2026-3656` introdotta in RC13;
-- hardening RC14 di backup/restore, worker recovery, OCR bundled fail-closed, parser PDF conservativo e governance degli artefatti CI.
+- ciclo Windows RC15 verificato sul commit applicativo `0c99155d17374ce195db4ec65200a8edcf1bcdd1` con Windows run `33125242692` / build `513`;
+- aggiornamento Windows RC14→RC15 verificato anche con RC14 in esecuzione, inclusi chiusura del vecchio processo, smoke della versione aggiornata, diagnostica, disinstallazione e conservazione dei dati;
+- dependency audit RC15 verde; resta inclusa la correzione `pypdf` 6.14.2 → 6.15.0 per `PYSEC-2026-3655` e `PYSEC-2026-3656` introdotta in RC13;
+- hardening di backup/restore, worker recovery, OCR bundled fail-closed, parser PDF conservativo e governance degli artefatti CI consolidati nelle release precedenti;
+- workflow supervisionato RC15 di pratica, lifecycle auditabile delle segnalazioni, pilot workspace, profilo azienda versionato ed export verificabile.
 
 ## Gate esterni obbligatori prima di dati sensibili in produzione
 
@@ -45,7 +46,7 @@ Misurare API, coda, worker, OCR, scanner, database e storage con volumi realisti
 
 ### 4. Scanner e supply chain
 
-Verificare daemon, aggiornamento firme e tempi di scansione. Eseguire `pip-audit` con rete e bloccare vulnerabilità non accettate. Gli artefatti pubblici RC14 hanno checksum, provenienza e attestazioni, ma la firma Authenticode resta un gate separato.
+Verificare daemon, aggiornamento firme e tempi di scansione. Eseguire `pip-audit` con rete e bloccare vulnerabilità non accettate. Gli artefatti pubblici RC15 hanno checksum, provenienza e attestazioni, ma la firma Authenticode resta un gate separato.
 
 ### 5. Sicurezza indipendente
 
