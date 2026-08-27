@@ -204,15 +204,63 @@ def test_rc15_service_validation_paths(client, auth):
                 note="Non disponibile",
             )
         invalid_economics = (
-            {"state": "estimated", "potential_exposure": Decimal("-1"), "confirmed_loss": None, "currency": "EUR", "note": "Negativo"},
-            {"state": "loss_confirmed", "potential_exposure": None, "confirmed_loss": Decimal("-1"), "currency": "EUR", "note": "Negativo"},
-            {"state": "not-a-state", "potential_exposure": None, "confirmed_loss": None, "currency": "EUR", "note": "Stato errato"},
-            {"state": "unknown", "potential_exposure": Decimal("1"), "confirmed_loss": None, "currency": "EUR", "note": "Ambiguo"},
-            {"state": "estimated", "potential_exposure": None, "confirmed_loss": None, "currency": "EUR", "note": "Senza importo"},
-            {"state": "confirmed_zero", "potential_exposure": None, "confirmed_loss": Decimal("1"), "currency": "EUR", "note": "Zero errato"},
-            {"state": "loss_confirmed", "potential_exposure": None, "confirmed_loss": Decimal("0"), "currency": "EUR", "note": "Perdita errata"},
+            {
+                "state": "estimated",
+                "potential_exposure": Decimal("-1"),
+                "confirmed_loss": None,
+                "currency": "EUR",
+                "note": "Negativo",
+            },
+            {
+                "state": "loss_confirmed",
+                "potential_exposure": None,
+                "confirmed_loss": Decimal("-1"),
+                "currency": "EUR",
+                "note": "Negativo",
+            },
+            {
+                "state": "not-a-state",
+                "potential_exposure": None,
+                "confirmed_loss": None,
+                "currency": "EUR",
+                "note": "Stato errato",
+            },
+            {
+                "state": "unknown",
+                "potential_exposure": Decimal("1"),
+                "confirmed_loss": None,
+                "currency": "EUR",
+                "note": "Ambiguo",
+            },
+            {
+                "state": "estimated",
+                "potential_exposure": None,
+                "confirmed_loss": None,
+                "currency": "EUR",
+                "note": "Senza importo",
+            },
+            {
+                "state": "confirmed_zero",
+                "potential_exposure": None,
+                "confirmed_loss": Decimal("1"),
+                "currency": "EUR",
+                "note": "Zero errato",
+            },
+            {
+                "state": "loss_confirmed",
+                "potential_exposure": None,
+                "confirmed_loss": Decimal("0"),
+                "currency": "EUR",
+                "note": "Perdita errata",
+            },
             {"state": "unknown", "potential_exposure": None, "confirmed_loss": None, "currency": "EUR", "note": "x"},
-            {"state": "unknown", "potential_exposure": None, "confirmed_loss": None, "currency": "E", "note": "Valuta errata"},
+            {
+                "state": "unknown",
+                "potential_exposure": None,
+                "confirmed_loss": None,
+                "currency": "E",
+                "note": "Valuta errata",
+            },
         )
         for values in invalid_economics:
             with pytest.raises(ValueError):
