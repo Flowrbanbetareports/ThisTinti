@@ -6,7 +6,7 @@ ThisTinti non decide, non approva e non certifica nulla. Organizza informazioni 
 
 ## Stato del rilascio
 
-Candidato Public Preview corrente: **3.4.0-alpha.7-rc.14**.
+Candidato corrente: **3.4.0-alpha.7-rc.14 — Public Preview**.
 
 RC14 consolida gli hardening e le evidenze post-RC13: benchmark controllato da 30 scenari, corpus esterno/raw da 22 documenti, irrobustimento PDF/OCR e backup/restore, oltre alla correzione dell’upgrade Windows quando una precedente installazione di ThisTinti è ancora in esecuzione.
 
@@ -43,7 +43,11 @@ La Local Edition è progettata per essere usata senza un servizio gestito da Thi
 - archivio portable e checksum SHA-256;
 - sorgente corrispondente incluso ed esportabile sotto licenza Apache 2.0.
 
-Fino alla pubblicazione verificata della RC14, la release pubblica precedente resta RC13:
+URL previsto per RC14, che diventa valido soltanto dopo la pubblicazione verificata della release:
+
+https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.14/ThisTinti-Setup-3.4.0-alpha.7-rc.14-x64.exe
+
+Fino a quel momento la release pubblica precedente resta RC13:
 
 https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.13/ThisTinti-Setup-3.4.0-alpha.7-rc.13-x64.exe
 
