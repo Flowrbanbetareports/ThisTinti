@@ -44,6 +44,7 @@ Name: "desktopicon"; Description: "Crea un collegamento sul desktop"; GroupDescr
 
 [Files]
 Source: "..\..\dist\ThisTinti\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "stop_running_thistinti.ps1"; Flags: dontcopy
 
 [Icons]
 Name: "{autoprograms}\ThisTinti"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"
@@ -63,6 +64,41 @@ var
 function SilentTermsAccepted(): Boolean;
 begin
   Result := CompareText(ExpandConstant('{param:ACCEPTTHISTINTITERMS|}'), 'yes') = 0;
+end;
+
+function StopRunningInstalledThisTinti(): Boolean;
+var
+  ResultCode: Integer;
+  PowerShellPath: String;
+  ScriptPath: String;
+  Parameters: String;
+begin
+  Result := True;
+  if not FileExists(ExpandConstant('{app}\{#MyAppExeName}')) then
+    Exit;
+
+  ExtractTemporaryFile('stop_running_thistinti.ps1');
+  ScriptPath := ExpandConstant('{tmp}\stop_running_thistinti.ps1');
+  PowerShellPath := ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe');
+  Parameters :=
+    '-NoProfile -NonInteractive -ExecutionPolicy Bypass -File "' + ScriptPath +
+    '" -InstallDir "' + ExpandConstant('{app}') + '"';
+
+  if not Exec(PowerShellPath, Parameters, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+  begin
+    Result := False;
+    Exit;
+  end;
+  Result := ResultCode = 0;
+end;
+
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+begin
+  Result := '';
+  if not StopRunningInstalledThisTinti() then
+    Result :=
+      'ThisTinti e ancora in esecuzione e non puo essere aggiornato in sicurezza. ' +
+      'Chiudi ThisTinti e riprova.';
 end;
 
 function InitializeSetup(): Boolean;
