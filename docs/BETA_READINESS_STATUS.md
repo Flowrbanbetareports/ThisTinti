@@ -11,7 +11,9 @@
 
 ThisTinti è pubblicato come `3.4.0-alpha.7-rc.13 — Public Preview`. RC13 è un hotfix di sicurezza limitato all'aggiornamento di `pypdf` 6.14.2 → 6.15.0 per `PYSEC-2026-3655` e `PYSEC-2026-3656`; non aggiunge funzionalità o modifiche UI.
 
-La release è costruita dal commit applicativo `f7609b51aec4c358d0410ca8ff83e60485cac96c`, tree `e1a5ea29d4bbef7e1431d96fa5a5149dc4a46e3c`, con Windows run `33008478384` / build `394`. L’installer pubblicato ha SHA-256 `505532c67d324a29487d77acd9ae0d1f1e5b918a4f2ccbb996bc3b2be774622f`.
+Il candidato successivo è **3.4.0-alpha.7-rc.14 — Public Preview**. RC14 incorpora gli hardening e le evidenze post-RC13 e corregge l'upgrade Windows quando una precedente installazione di ThisTinti è ancora in esecuzione. Fino alla pubblicazione immutabile della RC14, RC13 resta l'ultima release pubblicata.
+
+La release RC13 è costruita dal commit applicativo `f7609b51aec4c358d0410ca8ff83e60485cac96c`, tree `e1a5ea29d4bbef7e1431d96fa5a5149dc4a46e3c`, con Windows run `33008478384` / build `394`. L’installer pubblicato ha SHA-256 `505532c67d324a29487d77acd9ae0d1f1e5b918a4f2ccbb996bc3b2be774622f`.
 
 La base tecnica verificata comprende:
 
@@ -39,19 +41,21 @@ La base tecnica verificata comprende:
 - centro operativo con pratiche raggruppate, priorità spiegata e storico della revisione;
 - correzione supervisionata delle righe estratte con audit, provenienza e rianalisi;
 - suggerimenti di apprendimento non automatici e vincolati a decisioni umane sufficienti;
-- pre-pilot sintetico riproducibile di 30 pratiche, usato esclusivamente come regressione tecnica.
+- pre-pilot sintetico riproducibile di 30 pratiche, usato esclusivamente come regressione tecnica;
+- corpus esterno/raw congelato di 22 documenti con ground truth separata e valutazione semantica prudente;
+- prova Windows dedicata dell'aggiornamento con la precedente applicazione realmente in esecuzione.
 
 ## Gate interni
 
 I gate interni sono verificati da `scripts/check_beta_readiness.py` e dai workflow dedicati. Devono restare verdi sul commit esatto candidato alla distribuzione. Le evidenze automatiche vengono associate a run e commit; ogni modifica del prodotto richiede una nuova esecuzione completa per essere promossa.
 
-La Public Preview RC13 già pubblicata non viene modificata silenziosamente: eventuali correzioni future richiedono una nuova versione e una nuova catena di verifica.
+La Public Preview RC13 già pubblicata non viene modificata silenziosamente: la RC14 usa una nuova versione e una nuova catena di verifica.
 
 ## Gate umani ed esterni non autocertificabili
 
 La beta non può essere dichiarata validata senza:
 
-1. collaudo umano end-to-end della RC13 installata;
+1. collaudo umano end-to-end della release installata;
 2. almeno 30 scenari documentali reali, autorizzati e anonimizzati quando necessario;
 3. ground truth definita prima dell'esecuzione da revisori competenti;
 4. rapporto pilot revisionato con precisione, richiamo, falsi positivi e falsi negativi;
