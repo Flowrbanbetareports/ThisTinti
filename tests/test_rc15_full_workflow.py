@@ -358,6 +358,6 @@ def test_rc15_helpers_and_validation_branches():
     with pytest.raises(ValueError):
         normalize_company_profile({"quantity_tolerance_percent": -1})
     with pytest.raises(ValueError):
-        normalize_company_profile({"unit_aliases": []})
+        normalize_company_profile({"unit_aliases": ["bad"]})
     with pytest.raises(ValueError):
         normalize_company_profile({"significant_terms": "not-a-list"})
