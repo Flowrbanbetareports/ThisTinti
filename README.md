@@ -6,24 +6,22 @@ ThisTinti non decide, non approva e non certifica nulla. Organizza informazioni 
 
 ## Stato del rilascio
 
-Candidato corrente: **3.4.0-alpha.7-rc.14 — Public Preview**.
+Release pubblica corrente: **3.4.0-alpha.7-rc.14 — Public Preview**.
 
 RC14 consolida gli hardening e le evidenze post-RC13: benchmark controllato da 30 scenari, corpus esterno/raw da 22 documenti, irrobustimento PDF/OCR e backup/restore, oltre alla correzione dell’upgrade Windows quando una precedente installazione di ThisTinti è ancora in esecuzione.
 
-La RC14 resta una Public Preview supervisionata. La pubblicazione è consentita soltanto dopo i gate sul commit esatto e sull’installer Windows corrispondente; non chiude i gate esterni necessari per una beta validata o per la produzione: pilot reale, revisione indipendente di sicurezza e legale/privacy, collaudo WCAG manuale con tecnologie assistive, test con utenti non istruiti, firma Authenticode e prove sull’infrastruttura definitiva restano separati e devono produrre evidenza reale.
+La RC14 resta una Public Preview supervisionata. È stata pubblicata dopo i gate sul commit esatto e sull’installer Windows corrispondente; non chiude i gate esterni necessari per una beta validata o per la produzione: pilot reale, revisione indipendente di sicurezza e legale/privacy, collaudo WCAG manuale con tecnologie assistive, test con utenti non istruiti, firma Authenticode e prove sull’infrastruttura definitiva restano separati e devono produrre evidenza reale.
 
-Ultima release pubblicata prima della promozione RC14: **3.4.0-alpha.7-rc.13 — Public Preview**.
+Evidenza della Public Preview RC14:
 
-Evidenza storica della Public Preview RC13:
-
-- tag: `v3.4.0-alpha.7-rc.13`;
-- commit applicativo: `f7609b51aec4c358d0410ca8ff83e60485cac96c`;
-- tree Git: `e1a5ea29d4bbef7e1431d96fa5a5149dc4a46e3c`;
-- workflow Windows: run `33008478384`, build `394`;
-- installer: `ThisTinti-Setup-3.4.0-alpha.7-rc.13-x64.exe`;
-- SHA-256 installer: `505532c67d324a29487d77acd9ae0d1f1e5b918a4f2ccbb996bc3b2be774622f`;
-- pubblicazione GitHub: `2026-08-26T20:17:41Z`;
-- release: https://github.com/Flowrbanbetareports/ThisTinti/releases/tag/v3.4.0-alpha.7-rc.13
+- tag: `v3.4.0-alpha.7-rc.14`;
+- commit applicativo: `6bbb980256869896bf66f0e125ccff6c047540e3`;
+- tree Git: `ab827cbc9b5aa408e8c9e50c8868bf62ab444208`;
+- workflow Windows: run `33104580870`, build `477`;
+- installer: `ThisTinti-Setup-3.4.0-alpha.7-rc.14-x64.exe`;
+- SHA-256 installer: `87c7f720566d003399e816fddd3f4c2ecc4c321d53083f27aeda6eef53b7c0d0`;
+- pubblicazione GitHub: `2026-08-27T19:00:15Z`;
+- release: https://github.com/Flowrbanbetareports/ThisTinti/releases/tag/v3.4.0-alpha.7-rc.14
 
 ## Identità e posizionamento
 
@@ -43,13 +41,9 @@ La Local Edition è progettata per essere usata senza un servizio gestito da Thi
 - archivio portable e checksum SHA-256;
 - sorgente corrispondente incluso ed esportabile sotto licenza Apache 2.0.
 
-URL previsto per RC14, che diventa valido soltanto dopo la pubblicazione verificata della release:
+Installer Windows RC14 verificato:
 
 https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.14/ThisTinti-Setup-3.4.0-alpha.7-rc.14-x64.exe
-
-Fino a quel momento la release pubblica precedente resta RC13:
-
-https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.13/ThisTinti-Setup-3.4.0-alpha.7-rc.13-x64.exe
 
 La build pubblica viene generata da `.github/workflows/windows-release.yml`. Prima della pubblicazione il percorso di rilascio esegue test, controlli di sicurezza, build congelata, installazione della baseline, aggiornamento, persistenza dei dati, smoke test dell’app installata, Diagnostica reale, disinstallazione, checksum, provenienza e attestazioni.
 
