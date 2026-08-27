@@ -2,14 +2,14 @@
   "schema": "thistinti.release-provenance.v1",
   "version": "3.4.0-alpha.7-rc.13",
   "source": {
-    "commit": "f7609b51aec4c358d0410ca8ff83e60485cac96c",
-    "tree": "e1a5ea29d4bbef7e1431d96fa5a5149dc4a46e3c"
+    "commit": "da569f36ebba4224bacf19256cdd7b132dade036",
+    "tree": "61070cf15b012334fc50cb636e382d1c6fefc9ef"
   },
   "build": {
     "workflow": "Build Windows Free Download",
-    "run_id": 33008478384,
-    "run_number": 394,
-    "artifact_name": "ThisTinti-Windows-33008478384-394"
+    "run_id": 33088401232,
+    "run_number": 454,
+    "artifact_name": "ThisTinti-Windows-33088401232-454"
   },
   "upgrade_baseline": {
     "version": "3.4.0-alpha.7-rc.5",
@@ -44,8 +44,8 @@
     },
     {
       "name": "RELEASE_NOTES.md",
-      "size": 11741,
-      "sha256": "62220f96dc89dfcebb1b81fa66295c3a3aa6ef178aaf0c082b1ac409a16b8426"
+      "size": 12062,
+      "sha256": "f01e2e2b2b78ed11ccc5eee90f93597531a0707b12962e66ca10fb2e13483b46"
     },
     {
       "name": "SBOM.cdx.json",
@@ -79,33 +79,33 @@
     },
     {
       "name": "ThisTinti-3.4.0-alpha.7-rc.13-self-hosted-source.zip",
-      "size": 744909,
-      "sha256": "e4025e7bf9cdadc8696ea6fa365de212a7b701fa4062116e3f4c355c16863d7d"
+      "size": 814148,
+      "sha256": "1fc9a66e6a9adf9081367439ffc6980000f28343642f4fa2c114b08160d82ef1"
     },
     {
       "name": "ThisTinti-3.4.0-alpha.7-rc.13-self-hosted-source.zip.sha256",
       "size": 120,
-      "sha256": "4de012413c8f4d4a143a9d8f2d3b8a381ddd64ed23f27cba1c6e9a2dad363380"
+      "sha256": "1c6e414641c9e48320c70472b0ce26c6d4f42fcf5f3b1f3438e72635d7389068"
     },
     {
       "name": "ThisTinti-Portable-3.4.0-alpha.7-rc.13-x64.zip",
-      "size": 82470233,
-      "sha256": "92dafd018bd27c4a088c1977fcaf3e1713f03ccb83feed2540c0a60481ebeea2"
+      "size": 82552665,
+      "sha256": "c1131e99cdc582a11b408e2806abd3b93705acddcb58dab00a50a7f0c17a6617"
     },
     {
       "name": "ThisTinti-Portable-3.4.0-alpha.7-rc.13-x64.zip.sha256",
       "size": 114,
-      "sha256": "cd6d2dc8c8c6aba09ea4ac28e9faa419c78a09e93cbdf06ea30ac86feb82bdd9"
+      "sha256": "a8ec18815556a97dc71c93172111ddec8c9b02875a4c6592cb3cc9410f3bdb8a"
     },
     {
       "name": "ThisTinti-Setup-3.4.0-alpha.7-rc.13-x64.exe",
-      "size": 57243973,
-      "sha256": "505532c67d324a29487d77acd9ae0d1f1e5b918a4f2ccbb996bc3b2be774622f"
+      "size": 57291636,
+      "sha256": "906d673f70feb769c247dc0d3780601cf327143ac8850d266a3705fead4b63cd"
     },
     {
       "name": "ThisTinti-Setup-3.4.0-alpha.7-rc.13-x64.exe.sha256",
       "size": 111,
-      "sha256": "59deb8af78f1c492aeda2743c053e2bac7f0488ba3024b39484e1e94ff2c0122"
+      "sha256": "23fffe252ec47a12a79d793ffdda675031fec3099ff84fa78733d723deccf87c"
     },
     {
       "name": "VERIFY-THIS-DOWNLOAD.md",
@@ -114,23 +114,23 @@
     },
     {
       "name": "frozen-local-smoke.json",
-      "size": 348,
-      "sha256": "06c2bd02ab58b6532966b11ceb1c4412c921f0de0909e827b7e3c89d7f0b7382"
+      "size": 475,
+      "sha256": "86ef47a00162f379c4951bc8aa38670096dce6e2dee89880facbea8edd90913a"
     },
     {
       "name": "installed-diagnostics-report.json",
       "size": 1110,
-      "sha256": "97caa5f138c3f08a9023ebc5623d9cd11a2d8224d350e94776961b16fe885054"
+      "sha256": "b6495663c1ef25b63f7c1cb9d0363891d6328981de16f87d820f5761dc863dd1"
     },
     {
       "name": "installed-diagnostics-verbal.json",
-      "size": 6482,
-      "sha256": "8c67401d0d5e151a45568abdf107890d3043a6c33ee9d2f76c9f70f0c4f3dca4"
+      "size": 6483,
+      "sha256": "5eaf5842b17277d3b9ed6fe72c913e3112b3f4ef45804c4b1d92896d04602ec7"
     },
     {
       "name": "installed-local-smoke.json",
-      "size": 361,
-      "sha256": "221c379e26e4a348907dbb343be1f240c12d8f676dca3aa01cb22a1da4163744"
+      "size": 488,
+      "sha256": "3ca29be6c7b067d3319b6cbc8b338654d7c1838528da9de367777c845f3600f0"
     },
     {
       "name": "installer-lifecycle-smoke.json",
@@ -138,5 +138,5 @@
       "sha256": "1cfa57361a9904704ba84fac9de0c7d8eb97af1306baea2a1684eea8e09e8983"
     }
   ],
-  "generated_at": "2026-08-26T20:12:54.737076+00:00"
+  "generated_at": "2026-08-27T15:42:16.174310+00:00"
 }
