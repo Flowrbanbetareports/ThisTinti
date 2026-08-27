@@ -25,12 +25,14 @@ def test_benchmark_workflows_are_read_only_and_artifact_backed() -> None:
         assert "actions/upload-artifact@" in text
 
 
-def test_runtime_container_drops_root_identity() -> None:
+def test_runtime_entrypoint_drops_root_before_application_exec() -> None:
     dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
-    user_position = dockerfile.find("\nUSER thistinti\n")
-    entrypoint_position = dockerfile.find("\nENTRYPOINT ")
-    assert user_position >= 0
-    assert entrypoint_position > user_position
+    entrypoint = (ROOT / "scripts" / "container_entrypoint.py").read_text(encoding="utf-8")
+    assert 'ENTRYPOINT ["python", "scripts/container_entrypoint.py"]' in dockerfile
+    assert "if os.geteuid() == 0:" in entrypoint
+    assert "os.setgid(account.pw_gid)" in entrypoint
+    assert "os.setuid(account.pw_uid)" in entrypoint
+    assert "os.execvpe(argv[0], argv, os.environ)" in entrypoint
 
 
 def test_publish_workflow_keeps_release_evidence_out_of_main() -> None:
