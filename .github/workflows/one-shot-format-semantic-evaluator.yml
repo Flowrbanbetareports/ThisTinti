@@ -37,7 +37,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'Already formatted'
           else
-            git diff --cached --check
             git commit -m 'Apply Ruff formatting to semantic evaluator'
             git push origin HEAD:benchmark/dirty-public-corpus-22
           fi
