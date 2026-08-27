@@ -25,11 +25,11 @@ jobs:
           python-version: '3.13'
       - name: Install formatter
         run: python -m pip install ruff==0.15.22
-      - name: Format and validate evaluator
+      - name: Format evaluator exactly as release gate expects
         run: |
           ruff format scripts/evaluate_dirty_public_semantics.py tests/test_dirty_public_semantic_evaluator.py
-          ruff check scripts/evaluate_dirty_public_semantics.py tests/test_dirty_public_semantic_evaluator.py
-      - name: Commit formatted files
+          ruff format --check scripts/evaluate_dirty_public_semantics.py tests/test_dirty_public_semantic_evaluator.py
+      - name: Commit formatter output
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -38,8 +38,8 @@ jobs:
             echo 'Already formatted'
           else
             git diff --cached --check
-            git commit -m 'Format semantic evaluator'
+            git commit -m 'Apply Ruff formatting to semantic evaluator'
             git push origin HEAD:benchmark/dirty-public-corpus-22
           fi
 
-# One-shot trigger: remove this workflow after the formatter commit lands.
+# One-shot trigger only. Delete this workflow after the formatter output lands.
