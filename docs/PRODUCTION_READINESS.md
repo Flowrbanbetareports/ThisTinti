@@ -1,6 +1,6 @@
-# Production readiness — ThisTinti 3.4.0-alpha.7-rc.13 — Public Preview, non produzione
+# Production readiness — ThisTinti 3.4.0-alpha.7-rc.14 — Public Preview, non produzione
 
-RC13 è pubblicata e verificabile come Public Preview. Questo documento elenca ciò che esiste tecnicamente e ciò che manca per un uso produttivo: la pubblicazione della prerelease non autorizza né implica la produzione.
+RC14 è pubblicata e verificabile come Public Preview. Questo documento elenca ciò che esiste tecnicamente e ciò che manca per un uso produttivo: la pubblicazione della prerelease non autorizza né implica la produzione.
 
 ## Gate tecnici interni implementati
 
@@ -24,14 +24,16 @@ RC13 è pubblicata e verificabile come Public Preview. Questo documento elenca c
 - calibrazione obbligatoria: pilot reale, almeno 30 scenari, motore corrente e approvazione amministrativa del run esatto prima di abilitare qualunque automazione suggerita dai controlli temporali;
 - vincoli database e revoca automatica dell'idoneità a ogni nuova validazione;
 - diagnostica locale integrata con verbale scaricabile; non sostituisce i gate esterni;
-- ciclo Windows RC13 verificato sul commit applicativo `f7609b51aec4c358d0410ca8ff83e60485cac96c` con build `394`;
-- dependency audit RC13 verde dopo la correzione `pypdf` 6.14.2 → 6.15.0.
+- ciclo Windows RC14 verificato sul commit applicativo `6bbb980256869896bf66f0e125ccff6c047540e3` con Windows run `33104580870` / build `477`;
+- aggiornamento Windows RC14 verificato anche con la precedente alpha in esecuzione, inclusi chiusura del vecchio processo, smoke della versione aggiornata, diagnostica, disinstallazione e conservazione dei dati;
+- dependency audit RC14 verde; resta inclusa la correzione `pypdf` 6.14.2 → 6.15.0 per `PYSEC-2026-3655` e `PYSEC-2026-3656` introdotta in RC13;
+- hardening RC14 di backup/restore, worker recovery, OCR bundled fail-closed, parser PDF conservativo e governance degli artefatti CI.
 
 ## Gate esterni obbligatori prima di dati sensibili in produzione
 
 ### 1. Pilot documentale reale
 
-Usare documenti anonimizzati e autorizzati. Misurare per ogni regola precisione, recall, falsi negativi economici, importo errato e percentuale di casi inviati a revisione. Le metriche sintetiche non possono sostituirlo.
+Usare documenti anonimizzati e autorizzati. Misurare per ogni regola precisione, recall, falsi negativi economici, importo errato e percentuale di casi inviati a revisione. Le metriche sintetiche o controllate non possono sostituirlo.
 
 ### 2. PostgreSQL e infrastruttura live
 
@@ -43,7 +45,7 @@ Misurare API, coda, worker, OCR, scanner, database e storage con volumi realisti
 
 ### 4. Scanner e supply chain
 
-Verificare daemon, aggiornamento firme e tempi di scansione. Eseguire `pip-audit` con rete e bloccare vulnerabilità non accettate. Gli artefatti pubblici RC13 hanno checksum e attestazioni, ma la firma Authenticode resta un gate separato.
+Verificare daemon, aggiornamento firme e tempi di scansione. Eseguire `pip-audit` con rete e bloccare vulnerabilità non accettate. Gli artefatti pubblici RC14 hanno checksum, provenienza e attestazioni, ma la firma Authenticode resta un gate separato.
 
 ### 5. Sicurezza indipendente
 

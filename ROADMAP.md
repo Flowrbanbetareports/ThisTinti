@@ -1,18 +1,18 @@
 # Roadmap di ThisTinti
 
-## Stato attuale — 3.4.0-alpha.7-rc.13 Public Preview
+## Stato attuale — 3.4.0-alpha.7-rc.14 Public Preview
 
-La Public Preview corrente è `3.4.0-alpha.7-rc.13`, pubblicata come prerelease dopo la correzione di sicurezza `pypdf` 6.14.2 → 6.15.0 per `PYSEC-2026-3655` e `PYSEC-2026-3656`.
+La Public Preview corrente è `3.4.0-alpha.7-rc.14`. RC14 consolida l’hardening del repository e della distribuzione: benchmark pubblico con metodologia resa fail-closed e provenienza verificata, salvaguardie OCR/PDF più conservative, restore staged/esatto, recupero dei job dopo errori transazionali e aggiornamento Windows verificato anche mentre la versione precedente è in esecuzione.
 
-La RC13 è stata costruita e verificata sul commit applicativo `f7609b51aec4c358d0410ca8ff83e60485cac96c`, tree `e1a5ea29d4bbef7e1431d96fa5a5149dc4a46e3c`, Windows run `33008478384` / build `394`. L’installer pubblicato ha SHA-256 `505532c67d324a29487d77acd9ae0d1f1e5b918a4f2ccbb996bc3b2be774622f`.
+La RC14 è stata costruita e verificata sul commit applicativo `6bbb980256869896bf66f0e125ccff6c047540e3`, tree `ab827cbc9b5aa408e8c9e50c8868bf62ab444208`, Windows run `33104580870` / build `477`. L’installer pubblicato ha SHA-256 `87c7f720566d003399e816fddd3f4c2ecc4c321d53083f27aeda6eef53b7c0d0`.
 
-RC13 non aggiunge funzionalità o modifiche UI rispetto alla RC12: è stata anticipata rispetto al collaudo umano complessivo perché il dependency audit ha rilevato due advisory che ricadevano direttamente nel perimetro reale del parser PDF. La RC12 resta una release storica immutabile; RC13 è la versione da usare per i collaudi successivi.
+La RC13 resta la prerelease storica dell’hotfix di sicurezza `pypdf` 6.14.2 → 6.15.0 per `PYSEC-2026-3655` e `PYSEC-2026-3656`; RC14 la sostituisce come versione da usare per i collaudi successivi. La pubblicazione di RC14 non rimuove i gate esterni: resta una Public Preview supervisionata, non una beta validata o una release di produzione.
 
 Il percorso verso la 1.0 è definito in `docs/ROADMAP_TO_1_0.md`. Una nuova versione non viene creata per inerzia: deve essere giustificata da difetti riproducibili, rischi per dati o risultati, rilievi UX/accessibilità, evidenze del pilot o necessità di manutenzione/sicurezza.
 
-## Priorità immediata — collaudo umano RC13
+## Priorità immediata — collaudo umano RC14
 
-La priorità dopo la pubblicazione è il collaudo end-to-end della RC13 installata:
+La priorità dopo la pubblicazione è il collaudo end-to-end della RC14 installata:
 
 - installazione e primo avvio su Windows reale;
 - percorso demo, worker, attività, retry, riavvio e persistenza;

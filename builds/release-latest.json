@@ -1,22 +1,22 @@
 {
   "schema": "thistinti.release-evidence.v2",
-  "version": "3.4.0-alpha.7-rc.13",
-  "tag": "v3.4.0-alpha.7-rc.13",
-  "release_id": 377397969,
-  "release_commit": "f7609b51aec4c358d0410ca8ff83e60485cac96c",
-  "release_tree": "e1a5ea29d4bbef7e1431d96fa5a5149dc4a46e3c",
-  "release_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/tag/v3.4.0-alpha.7-rc.13",
-  "published_at": "2026-08-26T20:17:41Z",
+  "version": "3.4.0-alpha.7-rc.14",
+  "tag": "v3.4.0-alpha.7-rc.14",
+  "release_id": 378055129,
+  "release_commit": "6bbb980256869896bf66f0e125ccff6c047540e3",
+  "release_tree": "ab827cbc9b5aa408e8c9e50c8868bf62ab444208",
+  "release_url": "https://github.com/Flowrbanbetareports/ThisTinti/releases/tag/v3.4.0-alpha.7-rc.14",
+  "published_at": "2026-08-27T19:00:15Z",
   "is_draft": false,
   "is_prerelease": true,
   "build": {
     "workflow": "Build Windows Free Download",
-    "workflow_run": 33008478384,
-    "workflow_run_number": 394,
+    "workflow_run": 33104580870,
+    "workflow_run_number": 477,
     "workflow_conclusion": "success",
-    "artifact_name": "ThisTinti-Windows-33008478384-394",
-    "artifact_head_sha": "f7609b51aec4c358d0410ca8ff83e60485cac96c",
-    "artifact_head_tree": "e1a5ea29d4bbef7e1431d96fa5a5149dc4a46e3c"
+    "artifact_name": "ThisTinti-Windows-33104580870-477",
+    "artifact_head_sha": "6bbb980256869896bf66f0e125ccff6c047540e3",
+    "artifact_head_tree": "ab827cbc9b5aa408e8c9e50c8868bf62ab444208"
   },
   "verification": {
     "release_target_verified": true,
@@ -25,9 +25,9 @@
     "all_published_assets_matched_local_bytes": true,
     "unexpected_but_verified_assets": [],
     "smoke_reports_passed": true,
-    "installer_sha256": "505532c67d324a29487d77acd9ae0d1f1e5b918a4f2ccbb996bc3b2be774622f",
-    "portable_sha256": "92dafd018bd27c4a088c1977fcaf3e1713f03ccb83feed2540c0a60481ebeea2",
-    "self_hosted_source_sha256": "e4025e7bf9cdadc8696ea6fa365de212a7b701fa4062116e3f4c355c16863d7d"
+    "installer_sha256": "87c7f720566d003399e816fddd3f4c2ecc4c321d53083f27aeda6eef53b7c0d0",
+    "portable_sha256": "9bec681d7e4ed8bf7e5335119ac410e1aeb7ef4a6aaab58c546c06480c242f68",
+    "self_hosted_source_sha256": "e627bcda5c9807ed109b744938f7362daa467d71072c3b7a431afb0bab264274"
   },
   "required_assets": [
     "DISCLAIMER.md",
@@ -40,12 +40,12 @@
     "SUPPORT.md",
     "TERMS_OF_USE.md",
     "TRADEMARKS.md",
-    "ThisTinti-3.4.0-alpha.7-rc.13-self-hosted-source.zip",
-    "ThisTinti-3.4.0-alpha.7-rc.13-self-hosted-source.zip.sha256",
-    "ThisTinti-Portable-3.4.0-alpha.7-rc.13-x64.zip",
-    "ThisTinti-Portable-3.4.0-alpha.7-rc.13-x64.zip.sha256",
-    "ThisTinti-Setup-3.4.0-alpha.7-rc.13-x64.exe",
-    "ThisTinti-Setup-3.4.0-alpha.7-rc.13-x64.exe.sha256",
+    "ThisTinti-3.4.0-alpha.7-rc.14-self-hosted-source.zip",
+    "ThisTinti-3.4.0-alpha.7-rc.14-self-hosted-source.zip.sha256",
+    "ThisTinti-Portable-3.4.0-alpha.7-rc.14-x64.zip",
+    "ThisTinti-Portable-3.4.0-alpha.7-rc.14-x64.zip.sha256",
+    "ThisTinti-Setup-3.4.0-alpha.7-rc.14-x64.exe",
+    "ThisTinti-Setup-3.4.0-alpha.7-rc.14-x64.exe.sha256",
     "VERIFY-THIS-DOWNLOAD.md",
     "frozen-local-smoke.json",
     "installed-diagnostics-report.json",
@@ -55,6 +55,6 @@
     "release-provenance.json"
   ],
   "unsigned_installer": true,
-  "verified_at": "2026-08-26T20:17:42.227647+00:00",
+  "verified_at": "2026-08-27T19:00:16.735517+00:00",
   "verification_source": "Gated GitHub workflow, exact-commit provenance and GitHub asset metadata"
 }
