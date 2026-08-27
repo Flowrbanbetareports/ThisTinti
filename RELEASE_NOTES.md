@@ -37,7 +37,7 @@
 - la home indica cosa controllare adesso e propone la prossima verifica in base a gravità, stato, valore indicativo e data;
 - le segnalazioni della stessa operazione vengono raggruppate in un unico fascicolo di pratica;
 - il workflow distingue nuova, in verifica, confermata, falso positivo e risolta, mantenendo lo storico delle decisioni;
-- le segnalazioni permettono di aprire il documento originale e la riga estratta che ha generato l’evidenza;
+- il confronto della pratica riusa le prove e i documenti collegati esistenti senza creare copie o fonti parallele;
 - i revisori possono correggere una riga estratta con motivo obbligatorio, prima/dopo, autore, provenienza e rianalisi delle catene coinvolte;
 - i totali vengono ricalcolati coerentemente quando quantità, prezzo o sconto vengono corretti;
 - i decimali di memorizzazione non compaiono più nelle nuove descrizioni e nelle evidenze;
@@ -52,7 +52,7 @@
 - quantità e percentuali non mostrano più zeri decimali inutili;
 - il punteggio di rischio viene presentato come priorità di controllo e l’indice tecnico resta secondario e non probabilistico;
 - l’avviso di uso supervisionato è compatto ma sempre disponibile;
-- Regole proposte, Validation Lab e Audit assumono nomi e spiegazioni più vicini al loro scopo reale;
+- Regole proposte, Validation Lab e Audit assumono nomi e spiegazioni più vicine al loro scopo reale;
 - il pulsante demo scompare dopo che esistono documenti e la pagina Attività distingue elaborazioni persistenti dagli altri eventi applicativi;
 - i payload di audit restano disponibili dietro un dettaglio tecnico richiudibile;
 - la nuova presentazione è isolata dal core di sicurezza, non usa servizi esterni e non invia messaggi;
@@ -98,7 +98,7 @@
 - nomi e descrizioni distinguono verifiche euristiche, simulazioni supervisionate e decisioni umane;
 - questa versione resta una Public Preview: zoom reale su Windows, tecnologie assistive, pilot e revisioni indipendenti non sono autocertificati.
 
-# 3.4.0-alpha.7-rc.6 — integrità dati, recupero ed evidenze correggibili
+# 3.4.0-alpha.7-rc.6 — Integrità dati, recupero ed evidenze correggibili
 
 - i valori numerici invalidi, non finiti o non convertibili non vengono più trasformati silenziosamente in zero;
 - gli input documentali non validi producono errori leggibili e non HTTP 500 generici;
