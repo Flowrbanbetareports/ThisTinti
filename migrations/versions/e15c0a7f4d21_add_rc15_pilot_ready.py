@@ -120,6 +120,7 @@ def upgrade() -> None:
         sa.Column("id", sa.String(length=36), nullable=False),
         sa.Column("tenant_id", sa.String(length=36), nullable=False),
         sa.Column("case_id", sa.String(length=36), nullable=False),
+        sa.Column("state", sa.String(length=30), nullable=False, server_default="unknown"),
         sa.Column("potential_exposure", sa.Numeric(precision=18, scale=2), nullable=True),
         sa.Column("confirmed_loss", sa.Numeric(precision=18, scale=2), nullable=True),
         sa.Column("currency", sa.String(length=8), nullable=False),
@@ -127,16 +128,29 @@ def upgrade() -> None:
         sa.Column("assessed_by", sa.String(length=36), nullable=True),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
-        sa.CheckConstraint("potential_exposure IS NULL OR potential_exposure >= 0", name="ck_rc15_potential_nonnegative"),
+        sa.CheckConstraint(
+            "potential_exposure IS NULL OR potential_exposure >= 0", name="ck_rc15_potential_nonnegative"
+        ),
         sa.CheckConstraint("confirmed_loss IS NULL OR confirmed_loss >= 0", name="ck_rc15_loss_nonnegative"),
+        sa.CheckConstraint(
+            "state IN ('unknown', 'estimated', 'confirmed_zero', 'loss_confirmed', 'not_applicable')",
+            name="ck_rc15_economic_state",
+        ),
         sa.ForeignKeyConstraint(["tenant_id"], ["tenants.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(["case_id"], ["discrepancy_cases.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(["assessed_by"], ["users.id"], ondelete="SET NULL"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("tenant_id", "case_id", name="uq_rc15_case_economic_case"),
     )
-    op.create_index(op.f("ix_rc15_case_economic_assessments_tenant_id"), "rc15_case_economic_assessments", ["tenant_id"], unique=False)
-    op.create_index(op.f("ix_rc15_case_economic_assessments_case_id"), "rc15_case_economic_assessments", ["case_id"], unique=False)
+    op.create_index(
+        op.f("ix_rc15_case_economic_assessments_tenant_id"),
+        "rc15_case_economic_assessments",
+        ["tenant_id"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_rc15_case_economic_assessments_case_id"), "rc15_case_economic_assessments", ["case_id"], unique=False
+    )
 
     op.create_table(
         "rc15_company_profile_versions",
@@ -155,8 +169,12 @@ def upgrade() -> None:
         sa.UniqueConstraint("tenant_id", "version", name="uq_rc15_company_profile_version"),
         sa.UniqueConstraint("tenant_id", "config_hash", name="uq_rc15_company_profile_hash"),
     )
-    op.create_index(op.f("ix_rc15_company_profile_versions_tenant_id"), "rc15_company_profile_versions", ["tenant_id"], unique=False)
-    op.create_index("ix_rc15_company_profile_active", "rc15_company_profile_versions", ["tenant_id", "active"], unique=False)
+    op.create_index(
+        op.f("ix_rc15_company_profile_versions_tenant_id"), "rc15_company_profile_versions", ["tenant_id"], unique=False
+    )
+    op.create_index(
+        "ix_rc15_company_profile_active", "rc15_company_profile_versions", ["tenant_id", "active"], unique=False
+    )
 
     op.create_table(
         "rc15_practices",

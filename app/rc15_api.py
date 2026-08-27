@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 from datetime import date
 from decimal import Decimal
-from pathlib import Path
 from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
@@ -13,12 +12,11 @@ from sqlalchemy.orm import Session, selectinload
 
 from .audit import add_audit
 from .db import get_db
-from .models import DiscrepancyCase, Document, OperationChain, Supplier, utcnow
+from .models import Document, Supplier, utcnow
 from .parsers import ParseError
 from .rc15_models import (
     RC15CompanyProfileVersion,
     RC15IntakeRecord,
-    RC15PilotCase,
     RC15PilotWorkspace,
     RC15Practice,
 )
@@ -26,30 +24,32 @@ from .security import AuthContext, current_user, require_admin, require_ingest, 
 from .services.ingestion import reprocess_document
 from .services.rc15 import (
     _automatic_document_intake,
-    add_pilot_practice,
     build_practice_export,
     case_rc15_payload,
     classify_intake,
     company_profile_payload,
     create_company_profile_version,
-    create_pilot,
     delete_practice_transaction,
     economic_assessment_payload,
     ensure_company_profile,
     ensure_practice_for_chain,
-    freeze_pilot,
     get_active_company_profile,
     list_intake,
     list_practices,
     normalize_company_profile,
-    pilot_payload,
     practice_payload,
     record_document_retry,
-    render_pilot_markdown,
-    run_pilot,
     set_economic_assessment,
     set_practice_status,
     transition_case,
+)
+from .services.rc15_pilot import (
+    add_pilot_practice,
+    create_pilot,
+    freeze_pilot,
+    pilot_payload,
+    render_pilot_markdown,
+    run_pilot,
     update_pilot_case,
 )
 from .version import RELEASE_VERSION
@@ -67,7 +67,9 @@ class IntakeClassificationRequest(BaseModel):
 
 
 class DocumentRetryRequest(BaseModel):
-    document_type: Literal["proposal", "order", "confirmation", "delivery", "invoice", "payment", "return", "credit_note"] | None = None
+    document_type: (
+        Literal["proposal", "order", "confirmation", "delivery", "invoice", "payment", "return", "credit_note"] | None
+    ) = None
     supplier_name: str | None = Field(default=None, max_length=240)
     number: str | None = Field(default=None, max_length=120)
     document_date: date | None = None
@@ -79,6 +81,7 @@ class CaseTransitionRequest(BaseModel):
 
 
 class EconomicAssessmentRequest(BaseModel):
+    state: Literal["unknown", "estimated", "confirmed_zero", "loss_confirmed", "not_applicable"] | None = None
     potential_exposure: Decimal | None = Field(default=None, ge=0, max_digits=18, decimal_places=2)
     confirmed_loss: Decimal | None = Field(default=None, ge=0, max_digits=18, decimal_places=2)
     currency: str = Field(default="EUR", min_length=3, max_length=8)
@@ -160,7 +163,7 @@ def rc15_status(ctx: AuthContext = Depends(current_user)) -> dict[str, Any]:
             "company_profile_versions",
             "practice_export_archive_delete",
             "integrated_pilot",
-            "structured_text_differences",
+            "structured_attribute_differences",
         ],
     }
 
@@ -355,6 +358,7 @@ def rc15_case_economic(
             ctx.tenant_id,
             ctx.user_id,
             case_id,
+            state=payload.state,
             potential_exposure=payload.potential_exposure,
             confirmed_loss=payload.confirmed_loss,
             currency=payload.currency,
@@ -445,7 +449,9 @@ def rc15_practice_detail(
     ctx: AuthContext = Depends(current_user),
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
-    item = db.scalar(select(RC15Practice).where(RC15Practice.id == practice_id, RC15Practice.tenant_id == ctx.tenant_id))
+    item = db.scalar(
+        select(RC15Practice).where(RC15Practice.id == practice_id, RC15Practice.tenant_id == ctx.tenant_id)
+    )
     if item is None:
         raise HTTPException(status_code=404, detail="Pratica non trovata")
     try:
@@ -580,7 +586,9 @@ def rc15_pilot_detail(
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
     item = db.scalar(
-        select(RC15PilotWorkspace).where(RC15PilotWorkspace.id == pilot_id, RC15PilotWorkspace.tenant_id == ctx.tenant_id)
+        select(RC15PilotWorkspace).where(
+            RC15PilotWorkspace.id == pilot_id, RC15PilotWorkspace.tenant_id == ctx.tenant_id
+        )
     )
     if item is None:
         raise HTTPException(status_code=404, detail="Pilot non trovato")
@@ -629,8 +637,12 @@ def rc15_update_pilot_case(
             ctx.tenant_id,
             pilot_id,
             pilot_case_id,
-            reviewer_primary=payload.reviewer_primary.model_dump(mode="json") if payload.reviewer_primary is not None else None,
-            reviewer_secondary=payload.reviewer_secondary.model_dump(mode="json") if payload.reviewer_secondary is not None else None,
+            reviewer_primary=payload.reviewer_primary.model_dump(mode="json")
+            if payload.reviewer_primary is not None
+            else None,
+            reviewer_secondary=payload.reviewer_secondary.model_dump(mode="json")
+            if payload.reviewer_secondary is not None
+            else None,
             adjudicated=payload.adjudicated.model_dump(mode="json") if payload.adjudicated is not None else None,
             manual_seconds=payload.manual_seconds,
             assisted_seconds=payload.assisted_seconds,
@@ -651,7 +663,8 @@ def rc15_update_pilot_case(
         {
             "pilot_id": pilot_id,
             "ground_truth_changed": any(
-                value is not None for value in (payload.reviewer_primary, payload.reviewer_secondary, payload.adjudicated)
+                value is not None
+                for value in (payload.reviewer_primary, payload.reviewer_secondary, payload.adjudicated)
             ),
             "measurement_changed": any(
                 value is not None for value in (payload.manual_seconds, payload.assisted_seconds, payload.user_score)
@@ -703,7 +716,9 @@ def rc15_pilot_report(
     db: Session = Depends(get_db),
 ) -> Response:
     item = db.scalar(
-        select(RC15PilotWorkspace).where(RC15PilotWorkspace.id == pilot_id, RC15PilotWorkspace.tenant_id == ctx.tenant_id)
+        select(RC15PilotWorkspace).where(
+            RC15PilotWorkspace.id == pilot_id, RC15PilotWorkspace.tenant_id == ctx.tenant_id
+        )
     )
     if item is None:
         raise HTTPException(status_code=404, detail="Pilot non trovato")
@@ -730,7 +745,9 @@ def rc15_archive_pilot(
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
     item = db.scalar(
-        select(RC15PilotWorkspace).where(RC15PilotWorkspace.id == pilot_id, RC15PilotWorkspace.tenant_id == ctx.tenant_id)
+        select(RC15PilotWorkspace).where(
+            RC15PilotWorkspace.id == pilot_id, RC15PilotWorkspace.tenant_id == ctx.tenant_id
+        )
     )
     if item is None:
         raise HTTPException(status_code=404, detail="Pilot non trovato")

@@ -62,11 +62,16 @@ class RC15CaseEconomicAssessment(Base):
         UniqueConstraint("tenant_id", "case_id", name="uq_rc15_case_economic_case"),
         CheckConstraint("potential_exposure IS NULL OR potential_exposure >= 0", name="ck_rc15_potential_nonnegative"),
         CheckConstraint("confirmed_loss IS NULL OR confirmed_loss >= 0", name="ck_rc15_loss_nonnegative"),
+        CheckConstraint(
+            "state IN ('unknown', 'estimated', 'confirmed_zero', 'loss_confirmed', 'not_applicable')",
+            name="ck_rc15_economic_state",
+        ),
     )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
     tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id", ondelete="CASCADE"), index=True)
     case_id: Mapped[str] = mapped_column(ForeignKey("discrepancy_cases.id", ondelete="CASCADE"), index=True)
+    state: Mapped[str] = mapped_column(String(30), default="unknown")
     potential_exposure: Mapped[Decimal | None] = mapped_column(Numeric(18, 2), nullable=True)
     confirmed_loss: Mapped[Decimal | None] = mapped_column(Numeric(18, 2), nullable=True)
     currency: Mapped[str] = mapped_column(String(8), default="EUR")
@@ -105,7 +110,9 @@ class RC15Practice(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
     tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id", ondelete="CASCADE"), index=True)
-    chain_id: Mapped[str | None] = mapped_column(ForeignKey("operation_chains.id", ondelete="SET NULL"), nullable=True)
+    chain_id: Mapped[str | None] = mapped_column(
+        ForeignKey("operation_chains.id", ondelete="SET NULL"), nullable=True, index=True
+    )
     profile_version_id: Mapped[str | None] = mapped_column(
         ForeignKey("rc15_company_profile_versions.id", ondelete="SET NULL"), nullable=True
     )

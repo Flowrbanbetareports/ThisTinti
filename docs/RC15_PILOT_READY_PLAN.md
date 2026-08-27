@@ -52,9 +52,10 @@ The release acceptance target is that an operator can, without terminal access:
 - Deletion retains only a non-sensitive tombstone/audit record.
 - Retention expiry is advisory in RC15; automatic destructive deletion is out of scope.
 
-### E. Structured commercial text differences
+### E. Structured commercial attributes
 
-- Surface deterministic differences in embedded numbers, units, model/SKU and configured significant attributes.
+- Surface the structured SKU/model, unit, color, size and lot differences already available from extraction and matching.
+- A new free-form semantic/text-difference engine is deferred until pilot evidence proves it is needed.
 - No free-form cloud LLM decision engine in RC15.
 
 ## Explicitly out of scope

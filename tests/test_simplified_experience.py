@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from app.version import RELEASE_VERSION
+
 
 ROOT = Path(__file__).resolve().parents[1]
 STATIC = ROOT / "app" / "static"
@@ -89,7 +91,7 @@ def test_frontend_assets_are_versioned_and_browser_layout_check_is_present():
     loader = read("app.js")
     browser_check = ROOT / "scripts" / "check_sidebar_browser.py"
     workflow = (ROOT / ".github" / "workflows" / "simplified-experience.yml").read_text(encoding="utf-8")
-    assert "UI_VERSION = '3.4.0-alpha.7-rc.12'" in loader
+    assert f"UI_VERSION = '{RELEASE_VERSION}'" in loader
     assert "versioned(href)" in loader
     assert "versioned(src)" in loader
     assert browser_check.is_file()
