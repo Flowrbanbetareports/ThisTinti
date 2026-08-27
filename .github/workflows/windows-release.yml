@@ -38,7 +38,7 @@ on:
       - "run_thistinti.py"
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: thistinti-windows-${{ github.ref }}
@@ -235,7 +235,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
       - name: Stop after upgrade installation failure
-        if: steps.upgrade_install.outcome != 'success'
+        if: steps.baseline_install.outcome != 'success'
         shell: pwsh
         run: throw "Upgrade installation diagnostics captured"
       - name: Smoke-test upgraded Windows installation
@@ -367,14 +367,3 @@ jobs:
             release/windows/*.md
           if-no-files-found: error
           retention-days: 30
-      - name: Record successful main build
-        if: github.ref == 'refs/heads/main'
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Path "builds" -Force | Out-Null
-          Copy-Item "release\windows\release-provenance.json" "builds\windows-latest.json" -Force
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "builds/windows-latest.json"
-          git commit -m "Record successful Windows build $env:GITHUB_RUN_NUMBER"
-          git push
