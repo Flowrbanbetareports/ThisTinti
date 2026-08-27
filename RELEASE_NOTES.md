@@ -6,6 +6,7 @@
 - rafforza backup/restore e i relativi test di persistenza;
 - corregge l’aggiornamento Windows quando una precedente installazione di ThisTinti è ancora in esecuzione: l’installer chiude soltanto il processo appartenente alla cartella che sta aggiornando prima di sostituire i file;
 - aggiunge una prova Windows dedicata che installa una versione precedente, la avvia realmente, la lascia in esecuzione durante l’upgrade e verifica chiusura del vecchio processo, aggiornamento, avvio, diagnostica e conservazione dati;
+- rigenera i contratti OpenAPI e SBOM della RC14 dopo l’allineamento finale di versione, così i gate di release verificano gli artefatti committati contro lo stesso candidato;
 - mantiene il modello local-first e supervisionato: gli output restano evidenze da verificare sui documenti originali, non decisioni o certificazioni automatiche;
 - pilot reale con documenti aziendali autorizzati, pentest indipendente, revisione legale/privacy, WCAG manuale, utenti non istruiti e firma Authenticode restano gate esterni aperti.
 
@@ -36,7 +37,7 @@
 - la home indica cosa controllare adesso e propone la prossima verifica in base a gravità, stato, valore indicativo e data;
 - le segnalazioni della stessa operazione vengono raggruppate in un unico fascicolo di pratica;
 - il workflow distingue nuova, in verifica, confermata, falso positivo e risolta, mantenendo lo storico delle decisioni;
-- il confronto della pratica riusa le prove e i documenti collegati esistenti senza creare copie o fonti parallele;
+- le segnalazioni permettono di aprire il documento originale e la riga estratta che ha generato l’evidenza;
 - i revisori possono correggere una riga estratta con motivo obbligatorio, prima/dopo, autore, provenienza e rianalisi delle catene coinvolte;
 - i totali vengono ricalcolati coerentemente quando quantità, prezzo o sconto vengono corretti;
 - i decimali di memorizzazione non compaiono più nelle nuove descrizioni e nelle evidenze;
@@ -97,7 +98,7 @@
 - nomi e descrizioni distinguono verifiche euristiche, simulazioni supervisionate e decisioni umane;
 - questa versione resta una Public Preview: zoom reale su Windows, tecnologie assistive, pilot e revisioni indipendenti non sono autocertificati.
 
-# 3.4.0-alpha.7-rc.6 — Integrità dati, recupero ed evidenze correggibili
+# 3.4.0-alpha.7-rc.6 — integrità dati, recupero ed evidenze correggibili
 
 - i valori numerici invalidi, non finiti o non convertibili non vengono più trasformati silenziosamente in zero;
 - gli input documentali non validi producono errori leggibili e non HTTP 500 generici;
