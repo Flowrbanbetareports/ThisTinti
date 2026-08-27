@@ -38,7 +38,7 @@ on:
       - "run_thistinti.py"
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: thistinti-windows-${{ github.ref }}
@@ -343,6 +343,9 @@ jobs:
             --workflow-run-number $env:GITHUB_RUN_NUMBER `
             --artifact-name $ArtifactName `
             --baseline-manifest "builds\windows-upgrade-baseline.json"
+          if (-not (Test-Path "release\windows\release-provenance.json")) {
+            throw "Release provenance was not generated"
+          }
           python scripts\verify_release_artifact.py `
             --directory "release\windows" `
             --expected-version $Version `
@@ -367,14 +370,3 @@ jobs:
             release/windows/*.md
           if-no-files-found: error
           retention-days: 30
-      - name: Record successful main build
-        if: github.ref == 'refs/heads/main'
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Path "builds" -Force | Out-Null
-          Copy-Item "release\windows\release-provenance.json" "builds\windows-latest.json" -Force
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "builds/windows-latest.json"
-          git commit -m "Record successful Windows build $env:GITHUB_RUN_NUMBER"
-          git push
