@@ -52,7 +52,7 @@
 - quantità e percentuali non mostrano più zeri decimali inutili;
 - il punteggio di rischio viene presentato come priorità di controllo e l’indice tecnico resta secondario e non probabilistico;
 - l’avviso di uso supervisionato è compatto ma sempre disponibile;
-- Regole proposte, Validation Lab e Audit assumono nomi e spiegazioni più vicine al loro scopo reale;
+- Regole proposte, Validation Lab e Audit assumono nomi e spiegazioni più vicini al loro scopo reale;
 - il pulsante demo scompare dopo che esistono documenti e la pagina Attività distingue elaborazioni persistenti dagli altri eventi applicativi;
 - i payload di audit restano disponibili dietro un dettaglio tecnico richiudibile;
 - la nuova presentazione è isolata dal core di sicurezza, non usa servizi esterni e non invia messaggi;
