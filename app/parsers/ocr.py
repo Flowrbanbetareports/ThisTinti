@@ -3,11 +3,16 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess  # nosec B404
+import sys
 import tempfile
 from pathlib import Path
 
 from ..config import settings
 from .base import ParseError
+
+
+def _frozen_runtime() -> bool:
+    return bool(getattr(sys, "frozen", False) or getattr(sys, "_MEIPASS", None))
 
 
 def find_tesseract() -> str | None:
@@ -18,6 +23,13 @@ def find_tesseract() -> str | None:
             candidate = root / name
             if candidate.exists() and candidate.is_file():
                 return str(candidate)
+        # A packaged build must never silently fall back to a machine-wide
+        # Tesseract. Otherwise a CI runner can make a broken distribution look
+        # healthy even when its bundled OCR runtime is missing.
+        if _frozen_runtime():
+            return None
+    if _frozen_runtime():
+        return None
     return shutil.which("tesseract")
 
 
