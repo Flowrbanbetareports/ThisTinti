@@ -4496,10 +4496,13 @@
         ],
         "responses": {
           "200": {
-            "description": "Successful Response",
+            "description": "Archivio ZIP verificabile della pratica",
             "content": {
-              "application/json": {
-                "schema": {}
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
               }
             }
           },
@@ -4938,10 +4941,18 @@
         ],
         "responses": {
           "200": {
-            "description": "Successful Response",
+            "description": "Rapporto pilot redatto in JSON o Markdown",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
               }
             }
           },

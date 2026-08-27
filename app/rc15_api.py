@@ -488,7 +488,16 @@ def rc15_restore_practice(
     return {"ok": True, "practice": practice_payload(db, ctx.tenant_id, item)}
 
 
-@router.get("/practices/{practice_id}/export")
+@router.get(
+    "/practices/{practice_id}/export",
+    response_class=Response,
+    responses={
+        200: {
+            "description": "Archivio ZIP verificabile della pratica",
+            "content": {"application/zip": {"schema": {"type": "string", "format": "binary"}}},
+        }
+    },
+)
 def rc15_export_practice(
     practice_id: str,
     include_originals: bool = Query(default=False),
@@ -708,7 +717,19 @@ def rc15_run_pilot(
     return pilot_payload(db, ctx.tenant_id, item, include_ground_truth=False)
 
 
-@router.get("/pilots/{pilot_id}/report")
+@router.get(
+    "/pilots/{pilot_id}/report",
+    response_class=Response,
+    responses={
+        200: {
+            "description": "Rapporto pilot redatto in JSON o Markdown",
+            "content": {
+                "application/json": {"schema": {"type": "object", "additionalProperties": True}},
+                "text/markdown": {"schema": {"type": "string"}},
+            },
+        }
+    },
+)
 def rc15_pilot_report(
     pilot_id: str,
     format: Literal["json", "markdown"] = Query(default="json"),
