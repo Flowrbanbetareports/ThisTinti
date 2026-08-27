@@ -1,7 +1,7 @@
 {
   "schema": "thistinti.dirty-public-ground-truth.v1",
   "corpus": "ThisTinti Dirty Public Corpus 22",
-  "version": "0.1-discovery",
+  "version": "0.2-discovery",
   "frozen": false,
   "real_company_pilot": false,
   "policy": "Only fields independently readable from pinned upstream sources are scored. Omitted fields are unknown, not failures.",
@@ -38,6 +38,31 @@
         {"sku": "SS-RC-100123", "quantity": "16", "unit_price": "124", "tax_rate": "0", "line_total": "1984"},
         {"sku": "SS-RC-100321", "quantity": "32", "unit_price": "124", "tax_rate": "0", "line_total": "3968"}
       ],
+      "logical_document_count": 1
+    },
+    "vida-hp006-at-be": {
+      "fields": {"document_type": "invoice", "currency": "EUR"},
+      "minimum_lines": 2,
+      "logical_document_count": 1
+    },
+    "vida-hp008-at-be": {
+      "fields": {"document_type": "credit_note", "currency": "EUR"},
+      "minimum_lines": 2,
+      "logical_document_count": 1
+    },
+    "peppol-base-example": {
+      "fields": {"document_type": "invoice", "currency": "EUR"},
+      "minimum_lines": 1,
+      "logical_document_count": 1
+    },
+    "en16931-creditnote1": {
+      "fields": {"document_type": "credit_note"},
+      "minimum_lines": 1,
+      "logical_document_count": 1
+    },
+    "en16931-negative-example": {
+      "fields": {"document_type": "invoice"},
+      "minimum_lines": 1,
       "logical_document_count": 1
     }
   }
