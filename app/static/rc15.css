@@ -1,0 +1,54 @@
+.rc15-view { display: grid; gap: 16px; }
+.rc15-view.hidden { display: none; }
+.rc15-hero { display: flex; align-items: center; justify-content: space-between; gap: 24px; border-left: 4px solid #1f4a45; }
+.rc15-hero h3 { margin: 4px 0 8px; font-size: 1.35rem; }
+.rc15-hero p { margin: 0; max-width: 780px; }
+.rc15-release-badge { min-width: 76px; min-height: 76px; border-radius: 18px; display: grid; place-items: center; font-weight: 800; letter-spacing: .04em; border: 1px solid var(--border, #d8dfdc); background: rgba(31,74,69,.08); }
+.rc15-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.rc15-tabs button { border: 1px solid var(--border, #d8dfdc); background: var(--surface, #fff); border-radius: 999px; padding: 9px 14px; cursor: pointer; }
+.rc15-tabs button.active { background: #1f4a45; color: #fff; border-color: #1f4a45; }
+.rc15-body { display: grid; gap: 16px; }
+.rc15-metrics .metric-card strong { font-variant-numeric: tabular-nums; }
+.rc15-reason { display: block; max-width: 440px; white-space: normal; line-height: 1.35; }
+.badge.rc15-state-acquired { background: rgba(31,74,69,.12); color: #1f4a45; }
+.badge.rc15-state-review_required { background: rgba(166,119,0,.12); }
+.badge.rc15-state-not_acquired { background: rgba(175,92,17,.12); }
+.badge.rc15-state-blocked { background: rgba(161,40,40,.13); }
+.badge.rc15-state-out_of_scope { background: rgba(90,96,102,.12); }
+.rc15-dialog { width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 40px); overflow: auto; }
+.rc15-dialog.wide { width: min(1080px, calc(100vw - 32px)); }
+.rc15-dialog::backdrop { background: rgba(20,28,26,.52); }
+.rc15-dialog textarea { min-height: 92px; resize: vertical; }
+.form-grid.two { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+.form-grid.three { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+.rc15-case-grid { display: grid; gap: 14px; }
+.rc15-transition-box { border-top: 1px solid var(--border, #d8dfdc); margin-top: 16px; padding-top: 16px; }
+.rc15-transition-box textarea { width: 100%; margin-top: 6px; }
+.rc15-history { border-left: 3px solid #1f4a45; padding: 6px 0 6px 12px; margin: 8px 0; }
+.rc15-history span { margin-left: 8px; font-size: .82rem; opacity: .68; }
+.rc15-history p { margin: 3px 0 0; }
+.rc15-two-column { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(280px,.8fr); gap: 16px; }
+.rc15-version-row, .rc15-document-row, .rc15-pilot-case { display: flex; justify-content: space-between; gap: 16px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border, #e4e8e6); }
+.rc15-version-row:last-child, .rc15-document-row:last-child, .rc15-pilot-case:last-child { border-bottom: 0; }
+.rc15-version-row strong, .rc15-document-row strong, .rc15-pilot-case strong { display: block; }
+.rc15-version-row small, .rc15-document-row small, .rc15-pilot-case small { display: block; margin-top: 2px; }
+.rc15-difference { border: 1px solid var(--border, #d8dfdc); border-radius: 12px; padding: 12px; margin: 8px 0; }
+.rc15-difference > strong, .rc15-difference > small { display: block; }
+.rc15-difference p { margin: 6px 0 0; }
+.rc15-freeze-banner { display: grid; gap: 5px; border: 1px solid rgba(31,74,69,.28); background: rgba(31,74,69,.06); border-radius: 12px; padding: 12px 14px; margin: 14px 0; }
+.rc15-freeze-banner.draft { border-color: rgba(166,119,0,.28); background: rgba(166,119,0,.06); }
+.rc15-freeze-banner code { overflow-wrap: anywhere; font-size: .78rem; }
+.rc15-ground-truth-help { border: 1px solid var(--border, #d8dfdc); border-radius: 12px; padding: 12px; background: rgba(31,74,69,.035); }
+.rc15-ground-truth-help p { margin: 6px 0 0; }
+.rc15-practice-actions { position: sticky; bottom: 0; background: var(--surface, #fff); padding-top: 12px; }
+.danger-button { border: 1px solid #9b2f2f; background: transparent; color: #9b2f2f; border-radius: 8px; padding: 9px 14px; cursor: pointer; }
+.danger-text { color: #9b2f2f; }
+
+@media (max-width: 850px) {
+  .rc15-hero { align-items: flex-start; }
+  .rc15-release-badge { min-width: 58px; min-height: 58px; }
+  .rc15-two-column, .form-grid.two, .form-grid.three { grid-template-columns: 1fr; }
+  .rc15-tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
+  .rc15-tabs button { white-space: nowrap; }
+  .rc15-version-row, .rc15-document-row, .rc15-pilot-case { align-items: flex-start; flex-direction: column; }
+}
