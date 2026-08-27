@@ -1,0 +1,161 @@
+name: RC15 Maintenance 2
+on:
+  push:
+    branches: [rc15/pilot-ready]
+permissions:
+  contents: write
+jobs:
+  maintain:
+    if: ${{ !contains(github.event.head_commit.message, '[rc15-maintenance-done]') }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: rc15/pilot-ready
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.13'
+      - name: Apply RC15 refinements
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def rep(path, old, new, count=None):
+              p = Path(path)
+              text = p.read_text(encoding='utf-8')
+              if old not in text:
+                  print(f'skip absent pattern: {path}: {old[:70]!r}')
+                  return False
+              text = text.replace(old, new, count if count is not None else -1)
+              p.write_text(text, encoding='utf-8')
+              return True
+
+          rep('pyproject.toml', '"tests/conftest.py" = ["E402"]\n"app/rc15_api.py" = ["F401"]\n"app/services/rc15.py" = ["F401"]\n', '"tests/conftest.py" = ["E402"]\n')
+          rep('app/rc15_api.py', 'from pathlib import Path\n', '')
+          rep('app/rc15_api.py', 'from .models import DiscrepancyCase, Document, OperationChain, Supplier, utcnow\n', 'from .models import Document, Supplier, utcnow\n')
+          rep('app/rc15_api.py', '    RC15PilotCase,\n', '')
+          rep('app/services/rc15.py', 'from .ingestion import reprocess_document\n', '')
+          rep('app/services/rc15.py', 'from .rules import analyze_chain\n', '')
+
+          rep('app/rc15_models.py', '        CheckConstraint("confirmed_loss IS NULL OR confirmed_loss >= 0", name="ck_rc15_loss_nonnegative"),\n', '        CheckConstraint("confirmed_loss IS NULL OR confirmed_loss >= 0", name="ck_rc15_loss_nonnegative"),\n        CheckConstraint(\n            "state IN (\'unknown\', \'estimated\', \'confirmed_zero\', \'loss_confirmed\', \'not_applicable\')",\n            name="ck_rc15_economic_state",\n        ),\n')
+          rep('app/rc15_models.py', '    case_id: Mapped[str] = mapped_column(ForeignKey("discrepancy_cases.id", ondelete="CASCADE"), index=True)\n    potential_exposure:', '    case_id: Mapped[str] = mapped_column(ForeignKey("discrepancy_cases.id", ondelete="CASCADE"), index=True)\n    state: Mapped[str] = mapped_column(String(30), default="unknown")\n    potential_exposure:')
+          rep('app/rc15_models.py', '    chain_id: Mapped[str | None] = mapped_column(ForeignKey("operation_chains.id", ondelete="SET NULL"), nullable=True)\n', '    chain_id: Mapped[str | None] = mapped_column(\n        ForeignKey("operation_chains.id", ondelete="SET NULL"), nullable=True, index=True\n    )\n')
+
+          rep('migrations/versions/e15c0a7f4d21_add_rc15_pilot_ready.py', '        sa.Column("case_id", sa.String(length=36), nullable=False),\n        sa.Column("potential_exposure",', '        sa.Column("case_id", sa.String(length=36), nullable=False),\n        sa.Column("state", sa.String(length=30), nullable=False, server_default="unknown"),\n        sa.Column("potential_exposure",')
+          rep('migrations/versions/e15c0a7f4d21_add_rc15_pilot_ready.py', '        sa.CheckConstraint("confirmed_loss IS NULL OR confirmed_loss >= 0", name="ck_rc15_loss_nonnegative"),\n', '        sa.CheckConstraint("confirmed_loss IS NULL OR confirmed_loss >= 0", name="ck_rc15_loss_nonnegative"),\n        sa.CheckConstraint(\n            "state IN (\'unknown\', \'estimated\', \'confirmed_zero\', \'loss_confirmed\', \'not_applicable\')",\n            name="ck_rc15_economic_state",\n        ),\n')
+
+          rep('app/services/rc15.py', '            "potential_exposure": None,\n            "confirmed_loss": None,\n            "currency": None,', '            "state": "unknown",\n            "potential_exposure": None,\n            "confirmed_loss": None,\n            "currency": None,')
+          rep('app/services/rc15.py', '    return {\n        "potential_exposure": _money(item.potential_exposure),\n', '    return {\n        "state": item.state,\n        "potential_exposure": _money(item.potential_exposure),\n', 1)
+          rep('app/services/rc15.py', '    *,\n    potential_exposure: Decimal | None,\n    confirmed_loss: Decimal | None,\n    currency: str,\n    note: str,\n) -> RC15CaseEconomicAssessment:', '    *,\n    state: str | None,\n    potential_exposure: Decimal | None,\n    confirmed_loss: Decimal | None,\n    currency: str,\n    note: str,\n) -> RC15CaseEconomicAssessment:')
+          rep('app/services/rc15.py', '    if confirmed_loss is not None and confirmed_loss < 0:\n        raise ValueError("La perdita confermata non può essere negativa")\n    normalized_note = note.strip()\n', '    if confirmed_loss is not None and confirmed_loss < 0:\n        raise ValueError("La perdita confermata non può essere negativa")\n    normalized_state = state\n    if normalized_state is None:\n        if confirmed_loss is not None:\n            normalized_state = "confirmed_zero" if confirmed_loss == 0 else "loss_confirmed"\n        elif potential_exposure is not None:\n            normalized_state = "estimated"\n        else:\n            normalized_state = "unknown"\n    allowed_states = {"unknown", "estimated", "confirmed_zero", "loss_confirmed", "not_applicable"}\n    if normalized_state not in allowed_states:\n        raise ValueError("Stato economico non valido")\n    if normalized_state in {"unknown", "not_applicable"} and (potential_exposure is not None or confirmed_loss is not None):\n        raise ValueError("Uno stato sconosciuto/non applicabile non può contenere importi")\n    if normalized_state == "estimated" and (potential_exposure is None or confirmed_loss is not None):\n        raise ValueError("Lo stato stimato richiede importo potenziale e nessuna perdita confermata")\n    if normalized_state == "confirmed_zero" and confirmed_loss != 0:\n        raise ValueError("Lo stato confirmed_zero richiede perdita confermata pari a zero")\n    if normalized_state == "loss_confirmed" and (confirmed_loss is None or confirmed_loss <= 0):\n        raise ValueError("Lo stato loss_confirmed richiede una perdita confermata positiva")\n    normalized_note = note.strip()\n')
+          rep('app/services/rc15.py', '            tenant_id=tenant_id,\n            case_id=case_id,\n            potential_exposure=potential_exposure,', '            tenant_id=tenant_id,\n            case_id=case_id,\n            state=normalized_state,\n            potential_exposure=potential_exposure,')
+          rep('app/services/rc15.py', '    else:\n        item.potential_exposure = potential_exposure\n', '    else:\n        item.state = normalized_state\n        item.potential_exposure = potential_exposure\n', 1)
+          rep('app/services/rc15.py', '            "potential_exposure": str(potential_exposure) if potential_exposure is not None else None,\n            "confirmed_loss": str(confirmed_loss) if confirmed_loss is not None else None,', '            "state": normalized_state,\n            "potential_exposure": str(potential_exposure) if potential_exposure is not None else None,\n            "confirmed_loss": str(confirmed_loss) if confirmed_loss is not None else None,')
+
+          rep('app/rc15_api.py', 'class EconomicAssessmentRequest(BaseModel):\n    potential_exposure:', 'class EconomicAssessmentRequest(BaseModel):\n    state: Literal["unknown", "estimated", "confirmed_zero", "loss_confirmed", "not_applicable"] | None = None\n    potential_exposure:')
+          rep('app/rc15_api.py', '            case_id,\n            potential_exposure=payload.potential_exposure,', '            case_id,\n            state=payload.state,\n            potential_exposure=payload.potential_exposure,')
+
+          marker = '    try:\n        archive, manifest_hash = build_practice_export(\n            db, ctx.tenant_id, practice_id, include_originals=include_originals\n        )\n'
+          replacement = '    if include_originals:\n        raise HTTPException(\n            status_code=409,\n            detail="RC15 non include documenti originali negli export: SHA-256 protegge l’integrità, non la riservatezza.",\n        )\n    try:\n        archive, manifest_hash = build_practice_export(\n            db, ctx.tenant_id, practice_id, include_originals=False\n        )\n'
+          rep('app/rc15_api.py', marker, replacement)
+
+          rep('app/services/rc15.py', '    ground_truth_changes = any(value is not None for value in (reviewer_primary, reviewer_secondary, adjudicated))\n    if ground_truth_changes and pilot.status != "draft":\n        raise ValueError("La ground truth è congelata; crea una nuova versione del pilot per correggerla")\n', '    reviewer_changes = any(value is not None for value in (reviewer_primary, reviewer_secondary))\n    if reviewer_changes and pilot.status != "draft":\n        raise ValueError("Le revisioni indipendenti sono congelate; crea una nuova versione del pilot per correggerle")\n    if adjudicated is not None and pilot.status != "frozen":\n        raise ValueError("L’adjudication è consentita soltanto dopo il congelamento cieco e prima dell’esecuzione")\n')
+          rep('app/services/rc15.py', '        adjudicated = _json(item.adjudicated_json, {})\n        if not primary or not secondary or not adjudicated:\n            raise ValueError(f"Ground truth incompleta per la pratica {item.practice_id}")\n', '        if not primary or not secondary:\n            raise ValueError(f"Revisioni indipendenti incomplete per la pratica {item.practice_id}")\n')
+          rep('app/services/rc15.py', '                "reviewer_primary_hash": _sha(primary),\n                "reviewer_secondary_hash": _sha(secondary),\n                "adjudicated": adjudicated,\n', '                "reviewer_primary_hash": _sha(primary),\n                "reviewer_secondary_hash": _sha(secondary),\n                "reviewers_agree": _sha(primary) == _sha(secondary),\n')
+          rep('app/services/rc15.py', '        expected = _expected_findings(frozen.get("adjudicated") or {})\n', '        primary = _json(item.reviewer_primary_json, {})\n        secondary = _json(item.reviewer_secondary_json, {})\n        if _sha(primary) != frozen.get("reviewer_primary_hash") or _sha(secondary) != frozen.get("reviewer_secondary_hash"):\n            raise ValueError(f"Le revisioni cieche della pratica {item.practice_id} sono cambiate dopo il congelamento")\n        if _sha(primary) == _sha(secondary):\n            adjudicated = primary\n        else:\n            adjudicated = _json(item.adjudicated_json, {})\n            if not adjudicated:\n                raise ValueError(f"Adjudication mancante per la pratica {item.practice_id}")\n        expected = _expected_findings(adjudicated)\n')
+          rep('app/services/rc15.py', '        primary = _json(item.reviewer_primary_json, {})\n        secondary = _json(item.reviewer_secondary_json, {})\n        disagreements += int(_sha(primary) != _sha(secondary))\n', '        disagreements += int(_sha(primary) != _sha(secondary))\n')
+          rep('app/services/rc15.py', '                "critical_misses": case_critical_misses,\n            }\n', '                "critical_misses": case_critical_misses,\n                "adjudication_hash": _sha(adjudicated),\n            }\n')
+          rep('app/services/rc15.py', '        result["ground_truth_recorded"] = all(\n            bool(_json(value, {}))\n            for value in (item.reviewer_primary_json, item.reviewer_secondary_json, item.adjudicated_json)\n        )\n', '        primary = _json(item.reviewer_primary_json, {})\n        secondary = _json(item.reviewer_secondary_json, {})\n        result["blind_reviews_recorded"] = bool(primary) and bool(secondary)\n        result["reviewer_disagreement"] = bool(primary) and bool(secondary) and _sha(primary) != _sha(secondary)\n        result["adjudication_recorded"] = bool(_json(item.adjudicated_json, {}))\n')
+
+          rep('app/rc15_api.py', '            "structured_text_differences",\n', '            "structured_attribute_differences",\n')
+          rep('docs/RC15_PILOT_READY_PLAN.md', '### E. Structured commercial text differences\n\n- Surface deterministic differences in embedded numbers, units, model/SKU and configured significant attributes.\n- No free-form cloud LLM decision engine in RC15.\n', '### E. Structured commercial attributes\n\n- Surface the structured SKU/model, unit, color, size and lot differences already available from extraction and matching.\n- A new free-form semantic/text-difference engine is deferred until pilot evidence proves it is needed.\n- No free-form cloud LLM decision engine in RC15.\n')
+          rep('.github/workflows/ci.yml', 'test "$(alembic current | grep -c d42a0f61be90)" -eq 1', 'test "$(alembic current | grep -c e15c0a7f4d21)" -eq 1')
+
+          p = Path('tests/test_simplified_experience.py')
+          t = p.read_text(encoding='utf-8')
+          if 'from app.version import RELEASE_VERSION' not in t:
+              t = t.replace('from pathlib import Path\n', 'from pathlib import Path\n\nfrom app.version import RELEASE_VERSION\n', 1)
+          t = t.replace('    assert "UI_VERSION = \'3.4.0-alpha.7-rc.12\'" in loader\n', '    assert f"UI_VERSION = \'{RELEASE_VERSION}\'" in loader\n')
+          p.write_text(t, encoding='utf-8')
+          PY
+      - name: Add focused RC15 tests
+        shell: bash
+        run: |
+          cat > tests/test_rc15_pilot_ready.py <<'PY'
+          from decimal import Decimal
+
+          import pytest
+          from sqlalchemy import select
+
+          from app.db import SessionLocal
+          from app.models import DiscrepancyCase, OperationChain, Tenant, User
+          from app.rc15_models import RC15CaseEconomicAssessment, RC15IntakeRecord
+          from app.services.rc15 import economic_assessment_payload, set_economic_assessment, transition_case
+
+          def _seed_case():
+              with SessionLocal() as db:
+                  tenant = Tenant(name="RC15 Test")
+                  db.add(tenant)
+                  db.flush()
+                  user = User(tenant_id=tenant.id, email="rc15@example.com", password_hash="x", role="admin")
+                  db.add(user)
+                  chain = OperationChain(tenant_id=tenant.id, reference_key="RC15-CASE")
+                  db.add(chain)
+                  db.flush()
+                  case = DiscrepancyCase(tenant_id=tenant.id, chain_id=chain.id, fingerprint="a"*64, case_type="quantity_mismatch", severity="high", title="Mismatch", explanation="Mismatch")
+                  db.add(case)
+                  db.commit()
+                  return tenant.id, user.id, case.id
+
+          def test_economic_unknown_is_distinct_from_confirmed_zero():
+              tenant_id, user_id, case_id = _seed_case()
+              with SessionLocal() as db:
+                  unknown = set_economic_assessment(db, tenant_id, user_id, case_id, state="unknown", potential_exposure=None, confirmed_loss=None, currency="EUR", note="Importo non determinabile")
+                  assert economic_assessment_payload(unknown)["state"] == "unknown"
+                  assert unknown.confirmed_loss is None
+                  zero = set_economic_assessment(db, tenant_id, user_id, case_id, state="confirmed_zero", potential_exposure=None, confirmed_loss=Decimal("0"), currency="EUR", note="Nessuna perdita confermata")
+                  assert economic_assessment_payload(zero)["state"] == "confirmed_zero"
+                  assert zero.confirmed_loss == Decimal("0")
+
+          def test_economic_state_rejects_ambiguous_values():
+              tenant_id, user_id, case_id = _seed_case()
+              with SessionLocal() as db:
+                  with pytest.raises(ValueError):
+                      set_economic_assessment(db, tenant_id, user_id, case_id, state="unknown", potential_exposure=Decimal("10"), confirmed_loss=None, currency="EUR", note="Valore ambiguo")
+
+          def test_case_reopen_preserves_human_history():
+              tenant_id, user_id, case_id = _seed_case()
+              with SessionLocal() as db:
+                  transition_case(db, tenant_id, user_id, case_id, "confirmed", "Confermata sui documenti")
+                  transition_case(db, tenant_id, user_id, case_id, "resolved", "Correzione completata")
+                  item = transition_case(db, tenant_id, user_id, case_id, "reopen", "Nuova evidenza ricevuta")
+                  assert item.status == "needs_review"
+                  from app.models import ReviewDecision
+                  history = list(db.scalars(select(ReviewDecision).where(ReviewDecision.case_id == case_id)))
+                  assert [entry.decision for entry in history] == ["confirmed", "resolved", "needs_review"]
+
+          def test_intake_human_classification_is_separate_data():
+              assert RC15IntakeRecord.__tablename__ == "rc15_intake_records"
+              assert {"subject_id", "state", "category"}.issubset(RC15IntakeRecord.__table__.columns.keys())
+
+          def test_economic_state_is_persisted_explicitly():
+              assert "state" in RC15CaseEconomicAssessment.__table__.columns
+          PY
+      - name: Format and validate edits
+        shell: bash
+        run: |
+          pip install -r requirements-dev.txt
+          ruff format app/rc15_api.py app/services/rc15.py app/rc15_models.py migrations/versions/e15c0a7f4d21_add_rc15_pilot_ready.py tests/test_rc15_pilot_ready.py tests/test_simplified_experience.py
+          ruff check app/rc15_api.py app/services/rc15.py app/rc15_models.py tests/test_rc15_pilot_ready.py
+          pytest -q tests/test_rc15_pilot_ready.py tests/test_module_boundaries.py
+      - name: Commit result and remove maintenance workflows
+        shell: bash
+        run: |
+          rm -f .github/workflows/rc15-maintenance.yml .github/workflows/rc15-maintenance2.yml
+          git config user.name "ThisTinti"
+          git config user.email "flowrbanbetareports@gmail.com"
+          git add -A
+          git commit -m "RC15: harden pilot methodology and integration [rc15-maintenance-done]"
+          git push origin HEAD:rc15/pilot-ready
