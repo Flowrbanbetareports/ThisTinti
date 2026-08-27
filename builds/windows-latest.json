@@ -1,15 +1,15 @@
 {
   "schema": "thistinti.release-provenance.v1",
-  "version": "3.4.0-alpha.7-rc.13",
+  "version": "3.4.0-alpha.7-rc.14",
   "source": {
-    "commit": "da569f36ebba4224bacf19256cdd7b132dade036",
-    "tree": "61070cf15b012334fc50cb636e382d1c6fefc9ef"
+    "commit": "6bbb980256869896bf66f0e125ccff6c047540e3",
+    "tree": "ab827cbc9b5aa408e8c9e50c8868bf62ab444208"
   },
   "build": {
     "workflow": "Build Windows Free Download",
-    "run_id": 33088401232,
-    "run_number": 454,
-    "artifact_name": "ThisTinti-Windows-33088401232-454"
+    "run_id": 33104580870,
+    "run_number": 477,
+    "artifact_name": "ThisTinti-Windows-33104580870-477"
   },
   "upgrade_baseline": {
     "version": "3.4.0-alpha.7-rc.5",
@@ -27,116 +27,28 @@
     "installer_lifecycle_passed": true
   },
   "files": [
-    {
-      "name": "DISCLAIMER.md",
-      "size": 1223,
-      "sha256": "46abf3a02065f5b05d99e48db625e88050172ab7983b411d7cfb74348d1920b1"
-    },
-    {
-      "name": "OPENAPI.json",
-      "size": 169489,
-      "sha256": "281c35059a6b9b0a6f55d4bf36df4a415946bc3ca475aa7256b0ac8ed86e5595"
-    },
-    {
-      "name": "PRIVACY.md",
-      "size": 1049,
-      "sha256": "378966bb8c0cbd7d73614abfbcaddd1889c469722b261431b89c7748ae03642a"
-    },
-    {
-      "name": "RELEASE_NOTES.md",
-      "size": 12062,
-      "sha256": "f01e2e2b2b78ed11ccc5eee90f93597531a0707b12962e66ca10fb2e13483b46"
-    },
-    {
-      "name": "SBOM.cdx.json",
-      "size": 8748,
-      "sha256": "28e254f3d9bc281f211fe9473a6c4ffb4ab878085042d910ffe768ef2bae0605"
-    },
-    {
-      "name": "SELF-HOSTED-ACCEPTANCE-CHECKLIST.md",
-      "size": 1706,
-      "sha256": "9ef2bb121b3ae2d43ba43082ca28205ae8ae5e643d888852bce7bfced365c039"
-    },
-    {
-      "name": "SELF-HOSTED-RESPONSIBILITY-MATRIX.md",
-      "size": 1869,
-      "sha256": "4dc88ac0a454171fcb19b45bbe9d0b3cefce45e155eb1067ed46ec484d105eac"
-    },
-    {
-      "name": "SUPPORT.md",
-      "size": 1348,
-      "sha256": "360a8e7c4294c2eaa3b20687684ad58412f6a4903d98703e8601cc0c08572436"
-    },
-    {
-      "name": "TERMS_OF_USE.md",
-      "size": 10817,
-      "sha256": "b29d072205616a8f57216446c6b48036f8fcc078b675b7590485b218b2383f6f"
-    },
-    {
-      "name": "TRADEMARKS.md",
-      "size": 1454,
-      "sha256": "99686695605070db78372b1dcbf8cc6dbffd67efff32c6ca38ba433370508dc8"
-    },
-    {
-      "name": "ThisTinti-3.4.0-alpha.7-rc.13-self-hosted-source.zip",
-      "size": 814148,
-      "sha256": "1fc9a66e6a9adf9081367439ffc6980000f28343642f4fa2c114b08160d82ef1"
-    },
-    {
-      "name": "ThisTinti-3.4.0-alpha.7-rc.13-self-hosted-source.zip.sha256",
-      "size": 120,
-      "sha256": "1c6e414641c9e48320c70472b0ce26c6d4f42fcf5f3b1f3438e72635d7389068"
-    },
-    {
-      "name": "ThisTinti-Portable-3.4.0-alpha.7-rc.13-x64.zip",
-      "size": 82552665,
-      "sha256": "c1131e99cdc582a11b408e2806abd3b93705acddcb58dab00a50a7f0c17a6617"
-    },
-    {
-      "name": "ThisTinti-Portable-3.4.0-alpha.7-rc.13-x64.zip.sha256",
-      "size": 114,
-      "sha256": "a8ec18815556a97dc71c93172111ddec8c9b02875a4c6592cb3cc9410f3bdb8a"
-    },
-    {
-      "name": "ThisTinti-Setup-3.4.0-alpha.7-rc.13-x64.exe",
-      "size": 57291636,
-      "sha256": "906d673f70feb769c247dc0d3780601cf327143ac8850d266a3705fead4b63cd"
-    },
-    {
-      "name": "ThisTinti-Setup-3.4.0-alpha.7-rc.13-x64.exe.sha256",
-      "size": 111,
-      "sha256": "23fffe252ec47a12a79d793ffdda675031fec3099ff84fa78733d723deccf87c"
-    },
-    {
-      "name": "VERIFY-THIS-DOWNLOAD.md",
-      "size": 1222,
-      "sha256": "179bc88bfccaa8dab4c1abd4c1e489a0ba240a894bdddf3e3c4a5072e47f3918"
-    },
-    {
-      "name": "frozen-local-smoke.json",
-      "size": 475,
-      "sha256": "86ef47a00162f379c4951bc8aa38670096dce6e2dee89880facbea8edd90913a"
-    },
-    {
-      "name": "installed-diagnostics-report.json",
-      "size": 1110,
-      "sha256": "b6495663c1ef25b63f7c1cb9d0363891d6328981de16f87d820f5761dc863dd1"
-    },
-    {
-      "name": "installed-diagnostics-verbal.json",
-      "size": 6483,
-      "sha256": "5eaf5842b17277d3b9ed6fe72c913e3112b3f4ef45804c4b1d92896d04602ec7"
-    },
-    {
-      "name": "installed-local-smoke.json",
-      "size": 488,
-      "sha256": "3ca29be6c7b067d3319b6cbc8b338654d7c1838528da9de367777c845f3600f0"
-    },
-    {
-      "name": "installer-lifecycle-smoke.json",
-      "size": 441,
-      "sha256": "1cfa57361a9904704ba84fac9de0c7d8eb97af1306baea2a1684eea8e09e8983"
-    }
+    {"name": "DISCLAIMER.md", "size": 1223, "sha256": "46abf3a02065f5b05d99e48db625e88050172ab7983b411d7cfb74348d1920b1"},
+    {"name": "OPENAPI.json", "size": 169489, "sha256": "a262510c20d0631a3f0d52a98eb60bc44e316b876d29d8b7192b252c87ddeedb"},
+    {"name": "PRIVACY.md", "size": 1049, "sha256": "378966bb8c0cbd7d73614abfbcaddd1889c469722b261431b89c7748ae03642a"},
+    {"name": "RELEASE_NOTES.md", "size": 13776, "sha256": "d36845abcdea1790ba1eca119307d8543ae1d77bb1366286b269e70a725abbd4"},
+    {"name": "SBOM.cdx.json", "size": 8748, "sha256": "fb8b832ab0b59ae975c529b7e6e8783e28c51855e6c6bf530e05984269a29511"},
+    {"name": "SELF-HOSTED-ACCEPTANCE-CHECKLIST.md", "size": 1706, "sha256": "9ef2bb121b3ae2d43ba43082ca28205ae8ae5e643d888852bce7bfced365c039"},
+    {"name": "SELF-HOSTED-RESPONSIBILITY-MATRIX.md", "size": 1869, "sha256": "4dc88ac0a454171fcb19b45bbe9d0b3cefce45e155eb1067ed46ec484d105eac"},
+    {"name": "SUPPORT.md", "size": 1348, "sha256": "360a8e7c4294c2eaa3b20687684ad58412f6a4903d98703e8601cc0c08572436"},
+    {"name": "TERMS_OF_USE.md", "size": 10817, "sha256": "b29d072205616a8f57216446c6b48036f8fcc078b675b7590485b218b2383f6f"},
+    {"name": "TRADEMARKS.md", "size": 1454, "sha256": "99686695605070db78372b1dcbf8cc6dbffd67efff32c6ca38ba433370508dc8"},
+    {"name": "ThisTinti-3.4.0-alpha.7-rc.14-self-hosted-source.zip", "size": 819703, "sha256": "e627bcda5c9807ed109b744938f7362daa467d71072c3b7a431afb0bab264274"},
+    {"name": "ThisTinti-3.4.0-alpha.7-rc.14-self-hosted-source.zip.sha256", "size": 120, "sha256": "835da2ea31dd5bb55689aa3b21ef7fc5f01de6fe49f83f2c5c457bf83038b305"},
+    {"name": "ThisTinti-Portable-3.4.0-alpha.7-rc.14-x64.zip", "size": 82557382, "sha256": "9bec681d7e4ed8bf7e5335119ac410e1aeb7ef4a6aaab58c546c06480c242f68"},
+    {"name": "ThisTinti-Portable-3.4.0-alpha.7-rc.14-x64.zip.sha256", "size": 114, "sha256": "92b9f4d71369461e5c8805b91897eafe044a56fa97459d9296a2be9019d50155"},
+    {"name": "ThisTinti-Setup-3.4.0-alpha.7-rc.14-x64.exe", "size": 57296348, "sha256": "87c7f720566d003399e816fddd3f4c2ecc4c321d53083f27aeda6eef53b7c0d0"},
+    {"name": "ThisTinti-Setup-3.4.0-alpha.7-rc.14-x64.exe.sha256", "size": 111, "sha256": "9e84926cda08738b8952efb643fbc724fcdb1b80c8e41820c8976902ceb809ba"},
+    {"name": "VERIFY-THIS-DOWNLOAD.md", "size": 1222, "sha256": "179bc88bfccaa8dab4c1abd4c1e489a0ba240a894bdddf3e3c4a5072e47f3918"},
+    {"name": "frozen-local-smoke.json", "size": 475, "sha256": "78d731dc0bc8b16e95e5f6b256ceb3abc1cd23f61806ee6e6df1161a717c1654"},
+    {"name": "installed-diagnostics-report.json", "size": 1110, "sha256": "a9ff77538a91102dcbbe002a8fd060ca024f32497fa989d41486aa372663ae6e"},
+    {"name": "installed-diagnostics-verbal.json", "size": 6481, "sha256": "e6dfcab1ef9d74af03f0291f5222f1cf82b91b247d4900c31454ebcd544de379"},
+    {"name": "installed-local-smoke.json", "size": 488, "sha256": "d0700d8bc3397bddbb9848304df3e6e5b555defd2b033affa54fc7fadf1433f2"},
+    {"name": "installer-lifecycle-smoke.json", "size": 441, "sha256": "1d6c164c12290088f94452f9fce6f38c0a7c3dfb71c23486d252ff4249245e1b"}
   ],
-  "generated_at": "2026-08-27T15:42:16.174310+00:00"
+  "generated_at": "2026-08-27T18:49:13.098020+00:00"
 }
