@@ -56,6 +56,10 @@ jobs:
           ruff format --check app/rc15_api.py
           python scripts/generate_openapi.py --output docs/openapi.json
           git diff --check
+      - name: Diagnose extended regression explicitly
+        env:
+          PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
+        run: pytest -vv tests/test_extended.py --tb=long
       - name: Verify OpenAPI contract
         run: python scripts/verify_release.py
       - name: Commit fix when changed
