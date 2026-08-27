@@ -1,9 +1,9 @@
 {
   "schema": "thistinti.apparel-pre-pilot.v1",
-  "generated_at": "2026-08-02T23:51:47.607544+00:00",
+  "generated_at": "2026-08-27T11:32:10.614937+00:00",
   "product": {
     "name": "ThisTinti",
-    "engine_version": "3.4.0-alpha.7-rc.8"
+    "engine_version": "3.4.0-alpha.7-rc.13"
   },
   "classification": {
     "evidence_level": "synthetic",
@@ -49,8 +49,8 @@
       "amount_mae": 0.0,
       "gate_passed": true,
       "all_scenarios_pass": true,
-      "elapsed_seconds": 1.005,
-      "average_seconds_per_scenario": 0.033
+      "elapsed_seconds": 0.865,
+      "average_seconds_per_scenario": 0.029
     },
     "scenario_results": [
       {
@@ -893,7 +893,7 @@
         "number": "INV-SCAN-001",
         "confidence": 0.55,
         "line_count": 1,
-        "elapsed_seconds": 0.987
+        "elapsed_seconds": 0.904
       },
       {
         "id": "scan-02",
@@ -905,7 +905,7 @@
         "number": "INV-SCAN-002",
         "confidence": 0.55,
         "line_count": 1,
-        "elapsed_seconds": 0.878
+        "elapsed_seconds": 0.657
       },
       {
         "id": "scan-03",
@@ -917,7 +917,7 @@
         "number": "INV-SCAN-003",
         "confidence": 0.55,
         "line_count": 1,
-        "elapsed_seconds": 1.983
+        "elapsed_seconds": 1.523
       }
     ],
     "gating": false
