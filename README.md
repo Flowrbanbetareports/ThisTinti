@@ -6,24 +6,22 @@ ThisTinti non decide, non approva e non certifica nulla. Organizza informazioni 
 
 ## Stato del rilascio
 
-Release pubblica corrente: **3.4.0-alpha.7-rc.14 — Public Preview**.
+Release pubblica corrente: **3.4.0-alpha.7-rc.15 — RC15 Pilot-Ready — Public Preview**.
 
-Candidato in qualificazione: **3.4.0-alpha.7-rc.15 — RC15 Pilot-Ready**. Non è ancora una release pubblicata: RC14 resta la Public Preview corrente finché tutti i gate canonici non risultano verdi sul medesimo commit finale, seguiti dalla verifica sul commit finale di `main`.
+RC15 completa il workflow supervisionato di pratica, il lifecycle auditabile delle segnalazioni, il pilot workspace integrato, il profilo azienda versionato e le operazioni esplicite di export, archivio e cancellazione. La pubblicazione è legata al commit applicativo, al tree Git e al workflow Windows verificati qui sotto.
 
-RC14 consolida gli hardening e le evidenze post-RC13: benchmark controllato da 30 scenari, corpus esterno/raw da 22 documenti, irrobustimento PDF/OCR e backup/restore, oltre alla correzione dell’upgrade Windows quando una precedente installazione di ThisTinti è ancora in esecuzione.
+RC15 resta una Public Preview supervisionata. I gate tecnici automatici e il ciclo Windows RC14→RC15 sono stati superati, ma questo non chiude i gate esterni necessari per una beta validata o per la produzione: pilot reale autorizzato, revisione indipendente di sicurezza e legale/privacy/trademark, collaudo WCAG manuale con tecnologie assistive, test con utenti non istruiti, firma Authenticode e prove sull’infrastruttura definitiva restano separati e devono produrre evidenza reale.
 
-La RC14 resta una Public Preview supervisionata. È stata pubblicata dopo i gate sul commit esatto e sull’installer Windows corrispondente; non chiude i gate esterni necessari per una beta validata o per la produzione: pilot reale, revisione indipendente di sicurezza e legale/privacy, collaudo WCAG manuale con tecnologie assistive, test con utenti non istruiti, firma Authenticode e prove sull’infrastruttura definitiva restano separati e devono produrre evidenza reale.
+Evidenza della Public Preview RC15:
 
-Evidenza della Public Preview RC14:
-
-- tag: `v3.4.0-alpha.7-rc.14`;
-- commit applicativo: `6bbb980256869896bf66f0e125ccff6c047540e3`;
-- tree Git: `ab827cbc9b5aa408e8c9e50c8868bf62ab444208`;
-- workflow Windows: run `33104580870`, build `477`;
-- installer: `ThisTinti-Setup-3.4.0-alpha.7-rc.14-x64.exe`;
-- SHA-256 installer: `87c7f720566d003399e816fddd3f4c2ecc4c321d53083f27aeda6eef53b7c0d0`;
-- pubblicazione GitHub: `2026-08-27T19:00:15Z`;
-- release: https://github.com/Flowrbanbetareports/ThisTinti/releases/tag/v3.4.0-alpha.7-rc.14
+- tag: `v3.4.0-alpha.7-rc.15`;
+- commit applicativo: `0c99155d17374ce195db4ec65200a8edcf1bcdd1`;
+- tree Git: `8e91471fbaa833c10011e1863cd0049740c64225`;
+- workflow Windows: run `33125242692`, build `513`;
+- installer: `ThisTinti-Setup-3.4.0-alpha.7-rc.15-x64.exe`;
+- SHA-256 installer: `48429173e92ff189d1d968609749695a8ac9354519710850e61fd954c7d9c832`;
+- pubblicazione GitHub: `2026-08-27T23:32:18Z`;
+- release: https://github.com/Flowrbanbetareports/ThisTinti/releases/tag/v3.4.0-alpha.7-rc.15
 
 ## Identità e posizionamento
 
@@ -43,9 +41,9 @@ La Local Edition è progettata per essere usata senza un servizio gestito da Thi
 - archivio portable e checksum SHA-256;
 - sorgente corrispondente incluso ed esportabile sotto licenza Apache 2.0.
 
-Installer Windows RC14 verificato:
+Installer Windows RC15 verificato:
 
-https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.14/ThisTinti-Setup-3.4.0-alpha.7-rc.14-x64.exe
+https://github.com/Flowrbanbetareports/ThisTinti/releases/download/v3.4.0-alpha.7-rc.15/ThisTinti-Setup-3.4.0-alpha.7-rc.15-x64.exe
 
 La build pubblica viene generata da `.github/workflows/windows-release.yml`. Prima della pubblicazione il percorso di rilascio esegue test, controlli di sicurezza, build congelata, installazione della baseline, aggiornamento, persistenza dei dati, smoke test dell’app installata, Diagnostica reale, disinstallazione, checksum, provenienza e attestazioni.
 
