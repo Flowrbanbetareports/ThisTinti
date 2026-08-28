@@ -40,7 +40,9 @@ def _current_schema_version(engine: Engine) -> int | None:
     if VERSION_TABLE not in set(inspector.get_table_names()):
         return None
     with engine.connect() as connection:
-        current = connection.execute(text(f"SELECT version FROM {VERSION_TABLE} WHERE id = 1")).scalar_one_or_none()
+        current = connection.execute(
+            text("SELECT version FROM thistinti_local_schema WHERE id = 1")
+        ).scalar_one_or_none()
     return int(current) if current is not None else None
 
 
@@ -87,8 +89,8 @@ def upgrade_local_schema(engine: Engine | None = None) -> int:
     with engine.begin() as connection:
         connection.execute(
             text(
-                f"""
-                CREATE TABLE IF NOT EXISTS {VERSION_TABLE} (
+                """
+                CREATE TABLE IF NOT EXISTS thistinti_local_schema (
                     id INTEGER PRIMARY KEY CHECK (id = 1),
                     version INTEGER NOT NULL,
                     applied_at TEXT NOT NULL
@@ -98,8 +100,8 @@ def upgrade_local_schema(engine: Engine | None = None) -> int:
         )
         connection.execute(
             text(
-                f"""
-                INSERT INTO {VERSION_TABLE} (id, version, applied_at)
+                """
+                INSERT INTO thistinti_local_schema (id, version, applied_at)
                 VALUES (1, :version, :applied_at)
                 ON CONFLICT(id) DO UPDATE SET
                     version = excluded.version,
