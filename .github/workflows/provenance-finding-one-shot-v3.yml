@@ -205,6 +205,13 @@ jobs:
         env:
           THISTINTI_OCR_ENABLED: 'false'
         run: python -m pytest -q tests/test_duplicate_number_finding_provenance.py
+      - name: Compatibility regression probe
+        env:
+          THISTINTI_OCR_ENABLED: 'false'
+        shell: bash
+        run: |
+          rm -f .coverage .coverage.*
+          python -m coverage run --source=app -m pytest -vv -x --disable-warnings tests/test_extended.py
       - name: Canonical release gate
         shell: bash
         run: |
