@@ -7,6 +7,7 @@ import hashlib
 import json
 import re
 import sys
+import tomllib
 from datetime import datetime, timezone
 from pathlib import Path
 from statistics import mean, median
@@ -22,6 +23,7 @@ PHONE_RE = re.compile(r"(?<!\w)(?:\+?39[ .-]?)?(?:0\d{2,3}|3\d{2})[ .-]?\d{5,8}(
 VAT_RE = re.compile(r"\b(?:IT)?\d{11}\b", re.IGNORECASE)
 TAX_CODE_RE = re.compile(r"\b[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]\b", re.IGNORECASE)
 FORBIDDEN_NAME_PARTS = {"nome", "cognome", "email", "telefono", "iban", "partitaiva", "codicefiscale"}
+AUTHORIZATION_PLACEHOLDER = "DA COMPILARE E FIRMARE DALL'ORGANIZZAZIONE AUTORIZZANTE"
 
 MEASUREMENT_FIELDS = [
     "case_id",
@@ -55,6 +57,20 @@ def sha256_file(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def project_version() -> str:
+    pyproject = Path(__file__).resolve().parents[1] / "pyproject.toml"
+    if not pyproject.is_file():
+        raise ValueError("pyproject.toml mancante: impossibile attestare la versione ThisTinti")
+    with pyproject.open("rb") as handle:
+        project = tomllib.load(handle).get("project")
+    if not isinstance(project, dict):
+        raise ValueError("sezione project mancante in pyproject.toml")
+    version = str(project.get("version", "")).strip()
+    if not version:
+        raise ValueError("versione ThisTinti mancante in pyproject.toml")
+    return version
 
 
 def parse_bool(value: str, field: str) -> bool:
@@ -103,6 +119,10 @@ def prepare_workspace(workspace: Path, pilot_id: str, organization_alias: str, c
         "schema": SCHEMA,
         "pilot_id": pilot_id,
         "created_at": utc_now(),
+        "application": {
+            "name": "thistinti",
+            "version": project_version(),
+        },
         "sector": "abbigliamento",
         "process_flow": FLOW,
         "organization_alias": organization_alias,
@@ -114,6 +134,12 @@ def prepare_workspace(workspace: Path, pilot_id: str, organization_alias: str, c
             "processing_location": "local_only",
             "retention_end": "",
             "personal_data_expected": False,
+            "notes": "",
+        },
+        "manual_review": {
+            "binary_documents_confirmed": False,
+            "confirmed_by_role": "",
+            "confirmed_at": "",
             "notes": "",
         },
         "reviewers": [
@@ -137,7 +163,7 @@ def prepare_workspace(workspace: Path, pilot_id: str, organization_alias: str, c
 
     (workspace / "AUTHORIZATION.md").write_text(
         "# Autorizzazione pilot\n\n"
-        "Stato: DA COMPILARE E FIRMARE DALL'ORGANIZZAZIONE AUTORIZZANTE.\n\n"
+        f"Stato: {AUTHORIZATION_PLACEHOLDER}.\n\n"
         f"Pilot: {pilot_id}\n\n"
         f"Organizzazione anonimizzata: {organization_alias}\n\n"
         "Perimetro: ordine, consegna, fattura, reso e nota di credito.\n\n"
@@ -168,6 +194,36 @@ def scan_text(path: Path) -> list[dict[str, Any]]:
     return findings
 
 
+def _authorization_ready(workspace: Path, authorization: dict[str, Any], blocking: list[str]) -> bool:
+    ready = True
+    if authorization.get("status") != "approved":
+        blocking.append("autorizzazione non ancora approvata")
+        ready = False
+    if not str(authorization.get("authorized_by_role", "")).strip():
+        blocking.append("ruolo autorizzante non registrato")
+        ready = False
+    if not str(authorization.get("authorized_at", "")).strip():
+        blocking.append("data autorizzazione non registrata")
+        ready = False
+    if authorization.get("personal_data_expected") is not False:
+        blocking.append("il pacchetto dichiara dati personali attesi")
+        ready = False
+
+    authorization_path = workspace / "AUTHORIZATION.md"
+    if not authorization_path.is_file():
+        blocking.append("AUTHORIZATION.md mancante")
+        return False
+    try:
+        authorization_text = authorization_path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        blocking.append("AUTHORIZATION.md non UTF-8")
+        return False
+    if AUTHORIZATION_PLACEHOLDER in authorization_text:
+        blocking.append("AUTHORIZATION.md non compilato e firmato")
+        ready = False
+    return ready
+
+
 def inspect_workspace(workspace: Path, output: Path | None = None) -> tuple[dict[str, Any], bool]:
     manifest_path = workspace / "pilot-manifest.json"
     if not manifest_path.is_file():
@@ -175,9 +231,13 @@ def inspect_workspace(workspace: Path, output: Path | None = None) -> tuple[dict
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     errors: list[str] = []
     warnings: list[str] = []
+    blocking_conditions: list[str] = []
 
     if manifest.get("schema") != SCHEMA:
         errors.append("schema manifest non valido")
+    application = manifest.get("application") if isinstance(manifest.get("application"), dict) else {}
+    if application.get("name") != "thistinti" or application.get("version") != project_version():
+        errors.append("versione ThisTinti del manifest diversa dalla versione in esecuzione")
     if manifest.get("sector") != "abbigliamento":
         errors.append("settore non coerente con il pilot")
     if manifest.get("process_flow") != FLOW:
@@ -190,19 +250,18 @@ def inspect_workspace(workspace: Path, output: Path | None = None) -> tuple[dict
         errors.append("servono almeno 30 pratiche")
     else:
         case_ids = [str(item.get("case_id", "")) for item in cases if isinstance(item, dict)]
-        if len(case_ids) != len(set(case_ids)) or any(not value for value in case_ids):
+        if len(case_ids) != len(cases) or len(case_ids) != len(set(case_ids)) or any(not value for value in case_ids):
             errors.append("case_id mancanti o duplicati")
 
     authorization = manifest.get("authorization") if isinstance(manifest.get("authorization"), dict) else {}
-    if authorization.get("status") != "approved":
-        warnings.append("autorizzazione non ancora approvata")
-    if authorization.get("personal_data_expected") is not False:
-        warnings.append("il pacchetto dichiara dati personali attesi")
+    authorization_ready = _authorization_ready(workspace, authorization, blocking_conditions)
 
     reviewers = manifest.get("reviewers") if isinstance(manifest.get("reviewers"), list) else []
-    reviewer_ids = [str(item.get("reviewer_id", "")) for item in reviewers if isinstance(item, dict)]
-    if len(set(reviewer_ids)) < 2:
-        errors.append("servono due revisori distinti")
+    reviewer_ids = [str(item.get("reviewer_id", "")).strip() for item in reviewers if isinstance(item, dict)]
+    if len(reviewer_ids) != 2 or len(set(reviewer_ids)) != 2 or any(not value for value in reviewer_ids):
+        errors.append("servono esattamente due revisori distinti")
+    if any(item.get("independent") is not True for item in reviewers if isinstance(item, dict)):
+        errors.append("entrambi i revisori devono essere dichiarati indipendenti")
 
     pii_findings: list[dict[str, Any]] = []
     binary_manual_review: list[str] = []
@@ -230,21 +289,33 @@ def inspect_workspace(workspace: Path, output: Path | None = None) -> tuple[dict
 
     if pii_findings:
         errors.append("possibili identificativi personali o aziendali rilevati")
+    manual_review = manifest.get("manual_review") if isinstance(manifest.get("manual_review"), dict) else {}
+    binary_review_ready = True
     if binary_manual_review:
         warnings.append("i documenti binari richiedono conferma manuale di anonimizzazione")
+        binary_review_ready = (
+            manual_review.get("binary_documents_confirmed") is True
+            and bool(str(manual_review.get("confirmed_by_role", "")).strip())
+            and bool(str(manual_review.get("confirmed_at", "")).strip())
+        )
+        if not binary_review_ready:
+            blocking_conditions.append("revisione manuale dei documenti binari non attestata")
 
+    ready_for_execution = not errors and authorization_ready and binary_review_ready and not blocking_conditions
     report = {
         "schema": "thistinti.real-pilot-inspection.v1",
         "generated_at": utc_now(),
         "workspace": str(workspace),
         "pilot_id": manifest.get("pilot_id"),
+        "application": application,
         "errors": errors,
         "warnings": warnings,
+        "blocking_conditions": blocking_conditions,
         "pii_findings": pii_findings,
         "binary_manual_review": binary_manual_review,
         "inventory": inventory,
         "structure_valid": not errors,
-        "ready_for_execution": not errors and authorization.get("status") == "approved",
+        "ready_for_execution": ready_for_execution,
     }
     destination = output or workspace / "inspection.json"
     write_json(destination, report)
@@ -260,6 +331,12 @@ def load_measurements(path: Path) -> list[dict[str, str]]:
 
 
 def summarize_workspace(workspace: Path, output: Path | None = None) -> tuple[dict[str, Any], bool]:
+    manifest_path = workspace / "pilot-manifest.json"
+    if not manifest_path.is_file():
+        raise ValueError("pilot-manifest.json mancante")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    inspection, _ = inspect_workspace(workspace)
+
     measurement_path = workspace / "measurements.csv"
     if not measurement_path.is_file():
         raise ValueError("measurements.csv mancante")
@@ -268,6 +345,26 @@ def summarize_workspace(workspace: Path, output: Path | None = None) -> tuple[di
         raise ValueError("servono almeno 30 righe di misurazione")
 
     errors: list[str] = []
+    if not inspection["ready_for_execution"]:
+        errors.extend(f"ispezione: {item}" for item in inspection["errors"])
+        errors.extend(f"ispezione: {item}" for item in inspection["blocking_conditions"])
+
+    cases = manifest.get("cases") if isinstance(manifest.get("cases"), list) else []
+    manifest_case_ids = [str(item.get("case_id", "")).strip() for item in cases if isinstance(item, dict)]
+    measurement_case_ids = [row["case_id"].strip() for row in rows]
+    if (
+        len(manifest_case_ids) < 30
+        or len(measurement_case_ids) != len(manifest_case_ids)
+        or len(set(measurement_case_ids)) != len(measurement_case_ids)
+        or set(measurement_case_ids) != set(manifest_case_ids)
+    ):
+        errors.append("measurements.csv deve contenere esattamente una riga per ogni case_id del manifest")
+
+    reviewers = manifest.get("reviewers") if isinstance(manifest.get("reviewers"), list) else []
+    manifest_reviewer_ids = {
+        str(item.get("reviewer_id", "")).strip() for item in reviewers if isinstance(item, dict) and item.get("reviewer_id")
+    }
+
     manual_times: list[float] = []
     assisted_times: list[float] = []
     user_scores: list[int] = []
@@ -287,6 +384,8 @@ def summarize_workspace(workspace: Path, output: Path | None = None) -> tuple[di
             secondary = row["reviewer_secondary"].strip()
             if not primary or not secondary or primary == secondary:
                 raise ValueError("servono due revisori distinti")
+            if {primary, secondary} != manifest_reviewer_ids:
+                raise ValueError("i revisori devono coincidere con quelli dichiarati nel manifest")
             reviewer_pairs.add((primary, secondary))
             if not parse_bool(row["ground_truth_complete"], "ground_truth_complete"):
                 raise ValueError("ground truth non completata")
@@ -316,7 +415,7 @@ def summarize_workspace(workspace: Path, output: Path | None = None) -> tuple[di
     savings = total_manual - total_assisted
     savings_percent = (savings / total_manual * 100) if total_manual else 0.0
 
-    if errors or completed < 30:
+    if errors or completed != len(manifest_case_ids):
         decision = "incompleto"
     elif critical_misses:
         decision = "non_idoneo"
@@ -325,9 +424,17 @@ def summarize_workspace(workspace: Path, output: Path | None = None) -> tuple[di
     else:
         decision = "idoneo_con_revisione_umana"
 
+    inspection_path = workspace / "inspection.json"
     report = {
         "schema": "thistinti.real-pilot-result.v1",
         "generated_at": utc_now(),
+        "pilot_id": manifest.get("pilot_id"),
+        "application": manifest.get("application"),
+        "process_flow": manifest.get("process_flow"),
+        "inspection": {
+            "ready_for_execution": inspection["ready_for_execution"],
+            "sha256": sha256_file(inspection_path),
+        },
         "case_count": len(rows),
         "completed_case_count": completed,
         "errors": errors,
@@ -359,7 +466,9 @@ def summarize_workspace(workspace: Path, output: Path | None = None) -> tuple[di
     metrics = report["metrics"]
     markdown.write_text(
         "# Risultato pilot reale ThisTinti\n\n"
+        f"- Versione: {report['application']['version']}\n"
         f"- Pratiche complete: {completed}/{len(rows)}\n"
+        f"- Workspace pronto all'esecuzione: {inspection['ready_for_execution']}\n"
         f"- Tempo manuale totale: {metrics['manual_total_seconds']} s\n"
         f"- Tempo assistito totale: {metrics['assisted_total_seconds']} s\n"
         f"- Risparmio: {metrics['time_saved_percent']}%\n"
@@ -371,7 +480,8 @@ def summarize_workspace(workspace: Path, output: Path | None = None) -> tuple[di
         "La decisione resta limitata al processo e al campione autorizzato.\n",
         encoding="utf-8",
     )
-    return report, not errors and completed >= 30
+    complete = not errors and inspection["ready_for_execution"] and completed == len(manifest_case_ids)
+    return report, complete
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -401,8 +511,8 @@ def main() -> int:
             prepare_workspace(args.workspace, args.pilot_id, args.organization_alias, args.case_count)
             return 0
         if args.command == "inspect":
-            _, valid = inspect_workspace(args.workspace, args.output)
-            return 0 if valid else 1
+            report, _ = inspect_workspace(args.workspace, args.output)
+            return 0 if report["ready_for_execution"] else 1
         if args.command == "summarize":
             _, complete = summarize_workspace(args.workspace, args.output)
             return 0 if complete else 1
