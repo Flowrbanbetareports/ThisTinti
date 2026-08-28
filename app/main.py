@@ -4,6 +4,7 @@ from __future__ import annotations
 # composition root so RC15 can add isolated, testable routers without growing
 # the already-large API module.
 from . import api as _api
+from . import provenance_models as _provenance_models  # noqa: F401
 from .api import *  # noqa: F401,F403
 from .rc15_api import router as rc15_router
 
@@ -16,7 +17,7 @@ for _name, _value in vars(_api).items():
 
 app = _api.app
 
-# app.api created the legacy metadata before rc15_api imported the RC15 models.
+# app.api created the legacy metadata before RC15/provenance models were imported.
 # Local/dev installations intentionally use create_all, so create only any new
 # metadata now registered. Production keeps auto-create disabled and uses the
 # Alembic migration instead.
