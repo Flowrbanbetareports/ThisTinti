@@ -4,18 +4,19 @@ from sqlalchemy import select
 
 from app.db import SessionLocal
 from app.models import Document
-from app.provenance_models import ProvenanceOrigin
+from app.provenance_models import ProvenanceFact, ProvenanceOrigin
 
 SAMPLES = Path(__file__).parents[1] / "samples"
 
 
-def upload_json(client, auth, filename):
+def upload_json(client, auth, filename, form=None):
     path = SAMPLES / filename
     with path.open("rb") as handle:
         return client.post(
             "/api/documents/upload",
             headers=auth,
             files={"file": (filename, handle, "application/json")},
+            data=form or {},
         )
 
 
@@ -52,11 +53,13 @@ def test_document_upload_records_content_addressed_document_origin(client, auth)
 
     with SessionLocal() as db:
         document = db.get(Document, document_id)
+        assert document is not None
         origin = db.scalar(
             select(ProvenanceOrigin).where(
                 ProvenanceOrigin.tenant_id == document.tenant_id,
                 ProvenanceOrigin.document_id == document_id,
                 ProvenanceOrigin.origin_type == "DOCUMENT_EVIDENCE",
+                ProvenanceOrigin.locator_status == "not_applicable",
             )
         )
         assert origin is not None
@@ -66,17 +69,85 @@ def test_document_upload_records_content_addressed_document_origin(client, auth)
         assert origin.locator_type is None
         assert origin.locator_json is None
 
+        fact = db.scalar(
+            select(ProvenanceFact).where(
+                ProvenanceFact.tenant_id == document.tenant_id,
+                ProvenanceFact.fact_key == f"document:{document_id}:number",
+            )
+        )
+        assert fact is not None
+        assert fact.fact_type == "document.number"
+        assert fact.value_json == '"PO-1049"'
+        assert fact.version == 1
+        fact_origin = db.get(ProvenanceOrigin, fact.origin_id)
+        assert fact_origin is not None
+        assert fact_origin.source_ref == f"sha256:{document.file_hash}"
+        assert fact_origin.document_id == document_id
+        assert fact_origin.source_availability == "available"
+        assert fact_origin.locator_status == "present"
+        assert fact_origin.locator_type == "JSON_POINTER"
+        assert fact_origin.locator_json == '{"pointer":"/number"}'
+        assert fact_origin.engine_id == "native-json-parser"
+        assert fact_origin.engine_version == "1"
+
+
+def test_document_number_override_is_not_recorded_as_document_evidence(client, auth):
+    response = upload_json(client, auth, "order.json", form={"number": "MANUAL-OVERRIDE"})
+    assert response.status_code == 201
+    document_id = response.json()["document"]["id"]
+    assert response.json()["document"]["number"] == "MANUAL-OVERRIDE"
+
+    with SessionLocal() as db:
+        document = db.get(Document, document_id)
+        assert document is not None
+        facts = list(
+            db.scalars(
+                select(ProvenanceFact).where(
+                    ProvenanceFact.tenant_id == document.tenant_id,
+                    ProvenanceFact.fact_key == f"document:{document_id}:number",
+                )
+            )
+        )
+        assert facts == []
+        origins = list(
+            db.scalars(
+                select(ProvenanceOrigin).where(
+                    ProvenanceOrigin.tenant_id == document.tenant_id,
+                    ProvenanceOrigin.document_id == document_id,
+                    ProvenanceOrigin.origin_type == "DOCUMENT_EVIDENCE",
+                )
+            )
+        )
+        assert len(origins) == 1
+        assert origins[0].locator_status == "not_applicable"
+
 
 def test_duplicate_file_is_idempotent(client, auth):
     first = upload_json(client, auth, "order.json")
-    second = upload_json(client, auth, "order.json")
     assert first.status_code == 201
+    document_id = first.json()["document"]["id"]
+
+    with SessionLocal() as db:
+        first_origins = list(
+            db.scalars(
+                select(ProvenanceOrigin).where(
+                    ProvenanceOrigin.document_id == document_id,
+                    ProvenanceOrigin.origin_type == "DOCUMENT_EVIDENCE",
+                )
+            )
+        )
+        first_facts = list(
+            db.scalars(
+                select(ProvenanceFact).where(ProvenanceFact.fact_key == f"document:{document_id}:number")
+            )
+        )
+
+    second = upload_json(client, auth, "order.json")
     assert second.status_code == 201
     assert second.json()["outcome"] == "duplicate"
     docs = client.get("/api/documents", headers=auth).json()
     assert len(docs) == 1
 
-    document_id = first.json()["document"]["id"]
     with SessionLocal() as db:
         origins = list(
             db.scalars(
@@ -86,7 +157,13 @@ def test_duplicate_file_is_idempotent(client, auth):
                 )
             )
         )
-        assert len(origins) == 1
+        facts = list(
+            db.scalars(
+                select(ProvenanceFact).where(ProvenanceFact.fact_key == f"document:{document_id}:number")
+            )
+        )
+        assert len(origins) == len(first_origins)
+        assert len(facts) == len(first_facts) == 1
 
 
 def test_review_decision_is_audited(client, auth):
