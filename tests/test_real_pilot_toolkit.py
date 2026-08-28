@@ -15,6 +15,7 @@ from real_pilot_toolkit import (  # noqa: E402
     MEASUREMENT_FIELDS,
     inspect_workspace,
     prepare_workspace,
+    project_version,
     summarize_workspace,
 )
 
@@ -66,7 +67,7 @@ def test_prepare_workspace_creates_thirty_cases_and_safe_boundaries(tmp_path: Pa
     manifest = prepare_workspace(tmp_path, "APPAREL-001", "ORG-001", 30)
 
     assert len(manifest["cases"]) == 30
-    assert manifest["application"] == {"name": "thistinti", "version": "3.4.0a7+rc.15"}
+    assert manifest["application"] == {"name": "thistinti", "version": project_version()}
     assert manifest["authorization"]["status"] == "pending"
     assert manifest["manual_review"]["binary_documents_confirmed"] is False
     assert manifest["claim_boundary"] == {
