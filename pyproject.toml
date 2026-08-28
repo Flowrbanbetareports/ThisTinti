@@ -19,5 +19,8 @@ source = ["app"]
 omit = ["app/local_launcher.py"]
 
 [tool.coverage.report]
-fail_under = 90
+# Ratchet from the qualified 2026-08-28 main baseline (6865/7593 ~= 90.4096%).
+# Raise this value when coverage improves; do not lower it to accommodate new code.
+fail_under = 90.40
+precision = 2
 show_missing = true
