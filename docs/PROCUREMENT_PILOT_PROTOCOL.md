@@ -73,6 +73,7 @@ Dopo la calibrazione, congelare:
 - commit e versione software;
 - Practice Model;
 - Rule Pack;
+- Provenance Matrix;
 - Company Profile;
 - Ground Truth Protocol;
 - Evaluation Protocol;
@@ -89,6 +90,8 @@ python scripts/procurement_pilot_protocol.py freeze ./procurement-pilot-001 \
   --practice-model-version 0.1 \
   --rule-pack pilot/procurement/rule-pack.v0.1.json \
   --rule-pack-version 0.1 \
+  --provenance-matrix pilot/procurement/provenance-matrix.v0.1.json \
+  --provenance-matrix-version 0.1 \
   --company-profile ./procurement-pilot-001/private/company-profile.json \
   --company-profile-version 0.1 \
   --ground-truth-protocol pilot/procurement/ground-truth-protocol.v1.json \
@@ -99,7 +102,11 @@ python scripts/procurement_pilot_protocol.py freeze ./procurement-pilot-001 \
 
 Il comando produce `pilot-manifest.json` e `pilot-manifest.seal.json`. Il Manifest contiene versioni e hash degli artefatti ma non percorsi locali sensibili. I percorsi reali degli artefatti restano in `private/frozen-artifact-locations.json`.
 
-**Un Pilot Manifest identifica un singolo esperimento.** Se cambia un artefatto congelato, il run è chiuso: serve un nuovo Manifest e i risultati non vengono mescolati.
+La Provenance Matrix è un artefatto di sicurezza metodologica, non un report cosmetico. Il freeze verifica che Rule Pack e matrice contengano esattamente le stesse regole e famiglie e che ogni regola inclusa nel blind abbia provenance `complete`. Una regola presente nel motore ma con provenance `incomplete` può essere osservata e corretta in calibrazione, ma non può sostenere la blind evaluation.
+
+La baseline `provenance-matrix.v0.1.json` corrente è intenzionalmente **non pronta per il blind**: soltanto `duplicate_document_number` ha la catena qualificata completa; le altre regole mappate sono incomplete e `temporal-consistency` non ha ancora una regola motore nel Rule Pack v0.1. Finché questa condizione resta vera, `freeze` deve fallire in modo esplicito.
+
+**Un Pilot Manifest identifica un singolo esperimento.** Se cambia un artefatto congelato, inclusa la Provenance Matrix, il run è chiuso: serve un nuovo Manifest e i risultati non vengono mescolati.
 
 ## 6. Ground truth cieca
 
@@ -139,7 +146,7 @@ Il blind run è metodologicamente valido solo se `ready_for_blind_run=true`. Il 
 
 Durante il blind run:
 
-- nessuna modifica a software, Rule Pack, Practice Model o profilo;
+- nessuna modifica a software, Rule Pack, Practice Model, Provenance Matrix o profilo;
 - nessuna modifica alla ground truth;
 - nessuna correzione degli errori osservati;
 - i risultati vengono registrati in `results/blind-results.csv`.
@@ -174,11 +181,14 @@ Il repository contiene:
 
 - `pilot/procurement/practice-model.v0.1.json`;
 - `pilot/procurement/rule-pack.v0.1.json`;
+- `pilot/procurement/provenance-matrix.v0.1.json`;
 - `pilot/procurement/company-profile.template.json`;
 - `pilot/procurement/ground-truth-protocol.v1.json`;
 - `pilot/procurement/evaluation-protocol.v1.json`.
 
-Practice Model e Rule Pack sono esplicitamente **provvisori e non validati**. Devono essere corretti durante la calibrazione e solo dopo congelati per il blind run. La generalizzazione oltre Procurement viene valutata soltanto dopo evidenza su casi reali.
+Practice Model, Rule Pack e Provenance Matrix sono esplicitamente **provvisori e non validati**. Devono essere corretti durante la calibrazione e solo dopo congelati per il blind run. La generalizzazione oltre Procurement viene valutata soltanto dopo evidenza su casi reali.
+
+La matrice può essere consultata anche nell'interfaccia locale “Provenance Procurement” e tramite `GET /api/rc15/procurement/provenance-matrix`. L'interfaccia non modifica la matrice e non può promuovere una regola incompleta a completa.
 
 ## 11. Cosa non è automatizzabile ora
 
