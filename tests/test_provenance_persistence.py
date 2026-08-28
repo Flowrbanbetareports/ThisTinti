@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pytest
 from sqlalchemy.exc import IntegrityError
 
 from app.db import SessionLocal
@@ -191,7 +192,7 @@ def test_existing_fact_requires_explicit_supersession():
         )
         assert fact.version == 1
         assert legacy.origin_type == "LEGACY_ORIGIN_UNKNOWN"
-        with pytest_raises_contract("superseded explicitly"):
+        with pytest.raises(ProvenanceContractError, match="superseded explicitly"):
             append_fact(
                 db,
                 tenant_id=tenant.id,
@@ -205,7 +206,7 @@ def test_existing_fact_requires_explicit_supersession():
 def test_origin_and_derivation_validation_rejects_implicit_or_orphaned_provenance():
     with SessionLocal() as db:
         tenant, user, _document, _case = _seed_case(db)
-        with pytest_raises_contract("reason is required"):
+        with pytest.raises(ProvenanceContractError, match="reason is required"):
             create_origin(
                 db,
                 tenant_id=tenant.id,
@@ -214,7 +215,7 @@ def test_origin_and_derivation_validation_rejects_implicit_or_orphaned_provenanc
                 actor_user_id=user.id,
                 asserted_at=utcnow(),
             )
-        with pytest_raises_contract("at least one input fact"):
+        with pytest.raises(ProvenanceContractError, match="at least one input fact"):
             create_derivation(
                 db,
                 tenant_id=tenant.id,
@@ -246,25 +247,6 @@ def test_database_foreign_keys_reject_orphaned_derivation_inputs():
                 position=1,
             )
         )
-        try:
+        with pytest.raises(IntegrityError):
             db.flush()
-        except IntegrityError:
-            db.rollback()
-        else:
-            raise AssertionError("orphaned provenance input was accepted")
-
-
-class pytest_raises_contract:
-    def __init__(self, match: str):
-        self.match = match
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc, _traceback):
-        if exc_type is None:
-            raise AssertionError("ProvenanceContractError was not raised")
-        if not issubclass(exc_type, ProvenanceContractError):
-            return False
-        assert self.match in str(exc)
-        return True
+        db.rollback()
