@@ -24,6 +24,29 @@ jobs:
           cache: pip
       - name: Install development dependencies
         run: pip install -r requirements-dev.txt
+      - name: Apply isolated property seed ordering fix
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("tests/test_provenance_properties.py")
+          text = path.read_text(encoding="utf-8")
+          old = '''        db.add_all([self.tenant, self.user, self.chain])
+          db.flush()
+          self.kinds: dict[int, str] = {}
+          '''
+          new = '''        db.add(self.tenant)
+          db.flush()
+          db.add(self.user)
+          db.flush()
+          db.add(self.chain)
+          db.flush()
+          self.kinds: dict[int, str] = {}
+          '''
+          if old not in text:
+              raise SystemExit("expected seed block not found")
+          path.write_text(text.replace(old, new, 1), encoding="utf-8")
+          PY
       - name: Format reconstructed property slice
         run: |
           python -m ruff format app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py
