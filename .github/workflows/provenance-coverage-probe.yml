@@ -40,6 +40,10 @@ jobs:
           PY
       - name: Verify patch syntax
         run: python -m py_compile app/services/rules.py
+      - name: Repeat v3 targeted preflight
+        env:
+          THISTINTI_OCR_ENABLED: 'false'
+        run: python -m pytest -q tests/test_duplicate_number_finding_provenance.py
       - name: Reproduce canonical module order before extended
         env:
           THISTINTI_OCR_ENABLED: 'false'
@@ -64,5 +68,14 @@ jobs:
           echo "===== workspace before extended ====="
           git status --short
           find tests/.runtime -maxdepth 3 -type f -print 2>/dev/null | sort || true
-          echo "===== verbose extended after canonical prelude ====="
-          COVERAGE_FILE=.coverage.extended-diagnostic python -m coverage run --source=app -m pytest -vv -x --disable-warnings tests/test_extended.py
+          echo "===== exact canonical runner for extended ====="
+          set +e
+          timeout 120s python scripts/coverage_pytest_module.py tests/test_extended.py
+          canonical_rc=$?
+          set -e
+          echo "canonical extended rc=${canonical_rc}"
+          if [[ "$canonical_rc" -ne 0 ]]; then
+            echo "===== diagnostic verbose rerun ====="
+            COVERAGE_FILE=.coverage.extended-diagnostic python -m coverage run --source=app -m pytest -vv -x --disable-warnings tests/test_extended.py
+            exit "$canonical_rc"
+          fi
