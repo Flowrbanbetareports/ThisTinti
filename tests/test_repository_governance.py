@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -49,3 +50,14 @@ def test_publish_workflow_keeps_release_evidence_out_of_main() -> None:
     assert "Upload publication evidence without mutating main" in text
     assert "git push origin main" not in text
     assert "git push origin HEAD:main" not in text
+
+
+def test_coverage_floor_is_ratcheted_and_runner_cannot_override_it() -> None:
+    config = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    report = config["tool"]["coverage"]["report"]
+    assert float(report["fail_under"]) >= 90.40
+    assert int(report["precision"]) >= 2
+
+    runner = (ROOT / "scripts" / "run_test_coverage.sh").read_text(encoding="utf-8")
+    assert "python -m coverage report --skip-covered" in runner
+    assert "--fail-under" not in runner
