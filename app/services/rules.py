@@ -18,6 +18,7 @@ from ..models import (
     OperationChain,
     RuleProposal,
 )
+from .finding_provenance import record_duplicate_number_finding_provenance
 from .line_matching import group_chain_lines
 from .normalizer import normalize_text
 from .numeric_fields import all_numeric_available, numeric_available
@@ -852,6 +853,14 @@ def analyze_chain(db: Session, chain: OperationChain) -> list[DiscrepancyCase]:
         db.execute(delete(EvidenceLink).where(EvidenceLink.case_id == case.id))
         for evidence in finding.evidence:
             db.add(EvidenceLink(tenant_id=chain.tenant_id, case_id=case.id, **evidence))
+        record_duplicate_number_finding_provenance(
+            db,
+            chain=chain,
+            case=case,
+            finding_case_type=finding.case_type,
+            finding_key=finding.key,
+            all_documents=all_documents,
+        )
         output.append(case)
 
     old_cases = list(
