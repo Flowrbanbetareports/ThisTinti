@@ -16,7 +16,6 @@ from procurement_pilot.common import (
     PRIVATE_INVENTORY_SCHEMA,
     RESULT_FIELDS,
     REVIEW_MODES,
-    load_case_register,
     parse_bool,
     read_json,
     require_file,
