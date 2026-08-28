@@ -1,5 +1,11 @@
 from pathlib import Path
 
+from sqlalchemy import select
+
+from app.db import SessionLocal
+from app.models import Document
+from app.provenance_models import ProvenanceOrigin
+
 SAMPLES = Path(__file__).parents[1] / "samples"
 
 
@@ -39,6 +45,28 @@ def test_credit_note_reduces_return_case(client, auth):
     assert any(t == "return_without_credit" and s == "superseded" for t, s in types_by_status)
 
 
+def test_document_upload_records_content_addressed_document_origin(client, auth):
+    response = upload_json(client, auth, "order.json")
+    assert response.status_code == 201
+    document_id = response.json()["document"]["id"]
+
+    with SessionLocal() as db:
+        document = db.get(Document, document_id)
+        origin = db.scalar(
+            select(ProvenanceOrigin).where(
+                ProvenanceOrigin.tenant_id == document.tenant_id,
+                ProvenanceOrigin.document_id == document_id,
+                ProvenanceOrigin.origin_type == "DOCUMENT_EVIDENCE",
+            )
+        )
+        assert origin is not None
+        assert origin.source_ref == f"sha256:{document.file_hash}"
+        assert origin.source_availability == "available"
+        assert origin.locator_status == "not_applicable"
+        assert origin.locator_type is None
+        assert origin.locator_json is None
+
+
 def test_duplicate_file_is_idempotent(client, auth):
     first = upload_json(client, auth, "order.json")
     second = upload_json(client, auth, "order.json")
@@ -47,6 +75,18 @@ def test_duplicate_file_is_idempotent(client, auth):
     assert second.json()["outcome"] == "duplicate"
     docs = client.get("/api/documents", headers=auth).json()
     assert len(docs) == 1
+
+    document_id = first.json()["document"]["id"]
+    with SessionLocal() as db:
+        origins = list(
+            db.scalars(
+                select(ProvenanceOrigin).where(
+                    ProvenanceOrigin.document_id == document_id,
+                    ProvenanceOrigin.origin_type == "DOCUMENT_EVIDENCE",
+                )
+            )
+        )
+        assert len(origins) == 1
 
 
 def test_review_decision_is_audited(client, auth):

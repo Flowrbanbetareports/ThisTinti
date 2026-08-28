@@ -2,11 +2,22 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, Integer, String, Text, UniqueConstraint
+from sqlalchemy import (
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    event,
+    update,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .db import Base
-from .models import uid, utcnow
+from .models import Document, uid, utcnow
 
 
 ORIGIN_TYPES = (
@@ -237,3 +248,17 @@ class ProvenanceJudgment(Base):
     reason: Mapped[str] = mapped_column(Text, nullable=False)
     previous_state: Mapped[str] = mapped_column(String(30), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+@event.listens_for(Document, "before_delete")
+def _mark_document_evidence_unavailable(_mapper, connection, target: Document) -> None:
+    """Keep source availability truthful when the controlled local lifecycle deletes a document."""
+    connection.execute(
+        update(ProvenanceOrigin.__table__)
+        .where(
+            ProvenanceOrigin.document_id == target.id,
+            ProvenanceOrigin.origin_type == "DOCUMENT_EVIDENCE",
+            ProvenanceOrigin.source_availability == "available",
+        )
+        .values(document_id=None, source_availability="deleted_by_retention")
+    )
