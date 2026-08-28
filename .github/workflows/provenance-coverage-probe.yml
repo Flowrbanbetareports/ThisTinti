@@ -13,7 +13,7 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -40,8 +40,29 @@ jobs:
           PY
       - name: Verify patch syntax
         run: python -m py_compile app/services/rules.py
-      - name: Reproduce canonical pytest environment with full traceback
+      - name: Reproduce canonical module order before extended
         env:
           THISTINTI_OCR_ENABLED: 'false'
           PYTEST_DISABLE_PLUGIN_AUTOLOAD: '1'
-        run: python -m coverage run --source=app -m pytest -vv -x --disable-warnings tests/test_extended.py
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .coverage .coverage.*
+          mapfile -t TEST_FILES < <(find tests -maxdepth 1 -type f -name 'test_*.py' -print | sort)
+          found=0
+          index=0
+          for test_file in "${TEST_FILES[@]}"; do
+            if [[ "$test_file" == "tests/test_extended.py" ]]; then
+              found=1
+              break
+            fi
+            index=$((index + 1))
+            echo "[prelude ${index}] ${test_file}"
+            timeout 120s python scripts/coverage_pytest_module.py "$test_file"
+          done
+          [[ "$found" -eq 1 ]] || { echo "tests/test_extended.py not found"; exit 2; }
+          echo "===== workspace before extended ====="
+          git status --short
+          find tests/.runtime -maxdepth 3 -type f -print 2>/dev/null | sort || true
+          echo "===== verbose extended after canonical prelude ====="
+          COVERAGE_FILE=.coverage.extended-diagnostic python -m coverage run --source=app -m pytest -vv -x --disable-warnings tests/test_extended.py
