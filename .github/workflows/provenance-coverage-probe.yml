@@ -13,7 +13,7 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -38,44 +38,24 @@ jobs:
           payload = textwrap.dedent(workflow[start:end])
           exec(compile(payload, '<v3-runtime-patch>', 'exec'), {'__name__': '__main__'})
           PY
-      - name: Verify patch syntax
-        run: python -m py_compile app/services/rules.py
-      - name: Repeat v3 targeted preflight
-        env:
-          THISTINTI_OCR_ENABLED: 'false'
-        run: python -m pytest -q tests/test_duplicate_number_finding_provenance.py
-      - name: Reproduce canonical module order before extended
-        env:
-          THISTINTI_OCR_ENABLED: 'false'
-          PYTEST_DISABLE_PLUGIN_AUTOLOAD: '1'
+      - name: Format exactly as v3
+        run: |
+          python -m ruff format app/services/rules.py tests/test_duplicate_number_finding_provenance.py
+          python -m ruff check app/services/rules.py tests/test_duplicate_number_finding_provenance.py
+      - name: Reproduce verify_release environment with verbose extended test
         shell: bash
         run: |
           set -euo pipefail
-          rm -f .coverage .coverage.*
-          mapfile -t TEST_FILES < <(find tests -maxdepth 1 -type f -name 'test_*.py' -print | sort)
-          found=0
-          index=0
-          for test_file in "${TEST_FILES[@]}"; do
-            if [[ "$test_file" == "tests/test_extended.py" ]]; then
-              found=1
-              break
-            fi
-            index=$((index + 1))
-            echo "[prelude ${index}] ${test_file}"
-            timeout 120s python scripts/coverage_pytest_module.py "$test_file"
-          done
-          [[ "$found" -eq 1 ]] || { echo "tests/test_extended.py not found"; exit 2; }
-          echo "===== workspace before extended ====="
-          git status --short
-          find tests/.runtime -maxdepth 3 -type f -print 2>/dev/null | sort || true
-          echo "===== exact canonical runner for extended ====="
-          set +e
-          timeout 120s python scripts/coverage_pytest_module.py tests/test_extended.py
-          canonical_rc=$?
-          set -e
-          echo "canonical extended rc=${canonical_rc}"
-          if [[ "$canonical_rc" -ne 0 ]]; then
-            echo "===== diagnostic verbose rerun ====="
-            COVERAGE_FILE=.coverage.extended-diagnostic python -m coverage run --source=app -m pytest -vv -x --disable-warnings tests/test_extended.py
-            exit "$canonical_rc"
-          fi
+          TMP="$(mktemp -d -t thistinti-probe-XXXXXX)"
+          trap 'rm -rf "$TMP"' EXIT
+          export THISTINTI_ENV=test
+          export THISTINTI_DATABASE_URL="sqlite:///$TMP/verify.db"
+          export THISTINTI_STORAGE_DIR="$TMP/uploads"
+          export THISTINTI_SECRET_KEY="$(python -c 'import secrets; print(secrets.token_urlsafe(48))')"
+          export THISTINTI_AUTO_CREATE_SCHEMA=false
+          export THISTINTI_ALLOW_REGISTRATION=true
+          export THISTINTI_SECURE_COOKIES=false
+          export COVERAGE_FILE="$TMP/.coverage"
+          export PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+          export THISTINTI_OCR_ENABLED=false
+          python -m pytest -vv -x --disable-warnings tests/test_extended.py
