@@ -5017,6 +5017,34 @@
           }
         }
       }
+    },
+    "/api/rc15/procurement/provenance-matrix": {
+      "get": {
+        "tags": [
+          "RC15 Procurement"
+        ],
+        "summary": "Provenance Matrix",
+        "operationId": "provenance_matrix_api_rc15_procurement_provenance_matrix_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Provenance Matrix Api Rc15 Procurement Provenance Matrix Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
     }
   },
   "components": {

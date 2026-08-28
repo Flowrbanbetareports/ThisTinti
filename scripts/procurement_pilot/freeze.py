@@ -18,11 +18,96 @@ from procurement_pilot.common import (
 from procurement_pilot.workspace import validate_case_register, validate_preregistration
 
 
+PROVENANCE_MATRIX_SCHEMA = "thistinti.procurement-provenance-matrix.v1"
+PROVENANCE_STATUSES = {"complete", "incomplete", "unsupported"}
+
+
 def _public_artifact_record(path: Path, version: str, label: str) -> dict[str, Any]:
     require_file(path, label)
     if not version.strip():
         raise ValueError(f"{label}: versione obbligatoria")
     return {"version": version.strip(), "ref": path.name, "sha256": sha256_file(path)}
+
+
+def _validate_provenance_matrix(rule_pack_path: Path, matrix_path: Path, matrix_version: str) -> None:
+    rule_pack = read_json(require_file(rule_pack_path, "Rule Pack"))
+    matrix = read_json(require_file(matrix_path, "Provenance Matrix"))
+    if matrix.get("schema") != PROVENANCE_MATRIX_SCHEMA:
+        raise ValueError("Provenance Matrix: schema non valido")
+    if str(matrix.get("version") or "") != matrix_version.strip():
+        raise ValueError("Provenance Matrix: versione dichiarata diversa dall'artefatto")
+    if matrix.get("rule_pack_id") != rule_pack.get("rule_pack_id"):
+        raise ValueError("Provenance Matrix: rule_pack_id non corrisponde al Rule Pack")
+    if str(matrix.get("rule_pack_version") or "") != str(rule_pack.get("version") or ""):
+        raise ValueError("Provenance Matrix: versione Rule Pack non corrispondente")
+
+    declared_families: dict[str, list[str]] = {}
+    for family in rule_pack.get("rule_families") or []:
+        family_id = str(family.get("id") or "")
+        if not family_id or family_id in declared_families:
+            raise ValueError("Rule Pack: famiglie mancanti o duplicate")
+        case_types = family.get("engine_case_types")
+        if not isinstance(case_types, list) or any(not isinstance(value, str) or not value for value in case_types):
+            raise ValueError(f"Rule Pack: engine_case_types non validi per {family_id}")
+        declared_families[family_id] = case_types
+
+    matrix_families: dict[str, dict[str, Any]] = {}
+    for family in matrix.get("families") or []:
+        family_id = str(family.get("id") or "")
+        status = family.get("provenance_status")
+        if not family_id or family_id in matrix_families or status not in PROVENANCE_STATUSES:
+            raise ValueError("Provenance Matrix: famiglie mancanti, duplicate o con stato non valido")
+        case_types = family.get("case_types")
+        if not isinstance(case_types, list):
+            raise ValueError(f"Provenance Matrix: case_types non validi per {family_id}")
+        matrix_families[family_id] = family
+
+    if set(matrix_families) != set(declared_families):
+        raise ValueError("Provenance Matrix: famiglie diverse dal Rule Pack")
+    for family_id, case_types in declared_families.items():
+        if matrix_families[family_id].get("case_types") != case_types:
+            raise ValueError(f"Provenance Matrix: case_type diversi dal Rule Pack per {family_id}")
+
+    expected_pairs = {
+        (family_id, case_type) for family_id, case_types in declared_families.items() for case_type in case_types
+    }
+    rules = matrix.get("rules") or []
+    actual_pairs: set[tuple[str, str]] = set()
+    blockers: list[str] = []
+    for rule in rules:
+        family_id = str(rule.get("family") or "")
+        case_type = str(rule.get("case_type") or "")
+        status = rule.get("provenance_status")
+        pair = (family_id, case_type)
+        if not family_id or not case_type or pair in actual_pairs or status not in {"complete", "incomplete"}:
+            raise ValueError("Provenance Matrix: regole mancanti, duplicate o con stato non valido")
+        actual_pairs.add(pair)
+        blind_eligible = rule.get("blind_eligible") is True
+        if blind_eligible != (status == "complete"):
+            raise ValueError(f"Provenance Matrix: blind_eligible incoerente per {case_type}")
+        if not blind_eligible:
+            blockers.append(case_type)
+    if actual_pairs != expected_pairs:
+        raise ValueError("Provenance Matrix: elenco regole diverso dal Rule Pack")
+
+    unsupported = sorted(
+        family_id for family_id, family in matrix_families.items() if family.get("provenance_status") == "unsupported"
+    )
+    declared_readiness = matrix.get("blind_readiness") or {}
+    expected_ready = not blockers and not unsupported
+    if declared_readiness.get("ready") is not expected_ready:
+        raise ValueError("Provenance Matrix: blind_readiness incoerente con le regole")
+    if sorted(declared_readiness.get("blocking_case_types") or []) != sorted(blockers):
+        raise ValueError("Provenance Matrix: blocking_case_types incoerenti")
+    if sorted(declared_readiness.get("unsupported_families") or []) != unsupported:
+        raise ValueError("Provenance Matrix: unsupported_families incoerenti")
+    if not expected_ready:
+        details = []
+        if blockers:
+            details.append("provenance incompleta: " + ", ".join(sorted(blockers)))
+        if unsupported:
+            details.append("famiglie non supportate: " + ", ".join(unsupported))
+        raise ValueError("freeze bloccato dalla Provenance Matrix: " + "; ".join(details))
 
 
 def freeze_workspace(
@@ -34,6 +119,8 @@ def freeze_workspace(
     practice_model_version: str,
     rule_pack: Path,
     rule_pack_version: str,
+    provenance_matrix: Path,
+    provenance_matrix_version: str,
     company_profile: Path,
     company_profile_version: str,
     ground_truth_protocol: Path,
@@ -60,9 +147,12 @@ def freeze_workspace(
             "inventory-private: pratiche senza documenti: " + ", ".join(inventory["cases_without_documents"])
         )
 
+    _validate_provenance_matrix(rule_pack, provenance_matrix, provenance_matrix_version)
+
     artifacts = {
         "practice_model": (practice_model, practice_model_version, "Practice Model"),
         "rule_pack": (rule_pack, rule_pack_version, "Rule Pack"),
+        "provenance_matrix": (provenance_matrix, provenance_matrix_version, "Provenance Matrix"),
         "company_profile": (company_profile, company_profile_version, "Company Profile"),
         "ground_truth_protocol": (
             ground_truth_protocol,
@@ -119,7 +209,7 @@ def freeze_workspace(
         },
         "claim_boundary": plan["claim_boundary"],
         "invalidation_rule": (
-            "Qualsiasi modifica a software, Practice Model, Rule Pack, Company Profile, "
+            "Qualsiasi modifica a software, Practice Model, Rule Pack, Provenance Matrix, Company Profile, "
             "Ground Truth Protocol, Evaluation Protocol, case-register o ground truth "
             "chiude questo run. Serve un nuovo Manifest; i risultati non possono essere mescolati."
         ),
@@ -170,6 +260,7 @@ def verify_manifest_seal(workspace: Path) -> tuple[dict[str, Any], list[str]]:
     for key in [
         "practice_model",
         "rule_pack",
+        "provenance_matrix",
         "company_profile",
         "ground_truth_protocol",
         "evaluation_protocol",
