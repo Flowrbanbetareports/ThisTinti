@@ -131,8 +131,6 @@ def test_duplicate_number_finding_provenance_versions_when_support_set_changes(c
         assert [item.version for item in versions] == [1, 2]
         assert versions[1].supersedes_finding_id == versions[0].id
         latest_links = list(
-            db.scalars(
-                select(ProvenanceFindingFact).where(ProvenanceFindingFact.finding_id == versions[1].id)
-            )
+            db.scalars(select(ProvenanceFindingFact).where(ProvenanceFindingFact.finding_id == versions[1].id))
         )
         assert len(latest_links) == 3
