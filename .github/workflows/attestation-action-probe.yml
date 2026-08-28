@@ -1,3 +1,4 @@
+# Exercises the exact production attestation action pin before merge.
 name: Attestation Action Probe
 
 on:
