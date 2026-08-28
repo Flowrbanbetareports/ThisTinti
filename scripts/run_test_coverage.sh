@@ -28,4 +28,6 @@ for index in "${!TEST_FILES[@]}"; do
 done
 
 python -m coverage combine
-python -m coverage report --skip-covered --fail-under=90
+# The repository coverage configuration is the single source of truth for the
+# ratcheted floor. Do not override fail_under here.
+python -m coverage report --skip-covered
