@@ -27,6 +27,6 @@ jobs:
           printf 'ThisTinti attestation action probe for %s\n' "$GITHUB_SHA" > attestation-probe.txt
           sha256sum attestation-probe.txt
       - name: Attest probe subject
-        uses: actions/attest-build-provenance@e3fe62ef559997059fe8380e7d2b4c909e2d65f4 # immutable upstream commit
+        uses: actions/attest-build-provenance@9d57eef8c06cd9d6b433effeeb7a6a77b3ff94ad # immutable upstream commit
         with:
           subject-path: attestation-probe.txt
