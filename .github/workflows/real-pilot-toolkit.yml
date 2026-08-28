@@ -36,10 +36,24 @@ jobs:
           ruff check scripts/real_pilot_toolkit.py tests/test_real_pilot_toolkit.py
       - name: Run toolkit tests
         run: pytest tests/test_real_pilot_toolkit.py
-      - name: Exercise workspace preparation and inspection
+      - name: Exercise fail-closed workspace preparation and inspection
         run: |
+          rm -rf /tmp/thistinti-real-pilot
           python scripts/real_pilot_toolkit.py prepare /tmp/thistinti-real-pilot \
             --pilot-id CI-APPAREL-001 \
             --organization-alias ORG-CI \
             --case-count 30
-          python scripts/real_pilot_toolkit.py inspect /tmp/thistinti-real-pilot
+          if python scripts/real_pilot_toolkit.py inspect /tmp/thistinti-real-pilot; then
+            echo "Fresh workspace unexpectedly passed readiness inspection" >&2
+            exit 1
+          fi
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path("/tmp/thistinti-real-pilot/inspection.json").read_text(encoding="utf-8"))
+          assert report["structure_valid"] is True
+          assert report["ready_for_execution"] is False
+          assert "autorizzazione non ancora approvata" in report["blocking_conditions"]
+          assert "AUTHORIZATION.md non compilato e firmato" in report["blocking_conditions"]
+          PY
