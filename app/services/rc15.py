@@ -39,6 +39,7 @@ from ..rc15_models import (
 )
 from ..version import RELEASE_VERSION
 from .ingestion import document_parse_error_detail
+from .judgment_provenance import record_judgment_provenance, resolve_reviewer_identity
 
 
 INTAKE_STATES = {"acquired", "review_required", "not_acquired", "blocked", "out_of_scope"}
@@ -402,15 +403,30 @@ def transition_case(
         raise ValueError("La segnalazione è già nello stato richiesto")
     if target not in CASE_TRANSITIONS.get(previous, set()):
         raise ValueError(f"Transizione non consentita: {previous} → {target}")
+
+    reviewer_ref, reviewer_user_id = resolve_reviewer_identity(
+        db,
+        tenant_id=tenant_id,
+        actor_id=user_id,
+    )
     item.status = target
-    db.add(
-        ReviewDecision(
-            tenant_id=tenant_id,
-            case_id=item.id,
-            user_id=user_id,
-            decision=target,
-            note=normalized_note,
-        )
+    decision = ReviewDecision(
+        tenant_id=tenant_id,
+        case_id=item.id,
+        user_id=reviewer_user_id,
+        decision=target,
+        note=normalized_note,
+    )
+    db.add(decision)
+    db.flush()
+    record_judgment_provenance(
+        db,
+        tenant_id=tenant_id,
+        case_id=item.id,
+        review_decision=decision,
+        reviewer_ref=reviewer_ref,
+        reviewer_user_id=reviewer_user_id,
+        previous_state=previous,
     )
     add_audit(
         db,
