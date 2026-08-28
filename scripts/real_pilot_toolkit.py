@@ -362,7 +362,9 @@ def summarize_workspace(workspace: Path, output: Path | None = None) -> tuple[di
 
     reviewers = manifest.get("reviewers") if isinstance(manifest.get("reviewers"), list) else []
     manifest_reviewer_ids = {
-        str(item.get("reviewer_id", "")).strip() for item in reviewers if isinstance(item, dict) and item.get("reviewer_id")
+        str(item.get("reviewer_id", "")).strip()
+        for item in reviewers
+        if isinstance(item, dict) and item.get("reviewer_id")
     }
 
     manual_times: list[float] = []
