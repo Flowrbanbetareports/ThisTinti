@@ -18,6 +18,7 @@ from ..parsers import ParseError, parse_file
 from .file_security import scan_file
 from .matching import attach_document_to_chain
 from .normalizer import canonical_item_key, normalize_text
+from .provenance import create_origin
 from .rules import analyze_chain
 
 
@@ -138,6 +139,15 @@ def ingest_path(
     )
     db.add(document)
     db.flush()
+    create_origin(
+        db,
+        tenant_id=tenant_id,
+        origin_type="DOCUMENT_EVIDENCE",
+        source_ref=f"sha256:{file_hash}",
+        document_id=document.id,
+        source_availability="available",
+        locator_status="not_applicable",
+    )
 
     try:
         parsed = parse_file(final_path, original_name, content_type, overrides)
