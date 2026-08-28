@@ -4,15 +4,22 @@ from datetime import UTC, datetime
 
 from sqlalchemy import Engine, inspect, text
 
-LOCAL_SCHEMA_VERSION = 1
+LOCAL_SCHEMA_VERSION = 2
 VERSION_TABLE = "thistinti_local_schema"
+
+
+def _register_models() -> None:
+    """Register every table owned by the Local Edition before schema inspection/creation."""
+    from . import models  # noqa: F401
+    from . import provenance_models  # noqa: F401
+    from . import rc15_models  # noqa: F401
 
 
 def _ensure_legacy_compatibility(engine: Engine) -> None:
     """Reject an existing database only when a known table lacks required columns."""
     from .db import Base
-    from . import models  # noqa: F401
 
+    _register_models()
     inspector = inspect(engine)
     existing = set(inspector.get_table_names())
     for name, table in Base.metadata.tables.items():
@@ -28,6 +35,15 @@ def _ensure_legacy_compatibility(engine: Engine) -> None:
             )
 
 
+def _current_schema_version(engine: Engine) -> int | None:
+    inspector = inspect(engine)
+    if VERSION_TABLE not in set(inspector.get_table_names()):
+        return None
+    with engine.connect() as connection:
+        current = connection.execute(text(f"SELECT version FROM {VERSION_TABLE} WHERE id = 1")).scalar_one_or_none()
+    return int(current) if current is not None else None
+
+
 def local_schema_needs_upgrade(engine: Engine | None = None) -> bool:
     if engine is None:
         from .db import engine as configured_engine
@@ -37,21 +53,16 @@ def local_schema_needs_upgrade(engine: Engine | None = None) -> bool:
     tables = set(inspector.get_table_names())
     if not tables:
         return False
-    if VERSION_TABLE not in tables:
-        return True
-    with engine.connect() as connection:
-        current = connection.execute(
-            text("SELECT version FROM thistinti_local_schema WHERE id = 1")
-        ).scalar_one_or_none()
-    return current is None or int(current) != LOCAL_SCHEMA_VERSION
+    current = _current_schema_version(engine)
+    return current != LOCAL_SCHEMA_VERSION
 
 
 def upgrade_local_schema(engine: Engine | None = None) -> int:
     """Create or upgrade the SQLite schema used by the self-contained edition.
 
-    The first local schema is intentionally identical to the SQLAlchemy model
-    metadata shipped in 3.3. Future local-only changes must be implemented as
-    explicit, sequential migrations before incrementing LOCAL_SCHEMA_VERSION.
+    Schema v2 is deliberately additive: it registers the RC15 extension tables
+    and the internal Provenance Contract v0 persistence tables. It changes no
+    existing business columns and performs no provenance backfill.
     """
     if engine is None:
         from .db import engine as configured_engine
@@ -60,10 +71,18 @@ def upgrade_local_schema(engine: Engine | None = None) -> int:
     if engine.dialect.name != "sqlite":
         raise RuntimeError("La Local Edition supporta soltanto SQLite")
 
+    _register_models()
+    current = _current_schema_version(engine)
+    if current is not None and current > LOCAL_SCHEMA_VERSION:
+        raise RuntimeError(
+            f"Il database usa lo schema locale {current}, più recente del programma ({LOCAL_SCHEMA_VERSION})."
+        )
+
     _ensure_legacy_compatibility(engine)
     from .db import Base
-    from . import models  # noqa: F401
 
+    # v1 -> v2 requires additive tables only. create_all(checkfirst) is the
+    # explicit transformation: existing rows/columns are never rewritten.
     Base.metadata.create_all(bind=engine)
     with engine.begin() as connection:
         connection.execute(
@@ -77,18 +96,10 @@ def upgrade_local_schema(engine: Engine | None = None) -> int:
                 """
             )
         )
-        current = connection.execute(
-            text("SELECT version FROM thistinti_local_schema WHERE id = 1")
-        ).scalar_one_or_none()
-        if current is not None and int(current) > LOCAL_SCHEMA_VERSION:
-            raise RuntimeError(
-                f"Il database usa lo schema locale {current}, più recente del programma ({LOCAL_SCHEMA_VERSION})."
-            )
-        # No sequential transformations are required for schema version 1.
         connection.execute(
             text(
-                """
-                INSERT INTO thistinti_local_schema (id, version, applied_at)
+                f"""
+                INSERT INTO {VERSION_TABLE} (id, version, applied_at)
                 VALUES (1, :version, :applied_at)
                 ON CONFLICT(id) DO UPDATE SET
                     version = excluded.version,
