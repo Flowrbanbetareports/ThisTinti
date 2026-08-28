@@ -1,0 +1,181 @@
+{
+  "contract_id": "thistinti.provenance",
+  "version": "0.1.0",
+  "status": "internal_experimental",
+  "scope": "Engineering Hardening Sprint 1; no public API stability guarantee",
+  "origin_types": [
+    "DOCUMENT_EVIDENCE",
+    "HUMAN_ASSERTION",
+    "MASTER_DATA_IMPORT",
+    "SYSTEM_OBSERVATION",
+    "DETERMINISTIC_DERIVATION",
+    "LEGACY_ORIGIN_UNKNOWN"
+  ],
+  "source_availability_states": [
+    "available",
+    "deleted_by_retention",
+    "not_stored",
+    "access_denied",
+    "external_unavailable",
+    "legacy_unknown"
+  ],
+  "locator_statuses": [
+    "present",
+    "missing",
+    "not_applicable"
+  ],
+  "locator_types": {
+    "PDF_PAGE_BOX": {
+      "required": ["page", "bounding_box"],
+      "bounding_box_format": "[x0,y0,x1,y1] in source coordinate space"
+    },
+    "IMAGE_BOX": {
+      "required": ["image_index", "bounding_box"],
+      "bounding_box_format": "[x0,y0,x1,y1] in source coordinate space"
+    },
+    "TEXT_RANGE": {
+      "required": ["start_char", "end_char"]
+    },
+    "CSV_CELL": {
+      "required": ["row", "column"]
+    },
+    "XLSX_CELL": {
+      "required": ["sheet", "cell"]
+    },
+    "JSON_POINTER": {
+      "required": ["pointer"]
+    },
+    "XPATH": {
+      "required": ["xpath"]
+    }
+  },
+  "fact_record": {
+    "required": [
+      "fact_id",
+      "fact_type",
+      "value",
+      "origin_type",
+      "created_at",
+      "version"
+    ],
+    "conditional_requirements": {
+      "DOCUMENT_EVIDENCE": [
+        "source_id",
+        "source_availability",
+        "locator_status"
+      ],
+      "HUMAN_ASSERTION": [
+        "actor_id",
+        "asserted_at",
+        "reason"
+      ],
+      "MASTER_DATA_IMPORT": [
+        "source_id",
+        "imported_at"
+      ],
+      "SYSTEM_OBSERVATION": [
+        "engine_id",
+        "engine_version",
+        "observed_at"
+      ],
+      "DETERMINISTIC_DERIVATION": [
+        "derivation_id"
+      ],
+      "LEGACY_ORIGIN_UNKNOWN": [
+        "legacy_marker"
+      ]
+    }
+  },
+  "derivation_record": {
+    "required": [
+      "derivation_id",
+      "input_fact_ids",
+      "transformation_id",
+      "engine_id",
+      "engine_version",
+      "configuration_hash",
+      "created_at"
+    ],
+    "minimum_input_facts": 1
+  },
+  "finding_record": {
+    "required": [
+      "finding_id",
+      "input_fact_ids",
+      "rule_id",
+      "rule_version",
+      "rule_configuration_hash",
+      "created_at"
+    ],
+    "minimum_input_facts": 1
+  },
+  "judgment_record": {
+    "required": [
+      "judgment_id",
+      "finding_id",
+      "reviewer_id",
+      "decision",
+      "reason",
+      "previous_state",
+      "created_at"
+    ]
+  },
+  "versioning": {
+    "correction_policy": "append_new_version",
+    "history_policy": "never_overwrite_provenance_history",
+    "supersession_required": true
+  },
+  "legacy_policy": {
+    "rule": "Never invent provenance for pre-existing data.",
+    "origin_type": "LEGACY_ORIGIN_UNKNOWN",
+    "complete_provenance": false
+  },
+  "privacy_and_lifecycle": {
+    "private_source_hashes_may_remain_private": true,
+    "export_must_preserve_allowed_provenance": true,
+    "deletion_must_respect_retention_policy": true,
+    "source_unavailable_must_not_be_represented_as_locator_missing": true
+  },
+  "invariants": [
+    {
+      "id": "PV0-001",
+      "statement": "Every new fact has exactly one explicit typed origin."
+    },
+    {
+      "id": "PV0-002",
+      "statement": "Every deterministic derivation identifies its input facts, transformation, engine version and configuration hash."
+    },
+    {
+      "id": "PV0-003",
+      "statement": "Every finding identifies supporting facts and the rule version/configuration that produced it."
+    },
+    {
+      "id": "PV0-004",
+      "statement": "Every human judgment identifies its finding, reviewer, reason and previous state."
+    },
+    {
+      "id": "PV0-005",
+      "statement": "Corrections append a new version and never overwrite provenance history."
+    },
+    {
+      "id": "PV0-006",
+      "statement": "A source locator opens the source when available, or source availability explicitly explains why it cannot."
+    },
+    {
+      "id": "PV0-007",
+      "statement": "No new fact, derivation, finding or judgment is orphaned from its required provenance links."
+    },
+    {
+      "id": "PV0-008",
+      "statement": "Export and deletion preserve provenance and confidentiality rules without exposing private source hashes unnecessarily."
+    },
+    {
+      "id": "PV0-009",
+      "statement": "Legacy records with incomplete origin remain explicitly marked LEGACY_ORIGIN_UNKNOWN and are never backfilled with invented provenance."
+    },
+    {
+      "id": "PV0-010",
+      "statement": "Source unavailable and source locator missing are represented as distinct states."
+    }
+  ]
+}
