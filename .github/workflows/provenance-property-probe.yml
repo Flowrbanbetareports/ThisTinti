@@ -52,7 +52,8 @@ jobs:
           printf '%s\n' \
             "head_sha=${GITHUB_SHA}" \
             "hypothesis_profile=${THISTINTI_HYPOTHESIS_PROFILE}" \
-            "max_examples=2000" \
+            "property_max_examples=2000" \
+            "stateful_max_examples=200" \
             "stateful_step_count=75" \
             > provenance-deep-qualification.txt
       - name: Upload deep qualification evidence
