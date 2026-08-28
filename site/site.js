@@ -58,9 +58,9 @@
 
   function shareMessage() {
     return [
-      'Ti mando ThisTinti, un programma sperimentale che collega e confronta documenti e mostra possibili differenze da controllare.',
+      'Ti mando ThisTinti RC15, la Public Preview che organizza pratiche, collega documenti e mostra possibili differenze da verificare con le prove.',
       '',
-      'Funziona in locale sul tuo PC: al primo avvio crei il tuo spazio con nome organizzazione, email e password. Per iniziare senza usare documenti personali premi “Carica esempio”.',
+      'La pagina si apre anche dal telefono. La Local Edition vera e propria funziona invece in locale sul PC Windows, senza account centrale e senza telemetria.',
       '',
       siteUrl(),
     ].join('\n');
@@ -149,7 +149,7 @@
         sourcePackage.textContent = 'Scarica il pacchetto sorgente';
       }
       const channel = release.prerelease ? 'Public Preview' : 'Release';
-      if (releasePill) releasePill.textContent = `${channel} · Local Edition`;
+      if (releasePill) releasePill.textContent = `${release.tag_name} · ${channel} · Local Edition`;
       if (status) status.textContent = `${release.tag_name} · ${setup.download_count.toLocaleString('it-IT')} download installer · checksum disponibile`;
       applyDownloadState();
     })
