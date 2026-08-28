@@ -168,9 +168,7 @@ def test_each_judgment_stays_linked_to_finding_version_seen_at_decision_time(cli
                 ProvenanceFinding.version == 1,
             )
         )
-        first_judgment = db.scalar(
-            select(ProvenanceJudgment).where(ProvenanceJudgment.tenant_id == case.tenant_id)
-        )
+        first_judgment = db.scalar(select(ProvenanceJudgment).where(ProvenanceJudgment.tenant_id == case.tenant_id))
         assert first_finding is not None
         assert first_judgment is not None
         assert first_judgment.finding_id == first_finding.id
