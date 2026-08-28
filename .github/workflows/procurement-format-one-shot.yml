@@ -7,7 +7,7 @@ on:
       - ".github/workflows/procurement-format-one-shot.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   format:
@@ -20,7 +20,7 @@ jobs:
           python-version: "3.13"
       - name: Install exact formatter
         run: pip install ruff==0.15.22
-      - name: Format Procurement pilot files
+      - name: Format and verify Procurement pilot files
         run: |
           ruff format \
             scripts/procurement_pilot/common.py \
@@ -34,18 +34,21 @@ jobs:
             scripts/procurement_pilot/ground_truth.py \
             scripts/procurement_pilot/workspace.py \
             tests/test_procurement_pilot_protocol.py
-      - name: Package formatted files
+      - name: Commit only formatter output
+        shell: bash
         run: |
-          mkdir formatted
-          cp --parents \
+          set -euo pipefail
+          git config user.name "ThisTinti"
+          git config user.email "flowrbanbetareports@gmail.com"
+          git add \
             scripts/procurement_pilot/common.py \
             scripts/procurement_pilot/freeze.py \
             scripts/procurement_pilot/ground_truth.py \
             scripts/procurement_pilot/workspace.py \
-            tests/test_procurement_pilot_protocol.py \
-            formatted/
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: procurement-ruff-formatted-${{ github.run_id }}
-          path: formatted
-          retention-days: 1
+            tests/test_procurement_pilot_protocol.py
+          if git diff --cached --quiet; then
+            echo "No formatter changes to commit."
+            exit 0
+          fi
+          git commit -m "style: format Procurement pilot toolkit"
+          git push origin HEAD:main
