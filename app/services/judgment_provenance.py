@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from ..models import ApiCredential, ReviewDecision, User
 from ..provenance_models import ProvenanceFinding, ProvenanceJudgment
+from .finding_provenance import duplicate_number_finding_matches_current_support
 
 
 def resolve_reviewer_identity(
@@ -48,7 +49,7 @@ def record_judgment_provenance(
     reviewer_user_id: str | None,
     previous_state: str,
 ) -> ProvenanceJudgment | None:
-    """Link a human review decision to the latest provable finding version."""
+    """Link a human review decision to the latest currently provable finding version."""
     if not reviewer_ref or not review_decision.note or not review_decision.note.strip():
         return None
 
@@ -71,6 +72,11 @@ def record_judgment_provenance(
         .limit(1)
     )
     if finding is None:
+        return None
+    if (
+        finding.rule_id == "builtin:duplicate_document_number"
+        and not duplicate_number_finding_matches_current_support(db, finding=finding)
+    ):
         return None
 
     judgment = ProvenanceJudgment(
