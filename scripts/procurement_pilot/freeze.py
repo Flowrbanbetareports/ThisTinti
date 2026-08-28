@@ -69,9 +69,7 @@ def _validate_provenance_matrix(rule_pack_path: Path, matrix_path: Path, matrix_
             raise ValueError(f"Provenance Matrix: case_type diversi dal Rule Pack per {family_id}")
 
     expected_pairs = {
-        (family_id, case_type)
-        for family_id, case_types in declared_families.items()
-        for case_type in case_types
+        (family_id, case_type) for family_id, case_types in declared_families.items() for case_type in case_types
     }
     rules = matrix.get("rules") or []
     actual_pairs: set[tuple[str, str]] = set()
@@ -93,9 +91,7 @@ def _validate_provenance_matrix(rule_pack_path: Path, matrix_path: Path, matrix_
         raise ValueError("Provenance Matrix: elenco regole diverso dal Rule Pack")
 
     unsupported = sorted(
-        family_id
-        for family_id, family in matrix_families.items()
-        if family.get("provenance_status") == "unsupported"
+        family_id for family_id, family in matrix_families.items() if family.get("provenance_status") == "unsupported"
     )
     declared_readiness = matrix.get("blind_readiness") or {}
     expected_ready = not blockers and not unsupported
