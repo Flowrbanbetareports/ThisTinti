@@ -65,18 +65,26 @@ jobs:
         env:
           THISTINTI_OCR_ENABLED: 'false'
         run: python -m pytest -q tests/test_duplicate_number_finding_provenance.py tests/test_module_boundaries.py
-      - name: Canonical release gate
-        shell: bash
-        run: |
-          set -o pipefail
-          make verify 2>&1 | tee provenance-finding-qualification.log
-      - name: Commit qualified patch and clean temporary workflows
+      - name: Prepare final repository tree for qualification
         shell: bash
         run: |
           rm -f .github/workflows/provenance-finding-one-shot.yml
           rm -f .github/workflows/provenance-finding-one-shot-v2.yml
           rm -f .github/workflows/provenance-finding-one-shot-v3.yml
           rm -f .github/workflows/provenance-coverage-probe.yml
+          git diff --check
+          if grep -R -n -E '^\s*git\s+push\b' .github/workflows/*.yml; then
+            echo "Final workflow tree still contains direct repository pushes" >&2
+            exit 1
+          fi
+      - name: Canonical release gate on final tree
+        shell: bash
+        run: |
+          set -o pipefail
+          make verify 2>&1 | tee provenance-finding-qualification.log
+      - name: Commit qualified final tree
+        shell: bash
+        run: |
           git config user.name "ThisTinti"
           git config user.email "flowrbanbetareports@gmail.com"
           git add app/services/rules.py .github/workflows/provenance-finding-one-shot.yml .github/workflows/provenance-finding-one-shot-v2.yml .github/workflows/provenance-finding-one-shot-v3.yml .github/workflows/provenance-coverage-probe.yml
