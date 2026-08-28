@@ -33,23 +33,27 @@ python scripts/real_pilot_toolkit.py prepare ./real-pilot-apparel \
 
 Il comando crea:
 
-- `pilot-manifest.json`;
+- `pilot-manifest.json`, legato alla versione ThisTinti in esecuzione;
 - `AUTHORIZATION.md`;
 - `measurements.csv`;
 - 30 cartelle separate in `input/CASE-001` … `input/CASE-030`.
 
 Ogni pratica deve contenere esclusivamente i documenti che la riguardano. Non mescolare fornitori o processi differenti nella stessa cartella.
 
+Un workspace preparato con una versione diversa di ThisTinti non viene considerato pronto all'esecuzione dalla verifica locale. Preparare un nuovo workspace o documentare esplicitamente una nuova versione del pilot invece di riutilizzare silenziosamente un manifest precedente.
+
 ## 3. Autorizzazione e anonimizzazione
 
 Prima del caricamento:
 
-1. compilare e firmare `AUTHORIZATION.md`;
+1. compilare e firmare `AUTHORIZATION.md`, rimuovendo il testo segnaposto iniziale;
 2. impostare `authorization.status` a `approved` nel manifest;
-3. rimuovere nomi di persone, email, telefoni, IBAN, codici fiscali e altri identificativi non necessari;
-4. sostituire ragioni sociali e riferimenti con alias stabili;
-5. mantenere una tabella di corrispondenza fuori dal workspace del pilot;
-6. verificare manualmente immagini e PDF scannerizzati.
+3. compilare anche `authorization.authorized_by_role` e `authorization.authorized_at`;
+4. rimuovere nomi di persone, email, telefoni, IBAN, codici fiscali e altri identificativi non necessari;
+5. sostituire ragioni sociali e riferimenti con alias stabili;
+6. mantenere una tabella di corrispondenza fuori dal workspace del pilot;
+7. verificare manualmente immagini, PDF scannerizzati, fogli XLSX e gli altri documenti binari segnalati dall'ispezione;
+8. solo dopo tale verifica, impostare `manual_review.binary_documents_confirmed` a `true` e compilare `manual_review.confirmed_by_role` e `manual_review.confirmed_at`.
 
 Eseguire quindi:
 
@@ -57,7 +61,18 @@ Eseguire quindi:
 python scripts/real_pilot_toolkit.py inspect ./real-pilot-apparel
 ```
 
-Il controllo automatico cerca identificativi nei file testuali, inventaria ogni file e segnala i documenti binari che richiedono revisione manuale.
+Il controllo automatico cerca identificativi nei file testuali, inventaria ogni file e segnala i documenti binari che richiedono revisione manuale. L'ispezione restituisce esito positivo solo quando `ready_for_execution` è `true`.
+
+Sono condizioni bloccanti, tra le altre:
+
+- autorizzazione non approvata o priva di ruolo/data;
+- `AUTHORIZATION.md` ancora non compilato;
+- identificativi rilevati nei file controllabili automaticamente;
+- revisione manuale dei documenti binari non attestata;
+- versione applicativa del manifest diversa dalla versione ThisTinti in esecuzione;
+- case ID o revisori non validi.
+
+La verifica automatica non sostituisce la revisione umana dei documenti binari e non certifica l'anonimizzazione.
 
 ## 4. Ground truth
 
@@ -70,6 +85,8 @@ I revisori `REV-A` e `REV-B` lavorano indipendentemente e registrano per ogni pr
 - casi non determinabili.
 
 Le divergenze devono essere risolte prima di confrontare il risultato con ThisTinti. La ground truth non può essere costruita dopo aver visto le segnalazioni del software.
+
+Nel pilot integrato RC15 la ground truth deve inoltre essere congelata prima del run; il relativo hash identifica la versione esatta usata per la valutazione.
 
 ## 5. Misurazione prima/dopo
 
@@ -96,7 +113,8 @@ Per ridurre l'effetto memoria, alternare l'ordine delle sessioni tra le pratiche
 
 Il file `measurements.csv` richiede:
 
-- due revisori distinti;
+- esattamente una riga per ogni `case_id` dichiarato nel manifest;
+- gli stessi due revisori distinti dichiarati nel manifest;
 - ground truth completata;
 - tempo manuale e assistito maggiori di zero;
 - numero di anomalie reali e segnalate;
@@ -105,16 +123,23 @@ Il file `measurements.csv` richiede:
 - giudizio dell'utilizzatore da 1 a 5;
 - note operative.
 
+Case ID duplicati, mancanti, aggiuntivi o revisori diversi dal manifest rendono il rapporto incompleto.
+
 ## 7. Rapporto finale
 
 ```bash
 python scripts/real_pilot_toolkit.py summarize ./real-pilot-apparel
 ```
 
+Prima del calcolo, `summarize` riesegue l'ispezione sullo stato corrente del workspace. Se autorizzazione, anonimizzazione, revisione binari, versione o struttura non sono più qualificati, il comando fallisce chiuso e non può produrre un esito positivo.
+
 Il comando produce:
 
 - `result.json`, utilizzabile come evidenza strutturata;
-- `result.md`, leggibile da persone non tecniche.
+- `result.md`, leggibile da persone non tecniche;
+- un nuovo `inspection.json` relativo allo stato esatto appena verificato.
+
+Il risultato registra la versione applicativa e l'hash SHA-256 dell'ispezione associata.
 
 La decisione automatica può essere:
 
