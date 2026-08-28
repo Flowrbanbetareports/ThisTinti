@@ -1,0 +1,32 @@
+# Exercises the exact production attestation action pin before merge.
+name: Attestation Action Probe
+
+on:
+  push:
+    branches-ignore:
+      - main
+    paths:
+      - ".github/workflows/windows-attestation.yml"
+      - ".github/workflows/attestation-action-probe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Prepare isolated probe subject
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf 'ThisTinti attestation action probe for %s\n' "$GITHUB_SHA" > attestation-probe.txt
+          sha256sum attestation-probe.txt
+      - name: Attest probe subject
+        uses: actions/attest-build-provenance@e3fe62ef559997059fe8380e7d2b4c909e2d65f4 # immutable upstream commit
+        with:
+          subject-path: attestation-probe.txt

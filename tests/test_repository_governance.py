@@ -34,6 +34,24 @@ def test_windows_release_workflow_is_read_only_and_artifact_backed() -> None:
     assert "Record successful main build" not in text
 
 
+def test_attestation_action_probe_tracks_production_pin() -> None:
+    pattern = re.compile(r"actions/attest-build-provenance@([0-9a-f]{40})")
+    production = (WORKFLOWS / "windows-attestation.yml").read_text(encoding="utf-8")
+    probe = (WORKFLOWS / "attestation-action-probe.yml").read_text(encoding="utf-8")
+
+    production_pins = pattern.findall(production)
+    probe_pins = pattern.findall(probe)
+    assert len(production_pins) == 1
+    assert len(probe_pins) == 1
+    assert probe_pins == production_pins
+
+    assert "branches-ignore:" in probe
+    assert "      - main" in probe
+    assert '      - ".github/workflows/windows-attestation.yml"' in probe
+    assert "id-token: write" in probe
+    assert "attestations: write" in probe
+
+
 def test_runtime_entrypoint_drops_root_before_application_exec() -> None:
     dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
     entrypoint = (ROOT / "scripts" / "container_entrypoint.py").read_text(encoding="utf-8")
