@@ -15,11 +15,18 @@ from sqlalchemy.orm import Session
 from ..config import settings
 from ..models import Document, DocumentLine, Supplier
 from ..parsers import ParseError, parse_file
+from ..provenance_models import ProvenanceFact
 from .file_security import scan_file
 from .matching import attach_document_to_chain
 from .normalizer import canonical_item_key, normalize_text
 from .provenance import append_fact, create_origin
 from .rules import analyze_chain
+
+
+_DIRECT_DOCUMENT_FACTS = {
+    "number": ("document.number", "/number"),
+    "currency": ("document.currency", "/currency"),
+}
 
 
 def document_parse_error_detail(document: Document) -> dict[str, Any]:
@@ -79,32 +86,49 @@ def _supplier(db: Session, tenant_id: str, name: str | None, vat_id: str | None)
 
 
 def _record_direct_source_facts(db: Session, tenant_id: str, document: Document, parsed, file_hash: str) -> None:
-    number_locator = parsed.source_locators.get("number")
-    if document.number in (None, "") or number_locator is None:
-        return
-    if number_locator.get("locator_type") != "JSON_POINTER" or number_locator.get("pointer") != "/number":
-        raise ValueError("Unsupported direct source locator for document.number")
-    origin = create_origin(
-        db,
-        tenant_id=tenant_id,
-        origin_type="DOCUMENT_EVIDENCE",
-        source_ref=f"sha256:{file_hash}",
-        document_id=document.id,
-        source_availability="available",
-        locator_status="present",
-        locator_type="JSON_POINTER",
-        locator_json=json.dumps({"pointer": "/number"}),
-        engine_id=number_locator.get("engine_id"),
-        engine_version=number_locator.get("engine_version"),
-    )
-    append_fact(
-        db,
-        tenant_id=tenant_id,
-        fact_key=f"document:{document.id}:number",
-        fact_type="document.number",
-        value_json=json.dumps(str(document.number), ensure_ascii=False),
-        origin_id=origin.id,
-    )
+    for field_name, (fact_type, expected_pointer) in _DIRECT_DOCUMENT_FACTS.items():
+        locator = parsed.source_locators.get(field_name)
+        value = getattr(document, field_name, None)
+        if value in (None, "") or locator is None:
+            continue
+        if locator.get("locator_type") != "JSON_POINTER" or locator.get("pointer") != expected_pointer:
+            raise ValueError(f"Unsupported direct source locator for {fact_type}")
+
+        fact_key = f"document:{document.id}:{field_name}"
+        value_json = json.dumps(str(value), ensure_ascii=False)
+        previous = db.scalar(
+            select(ProvenanceFact)
+            .where(
+                ProvenanceFact.tenant_id == tenant_id,
+                ProvenanceFact.fact_key == fact_key,
+            )
+            .order_by(ProvenanceFact.version.desc())
+        )
+        if previous is not None and previous.value_json == value_json:
+            continue
+
+        origin = create_origin(
+            db,
+            tenant_id=tenant_id,
+            origin_type="DOCUMENT_EVIDENCE",
+            source_ref=f"sha256:{file_hash}",
+            document_id=document.id,
+            source_availability="available",
+            locator_status="present",
+            locator_type="JSON_POINTER",
+            locator_json=json.dumps({"pointer": expected_pointer}),
+            engine_id=locator.get("engine_id"),
+            engine_version=locator.get("engine_version"),
+        )
+        append_fact(
+            db,
+            tenant_id=tenant_id,
+            fact_key=fact_key,
+            fact_type=fact_type,
+            value_json=value_json,
+            origin_id=origin.id,
+            supersedes_fact_id=previous.id if previous is not None else None,
+        )
 
 
 def _validate_file_shape(path: Path) -> None:
@@ -292,6 +316,7 @@ def reprocess_document(db: Session, document: Document, overrides: dict[str, Any
     document.metadata_json = json.dumps(parsed.metadata, ensure_ascii=False, default=str)
     document.confidence = parsed.confidence
     document.parse_message = parsed.message
+    _record_direct_source_facts(db, document.tenant_id, document, parsed, document.file_hash)
     for line in parsed.lines:
         key = canonical_item_key(line.sku, line.description, line.color, line.size, line.lot)
         db.add(
