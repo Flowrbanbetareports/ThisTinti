@@ -1,0 +1,224 @@
+{
+  "schema": "thistinti.procurement-provenance-matrix.v1",
+  "version": "0.1",
+  "product_version": "3.4.0-alpha.7-rc.15",
+  "rule_pack_id": "procurement-baseline-v0.1",
+  "rule_pack_version": "0.1",
+  "scope": "Procurement pilot rule-pack provenance qualification only.",
+  "status_definitions": {
+    "complete": "Qualified DOCUMENTO -> FACT -> FINDING -> GIUDIZIO lineage exists for this rule.",
+    "incomplete": "The engine rule exists, but its qualified provenance lineage is not complete.",
+    "unsupported": "The declared rule family has no engine rule in the current pilot baseline."
+  },
+  "families": [
+    {
+      "id": "identity-linkage",
+      "provenance_status": "incomplete",
+      "rule_count": 2,
+      "complete_rule_count": 1,
+      "incomplete_rule_count": 1,
+      "case_types": [
+        "duplicate_document_number",
+        "duplicate_payment"
+      ]
+    },
+    {
+      "id": "quantity-consistency",
+      "provenance_status": "incomplete",
+      "rule_count": 4,
+      "complete_rule_count": 0,
+      "incomplete_rule_count": 4,
+      "case_types": [
+        "unit_mismatch",
+        "delivered_over_order",
+        "invoiced_over_received",
+        "credit_below_return"
+      ]
+    },
+    {
+      "id": "amount-consistency",
+      "provenance_status": "incomplete",
+      "rule_count": 7,
+      "complete_rule_count": 0,
+      "incomplete_rule_count": 7,
+      "case_types": [
+        "currency_mismatch",
+        "line_total_mismatch",
+        "price_over_order",
+        "discount_missing",
+        "tax_rate_mismatch",
+        "duplicate_invoice_line",
+        "payment_over_invoice"
+      ]
+    },
+    {
+      "id": "temporal-consistency",
+      "provenance_status": "unsupported",
+      "rule_count": 0,
+      "complete_rule_count": 0,
+      "incomplete_rule_count": 0,
+      "case_types": []
+    },
+    {
+      "id": "expected-evidence-completeness",
+      "provenance_status": "incomplete",
+      "rule_count": 3,
+      "complete_rule_count": 0,
+      "incomplete_rule_count": 3,
+      "case_types": [
+        "unmatched_invoice_line",
+        "payment_without_invoice",
+        "return_without_credit"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "family": "identity-linkage",
+      "case_type": "duplicate_document_number",
+      "provenance_status": "complete",
+      "blind_eligible": true,
+      "evidence": "Qualified property/state-machine vertical slice with immutable finding versions and exact judgment binding."
+    },
+    {
+      "family": "identity-linkage",
+      "case_type": "duplicate_payment",
+      "provenance_status": "incomplete",
+      "blind_eligible": false,
+      "evidence": "Engine finding and EvidenceLink exist; no qualified ProvenanceFinding/ProvenanceJudgment vertical slice."
+    },
+    {
+      "family": "quantity-consistency",
+      "case_type": "unit_mismatch",
+      "provenance_status": "incomplete",
+      "blind_eligible": false,
+      "evidence": "Engine finding and EvidenceLink exist; provenance does not yet bind normalized quantity facts to a versioned finding."
+    },
+    {
+      "family": "quantity-consistency",
+      "case_type": "delivered_over_order",
+      "provenance_status": "incomplete",
+      "blind_eligible": false,
+      "evidence": "Engine finding and EvidenceLink exist; no qualified FACT-to-FINDING lineage for the compared quantities."
+    },
+    {
+      "family": "quantity-consistency",
+      "case_type": "invoiced_over_received",
+      "provenance_status": "incomplete",
+      "blind_eligible": false,
+      "evidence": "Engine finding and EvidenceLink exist; no qualified FACT-to-FINDING lineage for the compared quantities."
+    },
+    {
+      "family": "quantity-consistency",
+      "case_type": "credit_below_return",
+      "provenance_status": "incomplete",
+      "blind_eligible": false,
+      "evidence": "Engine finding and EvidenceLink exist; no qualified FACT-to-FINDING lineage for return and credit quantities."
+    },
+    {
+      "family": "amount-consistency",
+      "case_type": "currency_mismatch",
+      "provenance_status": "incomplete",
+      "blind_eligible": false,
+      "evidence": "Engine finding and EvidenceLink exist; currency facts are not yet linked through the qualified provenance chain."
+    },
+    {
+      "family": "amount-consistency",
+      "case_type": "line_total_mismatch",
+      "provenance_status": "incomplete",
+      "blind_eligible": false,
+      "evidence": "Engine finding and EvidenceLink exist; calculated and observed monetary facts are not yet version-bound provenance inputs."
+    },
+    {
+      "family": "amount-consistency",
+      "case_type": "price_over_order",
+      "provenance_status": "incomplete",
+      "blind_eligible": false,
+      "evidence": "Engine finding and EvidenceLink exist; compared price facts are not yet linked to a versioned ProvenanceFinding."
+    },
+    {
+      "family": "amount-consistency",
+      "case_type": "discount_missing",
+      "provenance_status": "incomplete",
+      "blind_eligible": false,
+      "evidence": "Engine finding and EvidenceLink exist; discount facts are not yet linked to a versioned ProvenanceFinding."
+    },
+    {
+      "family": "amount-consistency",
+      "case_type": "tax_rate_mismatch",
+      "provenance_status": "incomplete",
+      "blind_eligible": false,
+      "evidence": "Engine finding and EvidenceLink exist; tax-rate facts are not yet linked to a versioned ProvenanceFinding."
+    },
+    {
+      "family": "amount-consistency",
+      "case_type": "duplicate_invoice_line",
+      "provenance_status": "incomplete",
+      "blind_eligible": false,
+      "evidence": "Engine finding and EvidenceLink exist; duplicate-line signature inputs are not yet qualified provenance facts."
+    },
+    {
+      "family": "amount-consistency",
+      "case_type": "payment_over_invoice",
+      "provenance_status": "incomplete",
+      "blind_eligible": false,
+      "evidence": "Engine finding and EvidenceLink exist; invoice/payment total facts are not yet linked to a versioned ProvenanceFinding."
+    },
+    {
+      "family": "expected-evidence-completeness",
+      "case_type": "unmatched_invoice_line",
+      "provenance_status": "incomplete",
+      "blind_eligible": false,
+      "evidence": "Engine finding and EvidenceLink exist; the absence/matching interpretation is not represented as qualified provenance."
+    },
+    {
+      "family": "expected-evidence-completeness",
+      "case_type": "payment_without_invoice",
+      "provenance_status": "incomplete",
+      "blind_eligible": false,
+      "evidence": "Engine finding and EvidenceLink exist; expected-evidence absence is not yet represented through FACT/FINDING provenance."
+    },
+    {
+      "family": "expected-evidence-completeness",
+      "case_type": "return_without_credit",
+      "provenance_status": "incomplete",
+      "blind_eligible": false,
+      "evidence": "Engine finding and EvidenceLink exist; expected credit evidence is not yet represented through FACT/FINDING provenance."
+    }
+  ],
+  "excluded_runtime_rules": [
+    {
+      "case_type": "field_consistency",
+      "reason": "Dynamic RuleProposal findings are not part of the fixed Procurement v0.1 blind Rule Pack."
+    }
+  ],
+  "blind_readiness": {
+    "ready": false,
+    "policy": "Every pilot Rule Pack rule and declared family must have complete provenance before blind evaluation freeze.",
+    "blocking_case_types": [
+      "credit_below_return",
+      "currency_mismatch",
+      "delivered_over_order",
+      "discount_missing",
+      "duplicate_invoice_line",
+      "duplicate_payment",
+      "invoiced_over_received",
+      "line_total_mismatch",
+      "payment_over_invoice",
+      "payment_without_invoice",
+      "price_over_order",
+      "return_without_credit",
+      "tax_rate_mismatch",
+      "unit_mismatch",
+      "unmatched_invoice_line"
+    ],
+    "unsupported_families": [
+      "temporal-consistency"
+    ]
+  },
+  "claim_boundary": {
+    "engine_finding_equals_provenance_qualified_finding": false,
+    "incomplete_rules_may_support_blind_accuracy_claims": false,
+    "matrix_change_requires_new_pilot_manifest": true
+  }
+}
