@@ -31,18 +31,8 @@ jobs:
 
           path = Path("tests/test_provenance_properties.py")
           text = path.read_text(encoding="utf-8")
-          old = '''        db.add_all([self.tenant, self.user, self.chain])
-          db.flush()
-          self.kinds: dict[int, str] = {}
-          '''
-          new = '''        db.add(self.tenant)
-          db.flush()
-          db.add(self.user)
-          db.flush()
-          db.add(self.chain)
-          db.flush()
-          self.kinds: dict[int, str] = {}
-          '''
+          old = "        db.add_all([self.tenant, self.user, self.chain])\n        db.flush()\n        self.kinds: dict[int, str] = {}\n"
+          new = "        db.add(self.tenant)\n        db.flush()\n        db.add(self.user)\n        db.flush()\n        db.add(self.chain)\n        db.flush()\n        self.kinds: dict[int, str] = {}\n"
           if old not in text:
               raise SystemExit("expected seed block not found")
           path.write_text(text.replace(old, new, 1), encoding="utf-8")
