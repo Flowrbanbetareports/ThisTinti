@@ -97,9 +97,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["tenant_id"], ["tenants.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(
-        op.f("ix_provenance_derivations_tenant_id"), "provenance_derivations", ["tenant_id"], unique=False
-    )
+    op.create_index(op.f("ix_provenance_derivations_tenant_id"), "provenance_derivations", ["tenant_id"], unique=False)
     op.create_index(
         "ix_prov_derivation_tenant_created", "provenance_derivations", ["tenant_id", "created_at"], unique=False
     )
@@ -260,8 +258,7 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.CheckConstraint("version >= 1", name="ck_prov_finding_version_positive"),
         sa.CheckConstraint(
-            "(version = 1 AND supersedes_finding_id IS NULL) OR "
-            "(version > 1 AND supersedes_finding_id IS NOT NULL)",
+            "(version = 1 AND supersedes_finding_id IS NULL) OR (version > 1 AND supersedes_finding_id IS NOT NULL)",
             name="ck_prov_finding_supersession",
         ),
         sa.CheckConstraint(
@@ -302,9 +299,7 @@ def upgrade() -> None:
     op.create_index(
         op.f("ix_provenance_finding_facts_finding_id"), "provenance_finding_facts", ["finding_id"], unique=False
     )
-    op.create_index(
-        op.f("ix_provenance_finding_facts_fact_id"), "provenance_finding_facts", ["fact_id"], unique=False
-    )
+    op.create_index(op.f("ix_provenance_finding_facts_fact_id"), "provenance_finding_facts", ["fact_id"], unique=False)
 
     op.create_table(
         "provenance_judgments",
@@ -342,7 +337,9 @@ def upgrade() -> None:
         ["review_decision_id"],
         unique=False,
     )
-    op.create_index("ix_prov_judgment_tenant_finding", "provenance_judgments", ["tenant_id", "finding_id"], unique=False)
+    op.create_index(
+        "ix_prov_judgment_tenant_finding", "provenance_judgments", ["tenant_id", "finding_id"], unique=False
+    )
 
     _enable_postgres_guards()
 

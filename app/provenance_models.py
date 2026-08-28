@@ -151,9 +151,7 @@ class ProvenanceFact(Base):
     fact_type: Mapped[str] = mapped_column(String(160), nullable=False)
     value_json: Mapped[str] = mapped_column(Text, nullable=False)
     origin_id: Mapped[str] = mapped_column(ForeignKey("provenance_origins.id", ondelete="CASCADE"), index=True)
-    supersedes_fact_id: Mapped[str | None] = mapped_column(
-        ForeignKey("provenance_facts.id"), nullable=True, index=True
-    )
+    supersedes_fact_id: Mapped[str | None] = mapped_column(ForeignKey("provenance_facts.id"), nullable=True, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
@@ -167,9 +165,7 @@ class ProvenanceDerivationInput(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
     tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id", ondelete="CASCADE"), index=True)
-    derivation_id: Mapped[str] = mapped_column(
-        ForeignKey("provenance_derivations.id", ondelete="CASCADE"), index=True
-    )
+    derivation_id: Mapped[str] = mapped_column(ForeignKey("provenance_derivations.id", ondelete="CASCADE"), index=True)
     fact_id: Mapped[str] = mapped_column(ForeignKey("provenance_facts.id", ondelete="RESTRICT"), index=True)
     position: Mapped[int] = mapped_column(Integer, nullable=False)
 
@@ -181,8 +177,7 @@ class ProvenanceFinding(Base):
         Index("ix_prov_finding_tenant_case", "tenant_id", "case_id"),
         CheckConstraint("version >= 1", name="ck_prov_finding_version_positive"),
         CheckConstraint(
-            "(version = 1 AND supersedes_finding_id IS NULL) OR "
-            "(version > 1 AND supersedes_finding_id IS NOT NULL)",
+            "(version = 1 AND supersedes_finding_id IS NULL) OR (version > 1 AND supersedes_finding_id IS NOT NULL)",
             name="ck_prov_finding_supersession",
         ),
         CheckConstraint(
@@ -235,9 +230,7 @@ class ProvenanceJudgment(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
     tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id", ondelete="CASCADE"), index=True)
     finding_id: Mapped[str] = mapped_column(ForeignKey("provenance_findings.id", ondelete="CASCADE"), index=True)
-    review_decision_id: Mapped[str] = mapped_column(
-        ForeignKey("review_decisions.id", ondelete="CASCADE"), index=True
-    )
+    review_decision_id: Mapped[str] = mapped_column(ForeignKey("review_decisions.id", ondelete="CASCADE"), index=True)
     reviewer_ref: Mapped[str] = mapped_column(String(240), nullable=False)
     reviewer_user_id: Mapped[str | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     decision: Mapped[str] = mapped_column(String(30), nullable=False)

@@ -60,10 +60,7 @@ def test_v1_to_v2_is_additive_and_preserves_existing_rows(tmp_path: Path):
             )
         )
         connection.execute(
-            text(
-                f"INSERT INTO {VERSION_TABLE} (id, version, applied_at) "
-                "VALUES (1, 1, '2026-08-27T00:00:00+00:00')"
-            )
+            text(f"INSERT INTO {VERSION_TABLE} (id, version, applied_at) VALUES (1, 1, '2026-08-27T00:00:00+00:00')")
         )
 
     assert upgrade_local_schema(engine) == 2
