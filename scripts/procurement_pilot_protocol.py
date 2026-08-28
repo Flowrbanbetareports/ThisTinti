@@ -34,7 +34,14 @@ def build_parser() -> argparse.ArgumentParser:
     freeze.add_argument("workspace", type=Path)
     freeze.add_argument("--software-commit", required=True)
     freeze.add_argument("--software-version", required=True)
-    for name in ["practice-model", "rule-pack", "company-profile", "ground-truth-protocol", "evaluation-protocol"]:
+    for name in [
+        "practice-model",
+        "rule-pack",
+        "provenance-matrix",
+        "company-profile",
+        "ground-truth-protocol",
+        "evaluation-protocol",
+    ]:
         freeze.add_argument(f"--{name}", type=Path, required=True)
         freeze.add_argument(f"--{name}-version", required=True)
     for command in ["create-ground-truth-templates", "seal-ground-truth", "check-ready", "evaluate"]:
@@ -65,6 +72,8 @@ def main(argv: list[str] | None = None) -> int:
                 practice_model_version=args.practice_model_version,
                 rule_pack=args.rule_pack,
                 rule_pack_version=args.rule_pack_version,
+                provenance_matrix=args.provenance_matrix,
+                provenance_matrix_version=args.provenance_matrix_version,
                 company_profile=args.company_profile,
                 company_profile_version=args.company_profile_version,
                 ground_truth_protocol=args.ground_truth_protocol,
