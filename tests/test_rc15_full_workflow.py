@@ -9,6 +9,7 @@ from sqlalchemy import select
 
 from app.db import SessionLocal
 from app.models import Document, OperationChain, ProcessingJob, Tenant, User
+from app.provenance_models import ProvenanceOrigin
 from app.services.rc15 import (
     _automatic_document_intake,
     _automatic_job_intake,
@@ -138,8 +139,24 @@ def test_rc15_supervised_workflow_end_to_end(client, auth):
     )
     assert practice_response.status_code == 201, practice_response.text
     practice_id = practice_response.json()["practice"]["id"]
-    assert practice_response.json()["practice"]["documents"]
+    practice_documents = practice_response.json()["practice"]["documents"]
+    assert practice_documents
     assert practice_response.json()["practice"]["text_differences"] is not None
+    practice_document_ids = [item["id"] for item in practice_documents]
+    with SessionLocal() as db:
+        practice_origins = list(
+            db.scalars(
+                select(ProvenanceOrigin).where(
+                    ProvenanceOrigin.tenant_id == tenant_id,
+                    ProvenanceOrigin.document_id.in_(practice_document_ids),
+                    ProvenanceOrigin.origin_type == "DOCUMENT_EVIDENCE",
+                )
+            )
+        )
+        assert len(practice_origins) == len(practice_document_ids)
+        provenance_origin_ids = [item.id for item in practice_origins]
+        provenance_source_refs = {item.source_ref for item in practice_origins}
+        assert all(item.source_availability == "available" for item in practice_origins)
 
     practices = client.get("/api/rc15/practices", headers=auth)
     assert practices.status_code == 200
@@ -311,6 +328,15 @@ def test_rc15_supervised_workflow_end_to_end(client, auth):
     tombstone = next(item for item in deleted_list.json() if item["id"] == practice_id)
     assert tombstone["status"] == "deleted"
     assert tombstone["chain_id"] is None
+    with SessionLocal() as db:
+        deleted_origins = list(
+            db.scalars(select(ProvenanceOrigin).where(ProvenanceOrigin.id.in_(provenance_origin_ids)))
+        )
+        assert len(deleted_origins) == len(provenance_origin_ids)
+        assert {item.source_ref for item in deleted_origins} == provenance_source_refs
+        assert all(item.document_id is None for item in deleted_origins)
+        assert all(item.source_availability == "deleted_by_retention" for item in deleted_origins)
+        assert all(item.locator_status == "not_applicable" for item in deleted_origins)
 
 
 def test_rc15_helpers_and_validation_branches():
