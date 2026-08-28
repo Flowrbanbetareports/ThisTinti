@@ -137,9 +137,7 @@ def test_duplicate_file_is_idempotent(client, auth):
             )
         )
         first_facts = list(
-            db.scalars(
-                select(ProvenanceFact).where(ProvenanceFact.fact_key == f"document:{document_id}:number")
-            )
+            db.scalars(select(ProvenanceFact).where(ProvenanceFact.fact_key == f"document:{document_id}:number"))
         )
 
     second = upload_json(client, auth, "order.json")
@@ -158,9 +156,7 @@ def test_duplicate_file_is_idempotent(client, auth):
             )
         )
         facts = list(
-            db.scalars(
-                select(ProvenanceFact).where(ProvenanceFact.fact_key == f"document:{document_id}:number")
-            )
+            db.scalars(select(ProvenanceFact).where(ProvenanceFact.fact_key == f"document:{document_id}:number"))
         )
         assert len(origins) == len(first_origins)
         assert len(facts) == len(first_facts) == 1
