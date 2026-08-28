@@ -39,6 +39,7 @@
     .then(() => loadScript('/operational-center.js'))
     .then(() => loadScript('/operational-learning.js'))
     .then(() => loadScript('/rc15.js'))
+    .then(() => loadScript('/procurement-provenance.js'))
     .then(() => loadScript('/sidebar-scroll.js'))
     .then(() => loadScript('/local-first-run.js'))
     .then(() => loadScript('/diagnostics-link.js'))
