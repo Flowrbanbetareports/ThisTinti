@@ -187,6 +187,13 @@ def parse_json(path: Path, overrides: dict) -> ParsedDocument:
             "engine_id": "native-json-parser",
             "engine_version": "1",
         }
+    if "currency" in data:
+        doc.source_locators["currency"] = {
+            "locator_type": "JSON_POINTER",
+            "pointer": "/currency",
+            "engine_id": "native-json-parser",
+            "engine_version": "1",
+        }
 
     for index, item in enumerate(lines, start=1):
         if not isinstance(item, dict):
