@@ -171,21 +171,12 @@ jobs:
           tests/test_rc15_full_workflow.py
           tests/test_api_credentials.py
           tests/test_module_boundaries.py
-      - name: Emit exact qualified files
-        shell: bash
-        run: |
-          python - <<'PY'
-          import base64
-          from pathlib import Path
-
-          for filename in (
-              "app/services/rc15.py",
-              "app/services/judgment_provenance.py",
-              "tests/test_finding_judgment_provenance.py",
-          ):
-              encoded = base64.b64encode(Path(filename).read_bytes()).decode("ascii")
-              marker = filename.replace("/", "_").replace(".", "_").upper()
-              print(f"QUALIFIED_{marker}_B64_BEGIN")
-              print(encoded)
-              print(f"QUALIFIED_{marker}_B64_END")
-          PY
+      - name: Upload exact qualified files
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: judgment-provenance-qualified-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            app/services/rc15.py
+            app/services/judgment_provenance.py
+            tests/test_finding_judgment_provenance.py
+          retention-days: 1
