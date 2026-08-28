@@ -18,7 +18,7 @@ from ..parsers import ParseError, parse_file
 from .file_security import scan_file
 from .matching import attach_document_to_chain
 from .normalizer import canonical_item_key, normalize_text
-from .provenance import create_origin
+from .provenance import append_fact, create_origin
 from .rules import analyze_chain
 
 
@@ -76,6 +76,35 @@ def _supplier(db: Session, tenant_id: str, name: str | None, vat_id: str | None)
     elif vat_id and not supplier.vat_id:
         supplier.vat_id = vat_id
     return supplier
+
+
+def _record_direct_source_facts(db: Session, tenant_id: str, document: Document, parsed, file_hash: str) -> None:
+    number_locator = parsed.source_locators.get("number")
+    if document.number in (None, "") or number_locator is None:
+        return
+    if number_locator.get("locator_type") != "JSON_POINTER" or number_locator.get("pointer") != "/number":
+        raise ValueError("Unsupported direct source locator for document.number")
+    origin = create_origin(
+        db,
+        tenant_id=tenant_id,
+        origin_type="DOCUMENT_EVIDENCE",
+        source_ref=f"sha256:{file_hash}",
+        document_id=document.id,
+        source_availability="available",
+        locator_status="present",
+        locator_type="JSON_POINTER",
+        locator_json=json.dumps({"pointer": "/number"}),
+        engine_id=number_locator.get("engine_id"),
+        engine_version=number_locator.get("engine_version"),
+    )
+    append_fact(
+        db,
+        tenant_id=tenant_id,
+        fact_key=f"document:{document.id}:number",
+        fact_type="document.number",
+        value_json=json.dumps(str(document.number), ensure_ascii=False),
+        origin_id=origin.id,
+    )
 
 
 def _validate_file_shape(path: Path) -> None:
@@ -161,6 +190,7 @@ def ingest_path(
         document.metadata_json = json.dumps(parsed.metadata, ensure_ascii=False, default=str)
         document.confidence = parsed.confidence
         document.parse_message = parsed.message
+        _record_direct_source_facts(db, tenant_id, document, parsed, file_hash)
         for line in parsed.lines:
             key = canonical_item_key(line.sku, line.description, line.color, line.size, line.lot)
             db.add(

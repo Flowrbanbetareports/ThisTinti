@@ -153,9 +153,15 @@ def test_rc15_supervised_workflow_end_to_end(client, auth):
                 )
             )
         )
-        assert len(practice_origins) == len(practice_document_ids)
+        base_origins = [item for item in practice_origins if item.locator_status == "not_applicable"]
+        assert len(practice_origins) >= len(practice_document_ids)
+        assert len(base_origins) == len(practice_document_ids)
+        assert {item.document_id for item in base_origins} == set(practice_document_ids)
         provenance_origin_ids = [item.id for item in practice_origins]
         provenance_source_refs = {item.source_ref for item in practice_origins}
+        provenance_locator_states = {
+            item.id: (item.locator_status, item.locator_type, item.locator_json) for item in practice_origins
+        }
         assert all(item.source_availability == "available" for item in practice_origins)
 
     practices = client.get("/api/rc15/practices", headers=auth)
@@ -336,7 +342,9 @@ def test_rc15_supervised_workflow_end_to_end(client, auth):
         assert {item.source_ref for item in deleted_origins} == provenance_source_refs
         assert all(item.document_id is None for item in deleted_origins)
         assert all(item.source_availability == "deleted_by_retention" for item in deleted_origins)
-        assert all(item.locator_status == "not_applicable" for item in deleted_origins)
+        assert {
+            item.id: (item.locator_status, item.locator_type, item.locator_json) for item in deleted_origins
+        } == provenance_locator_states
 
 
 def test_rc15_helpers_and_validation_branches():

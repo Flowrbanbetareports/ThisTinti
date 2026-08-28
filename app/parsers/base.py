@@ -275,6 +275,7 @@ class ParsedDocument:
     supplier_vat: str | None = None
     references: dict[str, Any] = field(default_factory=dict)
     metadata: dict[str, Any] = field(default_factory=dict)
+    source_locators: dict[str, dict[str, Any]] = field(default_factory=dict)
     lines: list[ParsedLine] = field(default_factory=list)
     confidence: float = 0.0
     message: str | None = None
