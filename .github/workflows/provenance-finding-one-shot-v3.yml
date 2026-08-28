@@ -26,7 +26,7 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
-      - name: Apply narrow runtime patch
+      - name: Apply thin rules integration
         shell: bash
         run: |
           python - <<'PY'
@@ -35,158 +35,14 @@ jobs:
           path = Path("app/services/rules.py")
           text = path.read_text(encoding="utf-8")
 
-          import_anchor = """    RuleProposal,\n)\nfrom .line_matching import group_chain_lines\nfrom .normalizer import normalize_text\nfrom .numeric_fields import all_numeric_available, numeric_available\nfrom .units import canonical_unit_price, profiles_compatible, quantity_profile\n"""
-          import_replacement = """    RuleProposal,\n)\nfrom ..provenance_models import ProvenanceFact, ProvenanceFinding, ProvenanceFindingFact, ProvenanceOrigin\nfrom .line_matching import group_chain_lines\nfrom .normalizer import normalize_text\nfrom .numeric_fields import all_numeric_available, numeric_available\nfrom .provenance import record_finding\nfrom .units import canonical_unit_price, profiles_compatible, quantity_profile\n"""
+          import_anchor = """from .line_matching import group_chain_lines\nfrom .normalizer import normalize_text\n"""
+          import_replacement = """from .finding_provenance import record_duplicate_number_finding_provenance\nfrom .line_matching import group_chain_lines\nfrom .normalizer import normalize_text\n"""
           if text.count(import_anchor) != 1:
               raise SystemExit("import anchor mismatch")
           text = text.replace(import_anchor, import_replacement, 1)
 
-          decimal_anchor = "\n\ndef _decimal(value) -> Decimal:\n"
-          constants = '''
-
-          _DUPLICATE_NUMBER_RULE_ID = "builtin:duplicate_document_number"
-          _DUPLICATE_NUMBER_RULE_VERSION = "1"
-          _DUPLICATE_NUMBER_RULE_CONFIGURATION_HASH = hashlib.sha256(
-              json.dumps(
-                  {
-                      "scope": "operation_chain",
-                      "document_type_scope": "same",
-                      "number_comparison": "exact_non_empty",
-                  },
-                  sort_keys=True,
-                  separators=(",", ":"),
-              ).encode("utf-8")
-          ).hexdigest()
-          '''
-          if text.count(decimal_anchor) != 1:
-              raise SystemExit("decimal anchor mismatch")
-          text = text.replace(decimal_anchor, constants + decimal_anchor, 1)
-
-          analyze_anchor = "\n\ndef analyze_chain(db: Session, chain: OperationChain) -> list[DiscrepancyCase]:\n"
-          helper = '''
-
-          def _duplicate_number_supporting_facts(
-              db: Session,
-              chain: OperationChain,
-              finding: Finding,
-              all_documents: list[Document],
-          ) -> list[ProvenanceFact]:
-              if finding.case_type != "duplicate_document_number":
-                  return []
-              parts = finding.key.split(":", 2)
-              if len(parts) != 3 or parts[0] != "duplicate-number":
-                  return []
-              document_type, number = parts[1], parts[2]
-              documents = sorted(
-                  [
-                      document
-                      for document in all_documents
-                      if document.document_type == document_type and document.number == number
-                  ],
-                  key=lambda document: document.id,
-              )
-              if len(documents) < 2:
-                  return []
-
-              fact_keys = [f"document:{document.id}:number" for document in documents]
-              candidates = list(
-                  db.scalars(
-                      select(ProvenanceFact).where(
-                          ProvenanceFact.tenant_id == chain.tenant_id,
-                          ProvenanceFact.fact_key.in_(fact_keys),
-                      )
-                  )
-              )
-              current_by_key: dict[str, ProvenanceFact] = {}
-              for fact in candidates:
-                  current = current_by_key.get(fact.fact_key)
-                  if current is None or fact.version > current.version:
-                      current_by_key[fact.fact_key] = fact
-              if set(current_by_key) != set(fact_keys):
-                  return []
-
-              origin_ids = {fact.origin_id for fact in current_by_key.values()}
-              origins = {
-                  origin.id: origin
-                  for origin in db.scalars(
-                      select(ProvenanceOrigin).where(
-                          ProvenanceOrigin.tenant_id == chain.tenant_id,
-                          ProvenanceOrigin.id.in_(origin_ids),
-                      )
-                  )
-              }
-              expected_value = json.dumps(number, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-              ordered: list[ProvenanceFact] = []
-              for document, fact_key in zip(documents, fact_keys, strict=True):
-                  fact = current_by_key[fact_key]
-                  origin = origins.get(fact.origin_id)
-                  if (
-                      fact.value_json != expected_value
-                      or origin is None
-                      or origin.origin_type != "DOCUMENT_EVIDENCE"
-                      or origin.document_id != document.id
-                      or origin.locator_status != "present"
-                      or origin.locator_type != "JSON_POINTER"
-                      or origin.locator_json != '{"pointer":"/number"}'
-                  ):
-                      return []
-                  ordered.append(fact)
-              return ordered
-
-
-          def _record_duplicate_number_finding_provenance(
-              db: Session,
-              chain: OperationChain,
-              case: DiscrepancyCase,
-              finding: Finding,
-              all_documents: list[Document],
-          ) -> None:
-              facts = _duplicate_number_supporting_facts(db, chain, finding, all_documents)
-              if len(facts) < 2:
-                  return
-              fact_ids = [fact.id for fact in facts]
-              current = db.scalar(
-                  select(ProvenanceFinding)
-                  .where(
-                      ProvenanceFinding.tenant_id == chain.tenant_id,
-                      ProvenanceFinding.case_id == case.id,
-                  )
-                  .order_by(ProvenanceFinding.version.desc())
-              )
-              if current is not None:
-                  linked_fact_ids = set(
-                      db.scalars(
-                          select(ProvenanceFindingFact.fact_id).where(
-                              ProvenanceFindingFact.tenant_id == chain.tenant_id,
-                              ProvenanceFindingFact.finding_id == current.id,
-                          )
-                      )
-                  )
-                  if (
-                      current.rule_id == _DUPLICATE_NUMBER_RULE_ID
-                      and current.rule_version == _DUPLICATE_NUMBER_RULE_VERSION
-                      and current.rule_configuration_hash == _DUPLICATE_NUMBER_RULE_CONFIGURATION_HASH
-                      and linked_fact_ids == set(fact_ids)
-                  ):
-                      return
-
-              record_finding(
-                  db,
-                  tenant_id=chain.tenant_id,
-                  case_id=case.id,
-                  input_fact_ids=fact_ids,
-                  rule_id=_DUPLICATE_NUMBER_RULE_ID,
-                  rule_version=_DUPLICATE_NUMBER_RULE_VERSION,
-                  rule_configuration_hash=_DUPLICATE_NUMBER_RULE_CONFIGURATION_HASH,
-                  supersedes_finding_id=current.id if current is not None else None,
-              )
-          '''
-          if text.count(analyze_anchor) != 1:
-              raise SystemExit("analyze anchor mismatch")
-          text = text.replace(analyze_anchor, helper + analyze_anchor, 1)
-
           persistence_anchor = """        for evidence in finding.evidence:\n            db.add(EvidenceLink(tenant_id=chain.tenant_id, case_id=case.id, **evidence))\n        output.append(case)\n"""
-          persistence_replacement = """        for evidence in finding.evidence:\n            db.add(EvidenceLink(tenant_id=chain.tenant_id, case_id=case.id, **evidence))\n        _record_duplicate_number_finding_provenance(db, chain, case, finding, all_documents)\n        output.append(case)\n"""
+          persistence_replacement = """        for evidence in finding.evidence:\n            db.add(EvidenceLink(tenant_id=chain.tenant_id, case_id=case.id, **evidence))\n        record_duplicate_number_finding_provenance(\n            db,\n            chain=chain,\n            case=case,\n            finding_case_type=finding.case_type,\n            finding_key=finding.key,\n            all_documents=all_documents,\n        )\n        output.append(case)\n"""
           if text.count(persistence_anchor) != 1:
               raise SystemExit("persistence anchor mismatch")
           text = text.replace(persistence_anchor, persistence_replacement, 1)
@@ -198,24 +54,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y openssl poppler-utils tesseract-ocr tesseract-ocr-eng tesseract-ocr-ita
           pip install -r requirements-dev.txt
-      - name: Syntax check
-        run: python -m py_compile app/services/rules.py tests/test_duplicate_number_finding_provenance.py
-      - name: Format and static checks
+      - name: Static and architecture checks
         shell: bash
         run: |
-          python -m ruff format app/services/rules.py tests/test_duplicate_number_finding_provenance.py
-          python -m ruff check app/services/rules.py tests/test_duplicate_number_finding_provenance.py
+          python -m py_compile app/services/rules.py app/services/finding_provenance.py tests/test_duplicate_number_finding_provenance.py
+          python -m ruff format app/services/rules.py app/services/finding_provenance.py tests/test_duplicate_number_finding_provenance.py
+          python -m ruff check app/services/rules.py app/services/finding_provenance.py tests/test_duplicate_number_finding_provenance.py
+          python scripts/check_module_boundaries.py
       - name: Targeted provenance tests
         env:
           THISTINTI_OCR_ENABLED: 'false'
-        run: python -m pytest -q tests/test_duplicate_number_finding_provenance.py
-      - name: Compatibility regression probe
-        env:
-          THISTINTI_OCR_ENABLED: 'false'
-        shell: bash
-        run: |
-          rm -f .coverage .coverage.*
-          python -m coverage run --source=app -m pytest -vv -x --disable-warnings tests/test_extended.py
+        run: python -m pytest -q tests/test_duplicate_number_finding_provenance.py tests/test_module_boundaries.py
       - name: Canonical release gate
         shell: bash
         run: |
@@ -224,13 +73,13 @@ jobs:
       - name: Commit qualified patch and clean temporary workflows
         shell: bash
         run: |
-          rm .github/workflows/provenance-finding-one-shot.yml
-          rm .github/workflows/provenance-finding-one-shot-v2.yml
-          rm .github/workflows/provenance-finding-one-shot-v3.yml
-          rm .github/workflows/provenance-coverage-probe.yml
+          rm -f .github/workflows/provenance-finding-one-shot.yml
+          rm -f .github/workflows/provenance-finding-one-shot-v2.yml
+          rm -f .github/workflows/provenance-finding-one-shot-v3.yml
+          rm -f .github/workflows/provenance-coverage-probe.yml
           git config user.name "ThisTinti"
           git config user.email "flowrbanbetareports@gmail.com"
-          git add app/services/rules.py tests/test_duplicate_number_finding_provenance.py .github/workflows/provenance-finding-one-shot.yml .github/workflows/provenance-finding-one-shot-v2.yml .github/workflows/provenance-finding-one-shot-v3.yml .github/workflows/provenance-coverage-probe.yml
+          git add app/services/rules.py .github/workflows/provenance-finding-one-shot.yml .github/workflows/provenance-finding-one-shot-v2.yml .github/workflows/provenance-finding-one-shot-v3.yml .github/workflows/provenance-coverage-probe.yml
           git diff --cached --check
           git commit -m "provenance: link duplicate-number finding to facts"
           git push origin HEAD:provenance/duplicate-number-finding-v0
