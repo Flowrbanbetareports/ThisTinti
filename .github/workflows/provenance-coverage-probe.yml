@@ -1,0 +1,47 @@
+name: Provenance Coverage Probe
+
+on:
+  push:
+    branches:
+      - provenance/duplicate-number-finding-v0
+    paths:
+      - .github/workflows/provenance-coverage-probe.yml
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: provenance/duplicate-number-finding-v0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Apply exact v3 runtime patch
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import textwrap
+
+          workflow = Path('.github/workflows/provenance-finding-one-shot-v3.yml').read_text(encoding='utf-8')
+          marker = "          python - <<'PY'\n"
+          start = workflow.index(marker) + len(marker)
+          end = workflow.index("\n          PY", start)
+          payload = textwrap.dedent(workflow[start:end])
+          exec(compile(payload, '<v3-runtime-patch>', 'exec'), {'__name__': '__main__'})
+          PY
+      - name: Verify patch syntax
+        run: python -m py_compile app/services/rules.py
+      - name: Reproduce canonical pytest environment with full traceback
+        env:
+          THISTINTI_OCR_ENABLED: 'false'
+          PYTEST_DISABLE_PLUGIN_AUTOLOAD: '1'
+        run: python -m coverage run --source=app -m pytest -vv -x --disable-warnings tests/test_extended.py
