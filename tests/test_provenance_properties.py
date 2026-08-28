@@ -624,3 +624,10 @@ class DuplicateNumberProvenanceStateMachine(RuleBasedStateMachine):
 
 
 TestDuplicateNumberProvenanceStateMachine = DuplicateNumberProvenanceStateMachine.TestCase
+TestDuplicateNumberProvenanceStateMachine.settings = settings(
+    max_examples=200,
+    stateful_step_count=75 if os.environ.get("THISTINTI_HYPOTHESIS_PROFILE") == "deep" else 25,
+    deadline=None,
+    derandomize=True,
+    suppress_health_check=[HealthCheck.function_scoped_fixture, HealthCheck.too_slow],
+)
