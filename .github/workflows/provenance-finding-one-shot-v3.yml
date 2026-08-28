@@ -192,8 +192,12 @@ jobs:
           text = text.replace(persistence_anchor, persistence_replacement, 1)
           path.write_text(text, encoding="utf-8")
           PY
-      - name: Install dependencies
-        run: pip install -r requirements-dev.txt
+      - name: Install canonical document tools and dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openssl poppler-utils tesseract-ocr tesseract-ocr-eng tesseract-ocr-ita
+          pip install -r requirements-dev.txt
       - name: Syntax check
         run: python -m py_compile app/services/rules.py tests/test_duplicate_number_finding_provenance.py
       - name: Format and static checks
@@ -223,9 +227,10 @@ jobs:
           rm .github/workflows/provenance-finding-one-shot.yml
           rm .github/workflows/provenance-finding-one-shot-v2.yml
           rm .github/workflows/provenance-finding-one-shot-v3.yml
+          rm .github/workflows/provenance-coverage-probe.yml
           git config user.name "ThisTinti"
           git config user.email "flowrbanbetareports@gmail.com"
-          git add app/services/rules.py tests/test_duplicate_number_finding_provenance.py .github/workflows/provenance-finding-one-shot.yml .github/workflows/provenance-finding-one-shot-v2.yml .github/workflows/provenance-finding-one-shot-v3.yml
+          git add app/services/rules.py tests/test_duplicate_number_finding_provenance.py .github/workflows/provenance-finding-one-shot.yml .github/workflows/provenance-finding-one-shot-v2.yml .github/workflows/provenance-finding-one-shot-v3.yml .github/workflows/provenance-coverage-probe.yml
           git diff --cached --check
           git commit -m "provenance: link duplicate-number finding to facts"
           git push origin HEAD:provenance/duplicate-number-finding-v0
