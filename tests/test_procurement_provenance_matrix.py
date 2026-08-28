@@ -20,9 +20,7 @@ def test_rule_pack_and_matrix_cover_the_same_engine_rules() -> None:
     rule_pack = json.loads(RULE_PACK_PATH.read_text(encoding="utf-8"))
     matrix = procurement_provenance_matrix()
     declared = {
-        (family["id"], case_type)
-        for family in rule_pack["rule_families"]
-        for case_type in family["engine_case_types"]
+        (family["id"], case_type) for family in rule_pack["rule_families"] for case_type in family["engine_case_types"]
     }
     mapped = {(rule["family"], rule["case_type"]) for rule in matrix["rules"]}
     assert mapped == declared
@@ -35,9 +33,7 @@ def test_current_procurement_baseline_exposes_provenance_debt_without_overclaimi
     matrix = procurement_provenance_matrix()
     complete = [rule["case_type"] for rule in matrix["rules"] if rule["provenance_status"] == "complete"]
     incomplete = [rule["case_type"] for rule in matrix["rules"] if rule["provenance_status"] == "incomplete"]
-    unsupported = [
-        family["id"] for family in matrix["families"] if family["provenance_status"] == "unsupported"
-    ]
+    unsupported = [family["id"] for family in matrix["families"] if family["provenance_status"] == "unsupported"]
 
     assert complete == ["duplicate_document_number"]
     assert len(incomplete) == 15
