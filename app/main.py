@@ -6,6 +6,7 @@ from __future__ import annotations
 from . import api as _api
 from . import provenance_models as _provenance_models  # noqa: F401
 from .api import *  # noqa: F401,F403
+from .procurement_api import router as procurement_router
 from .rc15_api import router as rc15_router
 
 # Re-export private helpers too: maintenance scripts/tests import a few symbols
@@ -30,4 +31,5 @@ _static_routes = [route for route in app.router.routes if getattr(route, "name",
 for _route in _static_routes:
     app.router.routes.remove(_route)
 app.include_router(rc15_router)
+app.include_router(procurement_router)
 app.router.routes.extend(_static_routes)
