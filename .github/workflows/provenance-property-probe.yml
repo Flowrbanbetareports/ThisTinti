@@ -1,4 +1,4 @@
-name: Provenance Property Qualification Probe
+name: Provenance Property Deep Qualification
 
 on:
   push:
@@ -11,11 +11,12 @@ permissions:
   contents: read
 
 jobs:
-  qualify-fast-profile:
+  qualify-deep-profile:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 120
     env:
       THISTINTI_OCR_ENABLED: "false"
+      THISTINTI_HYPOTHESIS_PROFILE: "deep"
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
@@ -24,26 +25,11 @@ jobs:
           cache: pip
       - name: Install development dependencies
         run: pip install -r requirements-dev.txt
-      - name: Apply isolated property seed ordering fix
+      - name: Verify qualified source bytes and static gates
         run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          path = Path("tests/test_provenance_properties.py")
-          text = path.read_text(encoding="utf-8")
-          old = "        db.add_all([self.tenant, self.user, self.chain])\n        db.flush()\n        self.kinds: dict[int, str] = {}\n"
-          new = "        db.add(self.tenant)\n        db.flush()\n        db.add(self.user)\n        db.flush()\n        db.add(self.chain)\n        db.flush()\n        self.kinds: dict[int, str] = {}\n"
-          if old not in text:
-              raise SystemExit("expected seed block not found")
-          path.write_text(text.replace(old, new, 1), encoding="utf-8")
-          PY
-      - name: Format reconstructed property slice
-        run: |
-          python -m ruff format app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py
+          python -m ruff format --check app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py
           python -m ruff check app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py
           python -m py_compile app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py
-      - name: Verify architecture and dependency graph
-        run: |
           python scripts/check_module_boundaries.py
           python scripts/check_dependencies.py
       - name: Verify runtime SBOM is byte-identical
@@ -52,7 +38,7 @@ jobs:
           python scripts/generate_sbom.py
           cmp /tmp/sbom-before.cdx.json docs/sbom.cdx.json
           git diff --exit-code -- docs/sbom.cdx.json
-      - name: Run 22 targeted provenance tests
+      - name: Run 22 provenance tests at deep profile
         run: >-
           python -m pytest -q
           tests/test_provenance_contract_v0.py
@@ -60,13 +46,19 @@ jobs:
           tests/test_duplicate_number_finding_provenance.py
           tests/test_finding_judgment_provenance.py
           tests/test_provenance_properties.py
-      - name: Upload exact formatted files
+      - name: Record deep qualification evidence
+        if: success()
+        run: |
+          printf '%s\n' \
+            "head_sha=${GITHUB_SHA}" \
+            "hypothesis_profile=${THISTINTI_HYPOTHESIS_PROFILE}" \
+            "max_examples=2000" \
+            "stateful_step_count=75" \
+            > provenance-deep-qualification.txt
+      - name: Upload deep qualification evidence
         if: success()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: provenance-property-qualified-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            app/services/finding_provenance.py
-            app/services/judgment_provenance.py
-            tests/test_provenance_properties.py
-          retention-days: 1
+          name: provenance-deep-qualified-${{ github.run_id }}-${{ github.run_attempt }}
+          path: provenance-deep-qualification.txt
+          retention-days: 7
