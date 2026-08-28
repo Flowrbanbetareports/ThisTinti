@@ -87,9 +87,7 @@ def prepare_workspace(
     review_mode: str = "dual_independent",
 ) -> dict[str, Any]:
     if not MIN_CALIBRATION <= calibration_count <= MAX_CALIBRATION:
-        raise ValueError(
-            f"calibration_count deve essere tra {MIN_CALIBRATION} e {MAX_CALIBRATION}"
-        )
+        raise ValueError(f"calibration_count deve essere tra {MIN_CALIBRATION} e {MAX_CALIBRATION}")
     if not MIN_BLIND <= blind_count <= MAX_BLIND:
         raise ValueError(f"blind_count deve essere tra {MIN_BLIND} e {MAX_BLIND}")
     if review_mode not in REVIEW_MODES:
@@ -150,9 +148,7 @@ def prepare_workspace(
             "mode": review_mode,
             "reviewer_a": {"id": "REV-A", "role": "", "independent": True},
             "reviewer_b": {"id": "REV-B", "role": "", "independent": True},
-            "single_reviewer_limitation_declared": (
-                review_mode == "single_reviewer_with_declared_limitation"
-            ),
+            "single_reviewer_limitation_declared": (review_mode == "single_reviewer_with_declared_limitation"),
         },
         "privacy": {
             "processing_location": "local_only",
@@ -167,9 +163,7 @@ def prepare_workspace(
         },
     }
     write_json(workspace / "pilot-plan.json", plan)
-    with (workspace / "case-register.csv").open(
-        "w", newline="", encoding="utf-8"
-    ) as handle:
+    with (workspace / "case-register.csv").open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=CASE_REGISTER_FIELDS)
         writer.writeheader()
         writer.writerows(cases)
@@ -228,10 +222,7 @@ def validate_case_register(plan: dict[str, Any], rows: list[dict[str, str]]) -> 
         errors.append(f"case-register: casi non previsti {extras}")
     overlap = sorted(groups["calibration"] & groups["blind"])
     if overlap:
-        errors.append(
-            "leakage: similarity_group presenti sia in calibrazione sia nel blind set: "
-            + ", ".join(overlap)
-        )
+        errors.append("leakage: similarity_group presenti sia in calibrazione sia nel blind set: " + ", ".join(overlap))
     return errors
 
 
@@ -249,11 +240,7 @@ def validate_preregistration(plan: dict[str, Any]) -> list[str]:
         "sampling_strategy",
         "abort_rules",
     ]
-    return [
-        f"preregistration.{key} mancante o vuoto"
-        for key in required
-        if prereg.get(key) in (None, "", [], {})
-    ]
+    return [f"preregistration.{key} mancante o vuoto" for key in required if prereg.get(key) in (None, "", [], {})]
 
 
 def inventory_private_documents(workspace: Path) -> dict[str, Any]:

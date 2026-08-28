@@ -178,9 +178,7 @@ def test_full_blind_protocol_seals_and_reports_without_general_claim(tmp_path: P
     assert check_ready(workspace)["ready_for_blind_run"] is True
 
     manifest = json.loads((workspace / "pilot-manifest.json").read_text(encoding="utf-8"))
-    with (workspace / "results" / "blind-results.csv").open(
-        "w", newline="", encoding="utf-8"
-    ) as handle:
+    with (workspace / "results" / "blind-results.csv").open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=RESULT_FIELDS)
         writer.writeheader()
         for case_id in manifest["case_register"]["blind_case_ids"]:
@@ -206,9 +204,7 @@ def test_full_blind_protocol_seals_and_reports_without_general_claim(tmp_path: P
     assert report["economics"]["exposure_weighted_recall"] == 1.0
     assert report["claim_boundary"]["general_procurement_accuracy_claim_allowed"] is False
     assert report["decision"] == "blind_run_completed_no_critical_miss_observed"
-    with (workspace / "results" / "blind-backlog.csv").open(
-        newline="", encoding="utf-8"
-    ) as handle:
+    with (workspace / "results" / "blind-backlog.csv").open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
         assert reader.fieldnames == BACKLOG_FIELDS
         assert list(reader) == []

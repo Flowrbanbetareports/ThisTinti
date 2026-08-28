@@ -206,10 +206,10 @@ def seal_ground_truth(workspace: Path) -> dict[str, Any]:
     if validation_errors:
         raise ValueError("ground truth non sigillabile:\n- " + "\n- ".join(validation_errors))
 
-    canonical = "\n".join(
-        case_id + ":" + json.dumps(case_hashes[case_id], sort_keys=True)
-        for case_id in sorted(case_hashes)
-    ) + "\n"
+    canonical = (
+        "\n".join(case_id + ":" + json.dumps(case_hashes[case_id], sort_keys=True) for case_id in sorted(case_hashes))
+        + "\n"
+    )
     seal = {
         "schema": SEAL_SCHEMA,
         "kind": "ground_truth",

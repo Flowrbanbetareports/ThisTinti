@@ -146,9 +146,7 @@ def load_case_register(workspace: Path) -> list[dict[str, str]]:
         return list(reader)
 
 
-def wilson_interval(
-    successes: int, total: int, confidence: float = 0.95
-) -> tuple[float | None, float | None]:
+def wilson_interval(successes: int, total: int, confidence: float = 0.95) -> tuple[float | None, float | None]:
     if total <= 0:
         return (None, None)
     z = NormalDist().inv_cdf(1 - (1 - confidence) / 2)

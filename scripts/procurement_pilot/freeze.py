@@ -57,8 +57,7 @@ def freeze_workspace(
         raise ValueError("schema private document inventory non valido")
     if inventory.get("cases_without_documents"):
         raise ValueError(
-            "inventory-private: pratiche senza documenti: "
-            + ", ".join(inventory["cases_without_documents"])
+            "inventory-private: pratiche senza documenti: " + ", ".join(inventory["cases_without_documents"])
         )
 
     artifacts = {
