@@ -45,6 +45,7 @@ def test_current_procurement_baseline_exposes_provenance_debt_without_overclaimi
 
 
 def test_procurement_provenance_api_requires_auth_and_returns_tenant_scoped_matrix(client, auth) -> None:
+    client.cookies.clear()
     unauthenticated = client.get("/api/rc15/procurement/provenance-matrix")
     assert unauthenticated.status_code == 401
 
