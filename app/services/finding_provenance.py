@@ -157,11 +157,7 @@ def duplicate_number_finding_matches_current_support(
         return False
 
     case = db.get(DiscrepancyCase, finding.case_id)
-    if (
-        case is None
-        or case.tenant_id != finding.tenant_id
-        or case.case_type != "duplicate_document_number"
-    ):
+    if case is None or case.tenant_id != finding.tenant_id or case.case_type != "duplicate_document_number":
         return False
     chain = db.get(OperationChain, case.chain_id)
     if chain is None or chain.tenant_id != finding.tenant_id:
@@ -227,9 +223,7 @@ def duplicate_number_finding_matches_current_support(
         finding_key=f"duplicate-number:{document_type}:{number}",
         all_documents=_current_chain_documents(db, chain),
     )
-    return len(current_facts) == len(linked_fact_ids) and {fact.id for fact in current_facts} == set(
-        linked_fact_ids
-    )
+    return len(current_facts) == len(linked_fact_ids) and {fact.id for fact in current_facts} == set(linked_fact_ids)
 
 
 def record_duplicate_number_finding_provenance(
