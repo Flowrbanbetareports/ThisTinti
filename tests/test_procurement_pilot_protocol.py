@@ -21,18 +21,69 @@ from procurement_pilot.ground_truth import (  # noqa: E402
 from procurement_pilot.workspace import inventory_private_documents, prepare_workspace  # noqa: E402
 
 
+def _write_json(path: Path, payload: dict) -> None:
+    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+
 def _write_artifacts(tmp_path: Path) -> dict[str, Path]:
-    paths = {}
+    paths: dict[str, Path] = {}
     for name in [
         "practice-model.json",
-        "rule-pack.json",
         "company-profile.json",
         "ground-truth-protocol.json",
         "evaluation-protocol.json",
     ]:
         path = tmp_path / name
-        path.write_text('{"version":"test"}\n', encoding="utf-8")
+        _write_json(path, {"version": "test"})
         paths[name] = path
+
+    rule_pack = tmp_path / "rule-pack.json"
+    _write_json(
+        rule_pack,
+        {
+            "rule_pack_id": "test-pack",
+            "version": "0.1",
+            "rule_families": [
+                {
+                    "id": "test-family",
+                    "engine_case_types": ["test_rule"],
+                }
+            ],
+        },
+    )
+    paths["rule-pack.json"] = rule_pack
+
+    provenance_matrix = tmp_path / "provenance-matrix.json"
+    _write_json(
+        provenance_matrix,
+        {
+            "schema": "thistinti.procurement-provenance-matrix.v1",
+            "version": "0.1",
+            "rule_pack_id": "test-pack",
+            "rule_pack_version": "0.1",
+            "families": [
+                {
+                    "id": "test-family",
+                    "provenance_status": "complete",
+                    "case_types": ["test_rule"],
+                }
+            ],
+            "rules": [
+                {
+                    "family": "test-family",
+                    "case_type": "test_rule",
+                    "provenance_status": "complete",
+                    "blind_eligible": True,
+                }
+            ],
+            "blind_readiness": {
+                "ready": True,
+                "blocking_case_types": [],
+                "unsupported_families": [],
+            },
+        },
+    )
+    paths["provenance-matrix.json"] = provenance_matrix
     return paths
 
 
@@ -72,6 +123,8 @@ def _freeze(workspace: Path, artifacts: dict[str, Path]) -> None:
         practice_model_version="0.1",
         rule_pack=artifacts["rule-pack.json"],
         rule_pack_version="0.1",
+        provenance_matrix=artifacts["provenance-matrix.json"],
+        provenance_matrix_version="0.1",
         company_profile=artifacts["company-profile.json"],
         company_profile_version="0.1",
         ground_truth_protocol=artifacts["ground-truth-protocol.json"],
@@ -160,6 +213,34 @@ def test_freeze_blocks_similarity_leakage(tmp_path: Path) -> None:
         raise AssertionError("freeze should reject similarity leakage")
 
 
+def test_freeze_blocks_incomplete_provenance_matrix(tmp_path: Path) -> None:
+    workspace = tmp_path / "ws"
+    prepare_workspace(workspace, "PROC-PROV", "ORG-001", 5, 20)
+    _authorize_and_fill_register(workspace)
+    _add_documents(workspace)
+    inventory_private_documents(workspace)
+    artifacts = _write_artifacts(tmp_path)
+    matrix_path = artifacts["provenance-matrix.json"]
+    matrix = json.loads(matrix_path.read_text(encoding="utf-8"))
+    matrix["families"][0]["provenance_status"] = "incomplete"
+    matrix["rules"][0]["provenance_status"] = "incomplete"
+    matrix["rules"][0]["blind_eligible"] = False
+    matrix["blind_readiness"] = {
+        "ready": False,
+        "blocking_case_types": ["test_rule"],
+        "unsupported_families": [],
+    }
+    _write_json(matrix_path, matrix)
+
+    try:
+        _freeze(workspace, artifacts)
+    except ValueError as exc:
+        assert "freeze bloccato dalla Provenance Matrix" in str(exc)
+        assert "test_rule" in str(exc)
+    else:
+        raise AssertionError("freeze should reject incomplete provenance")
+
+
 def test_full_blind_protocol_seals_and_reports_without_general_claim(tmp_path: Path) -> None:
     workspace = tmp_path / "ws"
     prepare_workspace(workspace, "PROC-003", "ORG-001", 5, 20)
@@ -170,6 +251,8 @@ def test_full_blind_protocol_seals_and_reports_without_general_claim(tmp_path: P
 
     artifacts = _write_artifacts(tmp_path)
     _freeze(workspace, artifacts)
+    manifest = json.loads((workspace / "pilot-manifest.json").read_text(encoding="utf-8"))
+    assert manifest["frozen_artifacts"]["provenance_matrix"]["version"] == "0.1"
     created = create_ground_truth_templates(workspace)
     assert len(created["created_case_ids"]) == 20
     _complete_ground_truth(workspace)
@@ -177,7 +260,6 @@ def test_full_blind_protocol_seals_and_reports_without_general_claim(tmp_path: P
     assert seal["blind_case_count"] == 20
     assert check_ready(workspace)["ready_for_blind_run"] is True
 
-    manifest = json.loads((workspace / "pilot-manifest.json").read_text(encoding="utf-8"))
     with (workspace / "results" / "blind-results.csv").open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=RESULT_FIELDS)
         writer.writeheader()
@@ -223,7 +305,7 @@ def test_frozen_artifact_change_invalidates_ready_state(tmp_path: Path) -> None:
     seal_ground_truth(workspace)
     assert check_ready(workspace)["ready_for_blind_run"] is True
 
-    artifacts["rule-pack.json"].write_text('{"changed":true}\n', encoding="utf-8")
+    artifacts["provenance-matrix.json"].write_text('{"changed":true}\n', encoding="utf-8")
     readiness = check_ready(workspace)
     assert readiness["ready_for_blind_run"] is False
-    assert any("rule_pack" in error for error in readiness["errors"])
+    assert any("provenance_matrix" in error for error in readiness["errors"])
