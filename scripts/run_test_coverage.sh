@@ -18,7 +18,13 @@ fi
 for index in "${!TEST_FILES[@]}"; do
   test_file="${TEST_FILES[$index]}"
   echo "Coverage module $((index + 1))/${#TEST_FILES[@]}: $test_file"
-  timeout 120s python scripts/coverage_pytest_module.py "$test_file"
+  module_timeout=120
+  if [[ "$test_file" == "tests/test_provenance_properties.py" ]]; then
+    # Property/stateful qualification intentionally explores many generated states.
+    # Keep the hang guard, but give this bounded stress module enough time under coverage.
+    module_timeout=300
+  fi
+  timeout "${module_timeout}s" python scripts/coverage_pytest_module.py "$test_file"
 done
 
 python -m coverage combine
