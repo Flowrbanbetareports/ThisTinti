@@ -73,9 +73,8 @@ def record_judgment_provenance(
     )
     if finding is None:
         return None
-    if (
-        finding.rule_id == "builtin:duplicate_document_number"
-        and not duplicate_number_finding_matches_current_support(db, finding=finding)
+    if finding.rule_id == "builtin:duplicate_document_number" and not duplicate_number_finding_matches_current_support(
+        db, finding=finding
     ):
         return None
 
