@@ -58,7 +58,6 @@ jobs:
               ).encode("utf-8")
           ).hexdigest()
           '''
-          constants = "\n".join(line[10:] if line.startswith("          ") else line for line in constants.splitlines())
           if text.count(decimal_anchor) != 1:
               raise SystemExit("decimal anchor mismatch")
           text = text.replace(decimal_anchor, constants + decimal_anchor, 1)
@@ -182,7 +181,6 @@ jobs:
                   supersedes_finding_id=current.id if current is not None else None,
               )
           '''
-          helper = "\n".join(line[10:] if line.startswith("          ") else line for line in helper.splitlines())
           if text.count(analyze_anchor) != 1:
               raise SystemExit("analyze anchor mismatch")
           text = text.replace(analyze_anchor, helper + analyze_anchor, 1)
@@ -196,12 +194,13 @@ jobs:
           PY
       - name: Install dependencies
         run: pip install -r requirements-dev.txt
+      - name: Syntax check
+        run: python -m py_compile app/services/rules.py tests/test_duplicate_number_finding_provenance.py
       - name: Format and static checks
         shell: bash
         run: |
           python -m ruff format app/services/rules.py tests/test_duplicate_number_finding_provenance.py
           python -m ruff check app/services/rules.py tests/test_duplicate_number_finding_provenance.py
-          python -m py_compile app/services/rules.py tests/test_duplicate_number_finding_provenance.py
       - name: Targeted provenance tests
         env:
           THISTINTI_OCR_ENABLED: 'false'
