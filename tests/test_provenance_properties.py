@@ -100,7 +100,11 @@ class _Scenario:
             tenant_id=self.tenant.id,
             reference_key=f"PROP-{token}",
         )
-        db.add_all([self.tenant, self.user, self.chain])
+        db.add(self.tenant)
+        db.flush()
+        db.add(self.user)
+        db.flush()
+        db.add(self.chain)
         db.flush()
         self.kinds: dict[int, str] = {}
 
@@ -587,15 +591,11 @@ class DuplicateNumberProvenanceStateMachine(RuleBasedStateMachine):
             assert origin is not None
             assert origin.tenant_id == tenant_id
 
-        for link in self.db.scalars(
-            select(ProvenanceFindingFact).where(ProvenanceFindingFact.tenant_id == tenant_id)
-        ):
+        for link in self.db.scalars(select(ProvenanceFindingFact).where(ProvenanceFindingFact.tenant_id == tenant_id)):
             assert self.db.get(ProvenanceFinding, link.finding_id) is not None
             assert self.db.get(ProvenanceFact, link.fact_id) is not None
 
-        for judgment in self.db.scalars(
-            select(ProvenanceJudgment).where(ProvenanceJudgment.tenant_id == tenant_id)
-        ):
+        for judgment in self.db.scalars(select(ProvenanceJudgment).where(ProvenanceJudgment.tenant_id == tenant_id)):
             finding = self.db.get(ProvenanceFinding, judgment.finding_id)
             review = self.db.get(ReviewDecision, judgment.review_decision_id)
             assert finding is not None
