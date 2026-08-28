@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - ".github/workflows/windows-release.yml"
+      - ".github/workflows/windows-attestation.yml"
       - ".github/workflows/publish-public-preview.yml"
       - "Makefile"
       - "app/**"
@@ -23,6 +24,7 @@ on:
       - main
     paths:
       - ".github/workflows/windows-release.yml"
+      - ".github/workflows/windows-attestation.yml"
       - ".github/workflows/publish-public-preview.yml"
       - "Makefile"
       - "app/**"
