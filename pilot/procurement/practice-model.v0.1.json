@@ -1,0 +1,67 @@
+{
+  "schema": "thistinti.procurement-practice-model.v1",
+  "model_id": "procurement-v0.1",
+  "version": "0.1",
+  "status": "provisional-unvalidated",
+  "scope": "Procurement pilot only. Generalization beyond the pilot requires new evidence.",
+  "practice_state_axis": [
+    "expected",
+    "observed",
+    "judged"
+  ],
+  "epistemic_chain": [
+    "evidence",
+    "fact",
+    "interpretation",
+    "judgment"
+  ],
+  "provenance_required": true,
+  "concepts": {
+    "evidence": "Material source such as a document page, field, table row, image region or authorized system record.",
+    "fact": "A statement extracted directly from evidence without silently asserting that the corresponding real-world event occurred.",
+    "interpretation": "A Rule Pack-mediated meaning derived from one or more facts.",
+    "judgment": "A human conclusion, exception, confirmation or unresolved state that does not overwrite the technical record."
+  },
+  "presence_states": [
+    "present",
+    "not_found",
+    "pending",
+    "not_applicable",
+    "indeterminate",
+    "substituted"
+  ],
+  "evidentiary_sufficiency_states": [
+    "sufficient",
+    "partial",
+    "insufficient",
+    "contradictory",
+    "not_verifiable"
+  ],
+  "impact": {
+    "types": [
+      "informational",
+      "non_financial",
+      "financial"
+    ],
+    "financial_statuses": [
+      "unknown",
+      "potential",
+      "confirmed_loss",
+      "avoided_loss",
+      "not_applicable"
+    ],
+    "rule": "An anomaly amount must never be represented as a confirmed loss without an explicit human judgment supporting that classification."
+  },
+  "event_model": {
+    "required_fields": [
+      "event_type",
+      "declared_or_effective_date",
+      "acquired_at",
+      "source_ref",
+      "confidence_or_reliability",
+      "human_confirmation_state"
+    ],
+    "rule": "A date declared by a document is evidence/fact first. Turning it into a real-world event is an interpretation whose rule and provenance must remain visible."
+  },
+  "technical_note": "The model is graph-shaped conceptually but does not require a graph database. PostgreSQL remains the default storage technology for the pilot."
+}

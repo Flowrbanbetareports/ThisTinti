@@ -1,0 +1,29 @@
+{
+  "schema": "thistinti.procurement-company-profile.v1",
+  "profile_id": "ORG-ALIAS-procurement-v0.1",
+  "version": "0.1",
+  "status": "template-not-approved",
+  "organization_alias": "ORG-ALIAS",
+  "scope": "Define only the procurement process actually included in the authorized pilot.",
+  "currency": "EUR",
+  "tolerances": {
+    "amount_absolute": null,
+    "amount_percent": null,
+    "quantity_absolute": null
+  },
+  "document_expectations": [],
+  "equivalent_evidence_rules": [],
+  "materiality": {
+    "definition": "TO_BE_APPROVED_BEFORE_FREEZE",
+    "critical_miss_conditions": []
+  },
+  "retention": {
+    "authorized_until": null,
+    "processing_location": "local_only"
+  },
+  "approval": {
+    "approved": false,
+    "approved_by_role": "",
+    "approved_at": ""
+  }
+}

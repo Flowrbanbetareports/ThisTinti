@@ -1,0 +1,68 @@
+{
+  "schema": "thistinti.procurement-rule-pack.v1",
+  "rule_pack_id": "procurement-baseline-v0.1",
+  "version": "0.1",
+  "status": "provisional-unvalidated",
+  "author": "ThisTinti project",
+  "valid_from": null,
+  "valid_to": null,
+  "scope": "Initial procurement pilot calibration only; must be frozen before blind evaluation.",
+  "engine_compatibility": {
+    "minimum": "3.4.0-alpha.7-rc.15",
+    "maximum": null
+  },
+  "expected_document_roles": [
+    {
+      "role": "order",
+      "default_expectation": "expected",
+      "equivalent_evidence_allowed": false
+    },
+    {
+      "role": "delivery_evidence",
+      "default_expectation": "conditional",
+      "equivalent_evidence_allowed": true
+    },
+    {
+      "role": "invoice",
+      "default_expectation": "expected",
+      "equivalent_evidence_allowed": false
+    },
+    {
+      "role": "return_or_credit_evidence",
+      "default_expectation": "conditional",
+      "equivalent_evidence_allowed": true
+    }
+  ],
+  "rule_families": [
+    {
+      "id": "identity-linkage",
+      "purpose": "Check whether documents contain enough compatible references to support their proposed relationship.",
+      "status": "calibration-required"
+    },
+    {
+      "id": "quantity-consistency",
+      "purpose": "Compare relevant quantities only when semantic units and document roles are compatible.",
+      "status": "calibration-required"
+    },
+    {
+      "id": "amount-consistency",
+      "purpose": "Compare monetary facts under preregistered tolerances without equating a discrepancy to a loss.",
+      "status": "calibration-required"
+    },
+    {
+      "id": "temporal-consistency",
+      "purpose": "Compare typed dates/events without treating every document date as the same business event.",
+      "status": "calibration-required"
+    },
+    {
+      "id": "expected-evidence-completeness",
+      "purpose": "Represent missing, pending, substituted or insufficient evidence as distinct states.",
+      "status": "calibration-required"
+    }
+  ],
+  "validation": {
+    "associated_tests_required": true,
+    "blind_run_modification_allowed": false,
+    "change_requires_new_manifest": true
+  }
+}

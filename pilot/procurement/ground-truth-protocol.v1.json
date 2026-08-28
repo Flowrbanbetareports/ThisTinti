@@ -1,0 +1,30 @@
+{
+  "schema": "thistinti.procurement-ground-truth-protocol.v1",
+  "protocol_id": "procurement-ground-truth-v1",
+  "version": "1",
+  "status": "pilot-baseline",
+  "principles": [
+    "Ground truth is created before reviewers can inspect ThisTinti output for the blind case.",
+    "Evidence, extracted facts, interpretations and human judgments remain distinct.",
+    "Presence and evidentiary sufficiency are independent dimensions.",
+    "Financial impact type and financial status are independent dimensions.",
+    "Document-declared dates are not silently promoted to real-world events.",
+    "Every fact references evidence; every interpretation references facts and a rule."
+  ],
+  "preferred_review": {
+    "mode": "dual_independent_then_adjudication",
+    "reviewers": 2,
+    "independent_before_adjudication": true
+  },
+  "fallback_review": {
+    "mode": "single_reviewer_with_declared_limitation",
+    "allowed": true,
+    "requirement": "The limitation must be explicit in the Pilot Manifest and final report; independence must never be fabricated."
+  },
+  "sealing": {
+    "required_before_blind_analysis": true,
+    "hash_review_files": true,
+    "hash_adjudicated_truth": true,
+    "business_document_hashes_private": true
+  }
+}

@@ -24,26 +24,27 @@ La priorità dopo la pubblicazione è il collaudo end-to-end della RC15 installa
 
 I risultati umani non vengono autocertificati dai test automatici.
 
-## Pilot documentale e qualità misurata
+## Pilot Procurement e qualità misurata
 
-Obiettivi interni:
+La baseline metodologica operativa è `docs/PROCUREMENT_PILOT_PROTOCOL.md`, supportata da `scripts/procurement_pilot_protocol.py`.
 
-- consolidare il frontend e rimuovere patch o bundle temporanei;
-- rendere obbligatori autorizzazione, anonimizzazione, perimetro e doppia revisione per dataset reali;
-- esportare rapporti di validazione redatti e riproducibili;
-- validare dataset pilot da CLI prima del caricamento;
-- migliorare accessibilità, onboarding e flussi end-to-end;
-- ridurre progressivamente i moduli monolitici senza modificare il comportamento verificato;
-- mantenere provenienza verificabile degli artefatti ufficiali.
+Il pilot separa sviluppo e valutazione:
 
-Obiettivi del pilot:
+- 5–10 pratiche di calibrazione, con modifiche consentite;
+- freeze di software, Practice Model, Rule Pack, profilo azienda, protocolli e case register;
+- Pilot Manifest sigillato con versioni, commit e hash;
+- ground truth blind creata prima dell'analisi di ThisTinti;
+- 20–25 pratiche blind mai usate per calibrare, senza modifiche durante il run;
+- rapporto con conteggi grezzi, intervalli d'incertezza, risultati per tipologia, critical miss e metriche economiche;
+- backlog degli errori destinato esclusivamente alla versione successiva.
 
-- almeno 30 scenari reali, anonimizzati e autorizzati per il gate minimo;
-- ground truth definita prima dell’esecuzione;
-- misurazione di precisione, recall, falsi positivi, falsi negativi e importo economico coinvolto;
-- classificazione degli errori per parser, OCR, matching e regole;
-- trasformazione dei difetti confermati in test di regressione;
-- nessuna automazione economica senza approvazione esplicita del run di validazione.
+La separazione tra calibrazione e blind set deve evitare leakage da famiglie documentali, template, fornitori o altri gruppi fortemente simili. Se cambia un artefatto congelato, quel run termina e viene creato un nuovo Manifest; risultati di versioni differenti non vengono presentati come un unico esperimento.
+
+La ground truth preferita usa due revisori indipendenti seguiti da adjudication. Se è disponibile un solo revisore qualificato, il limite metodologico viene dichiarato esplicitamente e non viene simulata una doppia revisione.
+
+Gli hash dei singoli documenti aziendali restano nell'inventario privato locale. I rapporti pubblici non espongono impronte di file riservati senza autorizzazione.
+
+Practice Model e Rule Pack Procurement restano provvisori (`v0.x`) fino all'evidenza raccolta sui casi reali. Non viene dichiarato un modello universale della pratica prima che più dataset e organizzazioni dimostrino una generalizzazione reale.
 
 ## Beta — preparazione operativa
 
