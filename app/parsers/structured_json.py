@@ -180,6 +180,13 @@ def parse_json(path: Path, overrides: dict) -> ParsedDocument:
         metadata=metadata,
         confidence=0.99,
     )
+    if not overrides.get("number") and data.get("number") not in (None, ""):
+        doc.source_locators["number"] = {
+            "locator_type": "JSON_POINTER",
+            "pointer": "/number",
+            "engine_id": "native-json-parser",
+            "engine_version": "1",
+        }
 
     for index, item in enumerate(lines, start=1):
         if not isinstance(item, dict):
