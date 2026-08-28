@@ -32,7 +32,7 @@ jobs:
           gh run download "$RUN_ID" --repo "$REPOSITORY" --name "$artifact" --dir attested-artifacts
           find attested-artifacts -type f -maxdepth 2 -print
       - name: Attest build provenance
-        uses: actions/attest-build-provenance@e3fe62ef559997059fe8380e7d2b4c909e2d65f4 # immutable upstream commit
+        uses: actions/attest-build-provenance@9d57eef8c06cd9d6b433effeeb7a6a77b3ff94ad # immutable upstream commit
         with:
           subject-path: |
             attested-artifacts/*.exe
