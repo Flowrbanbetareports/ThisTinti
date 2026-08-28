@@ -2,13 +2,13 @@
 
 Status: **internal / experimental**  
 Contract: `contracts/provenance/v0.contract.json`  
-Scope: Engineering Hardening Sprint 1. This is not a public stable API and does not introduce a database migration by itself.
+Scope: Engineering Hardening Sprint 1. This is not a public stable API.
 
 ## Purpose
 
 ThisTinti must be able to reconstruct why a fact, finding, or human conclusion exists without inventing missing history.
 
-The contract is intentionally narrower than a full PROV-O implementation. It defines the minimum provenance invariants required before runtime persistence is redesigned or migrated.
+The contract is intentionally narrower than a full PROV-O implementation. It defines the minimum provenance invariants required before provenance can be considered complete across runtime flows.
 
 The governing rule is:
 
@@ -119,11 +119,23 @@ The parsers already preserve partial provenance in `metadata`, `raw`, confidence
 
 Current `DiscrepancyCase` is the closest runtime equivalent to a finding. `EvidenceLink` already links a case to a document/document line and observed/expected values, but it does not yet guarantee a typed fact origin, structured locator, fact identity, or rule version/configuration.
 
-Current `ReviewDecision` already appends review records, while the case status is also updated. Provenance v0 requires future persistence to record the previous state explicitly on each judgment rather than trying to reconstruct it later.
+Current `ReviewDecision` already appends review records, while the case status is also updated. Provenance v0 requires provenance-aware judgment persistence to record the previous state explicitly rather than trying to reconstruct it later.
 
 The SHA-256 chained `AuditEvent` stream remains a separate control. Audit-chain integrity answers whether recorded audit events were altered; provenance answers why a semantic fact/finding/judgment exists. Neither replaces the other.
 
 RC15 company-profile and pilot versioning are compatible with the direction of the contract, but the contract does not declare existing historical rows to have provenance fields they do not actually contain.
+
+## Persistence foundation status
+
+The minimum additive persistence foundation now exists in `app/provenance_models.py`, `app/services/provenance.py`, and Alembic revision `f31b0d7c6a52`.
+
+It adds separate tenant-scoped records for origins, facts, deterministic derivations and their inputs, finding provenance and supporting facts, and human judgment provenance. PostgreSQL receives row-level security and tenant-reference guards for these records. Local Edition schema v2 adds the same tables through an additive schema upgrade.
+
+This is intentionally an overlay beside the existing RC15 business records. It does not rewrite `Document`, `DiscrepancyCase`, `EvidenceLink`, or `ReviewDecision` semantics.
+
+Most importantly, **persistence availability is not the same as runtime provenance completeness**. Existing ingestion, parser, rule, finding, correction, export, deletion, and review paths are not automatically provenance-complete merely because these tables exist. They must be connected incrementally and tested against this contract.
+
+No historical RC15 row is backfilled with an invented origin.
 
 ## Legacy rule
 
@@ -166,6 +178,8 @@ Provenance v0 is considered implemented only when all of the following are true 
 9. legacy incomplete provenance remains explicitly marked and is never invented retroactively;
 10. source-unavailable and locator-missing states remain distinct.
 
+The additive persistence foundation is a prerequisite for these criteria, not proof that all ten are already satisfied by every RC15 workflow.
+
 ## Explicit non-goals
 
 This v0 does **not**:
@@ -175,7 +189,6 @@ This v0 does **not**:
 - create a public stable API;
 - add a new Procurement feature;
 - backfill invented provenance into RC15 history;
-- add a cloud OCR fallback;
-- require a database migration in this specification commit.
+- add a cloud OCR fallback.
 
-The next implementation step, after this contract is qualified, is to design the smallest additive persistence model that can enforce these invariants without changing RC15 business semantics.
+The next implementation step is narrow runtime activation: connect one existing RC15 path at a time to the persistence layer, preserving current business behavior and proving the corresponding provenance invariant before expanding the integration surface.
