@@ -23,18 +23,14 @@ def _contracts(tmp_path: Path) -> tuple[Path, Path, dict, dict]:
     target = {
         "status": "approved-for-blind",
         "included_case_types": ["included_rule"],
-        "excluded_case_types": [
-            {"case_type": "excluded_rule", "exclusion_reason": "Deferred from this blind target."}
-        ],
+        "excluded_case_types": [{"case_type": "excluded_rule", "exclusion_reason": "Deferred from this blind target."}],
         "excluded_families": [],
     }
     rule_pack = {
         "schema": "thistinti.procurement-rule-pack.v2",
         "rule_pack_id": "test-pack-v2",
         "version": "0.2",
-        "rule_families": [
-            {"id": "test-family", "engine_case_types": ["included_rule", "excluded_rule"]}
-        ],
+        "rule_families": [{"id": "test-family", "engine_case_types": ["included_rule", "excluded_rule"]}],
         "blind_target": target,
         "provenance": {"matrix_ref": "matrix.json", "matrix_version": "0.2"},
     }
