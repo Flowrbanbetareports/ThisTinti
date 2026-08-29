@@ -96,9 +96,8 @@ def record_judgment_provenance(
         and not invoiced_over_received_finding_matches_current_support(db, finding=finding)
     ):
         return None
-    if (
-        finding.rule_id == "builtin:payment_over_invoice"
-        and not payment_over_invoice_finding_matches_current_support(db, finding=finding)
+    if finding.rule_id == "builtin:payment_over_invoice" and not payment_over_invoice_finding_matches_current_support(
+        db, finding=finding
     ):
         return None
 

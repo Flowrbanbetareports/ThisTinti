@@ -15,6 +15,7 @@ on:
       - app/services/judgment_provenance.py
       - app/services/delivered_over_order_provenance.py
       - app/services/invoiced_over_received_provenance.py
+      - app/services/payment_over_invoice_provenance.py
       - app/services/rules.py
       - requirements-dev.txt
       - tests/test_provenance_*.py
@@ -33,6 +34,7 @@ on:
       - app/services/judgment_provenance.py
       - app/services/delivered_over_order_provenance.py
       - app/services/invoiced_over_received_provenance.py
+      - app/services/payment_over_invoice_provenance.py
       - app/services/rules.py
       - requirements-dev.txt
       - tests/test_provenance_*.py
@@ -65,9 +67,9 @@ jobs:
         run: pip install -r requirements-dev.txt
       - name: Verify provenance source and static gates
         run: |
-          python -m ruff format --check app/main.py app/legacy_cases_api.py app/services/finding_provenance.py app/services/judgment_provenance.py app/services/delivered_over_order_provenance.py app/services/invoiced_over_received_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py tests/test_provenance_delivered_over_order.py tests/test_provenance_delivered_over_order_properties.py tests/test_provenance_invoiced_over_received.py tests/test_provenance_invoiced_over_received_properties.py tests/test_provenance_legacy_case_decision.py
-          python -m ruff check app/main.py app/legacy_cases_api.py app/services/finding_provenance.py app/services/judgment_provenance.py app/services/delivered_over_order_provenance.py app/services/invoiced_over_received_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py tests/test_provenance_delivered_over_order.py tests/test_provenance_delivered_over_order_properties.py tests/test_provenance_invoiced_over_received.py tests/test_provenance_invoiced_over_received_properties.py tests/test_provenance_legacy_case_decision.py
-          python -m py_compile app/main.py app/legacy_cases_api.py app/services/finding_provenance.py app/services/judgment_provenance.py app/services/delivered_over_order_provenance.py app/services/invoiced_over_received_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py tests/test_provenance_delivered_over_order.py tests/test_provenance_delivered_over_order_properties.py tests/test_provenance_invoiced_over_received.py tests/test_provenance_invoiced_over_received_properties.py tests/test_provenance_legacy_case_decision.py
+          python -m ruff format --check app/main.py app/legacy_cases_api.py app/services/finding_provenance.py app/services/judgment_provenance.py app/services/delivered_over_order_provenance.py app/services/invoiced_over_received_provenance.py app/services/payment_over_invoice_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py tests/test_provenance_delivered_over_order.py tests/test_provenance_delivered_over_order_properties.py tests/test_provenance_invoiced_over_received.py tests/test_provenance_invoiced_over_received_properties.py tests/test_provenance_payment_over_invoice.py tests/test_provenance_payment_over_invoice_properties.py tests/test_provenance_legacy_case_decision.py
+          python -m ruff check app/main.py app/legacy_cases_api.py app/services/finding_provenance.py app/services/judgment_provenance.py app/services/delivered_over_order_provenance.py app/services/invoiced_over_received_provenance.py app/services/payment_over_invoice_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py tests/test_provenance_delivered_over_order.py tests/test_provenance_delivered_over_order_properties.py tests/test_provenance_invoiced_over_received.py tests/test_provenance_invoiced_over_received_properties.py tests/test_provenance_payment_over_invoice.py tests/test_provenance_payment_over_invoice_properties.py tests/test_provenance_legacy_case_decision.py
+          python -m py_compile app/main.py app/legacy_cases_api.py app/services/finding_provenance.py app/services/judgment_provenance.py app/services/delivered_over_order_provenance.py app/services/invoiced_over_received_provenance.py app/services/payment_over_invoice_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py tests/test_provenance_delivered_over_order.py tests/test_provenance_delivered_over_order_properties.py tests/test_provenance_invoiced_over_received.py tests/test_provenance_invoiced_over_received_properties.py tests/test_provenance_payment_over_invoice.py tests/test_provenance_payment_over_invoice_properties.py tests/test_provenance_legacy_case_decision.py
           python scripts/check_module_boundaries.py
           python scripts/check_dependencies.py
       - name: Verify runtime SBOM is byte-identical
@@ -89,6 +91,8 @@ jobs:
           tests/test_provenance_delivered_over_order_properties.py
           tests/test_provenance_invoiced_over_received.py
           tests/test_provenance_invoiced_over_received_properties.py
+          tests/test_provenance_payment_over_invoice.py
+          tests/test_provenance_payment_over_invoice_properties.py
           tests/test_provenance_legacy_case_decision.py
       - name: Record deep qualification evidence
         if: success()
@@ -108,6 +112,9 @@ jobs:
             "invoiced_over_received_property_max_examples=1000" \
             "invoiced_over_received_stateful_max_examples=200" \
             "invoiced_over_received_stateful_step_count=75" \
+            "payment_over_invoice_property_max_examples=1000" \
+            "payment_over_invoice_stateful_max_examples=200" \
+            "payment_over_invoice_stateful_step_count=75" \
             > provenance-deep-qualification.txt
       - name: Upload deep qualification evidence
         if: success()
