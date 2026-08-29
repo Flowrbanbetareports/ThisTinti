@@ -56,8 +56,8 @@ _RULES: tuple[dict[str, Any], ...] = (
     {
         "family": "amount-consistency",
         "case_type": "currency_mismatch",
-        "provenance_status": "incomplete",
-        "evidence": "Engine finding and EvidenceLink exist; currency facts are not yet linked through the qualified provenance chain.",
+        "provenance_status": "complete",
+        "evidence": "Qualified exact document.currency FACT set -> immutable finding versions -> exact current judgment binding; defaulted or incomplete currency inputs fail closed.",
     },
     {
         "family": "amount-consistency",
