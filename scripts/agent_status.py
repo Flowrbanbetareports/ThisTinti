@@ -20,7 +20,6 @@ import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
 from typing import Any
 
 DEFAULT_REPO = "Flowrbanbetareports/ThisTinti"
@@ -139,7 +138,7 @@ def paged(repo: str, path: str, *, per_page: int = 100, max_pages: int = 10) -> 
 
 
 def find_lease_board(repo: str) -> int:
-    encoded = urllib.parse.quote(f'repo:{repo} is:issue in:title "{LEASE_BOARD_TITLE}"')
+    encoded = urllib.parse.quote(f'repo:{repo} is:issue is:open in:title "{LEASE_BOARD_TITLE}"')
     request = urllib.request.Request(
         f"https://api.github.com/search/issues?q={encoded}&per_page=10",
         headers=_headers(),
@@ -275,9 +274,7 @@ def status(repo: str) -> int:
             snap = snapshots[number]
             item = f"issue:{number}"
             lease = leases.get(item)
-            lease_text = (
-                f"LEASED {lease.owner} until {_iso(lease.expires_at)}" if lease else "unleased"
-            )
+            lease_text = f"LEASED {lease.owner} until {_iso(lease.expires_at)}" if lease else "unleased"
             kind = "PR" if snap["is_pr"] else "issue"
             print(f"  - #{number} [{snap['state']}] {kind}: {snap['title']} | {lease_text}")
     print()
