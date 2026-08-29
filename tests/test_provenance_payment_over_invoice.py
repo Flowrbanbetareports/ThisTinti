@@ -14,6 +14,7 @@ from app.provenance_models import (
     ProvenanceJudgment,
     ProvenanceOrigin,
 )
+import app.services.payment_over_invoice_provenance as poi
 from app.services.payment_over_invoice_provenance import payment_over_invoice_finding_matches_current_support
 from app.services.rules import analyze_chain
 
@@ -271,3 +272,67 @@ def test_payment_over_invoice_rejects_support_marked_missing_by_numeric_provenan
     assert reviewed.status_code == 200, reviewed.text
     with SessionLocal() as db:
         assert db.scalar(select(ProvenanceJudgment).where(ProvenanceJudgment.finding_id == finding_id)) is None
+
+
+def test_payment_over_invoice_malformed_support_and_metadata_fail_closed(client, auth):
+    _upload_overpayment(client, auth, suffix="HOSTILE")
+    with SessionLocal() as db:
+        case = _case(db)
+        assert case is not None
+        finding = _findings(db, case)[0]
+        chain = db.get(OperationChain, case.chain_id)
+        assert chain is not None
+        fact_id = db.scalar(select(ProvenanceFindingFact.fact_id).where(ProvenanceFindingFact.finding_id == finding.id))
+        assert fact_id is not None
+        fact = db.get(ProvenanceFact, fact_id)
+        assert fact is not None
+        line = db.get(DocumentLine, fact.fact_key.split(":", 2)[1])
+        assert line is not None
+
+        original_raw = line.raw_json
+        line.raw_json = "{"
+        assert poi._raw_locator(line) is None
+        line.raw_json = "[]"
+        assert poi._raw_locator(line) is None
+        line.raw_json = original_raw
+
+        original_value = fact.value_json
+        fact.value_json = "not-json"
+        assert poi._fact_value_matches(fact, line) is False
+        fact.value_json = original_value
+
+        original_amount = case.amount_estimate
+        case.amount_estimate = Decimal("24.99")
+        assert payment_over_invoice_finding_matches_current_support(db, finding=finding) is False
+        case.amount_estimate = original_amount
+
+        original_rule_version = finding.rule_version
+        finding.rule_version = "stale"
+        assert payment_over_invoice_finding_matches_current_support(db, finding=finding) is False
+        finding.rule_version = original_rule_version
+
+        poi.record_payment_over_invoice_finding_provenance(
+            db,
+            chain=chain,
+            case=case,
+            finding_case_type="currency_mismatch",
+            finding_key="payment-over-invoice",
+        )
+        poi.record_payment_over_invoice_finding_provenance(
+            db,
+            chain=chain,
+            case=case,
+            finding_case_type="payment_over_invoice",
+            finding_key="wrong-key",
+        )
+        original_fingerprint = case.fingerprint
+        case.fingerprint = "wrong-fingerprint"
+        poi.record_payment_over_invoice_finding_provenance(
+            db,
+            chain=chain,
+            case=case,
+            finding_case_type="payment_over_invoice",
+            finding_key="payment-over-invoice",
+        )
+        case.fingerprint = original_fingerprint
+        assert payment_over_invoice_finding_matches_current_support(db, finding=finding) is True
