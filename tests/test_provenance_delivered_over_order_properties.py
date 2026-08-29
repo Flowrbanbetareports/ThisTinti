@@ -29,7 +29,6 @@ from app.provenance_models import (
     ProvenanceFinding,
     ProvenanceFindingFact,
     ProvenanceJudgment,
-    ProvenanceOrigin,
 )
 from app.services.delivered_over_order_provenance import (
     delivered_over_order_finding_matches_current_support,
