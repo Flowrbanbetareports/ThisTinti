@@ -6,7 +6,7 @@ from decimal import Decimal
 from sqlalchemy import select
 
 from app.db import SessionLocal
-from app.models import DiscrepancyCase, OperationChain
+from app.models import DiscrepancyCase, DocumentLine, OperationChain
 from app.provenance_models import (
     ProvenanceFact,
     ProvenanceFinding,
@@ -16,6 +16,7 @@ from app.provenance_models import (
 )
 from app.services.payment_without_invoice_provenance import (
     payment_without_invoice_finding_matches_current_support,
+    record_payment_without_invoice_finding_provenance,
 )
 from app.services.rules import analyze_chain
 
@@ -221,10 +222,46 @@ def test_payment_without_invoice_unknown_amount_still_proves_snapshot_scoped_abs
     with SessionLocal() as db:
         case = _case(db)
         assert case is not None
+        assert Decimal(case.amount_estimate) == Decimal("42.00")
+        chain = db.get(OperationChain, case.chain_id)
+        assert chain is not None and chain.payment_document_id is not None
+        line = db.scalar(select(DocumentLine).where(DocumentLine.document_id == chain.payment_document_id))
+        assert line is not None
+        raw = json.loads(line.raw_json or "{}")
+        numeric_provenance = raw.get("numeric_provenance")
+        assert isinstance(numeric_provenance, dict)
+        assert numeric_provenance.get("line_total") == "derived"
+
+        first_finding = _findings(db, case)[0]
+        assert payment_without_invoice_finding_matches_current_support(db, finding=first_finding) is True
+
+        # Model a degraded parser/acquisition result explicitly. Omitting line_total in
+        # structured JSON is not enough because the parser can derive it from source
+        # quantity and unit_price; an unavailable numeric input must be represented in
+        # the normalized numeric-provenance state instead of being inferred from absence.
+        numeric_provenance["line_total"] = "missing"
+        line.raw_json = json.dumps(raw, sort_keys=True, separators=(",", ":"))
+        analyze_chain(db, chain)
+        db.flush()
+
+        case = _case(db)
+        assert case is not None
         assert Decimal(case.amount_estimate) == Decimal("0.00")
-        finding = _findings(db, case)[0]
-        assert payment_without_invoice_finding_matches_current_support(db, finding=finding) is True
-        snapshot = json.loads(_linked_fact(db, finding).value_json)
+        record_payment_without_invoice_finding_provenance(
+            db,
+            chain=chain,
+            case=case,
+            finding_case_type="payment_without_invoice",
+            finding_key="payment-without-invoice",
+        )
+        db.flush()
+
+        findings = _findings(db, case)
+        assert [finding.version for finding in findings] == [1, 2]
+        assert findings[1].supersedes_finding_id == first_finding.id
+        assert payment_without_invoice_finding_matches_current_support(db, finding=first_finding) is False
+        assert payment_without_invoice_finding_matches_current_support(db, finding=findings[1]) is True
+        snapshot = json.loads(_linked_fact(db, findings[1]).value_json)
         assert snapshot["payment_total"] == {
             "case_amount_estimate": "0.00",
             "status": "numeric_inputs_unavailable",
