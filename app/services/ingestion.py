@@ -164,8 +164,7 @@ def _record_direct_line_source_facts(
                 raise ValueError(f"Unsupported direct source locator for {fact_type}")
             pointer = str(locator.get("pointer") or "")
             allowed = {
-                f"/lines/{source_index}/{source_field}"
-                for source_field in _DIRECT_LINE_POINTER_FIELDS[field_name]
+                f"/lines/{source_index}/{source_field}" for source_field in _DIRECT_LINE_POINTER_FIELDS[field_name]
             }
             if pointer not in allowed:
                 raise ValueError(f"Unsupported direct source locator for {fact_type}")
