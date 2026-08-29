@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from ..models import ChainDocument, DiscrepancyCase, Document, DocumentLine, OperationChain
 from ..provenance_models import ProvenanceFact, ProvenanceFinding, ProvenanceFindingFact, ProvenanceOrigin
+from .numeric_fields import numeric_available
 from .provenance import record_finding
 
 
@@ -109,6 +110,8 @@ def _direct_line_total_fact(
     document: Document,
     line: DocumentLine,
 ) -> ProvenanceFact | None:
+    if not numeric_available(line, "line_total"):
+        return None
     fact = db.scalar(
         select(ProvenanceFact)
         .where(
