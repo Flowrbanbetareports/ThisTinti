@@ -114,7 +114,7 @@ def api(repo: str, path: str, *, method: str = "GET", payload: dict[str, Any] | 
         headers=_headers(write=method != "GET"),
     )
     try:
-        with urllib.request.urlopen(request, timeout=15) as response:
+        with urllib.request.urlopen(request, timeout=15) as response:  # nosec B310 -- fixed HTTPS host
             body = response.read().decode("utf-8")
     except urllib.error.HTTPError as exc:
         detail = exc.read().decode("utf-8", errors="replace")
@@ -144,7 +144,7 @@ def find_lease_board(repo: str) -> int:
         headers=_headers(),
     )
     try:
-        with urllib.request.urlopen(request, timeout=15) as response:
+        with urllib.request.urlopen(request, timeout=15) as response:  # nosec B310 -- fixed HTTPS host
             result = json.loads(response.read().decode("utf-8"))
     except (urllib.error.HTTPError, urllib.error.URLError) as exc:
         raise RuntimeError(f"Cannot locate lease board: {exc}") from exc
