@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - app/db.py
+      - app/main.py
+      - app/legacy_cases_api.py
       - app/models.py
       - app/provenance_models.py
       - app/services/provenance.py
@@ -20,6 +22,8 @@ on:
   pull_request:
     paths:
       - app/db.py
+      - app/main.py
+      - app/legacy_cases_api.py
       - app/models.py
       - app/provenance_models.py
       - app/services/provenance.py
@@ -57,9 +61,9 @@ jobs:
         run: pip install -r requirements-dev.txt
       - name: Verify provenance source and static gates
         run: |
-          python -m ruff format --check app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py
-          python -m ruff check app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py
-          python -m py_compile app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py
+          python -m ruff format --check app/main.py app/legacy_cases_api.py app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py tests/test_provenance_legacy_case_decision.py
+          python -m ruff check app/main.py app/legacy_cases_api.py app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py tests/test_provenance_legacy_case_decision.py
+          python -m py_compile app/main.py app/legacy_cases_api.py app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py tests/test_provenance_legacy_case_decision.py
           python scripts/check_module_boundaries.py
           python scripts/check_dependencies.py
       - name: Verify runtime SBOM is byte-identical
@@ -68,7 +72,7 @@ jobs:
           python scripts/generate_sbom.py
           cmp /tmp/sbom-before.cdx.json docs/sbom.cdx.json
           git diff --exit-code -- docs/sbom.cdx.json
-      - name: Run 22 provenance tests at deep profile
+      - name: Run provenance tests at deep profile
         run: >-
           python -m pytest -q
           tests/test_provenance_contract_v0.py
@@ -76,15 +80,20 @@ jobs:
           tests/test_duplicate_number_finding_provenance.py
           tests/test_finding_judgment_provenance.py
           tests/test_provenance_properties.py
+          tests/test_provenance_currency_mismatch.py
+          tests/test_provenance_legacy_case_decision.py
       - name: Record deep qualification evidence
         if: success()
         run: |
           printf '%s\n' \
             "head_sha=${GITHUB_SHA}" \
             "hypothesis_profile=${THISTINTI_HYPOTHESIS_PROFILE}" \
-            "property_max_examples=2000" \
-            "stateful_max_examples=200" \
-            "stateful_step_count=75" \
+            "duplicate_property_max_examples=2000" \
+            "duplicate_stateful_max_examples=200" \
+            "duplicate_stateful_step_count=75" \
+            "currency_property_max_examples=1000" \
+            "currency_stateful_max_examples=200" \
+            "currency_stateful_step_count=75" \
             > provenance-deep-qualification.txt
       - name: Upload deep qualification evidence
         if: success()
