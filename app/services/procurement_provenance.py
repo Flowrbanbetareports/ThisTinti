@@ -92,8 +92,8 @@ _RULES: tuple[dict[str, Any], ...] = (
     {
         "family": "amount-consistency",
         "case_type": "payment_over_invoice",
-        "provenance_status": "incomplete",
-        "evidence": "Engine finding and EvidenceLink exist; invoice/payment total facts are not yet linked to a versioned ProvenanceFinding.",
+        "provenance_status": "complete",
+        "evidence": "Qualified exact current invoice/payment line_total FACT sets -> immutable finding versions -> exact current judgment binding; engine-equivalent amount aggregation and 0.02 tolerance, fail-closed support, property/stateful and Deep qualification passed on the qualified slice.",
     },
     {
         "family": "expected-evidence-completeness",
