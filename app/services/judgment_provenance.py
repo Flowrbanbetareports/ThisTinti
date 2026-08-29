@@ -11,6 +11,7 @@ from .finding_provenance import (
     duplicate_number_finding_matches_current_support,
 )
 from .invoiced_over_received_provenance import invoiced_over_received_finding_matches_current_support
+from .payment_over_invoice_provenance import payment_over_invoice_finding_matches_current_support
 
 
 def resolve_reviewer_identity(
@@ -93,6 +94,11 @@ def record_judgment_provenance(
     if (
         finding.rule_id == "builtin:invoiced_over_received"
         and not invoiced_over_received_finding_matches_current_support(db, finding=finding)
+    ):
+        return None
+    if (
+        finding.rule_id == "builtin:payment_over_invoice"
+        and not payment_over_invoice_finding_matches_current_support(db, finding=finding)
     ):
         return None
 
