@@ -150,9 +150,7 @@ def find_lease_board(repo: str) -> int:
         raise RuntimeError(f"Cannot locate lease board: {exc}") from exc
     exact = [item for item in result.get("items", []) if item.get("title") == LEASE_BOARD_TITLE]
     if not exact:
-        raise RuntimeError(
-            f'Lease board not found. Create an open issue titled exactly "{LEASE_BOARD_TITLE}".'
-        )
+        raise RuntimeError(f'Lease board not found. Create an open issue titled exactly "{LEASE_BOARD_TITLE}".')
     exact.sort(key=lambda item: item["number"], reverse=True)
     return int(exact[0]["number"])
 
@@ -210,9 +208,7 @@ def post_lease(repo: str, board: int, *, item: str, owner: str, state: str, ttl_
     existing = active.get(item)
     if state == "active" and existing and existing.owner != owner:
         remaining = max(0, int((existing.expires_at - _utc_now()).total_seconds() // 60))
-        raise RuntimeError(
-            f"{item} is leased by {existing.owner} until {_iso(existing.expires_at)} (~{remaining} min)"
-        )
+        raise RuntimeError(f"{item} is leased by {existing.owner} until {_iso(existing.expires_at)} (~{remaining} min)")
     if state == "released" and existing and existing.owner != owner:
         raise RuntimeError(f"Refusing to release {item}: active owner is {existing.owner}, not {owner}")
     api(
