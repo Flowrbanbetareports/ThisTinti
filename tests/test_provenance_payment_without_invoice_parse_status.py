@@ -55,9 +55,7 @@ def test_payment_without_invoice_fails_closed_for_unsupported_payment_parse_stat
     assert response.status_code == 201, response.text
 
     with SessionLocal() as db:
-        case = db.scalar(
-            select(DiscrepancyCase).where(DiscrepancyCase.case_type == "payment_without_invoice")
-        )
+        case = db.scalar(select(DiscrepancyCase).where(DiscrepancyCase.case_type == "payment_without_invoice"))
         assert case is not None
         finding = db.scalar(
             select(ProvenanceFinding)
