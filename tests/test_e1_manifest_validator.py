@@ -42,7 +42,9 @@ def frozen_manifest():
             "conclusion": "success",
         }
     ]
-    for pool_name, token in zip(("CALIBRATION", "BLIND", "HOLDOUT"), ("3", "4", "5"), strict=True):
+    for pool_name, token in zip(
+        ("CALIBRATION", "BLIND", "HOLDOUT"), ("3", "4", "5"), strict=True
+    ):
         data["pools"][pool_name] = {
             "manifest_id": f"{pool_name.lower()}-v1",
             "sha256": token * 64,
@@ -86,7 +88,9 @@ def test_frozen_manifest_rejects_missing_gate_evidence():
 
 def test_frozen_manifest_rejects_duplicate_gate_identity():
     data = frozen_manifest()
-    data["required_gate_evidence"].append(copy.deepcopy(data["required_gate_evidence"][0]))
+    data["required_gate_evidence"].append(
+        copy.deepcopy(data["required_gate_evidence"][0])
+    )
     with pytest.raises(ManifestError, match="duplicate check"):
         validate_manifest(data, final=True)
 
