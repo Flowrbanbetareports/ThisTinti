@@ -6,7 +6,7 @@ from decimal import Decimal
 from sqlalchemy import select
 
 from app.db import SessionLocal
-from app.models import DiscrepancyCase, OperationChain
+from app.models import DiscrepancyCase, DocumentLine, OperationChain
 from app.provenance_models import (
     ProvenanceFact,
     ProvenanceFinding,
@@ -236,6 +236,37 @@ def test_payment_over_invoice_rejects_unavailable_support_before_human_binding(c
         f"/api/cases/{case_id}/decision",
         headers=auth,
         json={"decision": "confirmed", "note": "Must not bind stale payment provenance."},
+    )
+    assert reviewed.status_code == 200, reviewed.text
+    with SessionLocal() as db:
+        assert db.scalar(select(ProvenanceJudgment).where(ProvenanceJudgment.finding_id == finding_id)) is None
+
+
+def test_payment_over_invoice_rejects_support_marked_missing_by_numeric_provenance(client, auth):
+    _upload_overpayment(client, auth, suffix="NUMERIC-MISSING")
+    with SessionLocal() as db:
+        case = _case(db)
+        assert case is not None
+        finding = _findings(db, case)[0]
+        fact_id = db.scalar(select(ProvenanceFindingFact.fact_id).where(ProvenanceFindingFact.finding_id == finding.id))
+        assert fact_id is not None
+        fact = db.get(ProvenanceFact, fact_id)
+        assert fact is not None
+        line_id = fact.fact_key.split(":", 2)[1]
+        line = db.get(DocumentLine, line_id)
+        assert line is not None
+        raw = json.loads(line.raw_json)
+        raw.setdefault("numeric_provenance", {})["line_total"] = "missing"
+        line.raw_json = json.dumps(raw, sort_keys=True, separators=(",", ":"))
+        db.commit()
+        assert payment_over_invoice_finding_matches_current_support(db, finding=finding) is False
+        case_id = case.id
+        finding_id = finding.id
+
+    reviewed = client.post(
+        f"/api/cases/{case_id}/decision",
+        headers=auth,
+        json={"decision": "confirmed", "note": "Missing numeric support must fail closed."},
     )
     assert reviewed.status_code == 200, reviewed.text
     with SessionLocal() as db:
