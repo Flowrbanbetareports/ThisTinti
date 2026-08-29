@@ -77,9 +77,7 @@ def _validate_v1_matrix(
 ) -> None:
     matrix_families = _matrix_families(matrix, declared_families)
     expected_pairs = {
-        (family_id, case_type)
-        for family_id, case_types in declared_families.items()
-        for case_type in case_types
+        (family_id, case_type) for family_id, case_types in declared_families.items() for case_type in case_types
     }
     rules = matrix.get("rules") or []
     actual_pairs: set[tuple[str, str]] = set()
@@ -136,7 +134,9 @@ def _validate_v2_matrix(
         raise ValueError("Rule Pack v2: blind_target.status non valido")
 
     included_values = target.get("included_case_types")
-    if not isinstance(included_values, list) or any(not isinstance(value, str) or not value for value in included_values):
+    if not isinstance(included_values, list) or any(
+        not isinstance(value, str) or not value for value in included_values
+    ):
         raise ValueError("Rule Pack v2: included_case_types non validi")
     if not included_values:
         raise ValueError("Rule Pack v2: blind target vuoto")
@@ -157,11 +157,7 @@ def _validate_v2_matrix(
             raise ValueError("Rule Pack v2: esclusioni mancanti, duplicate o senza motivazione")
         excluded[case_type] = reason
 
-    engine_case_types = {
-        case_type
-        for case_types in declared_families.values()
-        for case_type in case_types
-    }
+    engine_case_types = {case_type for case_types in declared_families.values() for case_type in case_types}
     if included & set(excluded):
         raise ValueError("Rule Pack v2: case_type contemporaneamente incluso ed escluso")
     if included | set(excluded) != engine_case_types:
@@ -195,9 +191,7 @@ def _validate_v2_matrix(
 
     matrix_families = _matrix_families(matrix, declared_families)
     expected_pairs = {
-        (family_id, case_type)
-        for family_id, case_types in declared_families.items()
-        for case_type in case_types
+        (family_id, case_type) for family_id, case_types in declared_families.items() for case_type in case_types
     }
     rules = matrix.get("rules") or []
     actual_pairs: set[tuple[str, str]] = set()
@@ -229,7 +223,9 @@ def _validate_v2_matrix(
         case_types = declared_families[family_id]
         included_count = sum(case_type in included for case_type in case_types)
         excluded_count = len(case_types) - included_count
-        expected_scope = "mixed" if included_count and excluded_count else ("included" if included_count else "excluded")
+        expected_scope = (
+            "mixed" if included_count and excluded_count else ("included" if included_count else "excluded")
+        )
         if family.get("blind_scope") != expected_scope:
             raise ValueError(f"Provenance Matrix v2: blind_scope famiglia incoerente per {family_id}")
         if family_id in excluded_families:
@@ -240,10 +236,7 @@ def _validate_v2_matrix(
 
     declared_readiness = matrix.get("blind_readiness") or {}
     expected_ready = (
-        target_status == "approved-for-blind"
-        and bool(included)
-        and not blockers
-        and not unsupported_included
+        target_status == "approved-for-blind" and bool(included) and not blockers and not unsupported_included
     )
     if declared_readiness.get("ready") is not expected_ready:
         raise ValueError("Provenance Matrix v2: blind_readiness incoerente")
@@ -280,8 +273,6 @@ def _validate_provenance_matrix(
     rule_pack = read_json(require_file(rule_pack_path, "Rule Pack"))
     matrix = read_json(require_file(matrix_path, "Provenance Matrix"))
 
-    if str(rule_pack.get("version") or "") != rule_pack_version.strip():
-        raise ValueError("Rule Pack: versione dichiarata diversa dall'artefatto")
     if str(matrix.get("version") or "") != matrix_version.strip():
         raise ValueError("Provenance Matrix: versione dichiarata diversa dall'artefatto")
     if matrix.get("rule_pack_id") != rule_pack.get("rule_pack_id"):
@@ -289,19 +280,21 @@ def _validate_provenance_matrix(
     if str(matrix.get("rule_pack_version") or "") != str(rule_pack.get("version") or ""):
         raise ValueError("Provenance Matrix: versione Rule Pack non corrispondente")
 
-    provenance = rule_pack.get("provenance")
-    if isinstance(provenance, dict):
-        if provenance.get("matrix_ref") != matrix_path.name:
-            raise ValueError("Rule Pack: matrix_ref non corrisponde alla Provenance Matrix")
-        if str(provenance.get("matrix_version") or "") != str(matrix.get("version") or ""):
-            raise ValueError("Rule Pack: matrix_version non corrisponde alla Provenance Matrix")
-
     declared_families = _declared_families(rule_pack)
     schema = matrix.get("schema")
     if schema == PROVENANCE_MATRIX_SCHEMA_V1:
         _validate_v1_matrix(rule_pack, matrix, declared_families)
         return None
     if schema == PROVENANCE_MATRIX_SCHEMA_V2:
+        if str(rule_pack.get("version") or "") != rule_pack_version.strip():
+            raise ValueError("Rule Pack: versione dichiarata diversa dall'artefatto")
+        provenance = rule_pack.get("provenance")
+        if not isinstance(provenance, dict):
+            raise ValueError("Rule Pack v2: provenance obbligatoria")
+        if provenance.get("matrix_ref") != matrix_path.name:
+            raise ValueError("Rule Pack: matrix_ref non corrisponde alla Provenance Matrix")
+        if str(provenance.get("matrix_version") or "") != str(matrix.get("version") or ""):
+            raise ValueError("Rule Pack: matrix_version non corrisponde alla Provenance Matrix")
         return _validate_v2_matrix(rule_pack, matrix, declared_families)
     raise ValueError("Provenance Matrix: schema non valido")
 
