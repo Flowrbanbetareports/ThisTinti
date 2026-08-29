@@ -12,10 +12,14 @@ from .security import AuthContext, require_reviewer
 from .services.judgment_provenance import record_judgment_provenance, resolve_reviewer_identity
 
 
-router = APIRouter(tags=["Cases"])
+router = APIRouter()
 
 
-@router.post("/api/cases/{case_id}/decision")
+@router.post(
+    "/api/cases/{case_id}/decision",
+    summary="Review Case",
+    operation_id="review_case_api_cases__case_id__decision_post",
+)
 def review_case_with_provenance(
     case_id: str,
     payload: ReviewRequest,
