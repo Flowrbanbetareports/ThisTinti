@@ -38,8 +38,8 @@ _RULES: tuple[dict[str, Any], ...] = (
     {
         "family": "quantity-consistency",
         "case_type": "delivered_over_order",
-        "provenance_status": "incomplete",
-        "evidence": "Engine finding and EvidenceLink exist; no qualified FACT-to-FINDING lineage for the compared quantities.",
+        "provenance_status": "complete",
+        "evidence": "Qualified exact commercial quantity/UOM/price/base and delivery quantity/UOM FACT set -> immutable finding versions -> exact current judgment binding; property/stateful and Deep qualification passed on the merged slice.",
     },
     {
         "family": "quantity-consistency",
