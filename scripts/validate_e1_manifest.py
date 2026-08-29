@@ -104,10 +104,16 @@ def validate_manifest(data: dict[str, Any], *, final: bool = False) -> None:
     gates = data.get("required_gate_evidence")
     if not isinstance(gates, list):
         raise ManifestError("required_gate_evidence: expected array")
+    if final and not gates:
+        raise ManifestError("required_gate_evidence: frozen manifest requires gate evidence")
     source_sha = candidate.get("source_sha")
+    seen_checks: set[str] = set()
     for index, gate in enumerate(gates):
         gate_obj = _require_mapping(gate, f"required_gate_evidence[{index}]")
-        _require_string(gate_obj.get("check"), f"required_gate_evidence[{index}].check")
+        check = _require_string(gate_obj.get("check"), f"required_gate_evidence[{index}].check")
+        if check in seen_checks:
+            raise ManifestError(f"required_gate_evidence[{index}].check: duplicate check")
+        seen_checks.add(check)
         gate_sha = _require_string(gate_obj.get("source_sha"), f"required_gate_evidence[{index}].source_sha")
         if not PLACEHOLDER.match(str(source_sha)) and gate_sha != source_sha:
             raise ManifestError(f"required_gate_evidence[{index}].source_sha: stale-SHA evidence")
