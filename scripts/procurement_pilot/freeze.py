@@ -18,8 +18,11 @@ from procurement_pilot.common import (
 from procurement_pilot.workspace import validate_case_register, validate_preregistration
 
 
-PROVENANCE_MATRIX_SCHEMA = "thistinti.procurement-provenance-matrix.v1"
+PROVENANCE_MATRIX_SCHEMA_V1 = "thistinti.procurement-provenance-matrix.v1"
+PROVENANCE_MATRIX_SCHEMA_V2 = "thistinti.procurement-provenance-matrix.v2"
+RULE_PACK_SCHEMA_V2 = "thistinti.procurement-rule-pack.v2"
 PROVENANCE_STATUSES = {"complete", "incomplete", "unsupported"}
+BLIND_TARGET_STATUSES = {"calibration-provisional", "approved-for-blind"}
 
 
 def _public_artifact_record(path: Path, version: str, label: str) -> dict[str, Any]:
@@ -29,28 +32,25 @@ def _public_artifact_record(path: Path, version: str, label: str) -> dict[str, A
     return {"version": version.strip(), "ref": path.name, "sha256": sha256_file(path)}
 
 
-def _validate_provenance_matrix(rule_pack_path: Path, matrix_path: Path, matrix_version: str) -> None:
-    rule_pack = read_json(require_file(rule_pack_path, "Rule Pack"))
-    matrix = read_json(require_file(matrix_path, "Provenance Matrix"))
-    if matrix.get("schema") != PROVENANCE_MATRIX_SCHEMA:
-        raise ValueError("Provenance Matrix: schema non valido")
-    if str(matrix.get("version") or "") != matrix_version.strip():
-        raise ValueError("Provenance Matrix: versione dichiarata diversa dall'artefatto")
-    if matrix.get("rule_pack_id") != rule_pack.get("rule_pack_id"):
-        raise ValueError("Provenance Matrix: rule_pack_id non corrisponde al Rule Pack")
-    if str(matrix.get("rule_pack_version") or "") != str(rule_pack.get("version") or ""):
-        raise ValueError("Provenance Matrix: versione Rule Pack non corrispondente")
-
-    declared_families: dict[str, list[str]] = {}
+def _declared_families(rule_pack: dict[str, Any]) -> dict[str, list[str]]:
+    declared: dict[str, list[str]] = {}
     for family in rule_pack.get("rule_families") or []:
         family_id = str(family.get("id") or "")
-        if not family_id or family_id in declared_families:
+        if not family_id or family_id in declared:
             raise ValueError("Rule Pack: famiglie mancanti o duplicate")
         case_types = family.get("engine_case_types")
         if not isinstance(case_types, list) or any(not isinstance(value, str) or not value for value in case_types):
             raise ValueError(f"Rule Pack: engine_case_types non validi per {family_id}")
-        declared_families[family_id] = case_types
+        if len(case_types) != len(set(case_types)):
+            raise ValueError(f"Rule Pack: engine_case_types duplicati per {family_id}")
+        declared[family_id] = case_types
+    return declared
 
+
+def _matrix_families(
+    matrix: dict[str, Any],
+    declared_families: dict[str, list[str]],
+) -> dict[str, dict[str, Any]]:
     matrix_families: dict[str, dict[str, Any]] = {}
     for family in matrix.get("families") or []:
         family_id = str(family.get("id") or "")
@@ -67,7 +67,15 @@ def _validate_provenance_matrix(rule_pack_path: Path, matrix_path: Path, matrix_
     for family_id, case_types in declared_families.items():
         if matrix_families[family_id].get("case_types") != case_types:
             raise ValueError(f"Provenance Matrix: case_type diversi dal Rule Pack per {family_id}")
+    return matrix_families
 
+
+def _validate_v1_matrix(
+    rule_pack: dict[str, Any],
+    matrix: dict[str, Any],
+    declared_families: dict[str, list[str]],
+) -> None:
+    matrix_families = _matrix_families(matrix, declared_families)
     expected_pairs = {
         (family_id, case_type) for family_id, case_types in declared_families.items() for case_type in case_types
     }
@@ -110,6 +118,187 @@ def _validate_provenance_matrix(rule_pack_path: Path, matrix_path: Path, matrix_
         raise ValueError("freeze bloccato dalla Provenance Matrix: " + "; ".join(details))
 
 
+def _validate_v2_matrix(
+    rule_pack: dict[str, Any],
+    matrix: dict[str, Any],
+    declared_families: dict[str, list[str]],
+) -> dict[str, Any]:
+    if rule_pack.get("schema") != RULE_PACK_SCHEMA_V2:
+        raise ValueError("Rule Pack v2: schema non valido")
+
+    target = rule_pack.get("blind_target")
+    if not isinstance(target, dict):
+        raise ValueError("Rule Pack v2: blind_target obbligatorio")
+    target_status = target.get("status")
+    if target_status not in BLIND_TARGET_STATUSES:
+        raise ValueError("Rule Pack v2: blind_target.status non valido")
+
+    included_values = target.get("included_case_types")
+    if not isinstance(included_values, list) or any(
+        not isinstance(value, str) or not value for value in included_values
+    ):
+        raise ValueError("Rule Pack v2: included_case_types non validi")
+    if not included_values:
+        raise ValueError("Rule Pack v2: blind target vuoto")
+    if len(included_values) != len(set(included_values)):
+        raise ValueError("Rule Pack v2: included_case_types duplicati")
+    included = set(included_values)
+
+    excluded_items = target.get("excluded_case_types")
+    if not isinstance(excluded_items, list):
+        raise ValueError("Rule Pack v2: excluded_case_types non validi")
+    excluded: dict[str, str] = {}
+    for item in excluded_items:
+        if not isinstance(item, dict):
+            raise ValueError("Rule Pack v2: excluded_case_types non validi")
+        case_type = str(item.get("case_type") or "")
+        reason = str(item.get("exclusion_reason") or "").strip()
+        if not case_type or not reason or case_type in excluded:
+            raise ValueError("Rule Pack v2: esclusioni mancanti, duplicate o senza motivazione")
+        excluded[case_type] = reason
+
+    engine_case_types = {case_type for case_types in declared_families.values() for case_type in case_types}
+    if included & set(excluded):
+        raise ValueError("Rule Pack v2: case_type contemporaneamente incluso ed escluso")
+    if included | set(excluded) != engine_case_types:
+        raise ValueError("Rule Pack v2: included/excluded non coprono esattamente l'engine baseline")
+
+    excluded_family_items = target.get("excluded_families")
+    if not isinstance(excluded_family_items, list):
+        raise ValueError("Rule Pack v2: excluded_families non validi")
+    excluded_families: dict[str, str] = {}
+    for item in excluded_family_items:
+        if not isinstance(item, dict):
+            raise ValueError("Rule Pack v2: excluded_families non validi")
+        family_id = str(item.get("id") or "")
+        reason = str(item.get("exclusion_reason") or "").strip()
+        if (
+            not family_id
+            or not reason
+            or family_id in excluded_families
+            or family_id not in declared_families
+            or declared_families[family_id]
+        ):
+            raise ValueError("Rule Pack v2: famiglie escluse mancanti, duplicate, ignote o non vuote")
+        excluded_families[family_id] = reason
+
+    empty_families = {family_id for family_id, case_types in declared_families.items() if not case_types}
+    if set(excluded_families) != empty_families:
+        raise ValueError("Rule Pack v2: ogni famiglia senza engine rule deve avere una esclusione esplicita")
+
+    if matrix.get("blind_target") != target:
+        raise ValueError("Provenance Matrix v2: blind_target deve derivare esattamente dal Rule Pack")
+
+    matrix_families = _matrix_families(matrix, declared_families)
+    expected_pairs = {
+        (family_id, case_type) for family_id, case_types in declared_families.items() for case_type in case_types
+    }
+    rules = matrix.get("rules") or []
+    actual_pairs: set[tuple[str, str]] = set()
+    blockers: list[str] = []
+    for rule in rules:
+        family_id = str(rule.get("family") or "")
+        case_type = str(rule.get("case_type") or "")
+        status = rule.get("provenance_status")
+        pair = (family_id, case_type)
+        if not family_id or not case_type or pair in actual_pairs or status not in {"complete", "incomplete"}:
+            raise ValueError("Provenance Matrix v2: regole mancanti, duplicate o con stato non valido")
+        actual_pairs.add(pair)
+
+        expected_scope = "included" if case_type in included else "excluded"
+        if rule.get("blind_scope") != expected_scope:
+            raise ValueError(f"Provenance Matrix v2: blind_scope incoerente per {case_type}")
+        expected_eligible = expected_scope == "included" and status == "complete"
+        if (rule.get("blind_eligible") is True) != expected_eligible:
+            raise ValueError(f"Provenance Matrix v2: blind_eligible incoerente per {case_type}")
+        if expected_scope == "excluded" and str(rule.get("exclusion_reason") or "") != excluded[case_type]:
+            raise ValueError(f"Provenance Matrix v2: exclusion_reason incoerente per {case_type}")
+        if expected_scope == "included" and status != "complete":
+            blockers.append(case_type)
+    if actual_pairs != expected_pairs:
+        raise ValueError("Provenance Matrix v2: elenco regole diverso dal Rule Pack")
+
+    unsupported_included: list[str] = []
+    for family_id, family in matrix_families.items():
+        case_types = declared_families[family_id]
+        included_count = sum(case_type in included for case_type in case_types)
+        excluded_count = len(case_types) - included_count
+        expected_scope = (
+            "mixed" if included_count and excluded_count else ("included" if included_count else "excluded")
+        )
+        if family.get("blind_scope") != expected_scope:
+            raise ValueError(f"Provenance Matrix v2: blind_scope famiglia incoerente per {family_id}")
+        if family_id in excluded_families:
+            if str(family.get("exclusion_reason") or "") != excluded_families[family_id]:
+                raise ValueError(f"Provenance Matrix v2: exclusion_reason famiglia incoerente per {family_id}")
+        elif family.get("provenance_status") == "unsupported":
+            unsupported_included.append(family_id)
+
+    declared_readiness = matrix.get("blind_readiness") or {}
+    expected_ready = (
+        target_status == "approved-for-blind" and bool(included) and not blockers and not unsupported_included
+    )
+    if declared_readiness.get("ready") is not expected_ready:
+        raise ValueError("Provenance Matrix v2: blind_readiness incoerente")
+    if declared_readiness.get("target_status") != target_status:
+        raise ValueError("Provenance Matrix v2: target_status incoerente")
+    if declared_readiness.get("target_approved") is not (target_status == "approved-for-blind"):
+        raise ValueError("Provenance Matrix v2: target_approved incoerente")
+    if declared_readiness.get("target_nonempty") is not bool(included):
+        raise ValueError("Provenance Matrix v2: target_nonempty incoerente")
+    if sorted(declared_readiness.get("blocking_case_types") or []) != sorted(blockers):
+        raise ValueError("Provenance Matrix v2: blocking_case_types incoerenti")
+    if sorted(declared_readiness.get("unsupported_included_families") or []) != sorted(unsupported_included):
+        raise ValueError("Provenance Matrix v2: unsupported_included_families incoerenti")
+
+    if not expected_ready:
+        details = []
+        if target_status != "approved-for-blind":
+            details.append("blind target non approvato")
+        if blockers:
+            details.append("provenance incompleta: " + ", ".join(sorted(blockers)))
+        if unsupported_included:
+            details.append("famiglie non supportate nel target: " + ", ".join(sorted(unsupported_included)))
+        raise ValueError("freeze bloccato dalla Provenance Matrix v2: " + "; ".join(details))
+
+    return target
+
+
+def _validate_provenance_matrix(
+    rule_pack_path: Path,
+    rule_pack_version: str,
+    matrix_path: Path,
+    matrix_version: str,
+) -> dict[str, Any] | None:
+    rule_pack = read_json(require_file(rule_pack_path, "Rule Pack"))
+    matrix = read_json(require_file(matrix_path, "Provenance Matrix"))
+
+    if str(matrix.get("version") or "") != matrix_version.strip():
+        raise ValueError("Provenance Matrix: versione dichiarata diversa dall'artefatto")
+    if matrix.get("rule_pack_id") != rule_pack.get("rule_pack_id"):
+        raise ValueError("Provenance Matrix: rule_pack_id non corrisponde al Rule Pack")
+    if str(matrix.get("rule_pack_version") or "") != str(rule_pack.get("version") or ""):
+        raise ValueError("Provenance Matrix: versione Rule Pack non corrispondente")
+
+    declared_families = _declared_families(rule_pack)
+    schema = matrix.get("schema")
+    if schema == PROVENANCE_MATRIX_SCHEMA_V1:
+        _validate_v1_matrix(rule_pack, matrix, declared_families)
+        return None
+    if schema == PROVENANCE_MATRIX_SCHEMA_V2:
+        if str(rule_pack.get("version") or "") != rule_pack_version.strip():
+            raise ValueError("Rule Pack: versione dichiarata diversa dall'artefatto")
+        provenance = rule_pack.get("provenance")
+        if not isinstance(provenance, dict):
+            raise ValueError("Rule Pack v2: provenance obbligatoria")
+        if provenance.get("matrix_ref") != matrix_path.name:
+            raise ValueError("Rule Pack: matrix_ref non corrisponde alla Provenance Matrix")
+        if str(provenance.get("matrix_version") or "") != str(matrix.get("version") or ""):
+            raise ValueError("Rule Pack: matrix_version non corrisponde alla Provenance Matrix")
+        return _validate_v2_matrix(rule_pack, matrix, declared_families)
+    raise ValueError("Provenance Matrix: schema non valido")
+
+
 def freeze_workspace(
     workspace: Path,
     *,
@@ -147,7 +336,12 @@ def freeze_workspace(
             "inventory-private: pratiche senza documenti: " + ", ".join(inventory["cases_without_documents"])
         )
 
-    _validate_provenance_matrix(rule_pack, provenance_matrix, provenance_matrix_version)
+    blind_target = _validate_provenance_matrix(
+        rule_pack,
+        rule_pack_version,
+        provenance_matrix,
+        provenance_matrix_version,
+    )
 
     artifacts = {
         "practice_model": (practice_model, practice_model_version, "Practice Model"),
@@ -214,6 +408,9 @@ def freeze_workspace(
             "chiude questo run. Serve un nuovo Manifest; i risultati non possono essere mescolati."
         ),
     }
+    if blind_target is not None:
+        manifest["blind_target"] = blind_target
+
     manifest_path = workspace / "pilot-manifest.json"
     write_json(manifest_path, manifest)
     write_json(

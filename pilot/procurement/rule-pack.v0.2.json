@@ -1,0 +1,158 @@
+{
+  "schema": "thistinti.procurement-rule-pack.v2",
+  "rule_pack_id": "procurement-baseline-v0.2",
+  "version": "0.2",
+  "status": "provisional-unvalidated",
+  "author": "ThisTinti project",
+  "valid_from": null,
+  "valid_to": null,
+  "scope": "Initial procurement pilot calibration target; blind scope remains mutable until approved-for-blind.",
+  "engine_compatibility": {
+    "minimum": "3.4.0-alpha.7-rc.15",
+    "maximum": null
+  },
+  "expected_document_roles": [
+    {
+      "role": "order",
+      "default_expectation": "expected",
+      "equivalent_evidence_allowed": false
+    },
+    {
+      "role": "delivery_evidence",
+      "default_expectation": "conditional",
+      "equivalent_evidence_allowed": true
+    },
+    {
+      "role": "invoice",
+      "default_expectation": "expected",
+      "equivalent_evidence_allowed": false
+    },
+    {
+      "role": "return_or_credit_evidence",
+      "default_expectation": "conditional",
+      "equivalent_evidence_allowed": true
+    }
+  ],
+  "rule_families": [
+    {
+      "id": "identity-linkage",
+      "purpose": "Check whether documents contain enough compatible references to support their proposed relationship.",
+      "status": "calibration-required",
+      "engine_case_types": [
+        "duplicate_document_number",
+        "duplicate_payment"
+      ]
+    },
+    {
+      "id": "quantity-consistency",
+      "purpose": "Compare relevant quantities only when semantic units and document roles are compatible.",
+      "status": "calibration-required",
+      "engine_case_types": [
+        "unit_mismatch",
+        "delivered_over_order",
+        "invoiced_over_received",
+        "credit_below_return"
+      ]
+    },
+    {
+      "id": "amount-consistency",
+      "purpose": "Compare monetary facts under preregistered tolerances without equating a discrepancy to a loss.",
+      "status": "calibration-required",
+      "engine_case_types": [
+        "currency_mismatch",
+        "line_total_mismatch",
+        "price_over_order",
+        "discount_missing",
+        "tax_rate_mismatch",
+        "duplicate_invoice_line",
+        "payment_over_invoice"
+      ]
+    },
+    {
+      "id": "temporal-consistency",
+      "purpose": "Compare typed dates/events without treating every document date as the same business event.",
+      "status": "calibration-required",
+      "engine_case_types": []
+    },
+    {
+      "id": "expected-evidence-completeness",
+      "purpose": "Represent missing, pending, substituted or insufficient evidence as distinct states.",
+      "status": "calibration-required",
+      "engine_case_types": [
+        "unmatched_invoice_line",
+        "payment_without_invoice",
+        "return_without_credit"
+      ]
+    }
+  ],
+  "blind_target": {
+    "status": "calibration-provisional",
+    "included_case_types": [
+      "duplicate_document_number",
+      "currency_mismatch",
+      "delivered_over_order",
+      "invoiced_over_received",
+      "payment_over_invoice",
+      "payment_without_invoice"
+    ],
+    "excluded_case_types": [
+      {
+        "case_type": "duplicate_payment",
+        "exclusion_reason": "Deferred from the first blind target to keep identity scope limited to document-number duplication."
+      },
+      {
+        "case_type": "unit_mismatch",
+        "exclusion_reason": "Deferred until normalized unit semantics are qualified end-to-end."
+      },
+      {
+        "case_type": "credit_below_return",
+        "exclusion_reason": "Deferred until return and credit quantity provenance is qualified."
+      },
+      {
+        "case_type": "line_total_mismatch",
+        "exclusion_reason": "Deferred from the first blind target while calculated monetary provenance is still being designed."
+      },
+      {
+        "case_type": "price_over_order",
+        "exclusion_reason": "Deferred pending calibration evidence that price-over-order is needed in the first blind target."
+      },
+      {
+        "case_type": "discount_missing",
+        "exclusion_reason": "Deferred from the first blind target to avoid expanding monetary semantics before calibration."
+      },
+      {
+        "case_type": "tax_rate_mismatch",
+        "exclusion_reason": "Deferred from the first blind target pending tax-specific provenance qualification."
+      },
+      {
+        "case_type": "duplicate_invoice_line",
+        "exclusion_reason": "Deferred from the first blind target pending qualification of duplicate-line signatures."
+      },
+      {
+        "case_type": "unmatched_invoice_line",
+        "exclusion_reason": "Deferred because matching and absence semantics require a separate qualified model."
+      },
+      {
+        "case_type": "return_without_credit",
+        "exclusion_reason": "Deferred because expected-credit absence semantics are outside the first blind target."
+      }
+    ],
+    "excluded_families": [
+      {
+        "id": "temporal-consistency",
+        "exclusion_reason": "No temporal engine case type is included in the first blind target; temporal checks are deferred."
+      }
+    ]
+  },
+  "provenance": {
+    "matrix_ref": "provenance-matrix.v0.2.json",
+    "matrix_version": "0.2",
+    "complete_required_before_blind_freeze": true,
+    "dynamic_rule_proposals_in_blind_scope": false
+  },
+  "validation": {
+    "associated_tests_required": true,
+    "blind_run_modification_allowed": false,
+    "change_requires_new_manifest": true
+  }
+}
