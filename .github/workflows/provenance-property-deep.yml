@@ -61,9 +61,9 @@ jobs:
         run: pip install -r requirements-dev.txt
       - name: Verify provenance source and static gates
         run: |
-          python -m ruff format --check app/main.py app/legacy_cases_api.py app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py
-          python -m ruff check app/main.py app/legacy_cases_api.py app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py
-          python -m py_compile app/main.py app/legacy_cases_api.py app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py
+          python -m ruff format --check app/main.py app/legacy_cases_api.py app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py tests/test_provenance_legacy_case_decision.py
+          python -m ruff check app/main.py app/legacy_cases_api.py app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py tests/test_provenance_legacy_case_decision.py
+          python -m py_compile app/main.py app/legacy_cases_api.py app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py tests/test_provenance_legacy_case_decision.py
           python scripts/check_module_boundaries.py
           python scripts/check_dependencies.py
       - name: Verify runtime SBOM is byte-identical
@@ -81,6 +81,7 @@ jobs:
           tests/test_finding_judgment_provenance.py
           tests/test_provenance_properties.py
           tests/test_provenance_currency_mismatch.py
+          tests/test_provenance_legacy_case_decision.py
       - name: Record deep qualification evidence
         if: success()
         run: |
