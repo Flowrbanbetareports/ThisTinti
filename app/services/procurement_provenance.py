@@ -104,8 +104,8 @@ _RULES: tuple[dict[str, Any], ...] = (
     {
         "family": "expected-evidence-completeness",
         "case_type": "payment_without_invoice",
-        "provenance_status": "incomplete",
-        "evidence": "Engine finding and EvidenceLink exist; expected-evidence absence is not yet represented through FACT/FINDING provenance.",
+        "provenance_status": "complete",
+        "evidence": "Qualified snapshot-scoped invoice absence plus exact current payment amount support -> immutable finding versions -> exact current judgment binding; rules.py-equivalent absence semantics, fail-closed degradation, property/stateful and Deep qualification passed on the qualified slice.",
     },
     {
         "family": "expected-evidence-completeness",

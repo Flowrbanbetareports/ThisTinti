@@ -3,22 +3,8 @@ name: Build Windows Free Download
 on:
   workflow_dispatch:
   pull_request:
-    paths:
-      - ".github/workflows/windows-release.yml"
-      - ".github/workflows/windows-attestation.yml"
-      - ".github/workflows/publish-public-preview.yml"
-      - "Makefile"
-      - "app/**"
-      - "builds/windows-upgrade-baseline.json"
-      - "docs/openapi.json"
-      - "docs/sbom.cdx.json"
-      - "installer/windows/**"
-      - "migrations/**"
-      - "samples/**"
-      - "scripts/**"
-      - "pyproject.toml"
-      - "requirements*.txt"
-      - "run_thistinti.py"
+    branches:
+      - main
   push:
     branches:
       - main
