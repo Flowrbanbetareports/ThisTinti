@@ -11,6 +11,8 @@ La baseline usa due assi distinti:
 
 La provenienza attraversa entrambi. Un fatto deve indicare l'evidenza da cui deriva; un'interpretazione deve indicare i fatti e la regola che l'hanno prodotta; il giudizio umano non cancella il risultato tecnico.
 
+Il Rule Pack v0.2 aggiunge un terzo asse indipendente: il **Target blind**. Lo scope del primo blind non coincide automaticamente con tutte le regole disponibili nel motore e non coincide automaticamente con tutte le regole che hanno provenance completa. Il Rule Pack è la sola fonte normativa per ciò che è incluso o escluso dal blind.
+
 ## 1. Campione e separazione
 
 Il pilot usa:
@@ -66,7 +68,20 @@ python scripts/procurement_pilot_protocol.py inventory-private ./procurement-pil
 
 Il comando crea `private/document-inventory.json` con SHA-256 dei file. Questo inventario è **privato** e non deve essere pubblicato. Il manifest pubblico conserva solo l'hash dell'inventario, non le impronte dei singoli documenti riservati.
 
-## 5. Freeze e Pilot Manifest
+## 5. Target blind, freeze e Pilot Manifest
+
+Durante la calibrazione il Target blind resta `calibration-provisional`: può essere corretto sulla base delle pratiche reali e **non può essere congelato per il blind**. Soltanto dopo la calibrazione il Rule Pack può essere portato a `approved-for-blind`.
+
+La baseline v0.2 propone sei case type per il primo target:
+
+- `duplicate_document_number`;
+- `currency_mismatch`;
+- `delivered_over_order`;
+- `invoiced_over_received`;
+- `payment_over_invoice`;
+- `payment_without_invoice`.
+
+Le altre regole del motore restano visibili con motivazione esplicita di esclusione. Essere fuori dal primo pilot non significa essere complete, corrette o superate. `temporal-consistency`, che oggi non contiene engine case type, è esplicitamente esclusa dal primo target.
 
 Dopo la calibrazione, congelare:
 
@@ -80,18 +95,18 @@ Dopo la calibrazione, congelare:
 - case register;
 - inventario privato dei documenti.
 
-Esempio:
+Esempio, da usare soltanto dopo che il Rule Pack v0.2 è stato approvato per il blind e tutte le regole incluse hanno provenance completa:
 
 ```bash
 python scripts/procurement_pilot_protocol.py freeze ./procurement-pilot-001 \
   --software-commit <commit> \
-  --software-version 3.4.0-alpha.7-rc.15 \
+  --software-version <candidate-version> \
   --practice-model pilot/procurement/practice-model.v0.1.json \
   --practice-model-version 0.1 \
-  --rule-pack pilot/procurement/rule-pack.v0.1.json \
-  --rule-pack-version 0.1 \
-  --provenance-matrix pilot/procurement/provenance-matrix.v0.1.json \
-  --provenance-matrix-version 0.1 \
+  --rule-pack pilot/procurement/rule-pack.v0.2.json \
+  --rule-pack-version 0.2 \
+  --provenance-matrix pilot/procurement/provenance-matrix.v0.2.json \
+  --provenance-matrix-version 0.2 \
   --company-profile ./procurement-pilot-001/private/company-profile.json \
   --company-profile-version 0.1 \
   --ground-truth-protocol pilot/procurement/ground-truth-protocol.v1.json \
@@ -102,11 +117,13 @@ python scripts/procurement_pilot_protocol.py freeze ./procurement-pilot-001 \
 
 Il comando produce `pilot-manifest.json` e `pilot-manifest.seal.json`. Il Manifest contiene versioni e hash degli artefatti ma non percorsi locali sensibili. I percorsi reali degli artefatti restano in `private/frozen-artifact-locations.json`.
 
-La Provenance Matrix è un artefatto di sicurezza metodologica, non un report cosmetico. Il freeze verifica che Rule Pack e matrice contengano esattamente le stesse regole e famiglie e che ogni regola inclusa nel blind abbia provenance `complete`. Una regola presente nel motore ma con provenance `incomplete` può essere osservata e corretta in calibrazione, ma non può sostenere la blind evaluation.
+La Provenance Matrix è un artefatto di sicurezza metodologica, non un report cosmetico. Nel v0.2 lo scope deriva dal Rule Pack e `blind_eligible` è soltanto una proprietà derivata: una regola è eleggibile se è **inclusa nel Target blind e ha provenance completa**.
 
-La baseline `provenance-matrix.v0.1.json` corrente è intenzionalmente **non pronta per il blind**: soltanto `duplicate_document_number` ha la catena qualificata completa; le altre regole mappate sono incomplete e `temporal-consistency` non ha ancora una regola motore nel Rule Pack v0.1. Finché questa condizione resta vera, `freeze` deve fallire in modo esplicito.
+Il freeze ricalcola queste condizioni autonomamente. Fallisce se il target è ancora provvisorio, se è vuoto, se una regola del motore non è classificata esattamente una volta come inclusa o esclusa, se manca la motivazione di un'esclusione, se una regola inclusa ha provenance incompleta, se una famiglia non supportata resta nel target o se versioni e riferimenti degli artefatti non coincidono.
 
-**Un Pilot Manifest identifica un singolo esperimento.** Se cambia un artefatto congelato, inclusa la Provenance Matrix, il run è chiuso: serve un nuovo Manifest e i risultati non vengono mescolati.
+La baseline `rule-pack.v0.1.json` e `provenance-matrix.v0.1.json` rimane nel repository come contratto storico con la sua semantica originale. Il v0.2 non ne riscrive retroattivamente il significato.
+
+**Un Pilot Manifest identifica un singolo esperimento.** Se cambia un artefatto congelato, incluso il Target blind o la Provenance Matrix, il run è chiuso: serve un nuovo Manifest e i risultati non vengono mescolati.
 
 ## 6. Ground truth cieca
 
@@ -180,15 +197,16 @@ Non è consentito trasformarla in una dichiarazione generale di accuratezza sull
 Il repository contiene:
 
 - `pilot/procurement/practice-model.v0.1.json`;
-- `pilot/procurement/rule-pack.v0.1.json`;
-- `pilot/procurement/provenance-matrix.v0.1.json`;
+- `pilot/procurement/rule-pack.v0.1.json` e `rule-pack.v0.2.json`;
+- `pilot/procurement/provenance-matrix.v0.1.json` e `provenance-matrix.v0.2.json`;
+- `contracts/pilot/blind-target-v2.contract.json`;
 - `pilot/procurement/company-profile.template.json`;
 - `pilot/procurement/ground-truth-protocol.v1.json`;
 - `pilot/procurement/evaluation-protocol.v1.json`.
 
-Practice Model, Rule Pack e Provenance Matrix sono esplicitamente **provvisori e non validati**. Devono essere corretti durante la calibrazione e solo dopo congelati per il blind run. La generalizzazione oltre Procurement viene valutata soltanto dopo evidenza su casi reali.
+Practice Model, Rule Pack v0.2 e Provenance Matrix v0.2 sono esplicitamente **provvisori e non validati**. Devono essere corretti durante la calibrazione e solo dopo congelati per il blind run. La generalizzazione oltre Procurement viene valutata soltanto dopo evidenza su casi reali.
 
-La matrice può essere consultata anche nell'interfaccia locale “Provenance Procurement” e tramite `GET /api/rc15/procurement/provenance-matrix`. L'interfaccia non modifica la matrice e non può promuovere una regola incompleta a completa.
+La matrice può essere consultata anche nell'interfaccia locale “Provenance Procurement” e tramite `GET /api/rc15/procurement/provenance-matrix`. L'interfaccia non modifica la matrice e non può cambiare lo scope deciso dal Rule Pack né promuovere una regola incompleta a completa.
 
 ## 11. Cosa non è automatizzabile ora
 
