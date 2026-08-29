@@ -132,9 +132,7 @@ def procurement_provenance_matrix() -> dict[str, Any]:
         for family in rule_pack.get("rule_families") or []
     }
     declared_pairs = {
-        (family_id, case_type)
-        for family_id, case_types in declared_families.items()
-        for case_type in case_types
+        (family_id, case_type) for family_id, case_types in declared_families.items() for case_type in case_types
     }
     rule_pairs = {(item["family"], item["case_type"]) for item in _RULES}
     if declared_pairs != rule_pairs:
@@ -143,10 +141,7 @@ def procurement_provenance_matrix() -> dict[str, Any]:
     target = rule_pack.get("blind_target") or {}
     included = set(target.get("included_case_types") or [])
     excluded_items = target.get("excluded_case_types") or []
-    excluded = {
-        str(item.get("case_type") or ""): str(item.get("exclusion_reason") or "")
-        for item in excluded_items
-    }
+    excluded = {str(item.get("case_type") or ""): str(item.get("exclusion_reason") or "") for item in excluded_items}
     excluded_families = {
         str(item.get("id") or ""): str(item.get("exclusion_reason") or "")
         for item in target.get("excluded_families") or []
