@@ -6,10 +6,10 @@ on:
       - pilot/provenance-invoiced-over-received
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  ruff-format-diff:
+  ruff-format:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -18,10 +18,26 @@ jobs:
           python-version: "3.13"
           cache: pip
       - run: pip install -r requirements-dev.txt
-      - name: Show canonical Ruff formatting diff
+      - name: Apply canonical Ruff formatting
         run: |
-          python -m ruff format --diff \
+          python -m ruff format \
             app/services/invoiced_over_received_provenance.py \
             app/services/judgment_provenance.py \
             tests/test_provenance_invoiced_over_received.py \
             tests/test_provenance_invoiced_over_received_properties.py
+          if git diff --quiet -- \
+            app/services/invoiced_over_received_provenance.py \
+            app/services/judgment_provenance.py \
+            tests/test_provenance_invoiced_over_received.py \
+            tests/test_provenance_invoiced_over_received_properties.py; then
+            exit 0
+          fi
+          git config user.name "ThisTinti CI"
+          git config user.email "actions@users.noreply.github.com"
+          git add \
+            app/services/invoiced_over_received_provenance.py \
+            app/services/judgment_provenance.py \
+            tests/test_provenance_invoiced_over_received.py \
+            tests/test_provenance_invoiced_over_received_properties.py
+          git commit -m "Apply canonical Ruff formatting"
+          git push origin HEAD:pilot/provenance-invoiced-over-received
