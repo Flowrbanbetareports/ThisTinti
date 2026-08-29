@@ -38,6 +38,11 @@ def source_snapshot() -> list[tuple[str, str]]:
 
 datas = [
     (str(ROOT / "app" / "static"), "app/static"),
+    # Runtime procurement provenance reads the normative v0.2 Rule Pack from
+    # the same repository-relative location used in source deployments. The
+    # source snapshot below is an audit copy under source/, so it cannot serve
+    # this runtime lookup by itself.
+    (str(ROOT / "pilot" / "procurement" / "rule-pack.v0.2.json"), "pilot/procurement"),
     # Keep the user-facing demo available in the frozen Local Edition. The
     # application resolves this directory relative to its bundled app package.
     (str(ROOT / "samples"), "samples"),
