@@ -33,7 +33,8 @@ _MATCHER_CONFIGURATION_HASH = hashlib.sha256(
 ).hexdigest()
 _RULE_CONFIGURATION = {
     "scope": "exact_current_operation_chain_membership_snapshot",
-    "predicate": "payments_present_and_invoice_role_empty",
+    "predicate": "parsed_payments_present_and_invoice_role_empty",
+    "accepted_payment_parse_statuses": ["parsed"],
     "absence_claim": "no_invoice_linked_in_this_exact_snapshot_not_global_nonexistence",
     "amount": "known_payment_total_or_zero_when_numeric_inputs_unavailable",
     "matching_engine_id": _MATCHER_ID,
@@ -168,6 +169,9 @@ def _current_membership_snapshot(db: Session, chain: OperationChain) -> dict[str
     payment_documents = [by_id[document_id] for document_id in role_document_ids["payment"]]
     invoice_ids = role_document_ids["invoice"]
     payment_ids = role_document_ids["payment"]
+    payment_documents_supported = bool(payment_documents) and all(
+        document.parse_status == "parsed" for document in payment_documents
+    )
     totals = [_document_total(document) for document in payment_documents]
     payment_total = (
         sum((total for total in totals if total is not None), Decimal("0"))
@@ -198,6 +202,7 @@ def _current_membership_snapshot(db: Session, chain: OperationChain) -> dict[str
         "predicate": {
             "payments_present": bool(payment_ids),
             "invoice_role_empty": not invoice_ids,
+            "payment_documents_supported": payment_documents_supported,
         },
         "payment_total": {
             "status": "known" if payment_total is not None else "numeric_inputs_unavailable",
@@ -213,6 +218,7 @@ def _snapshot_is_eligible(snapshot: dict[str, object]) -> bool:
         isinstance(predicate, dict)
         and predicate.get("payments_present") is True
         and predicate.get("invoice_role_empty") is True
+        and predicate.get("payment_documents_supported") is True
     )
 
 
