@@ -109,9 +109,7 @@ def _commercial_and_delivery_lines(
     finding_key: str,
 ) -> tuple[list[DocumentLine], list[DocumentLine]] | None:
     documents = _role_documents(db, chain)
-    commercial_role = (
-        "confirmation" if documents["confirmation"] else "order" if documents["order"] else "proposal"
-    )
+    commercial_role = "confirmation" if documents["confirmation"] else "order" if documents["order"] else "proposal"
     if not documents[commercial_role] or not documents["delivery"]:
         return None
     grouped = group_chain_lines(db, chain, documents)
@@ -131,9 +129,7 @@ def _commercial_and_delivery_lines(
 
 def _finding_key_for_case(db: Session, *, chain: OperationChain, case: DiscrepancyCase) -> str | None:
     documents = _role_documents(db, chain)
-    commercial_role = (
-        "confirmation" if documents["confirmation"] else "order" if documents["order"] else "proposal"
-    )
+    commercial_role = "confirmation" if documents["confirmation"] else "order" if documents["order"] else "proposal"
     if not documents[commercial_role] or not documents["delivery"]:
         return None
     grouped = group_chain_lines(db, chain, documents)
@@ -248,7 +244,9 @@ def _weighted_price(lines: list[DocumentLine]) -> Decimal:
         if not profile.compatible:
             return Decimal("0")
         quantity = abs(profile.quantity)
-        weighted.append((quantity, canonical_unit_price(line.unit_price, line.price_base_quantity, line.unit_of_measure)))
+        weighted.append(
+            (quantity, canonical_unit_price(line.unit_price, line.price_base_quantity, line.unit_of_measure))
+        )
     total_quantity = sum((quantity for quantity, _price in weighted), Decimal("0"))
     if not total_quantity:
         return Decimal("0")
