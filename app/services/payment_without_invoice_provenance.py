@@ -138,22 +138,29 @@ def _current_membership_snapshot(db: Session, chain: OperationChain) -> dict[str
 
     if len(set(document_ids)) != len(document_ids):
         return None
-    documents = list(
-        db.scalars(
-            select(Document)
-            .options(selectinload(Document.lines))
-            .where(
-                Document.tenant_id == chain.tenant_id,
-                Document.id.in_(document_ids),
+    documents = (
+        list(
+            db.scalars(
+                select(Document)
+                .options(selectinload(Document.lines))
+                .where(
+                    Document.tenant_id == chain.tenant_id,
+                    Document.id.in_(document_ids),
+                )
             )
         )
-    ) if document_ids else []
+        if document_ids
+        else []
+    )
     by_id = {document.id: document for document in documents}
     if set(by_id) != set(document_ids):
         return None
 
     for entry in membership:
-        document = by_id[entry["document_id"]]
+        document_id = entry["document_id"]
+        if not isinstance(document_id, str):
+            return None
+        document = by_id[document_id]
         entry["document_type"] = document.document_type
         entry["file_hash"] = document.file_hash
         entry["parse_status"] = document.parse_status
@@ -283,7 +290,7 @@ def _case_matches_snapshot(case: DiscrepancyCase, snapshot: dict[str, object]) -
     expected = payment_total.get("case_amount_estimate")
     try:
         return expected is not None and _money(_decimal(case.amount_estimate)) == Decimal(str(expected))
-    except Exception:
+    except (ArithmeticError, TypeError, ValueError):
         return False
 
 
