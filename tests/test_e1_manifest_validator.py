@@ -77,6 +77,20 @@ def test_frozen_manifest_accepts_exact_same_sha_gate_evidence():
     validate_manifest(frozen_manifest(), final=True)
 
 
+def test_frozen_manifest_rejects_missing_gate_evidence():
+    data = frozen_manifest()
+    data["required_gate_evidence"] = []
+    with pytest.raises(ManifestError, match="requires gate evidence"):
+        validate_manifest(data, final=True)
+
+
+def test_frozen_manifest_rejects_duplicate_gate_identity():
+    data = frozen_manifest()
+    data["required_gate_evidence"].append(copy.deepcopy(data["required_gate_evidence"][0]))
+    with pytest.raises(ManifestError, match="duplicate check"):
+        validate_manifest(data, final=True)
+
+
 def test_frozen_manifest_rejects_stale_gate_sha():
     data = frozen_manifest()
     data["required_gate_evidence"][0]["source_sha"] = "9" * 40
