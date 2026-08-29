@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from ..models import ApiCredential, ReviewDecision, User
 from ..provenance_models import ProvenanceFinding, ProvenanceJudgment
+from .delivered_over_order_provenance import delivered_over_order_finding_matches_current_support
 from .finding_provenance import (
     currency_mismatch_finding_matches_current_support,
     duplicate_number_finding_matches_current_support,
@@ -81,6 +82,10 @@ def record_judgment_provenance(
     ):
         return None
     if finding.rule_id == "builtin:currency_mismatch" and not currency_mismatch_finding_matches_current_support(
+        db, finding=finding
+    ):
+        return None
+    if finding.rule_id == "builtin:delivered_over_order" and not delivered_over_order_finding_matches_current_support(
         db, finding=finding
     ):
         return None
