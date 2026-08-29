@@ -33,8 +33,9 @@ _MATCHER_CONFIGURATION_HASH = hashlib.sha256(
 ).hexdigest()
 _RULE_CONFIGURATION = {
     "scope": "exact_current_operation_chain_membership_snapshot",
-    "predicate": "parsed_payments_present_and_invoice_role_empty",
+    "predicate": "active_parsed_payments_present_and_invoice_role_empty",
     "accepted_payment_parse_statuses": ["parsed"],
+    "accepted_payment_archived_states": [False],
     "absence_claim": "no_invoice_linked_in_this_exact_snapshot_not_global_nonexistence",
     "amount": "known_payment_total_or_zero_when_numeric_inputs_unavailable",
     "matching_engine_id": _MATCHER_ID,
@@ -50,7 +51,7 @@ _SNAPSHOT_CONFIGURATION_HASH = hashlib.sha256(
             "schema": "payment-without-invoice-snapshot/v1",
             "matcher": _MATCHER_CONFIGURATION_HASH,
             "rule": _RULE_CONFIGURATION_HASH,
-            "membership": "all_chain_roles_with_match_reason_confidence_and_document_hash",
+            "membership": "all_chain_roles_with_match_reason_confidence_document_hash_parse_and_archive_state",
         },
         sort_keys=True,
         separators=(",", ":"),
@@ -165,6 +166,7 @@ def _current_membership_snapshot(db: Session, chain: OperationChain) -> dict[str
         entry["document_type"] = document.document_type
         entry["file_hash"] = document.file_hash
         entry["parse_status"] = document.parse_status
+        entry["archived"] = bool(document.archived)
 
     payment_documents = [by_id[document_id] for document_id in role_document_ids["payment"]]
     invoice_ids = role_document_ids["invoice"]
@@ -221,7 +223,9 @@ def _snapshot_is_eligible(snapshot: dict[str, object]) -> bool:
         and predicate.get("payments_present") is True
         and predicate.get("invoice_role_empty") is True
         and bool(payment_entries)
-        and all(entry.get("parse_status") == "parsed" for entry in payment_entries)
+        and all(
+            entry.get("parse_status") == "parsed" and entry.get("archived") is False for entry in payment_entries
+        )
     )
 
 
