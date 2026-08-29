@@ -29,8 +29,8 @@ if _api.settings.auto_create_schema:
 # The historical decision endpoint predates qualified judgment provenance.
 # Replace only that POST route at composition time so every supported decision
 # path records the same fail-closed provenance without growing app.api further.
-# Keep the replacement at the exact legacy route position: the public OpenAPI
-# contract must remain byte-stable because URL, request and response are unchanged.
+# Insert the already-built APIRoute at the exact historical position so the
+# public OpenAPI ordering remains stable.
 _legacy_case_decision_path = "/api/cases/{case_id}/decision"
 _legacy_case_decision_index = next(
     index
@@ -39,23 +39,14 @@ _legacy_case_decision_index = next(
     and "POST" in (getattr(route, "methods", None) or set())
 )
 app.router.routes.pop(_legacy_case_decision_index)
+_replacement_case_route = legacy_cases_router.routes[0]
+app.router.routes.insert(_legacy_case_decision_index, _replacement_case_route)
 
 # app.api mounts StaticFiles at '/'. Starlette resolves routes in order, so the
 # catch-all static mount must remain last after additional routes are registered.
 _static_routes = [route for route in app.router.routes if getattr(route, "name", None) == "static"]
 for _route in _static_routes:
     app.router.routes.remove(_route)
-
-app.include_router(legacy_cases_router)
-_replacement_case_route = next(
-    route
-    for route in app.router.routes
-    if getattr(route, "path", None) == _legacy_case_decision_path
-    and "POST" in (getattr(route, "methods", None) or set())
-)
-app.router.routes.remove(_replacement_case_route)
-app.router.routes.insert(_legacy_case_decision_index, _replacement_case_route)
-
 app.include_router(rc15_router)
 app.include_router(procurement_router)
 app.router.routes.extend(_static_routes)
