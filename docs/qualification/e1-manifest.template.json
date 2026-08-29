@@ -1,0 +1,82 @@
+{
+  "manifest_schema_version": "e1-manifest.v0.1",
+  "protocol_version": "E1",
+  "qualification_claim": "ThisTinti 1.0 Qualified — Procurement v1 — profile P1 — protocol E1",
+  "status": "PREPARATION_ONLY",
+  "p1_scope": {
+    "version": "<approved-version>",
+    "sha256": "<64-hex>",
+    "approval_ref": null
+  },
+  "candidate": {
+    "source_sha": "<40-hex>",
+    "release_version": "<version>",
+    "engine_version": "<version>",
+    "parser_set": [
+      {
+        "id": "<parser-id>",
+        "version": "<version>",
+        "sha256": "<64-hex>"
+      }
+    ],
+    "rule_pack": {
+      "version": "<version>",
+      "sha256": "<64-hex>"
+    },
+    "practice_model": {
+      "version": "<version>",
+      "sha256": "<64-hex>"
+    },
+    "company_profile": {
+      "version": "<version>",
+      "sha256": "<64-hex>"
+    },
+    "provenance_matrix": {
+      "version": "<version>",
+      "sha256": "<64-hex>"
+    },
+    "qualification_config_sha256": "<64-hex>"
+  },
+  "required_gate_evidence": [],
+  "pools": {
+    "CALIBRATION": {
+      "manifest_id": "<id>",
+      "sha256": "<64-hex>",
+      "sealed": false,
+      "case_count": 0
+    },
+    "BLIND": {
+      "manifest_id": "<id>",
+      "sha256": "<64-hex>",
+      "sealed": false,
+      "case_count": 0
+    },
+    "HOLDOUT": {
+      "manifest_id": "<id>",
+      "sha256": "<64-hex>",
+      "sealed": false,
+      "case_count": 0
+    }
+  },
+  "reviewer_protocol": {
+    "version": "<version>",
+    "sha256": "<64-hex>",
+    "reviewers_secured": false,
+    "adjudication_protocol_ref": null
+  },
+  "freeze": {
+    "approved": false,
+    "approved_by": null,
+    "approved_at": null,
+    "freeze_ref": null
+  },
+  "external_evidence": {
+    "authorised_case_sources_secured": false,
+    "independent_reviewers_secured": false,
+    "security_assessment_ref": null,
+    "legal_privacy_review_ref": null,
+    "human_evidence_ref": null,
+    "signing_evidence_ref": null,
+    "recovery_evidence_ref": null
+  }
+}
