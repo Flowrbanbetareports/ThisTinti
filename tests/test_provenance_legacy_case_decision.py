@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import json
+from types import SimpleNamespace
 
 from sqlalchemy import select
 
 from app.db import SessionLocal
 from app.models import DiscrepancyCase, ReviewDecision
 from app.provenance_models import ProvenanceFinding, ProvenanceJudgment
+from app.services.finding_provenance import _supporting_number_facts
+from app.services.judgment_provenance import record_judgment_provenance, resolve_reviewer_identity
 
 
 def _payload(*, document_type: str, number: str, currency: str, order_number: str | None = None) -> bytes:
@@ -98,6 +101,20 @@ def test_legacy_case_decision_records_previous_state_and_exact_judgment(client, 
         assert judgment.reviewer_ref.startswith("user:")
         assert judgment.reviewer_user_id is not None
 
+        decision = db.scalar(select(ReviewDecision).where(ReviewDecision.id == judgment.review_decision_id))
+        assert decision is not None
+        repeated = record_judgment_provenance(
+            db,
+            tenant_id=judgment.tenant_id,
+            case_id=case_id,
+            review_decision=decision,
+            reviewer_ref=judgment.reviewer_ref,
+            reviewer_user_id=judgment.reviewer_user_id,
+            previous_state=judgment.previous_state,
+        )
+        assert repeated is not None
+        assert repeated.id == judgment.id
+
 
 def test_legacy_case_decision_preserves_api_credential_identity_without_user_fk(client, auth):
     case_id, finding_id = _upload_currency_mismatch(client, auth, suffix="API")
@@ -127,3 +144,18 @@ def test_legacy_case_decision_preserves_api_credential_identity_without_user_fk(
         assert judgment.reviewer_ref == f"api_credential:{credential['id']}"
         assert judgment.reviewer_user_id is None
         assert judgment.previous_state == "open"
+
+
+def test_reviewer_identity_and_malformed_finding_key_fail_closed():
+    with SessionLocal() as db:
+        assert resolve_reviewer_identity(db, tenant_id="missing-tenant", actor_id=None) == (None, None)
+        assert resolve_reviewer_identity(db, tenant_id="missing-tenant", actor_id="missing-actor") == (None, None)
+        assert (
+            _supporting_number_facts(
+                db,
+                chain=SimpleNamespace(tenant_id="missing-tenant"),
+                finding_key="malformed",
+                all_documents=[],
+            )
+            == []
+        )
