@@ -300,7 +300,9 @@ def _supporting_facts(
 
     reference_profile = quantity_profile(reference)
     invoice_profile = quantity_profile(invoices)
-    expected_amount = _money((invoice_profile.quantity - reference_profile.quantity) * _weighted_invoice_price(invoices))
+    expected_amount = _money(
+        (invoice_profile.quantity - reference_profile.quantity) * _weighted_invoice_price(invoices)
+    )
     if _decimal(case.amount_estimate) != expected_amount:
         return []
     if len({fact.id for fact in facts}) != len(facts):

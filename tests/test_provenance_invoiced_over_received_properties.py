@@ -33,7 +33,16 @@ STATEFUL_SETTINGS = settings(
     suppress_health_check=[HealthCheck.function_scoped_fixture, HealthCheck.too_slow],
 )
 BAD_KIND = st.sampled_from(("missing", "external_unavailable", "wrong_value", "missing_locator", "wrong_pointer"))
-FIELD = st.sampled_from(("reference_quantity", "reference_uom", "invoice_quantity", "invoice_uom", "invoice_unit_price", "invoice_price_base_quantity"))
+FIELD = st.sampled_from(
+    (
+        "reference_quantity",
+        "reference_uom",
+        "invoice_quantity",
+        "invoice_uom",
+        "invoice_unit_price",
+        "invoice_price_base_quantity",
+    )
+)
 
 
 @contextmanager
@@ -66,7 +75,15 @@ class _Scenario:
         db.flush()
         self.next_index = 0
 
-    def add(self, role: str, quantity: Decimal, *, unit_price: Decimal = Decimal("5"), price_base: Decimal = Decimal("1"), kinds: dict[str, str] | None = None) -> DocumentLine:
+    def add(
+        self,
+        role: str,
+        quantity: Decimal,
+        *,
+        unit_price: Decimal = Decimal("5"),
+        price_base: Decimal = Decimal("1"),
+        kinds: dict[str, str] | None = None,
+    ) -> DocumentLine:
         kinds = kinds or {}
         idx = self.next_index
         self.next_index += 1
@@ -87,10 +104,25 @@ class _Scenario:
         )
         self.db.add(document)
         self.db.flush()
-        self.db.add(ChainDocument(tenant_id=self.tenant.id, chain_id=self.chain.id, document_id=document.id, role=role, sequence_no=idx + 1, match_confidence=1.0, match_reason="invoice-property"))
+        self.db.add(
+            ChainDocument(
+                tenant_id=self.tenant.id,
+                chain_id=self.chain.id,
+                document_id=document.id,
+                role=role,
+                sequence_no=idx + 1,
+                match_confidence=1.0,
+                match_reason="invoice-property",
+            )
+        )
         self.db.flush()
         locators = {
-            field: {"locator_type": "JSON_POINTER", "pointer": f"/lines/0/{field}", "engine_id": "native-json-parser", "engine_version": "1"}
+            field: {
+                "locator_type": "JSON_POINTER",
+                "pointer": f"/lines/0/{field}",
+                "engine_id": "native-json-parser",
+                "engine_version": "1",
+            }
             for field in ("quantity", "unit_of_measure", "unit_price", "price_base_quantity")
         }
         line = DocumentLine(
@@ -113,8 +145,17 @@ class _Scenario:
         )
         self.db.add(line)
         self.db.flush()
-        required = ("quantity", "unit_of_measure", "unit_price", "price_base_quantity") if role == "invoice" else ("quantity", "unit_of_measure")
-        values = {"quantity": quantity, "unit_of_measure": "EA", "unit_price": unit_price, "price_base_quantity": price_base}
+        required = (
+            ("quantity", "unit_of_measure", "unit_price", "price_base_quantity")
+            if role == "invoice"
+            else ("quantity", "unit_of_measure")
+        )
+        values = {
+            "quantity": quantity,
+            "unit_of_measure": "EA",
+            "unit_price": unit_price,
+            "price_base_quantity": price_base,
+        }
         for field in required:
             self._fact(document, line, field, values[field], kinds.get(field, "direct"))
         return line
@@ -148,42 +189,79 @@ class _Scenario:
             "unit_price": "document_line.unit_price",
             "price_base_quantity": "document_line.price_base_quantity",
         }[field]
-        append_fact(self.db, tenant_id=self.tenant.id, fact_key=f"document_line:{line.id}:{field}", fact_type=fact_type, value_json=json.dumps(fact_value), origin_id=origin.id)
+        append_fact(
+            self.db,
+            tenant_id=self.tenant.id,
+            fact_key=f"document_line:{line.id}:{field}",
+            fact_type=fact_type,
+            value_json=json.dumps(fact_value),
+            origin_id=origin.id,
+        )
 
     def analyze(self) -> None:
         analyze_chain(self.db, self.chain)
         self.db.flush()
 
     def case(self) -> DiscrepancyCase | None:
-        return self.db.scalar(select(DiscrepancyCase).where(DiscrepancyCase.tenant_id == self.tenant.id, DiscrepancyCase.chain_id == self.chain.id, DiscrepancyCase.case_type == "invoiced_over_received"))
+        return self.db.scalar(
+            select(DiscrepancyCase).where(
+                DiscrepancyCase.tenant_id == self.tenant.id,
+                DiscrepancyCase.chain_id == self.chain.id,
+                DiscrepancyCase.case_type == "invoiced_over_received",
+            )
+        )
 
     def findings(self) -> list[ProvenanceFinding]:
         case = self.case()
         if case is None:
             return []
-        return list(self.db.scalars(select(ProvenanceFinding).where(ProvenanceFinding.case_id == case.id).order_by(ProvenanceFinding.version)))
+        return list(
+            self.db.scalars(
+                select(ProvenanceFinding)
+                .where(ProvenanceFinding.case_id == case.id)
+                .order_by(ProvenanceFinding.version)
+            )
+        )
 
 
 @PROPERTY_SETTINGS
-@given(received=st.integers(min_value=1, max_value=10000), excess=st.integers(min_value=1, max_value=10000), unit_price=st.integers(min_value=1, max_value=10000), price_base=st.integers(min_value=1, max_value=100))
-def test_property_invoiced_over_received_complete_direct_support_binds_all_inputs(received: int, excess: int, unit_price: int, price_base: int) -> None:
+@given(
+    received=st.integers(min_value=1, max_value=10000),
+    excess=st.integers(min_value=1, max_value=10000),
+    unit_price=st.integers(min_value=1, max_value=10000),
+    price_base=st.integers(min_value=1, max_value=100),
+)
+def test_property_invoiced_over_received_complete_direct_support_binds_all_inputs(
+    received: int, excess: int, unit_price: int, price_base: int
+) -> None:
     with _isolated_db() as db:
         scenario = _Scenario(db, "property-direct")
         scenario.add("delivery", Decimal(received))
-        scenario.add("invoice", Decimal(received + excess), unit_price=Decimal(unit_price), price_base=Decimal(price_base))
+        scenario.add(
+            "invoice", Decimal(received + excess), unit_price=Decimal(unit_price), price_base=Decimal(price_base)
+        )
         scenario.analyze()
         case = scenario.case()
         assert case is not None
         findings = scenario.findings()
         assert len(findings) == 1
         assert invoiced_over_received_finding_matches_current_support(db, finding=findings[0]) is True
-        links = list(db.scalars(select(ProvenanceFindingFact).where(ProvenanceFindingFact.finding_id == findings[0].id)))
+        links = list(
+            db.scalars(select(ProvenanceFindingFact).where(ProvenanceFindingFact.finding_id == findings[0].id))
+        )
         assert len(links) == 6
 
 
 @PROPERTY_SETTINGS
-@given(field=FIELD, kind=BAD_KIND, received=st.integers(min_value=1, max_value=500), excess=st.integers(min_value=1, max_value=500))
-def test_property_invoiced_over_received_fails_closed_for_any_unqualified_required_input(field: str, kind: str, received: int, excess: int) -> None:
+@given(
+    field=FIELD,
+    kind=BAD_KIND,
+    received=st.integers(min_value=1, max_value=500),
+    excess=st.integers(min_value=1, max_value=500),
+)
+def test_property_invoiced_over_received_fails_closed_for_any_unqualified_required_input(
+    field: str, kind: str, received: int, excess: int
+) -> None:
     target, source = field.split("_", 1)
     source = "unit_of_measure" if source == "uom" else source
     if source == "price_base_quantity":
@@ -224,7 +302,9 @@ class InvoicedOverReceivedStateMachine(RuleBasedStateMachine):
         findings = self.scenario.findings()
         assert findings
         current = findings[-1]
-        fact_id = self.db.scalar(select(ProvenanceFindingFact.fact_id).where(ProvenanceFindingFact.finding_id == current.id))
+        fact_id = self.db.scalar(
+            select(ProvenanceFindingFact.fact_id).where(ProvenanceFindingFact.finding_id == current.id)
+        )
         assert fact_id is not None
         fact = self.db.get(ProvenanceFact, fact_id)
         assert fact is not None

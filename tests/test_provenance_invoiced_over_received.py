@@ -7,12 +7,27 @@ from sqlalchemy import select
 
 from app.db import SessionLocal
 from app.models import DiscrepancyCase, OperationChain
-from app.provenance_models import ProvenanceFact, ProvenanceFinding, ProvenanceFindingFact, ProvenanceJudgment, ProvenanceOrigin
+from app.provenance_models import (
+    ProvenanceFact,
+    ProvenanceFinding,
+    ProvenanceFindingFact,
+    ProvenanceJudgment,
+    ProvenanceOrigin,
+)
 from app.services.invoiced_over_received_provenance import invoiced_over_received_finding_matches_current_support
 from app.services.rules import analyze_chain
 
 
-def _payload(*, document_type: str, number: str, quantity: str, uom: str | None, order_number: str | None = None, unit_price: str | None = None, price_base_quantity: str | None = None) -> bytes:
+def _payload(
+    *,
+    document_type: str,
+    number: str,
+    quantity: str,
+    uom: str | None,
+    order_number: str | None = None,
+    unit_price: str | None = None,
+    price_base_quantity: str | None = None,
+) -> bytes:
     line: dict[str, object] = {
         "line_no": 1,
         "sku": "INV-PROV-ITEM",
@@ -45,11 +60,36 @@ def _payload(*, document_type: str, number: str, quantity: str, uom: str | None,
     return json.dumps(data).encode("utf-8")
 
 
-def _upload(client, auth, *, document_type: str, number: str, quantity: str, uom: str | None, order_number: str | None = None, unit_price: str | None = None, price_base_quantity: str | None = None):
+def _upload(
+    client,
+    auth,
+    *,
+    document_type: str,
+    number: str,
+    quantity: str,
+    uom: str | None,
+    order_number: str | None = None,
+    unit_price: str | None = None,
+    price_base_quantity: str | None = None,
+):
     return client.post(
         "/api/documents/upload",
         headers=auth,
-        files={"file": (f"{number}.json", _payload(document_type=document_type, number=number, quantity=quantity, uom=uom, order_number=order_number, unit_price=unit_price, price_base_quantity=price_base_quantity), "application/json")},
+        files={
+            "file": (
+                f"{number}.json",
+                _payload(
+                    document_type=document_type,
+                    number=number,
+                    quantity=quantity,
+                    uom=uom,
+                    order_number=order_number,
+                    unit_price=unit_price,
+                    price_base_quantity=price_base_quantity,
+                ),
+                "application/json",
+            )
+        },
     )
 
 
@@ -58,14 +98,56 @@ def _case(db) -> DiscrepancyCase | None:
 
 
 def _findings(db, case: DiscrepancyCase) -> list[ProvenanceFinding]:
-    return list(db.scalars(select(ProvenanceFinding).where(ProvenanceFinding.tenant_id == case.tenant_id, ProvenanceFinding.case_id == case.id).order_by(ProvenanceFinding.version)))
+    return list(
+        db.scalars(
+            select(ProvenanceFinding)
+            .where(ProvenanceFinding.tenant_id == case.tenant_id, ProvenanceFinding.case_id == case.id)
+            .order_by(ProvenanceFinding.version)
+        )
+    )
 
 
-def _upload_overinvoice(client, auth, *, suffix: str, received: str = "10", invoiced: str = "12", invoice_uom: str | None = "EA", invoice_base: str | None = "1") -> None:
+def _upload_overinvoice(
+    client,
+    auth,
+    *,
+    suffix: str,
+    received: str = "10",
+    invoiced: str = "12",
+    invoice_uom: str | None = "EA",
+    invoice_base: str | None = "1",
+) -> None:
     order_number = f"PO-INV-PROV-{suffix}"
-    order = _upload(client, auth, document_type="order", number=order_number, quantity="10", uom="EA", unit_price="5", price_base_quantity="1")
-    delivery = _upload(client, auth, document_type="delivery", number=f"DDT-INV-PROV-{suffix}", quantity=received, uom="EA", order_number=order_number)
-    invoice = _upload(client, auth, document_type="invoice", number=f"INV-PROV-{suffix}", quantity=invoiced, uom=invoice_uom, order_number=order_number, unit_price="5", price_base_quantity=invoice_base)
+    order = _upload(
+        client,
+        auth,
+        document_type="order",
+        number=order_number,
+        quantity="10",
+        uom="EA",
+        unit_price="5",
+        price_base_quantity="1",
+    )
+    delivery = _upload(
+        client,
+        auth,
+        document_type="delivery",
+        number=f"DDT-INV-PROV-{suffix}",
+        quantity=received,
+        uom="EA",
+        order_number=order_number,
+    )
+    invoice = _upload(
+        client,
+        auth,
+        document_type="invoice",
+        number=f"INV-PROV-{suffix}",
+        quantity=invoiced,
+        uom=invoice_uom,
+        order_number=order_number,
+        unit_price="5",
+        price_base_quantity=invoice_base,
+    )
     assert order.status_code == 201, order.text
     assert delivery.status_code == 201, delivery.text
     assert invoice.status_code == 201, invoice.text
@@ -107,7 +189,14 @@ def test_invoiced_over_received_binds_exact_reference_invoice_inputs_and_judgmen
         case_id = case.id
         finding_id = finding.id
 
-    reviewed = client.post(f"/api/cases/{case_id}/decision", headers=auth, json={"decision": "confirmed", "note": "Qualified received and invoiced quantities and invoice pricing checked."})
+    reviewed = client.post(
+        f"/api/cases/{case_id}/decision",
+        headers=auth,
+        json={
+            "decision": "confirmed",
+            "note": "Qualified received and invoiced quantities and invoice pricing checked.",
+        },
+    )
     assert reviewed.status_code == 200, reviewed.text
     with SessionLocal() as db:
         judgment = db.scalar(select(ProvenanceJudgment).where(ProvenanceJudgment.finding_id == finding_id))
@@ -144,7 +233,15 @@ def test_invoiced_over_received_reanalysis_is_idempotent_and_new_delivery_versio
         db.flush()
         assert [finding.version for finding in _findings(db, case)] == [1]
 
-    second = _upload(client, auth, document_type="delivery", number="DDT-INV-PROV-VERSION-2", quantity="1", uom="EA", order_number="PO-INV-PROV-VERSION")
+    second = _upload(
+        client,
+        auth,
+        document_type="delivery",
+        number="DDT-INV-PROV-VERSION-2",
+        quantity="1",
+        uom="EA",
+        order_number="PO-INV-PROV-VERSION",
+    )
     assert second.status_code == 201, second.text
     with SessionLocal() as db:
         case = _case(db)
@@ -162,7 +259,9 @@ def test_invoiced_over_received_rejects_unavailable_support_before_human_binding
         case = _case(db)
         assert case is not None
         finding = _findings(db, case)[0]
-        linked_fact_id = db.scalar(select(ProvenanceFindingFact.fact_id).where(ProvenanceFindingFact.finding_id == finding.id))
+        linked_fact_id = db.scalar(
+            select(ProvenanceFindingFact.fact_id).where(ProvenanceFindingFact.finding_id == finding.id)
+        )
         assert linked_fact_id is not None
         fact = db.get(ProvenanceFact, linked_fact_id)
         assert fact is not None
@@ -174,7 +273,11 @@ def test_invoiced_over_received_rejects_unavailable_support_before_human_binding
         case_id = case.id
         finding_id = finding.id
 
-    reviewed = client.post(f"/api/cases/{case_id}/decision", headers=auth, json={"decision": "confirmed", "note": "Must not bind unavailable provenance."})
+    reviewed = client.post(
+        f"/api/cases/{case_id}/decision",
+        headers=auth,
+        json={"decision": "confirmed", "note": "Must not bind unavailable provenance."},
+    )
     assert reviewed.status_code == 200, reviewed.text
     with SessionLocal() as db:
         assert db.scalar(select(ProvenanceJudgment).where(ProvenanceJudgment.finding_id == finding_id)) is None
