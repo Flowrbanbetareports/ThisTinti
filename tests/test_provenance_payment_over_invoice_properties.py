@@ -225,6 +225,49 @@ def test_property_payment_over_invoice_fails_closed_for_any_unqualified_current_
         assert scenario.findings() == []
 
 
+def test_payment_over_invoice_exact_two_cent_tolerance_matches_engine_boundary() -> None:
+    with _isolated_db() as db:
+        tolerated = _Scenario(db, "threshold-tolerated")
+        tolerated.add("invoice", Decimal("100.00"))
+        tolerated.add("payment", Decimal("100.02"))
+        tolerated.analyze()
+        assert tolerated.case() is None
+        assert tolerated.findings() == []
+
+    with _isolated_db() as db:
+        exceeded = _Scenario(db, "threshold-exceeded")
+        exceeded.add("invoice", Decimal("100.00"))
+        exceeded.add("payment", Decimal("100.03"))
+        exceeded.analyze()
+        case = exceeded.case()
+        assert case is not None
+        assert Decimal(case.amount_estimate) == Decimal("0.03")
+        findings = exceeded.findings()
+        assert len(findings) == 1
+        assert payment_over_invoice_finding_matches_current_support(db, finding=findings[0]) is True
+
+
+def test_payment_over_invoice_aggregates_all_current_invoice_and_payment_documents() -> None:
+    with _isolated_db() as db:
+        scenario = _Scenario(db, "multi-document")
+        scenario.add("invoice", Decimal("60.00"))
+        scenario.add("invoice", Decimal("40.00"))
+        scenario.add("payment", Decimal("70.00"))
+        scenario.add("payment", Decimal("40.00"))
+        scenario.analyze()
+
+        case = scenario.case()
+        assert case is not None
+        assert Decimal(case.amount_estimate) == Decimal("10.00")
+        findings = scenario.findings()
+        assert len(findings) == 1
+        assert payment_over_invoice_finding_matches_current_support(db, finding=findings[0]) is True
+        links = list(
+            db.scalars(select(ProvenanceFindingFact).where(ProvenanceFindingFact.finding_id == findings[0].id))
+        )
+        assert len(links) == 4
+
+
 class PaymentOverInvoiceStateMachine(RuleBasedStateMachine):
     def __init__(self):
         super().__init__()
