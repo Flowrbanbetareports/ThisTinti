@@ -224,7 +224,8 @@ def _snapshot_is_eligible(snapshot: dict[str, object]) -> bool:
         and predicate.get("invoice_role_empty") is True
         and bool(payment_entries)
         and all(
-            entry.get("parse_status") == "parsed" and entry.get("archived") is False for entry in payment_entries
+            entry.get("parse_status") == "parsed" and entry.get("archived") is False
+            for entry in payment_entries
         )
     )
 
