@@ -57,6 +57,11 @@ def test_current_target_is_provisional_and_only_included_incomplete_rules_block(
     assert len(excluded) == 10
     qualified_included = [rule["case_type"] for rule in included if rule["blind_eligible"]]
     assert qualified_included == ["duplicate_document_number", "currency_mismatch"]
+
+    currency_rule = next(rule for rule in included if rule["case_type"] == "currency_mismatch")
+    assert currency_rule["provenance_status"] == "complete"
+    assert currency_rule["blind_eligible"] is True
+
     assert matrix["blind_readiness"]["ready"] is False
     assert matrix["blind_readiness"]["target_status"] == "calibration-provisional"
     assert matrix["blind_readiness"]["blocking_case_types"] == [
