@@ -313,3 +313,84 @@ def test_delivered_over_order_rejects_unavailable_support_before_human_binding(c
     with SessionLocal() as db:
         judgment = db.scalar(select(ProvenanceJudgment).where(ProvenanceJudgment.finding_id == finding_id))
         assert judgment is None
+
+
+def test_delivered_over_order_rejects_tampered_rule_fact_and_locator_support(client, auth):
+    _upload_overdelivery(client, auth, suffix="TAMPER")
+    with SessionLocal() as db:
+        case = _case(db)
+        assert case is not None
+        finding = _findings(db, case)[0]
+        assert delivered_over_order_finding_matches_current_support(db, finding=finding) is True
+
+        original_rule_id = finding.rule_id
+        finding.rule_id = "builtin:not-delivered-over-order"
+        assert delivered_over_order_finding_matches_current_support(db, finding=finding) is False
+        finding.rule_id = original_rule_id
+
+        original_rule_version = finding.rule_version
+        finding.rule_version = "999"
+        assert delivered_over_order_finding_matches_current_support(db, finding=finding) is False
+        finding.rule_version = original_rule_version
+
+        original_configuration_hash = finding.rule_configuration_hash
+        finding.rule_configuration_hash = "0" * 64
+        assert delivered_over_order_finding_matches_current_support(db, finding=finding) is False
+        finding.rule_configuration_hash = original_configuration_hash
+
+        linked_fact_id = db.scalar(
+            select(ProvenanceFindingFact.fact_id).where(ProvenanceFindingFact.finding_id == finding.id)
+        )
+        assert linked_fact_id is not None
+        fact = db.get(ProvenanceFact, linked_fact_id)
+        assert fact is not None
+        origin = db.get(ProvenanceOrigin, fact.origin_id)
+        assert origin is not None
+
+        original_fact_type = fact.fact_type
+        fact.fact_type = "document_line.invalid"
+        assert delivered_over_order_finding_matches_current_support(db, finding=finding) is False
+        fact.fact_type = original_fact_type
+
+        original_value_json = fact.value_json
+        fact.value_json = "not-json"
+        assert delivered_over_order_finding_matches_current_support(db, finding=finding) is False
+        fact.value_json = original_value_json
+
+        original_locator_status = origin.locator_status
+        origin.locator_status = "missing"
+        assert delivered_over_order_finding_matches_current_support(db, finding=finding) is False
+        origin.locator_status = original_locator_status
+
+        original_locator_type = origin.locator_type
+        origin.locator_type = "PAGE_BOX"
+        assert delivered_over_order_finding_matches_current_support(db, finding=finding) is False
+        origin.locator_type = original_locator_type
+
+        original_engine_id = origin.engine_id
+        origin.engine_id = "other-parser"
+        assert delivered_over_order_finding_matches_current_support(db, finding=finding) is False
+        origin.engine_id = original_engine_id
+
+        original_engine_version = origin.engine_version
+        origin.engine_version = "999"
+        assert delivered_over_order_finding_matches_current_support(db, finding=finding) is False
+        origin.engine_version = original_engine_version
+
+        original_source_ref = origin.source_ref
+        origin.source_ref = "sha256:wrong"
+        assert delivered_over_order_finding_matches_current_support(db, finding=finding) is False
+        origin.source_ref = original_source_ref
+
+        original_locator_json = origin.locator_json
+        origin.locator_json = "not-json"
+        assert delivered_over_order_finding_matches_current_support(db, finding=finding) is False
+        origin.locator_json = original_locator_json
+
+        locator = json.loads(original_locator_json)
+        locator["pointer"] = "/lines/99/quantity"
+        origin.locator_json = json.dumps(locator)
+        assert delivered_over_order_finding_matches_current_support(db, finding=finding) is False
+        origin.locator_json = original_locator_json
+
+        assert delivered_over_order_finding_matches_current_support(db, finding=finding) is True
