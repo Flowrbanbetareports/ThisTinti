@@ -18,6 +18,7 @@ This file is the short, stable operating contract for automated agents working o
 - Never lower thresholds, disable tests or bypass required controls to make a candidate pass.
 - Never invent external evidence: design partners, authorised real cases, reviewers, ground truth, pentest, legal/privacy review, accessibility participants, signing evidence or company-validated value.
 - Never inspect, tune against or contaminate BLIND/HOLDOUT material before the protocol permits it.
+- Any public corpus inspected by development agents is `NOT_BLIND` and cannot silently become E1 BLIND/HOLDOUT evidence.
 
 ## Current qualification streams
 
@@ -26,6 +27,8 @@ Use `#136` for the detailed current checklist.
 - **A — technical candidate:** current provenance slice, complete P1 provenance matrix, same-SHA qualification, repository enforcement (`#133`).
 - **B — scientific E1:** `#132` + `#19`, P1 scope, pool segregation, calibration, freeze, blind evaluation and holdout.
 - **C — final qualification preparation/evidence:** `#20`, `#21`, `#32`, `#94`, `#134`, `#135` and related release/recovery/handoff work.
+- **D — Evidence Factory:** `#140`, public/authorised Procurement source discovery, linked-practice reconstruction, deduplicated manifests/hashes and coverage mapping. This stream supplies stress/regression/pre-calibration material only unless a future protocol explicitly says otherwise.
+- **E — Qualification Breaker:** `#141`, adversarial/differential attempts to disprove readiness, reproduce blockers and hand them to the owning stream without opening competing fixes.
 
 ## Session bootstrap
 
@@ -35,7 +38,7 @@ Before changing anything:
 2. Run `python scripts/agent_status.py` when shell access is available. If shell access is unavailable, reproduce the same checks directly against GitHub.
 3. Inspect the exact PR/issue/workflow state for the object you intend to touch.
 4. Check active leases. An unleased object is **not automatically safe**; dependency and qualification rules still apply.
-5. Claim the smallest coherent work item before modifying shared B/C work when lease tooling is available.
+5. Claim the smallest coherent work item before modifying shared B/C/D/E work when lease tooling is available.
 6. Re-check the live head SHA immediately before a write, merge, matrix promotion or qualification decision.
 
 ## Work leases
@@ -61,9 +64,9 @@ python scripts/agent_status.py release --item issue:135 --owner qualification-c
 
 ## Concurrency rule
 
-Do not open or modify concurrent branches/PRs for the same coherent work item. Before entering B or C, check whether another agent has produced a branch, PR, commit or active lease on that same object recently. If so, leave that object alone and choose independent work.
+Do not open or modify concurrent branches/PRs for the same coherent work item. Before entering B, C, D or E, check whether another agent has produced a branch, PR, commit or active lease on that same object recently. If so, leave that object alone and choose independent work.
 
-The current technical provenance slice owned by the main operational agent must not be duplicated by the qualification-preparation agent.
+The current technical provenance slice owned by the main operational agent must not be duplicated by the qualification-preparation agent. Evidence Factory does not own product fixes. Qualification Breaker should prefer a minimal reproducer/finding report and hand confirmed defects to the owning stream rather than creating a competing implementation.
 
 ## Checkpoints
 
