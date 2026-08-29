@@ -32,12 +32,14 @@ _DIRECT_LINE_FACTS = {
     "unit_of_measure": "document_line.unit_of_measure",
     "unit_price": "document_line.unit_price",
     "price_base_quantity": "document_line.price_base_quantity",
+    "line_total": "document_line.line_total",
 }
 _DIRECT_LINE_POINTER_FIELDS = {
     "quantity": {"quantity"},
     "unit_of_measure": {"unit_of_measure", "uom"},
     "unit_price": {"unit_price"},
     "price_base_quantity": {"price_base_quantity"},
+    "line_total": {"line_total"},
 }
 
 
