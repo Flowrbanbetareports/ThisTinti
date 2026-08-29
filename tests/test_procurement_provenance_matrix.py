@@ -41,7 +41,7 @@ def test_rule_pack_is_normative_source_for_blind_target() -> None:
     assert rule_pack["provenance"]["matrix_version"] == matrix["version"]
 
 
-def test_current_target_is_provisional_and_only_included_incomplete_rules_block() -> None:
+def test_current_target_is_provisional_with_all_included_rules_provenance_complete() -> None:
     matrix = procurement_provenance_matrix()
     included = [rule for rule in matrix["rules"] if rule["blind_scope"] == "included"]
     excluded = [rule for rule in matrix["rules"] if rule["blind_scope"] == "excluded"]
@@ -62,6 +62,7 @@ def test_current_target_is_provisional_and_only_included_incomplete_rules_block(
         "invoiced_over_received",
         "currency_mismatch",
         "payment_over_invoice",
+        "payment_without_invoice",
     ]
 
     currency_rule = next(rule for rule in included if rule["case_type"] == "currency_mismatch")
@@ -80,9 +81,15 @@ def test_current_target_is_provisional_and_only_included_incomplete_rules_block(
     assert payment_rule["provenance_status"] == "complete"
     assert payment_rule["blind_eligible"] is True
 
+    payment_without_invoice_rule = next(rule for rule in included if rule["case_type"] == "payment_without_invoice")
+    assert payment_without_invoice_rule["provenance_status"] == "complete"
+    assert payment_without_invoice_rule["blind_eligible"] is True
+
+    # Technical provenance completeness does not approve or freeze the P1 target.
     assert matrix["blind_readiness"]["ready"] is False
     assert matrix["blind_readiness"]["target_status"] == "calibration-provisional"
-    assert matrix["blind_readiness"]["blocking_case_types"] == ["payment_without_invoice"]
+    assert matrix["blind_readiness"]["target_approved"] is False
+    assert matrix["blind_readiness"]["blocking_case_types"] == []
     assert matrix["blind_readiness"]["unsupported_included_families"] == []
     temporal = next(family for family in matrix["families"] if family["id"] == "temporal-consistency")
     assert temporal["provenance_status"] == "unsupported"
@@ -106,6 +113,7 @@ def test_procurement_provenance_api_requires_auth_and_returns_tenant_scoped_matr
     assert payload["tenant_id"]
     assert payload["schema"] == "thistinti.procurement-provenance-matrix.v2"
     assert payload["blind_readiness"]["ready"] is False
+    assert payload["blind_readiness"]["blocking_case_types"] == []
     assert payload["blind_target"]["included_case_types"]
 
 
