@@ -22,7 +22,8 @@ _RULE_CONFIGURATION_HASH = hashlib.sha256(
             "document_total": "money(sum(abs(explicit_line_total)))",
             "comparison": "payment_total_gt_invoice_total_plus_0.02",
             "amount": "payment_total_minus_invoice_total",
-            "support": "all_current_invoice_and_payment_line_total inputs must be direct native JSON evidence",
+            "support": "all_current_active_invoice_and_payment_line_total inputs must be direct native JSON evidence",
+            "active_document_state": "all_current_invoice_and_payment_documents_archived_false",
             "missing_or_defaulted_inputs": "fail_closed",
         },
         sort_keys=True,
@@ -174,7 +175,7 @@ def _supporting_facts(
 
     facts: list[ProvenanceFact] = []
     for document in [*invoices, *payments]:
-        if not document.lines:
+        if document.archived or not document.lines:
             return []
         seen_pointers: set[str] = set()
         for line in sorted(document.lines, key=lambda item: item.id):
