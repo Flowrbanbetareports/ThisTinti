@@ -387,7 +387,9 @@ class _CurrencyScenario:
                 source_availability="external_unavailable" if kind == "external_unavailable" else "available",
                 locator_status=locator_status,
                 locator_type="JSON_POINTER" if locator_status == "present" else None,
-                locator_json=json.dumps({"pointer": pointer}, separators=(",", ":")) if locator_status == "present" else None,
+                locator_json=json.dumps({"pointer": pointer}, separators=(",", ":"))
+                if locator_status == "present"
+                else None,
             )
         elif kind == "human":
             origin = create_origin(
@@ -596,9 +598,7 @@ class CurrencyMismatchProvenanceStateMachine(RuleBasedStateMachine):
         for finding in self.scenario.findings():
             self.finding_history.setdefault(finding.id, self._finding_snapshot(finding))
         judgments = list(
-            self.db.scalars(
-                select(ProvenanceJudgment).where(ProvenanceJudgment.tenant_id == self.scenario.tenant.id)
-            )
+            self.db.scalars(select(ProvenanceJudgment).where(ProvenanceJudgment.tenant_id == self.scenario.tenant.id))
         )
         for judgment in judgments:
             self.judgment_history.setdefault(judgment.id, self._judgment_snapshot(judgment))
