@@ -1,0 +1,83 @@
+{
+  "contract_id": "thistinti.procurement-blind-target",
+  "version": "2.0.0",
+  "status": "internal_experimental",
+  "scope": "Procurement blind pilot target selection and freeze readiness.",
+  "normative_source": "pilot/procurement/rule-pack.v0.2.json",
+  "target_statuses": [
+    "calibration-provisional",
+    "approved-for-blind"
+  ],
+  "rule_scope_states": [
+    "included",
+    "excluded"
+  ],
+  "provenance_statuses": [
+    "complete",
+    "incomplete",
+    "unsupported"
+  ],
+  "blind_eligibility_derivation": "blind_scope == included AND provenance_status == complete",
+  "required_target_fields": [
+    "status",
+    "included_case_types",
+    "excluded_case_types",
+    "excluded_families"
+  ],
+  "excluded_case_type_required_fields": [
+    "case_type",
+    "exclusion_reason"
+  ],
+  "excluded_family_required_fields": [
+    "id",
+    "exclusion_reason"
+  ],
+  "freeze_requirements": [
+    "target status is approved-for-blind",
+    "target contains at least one included case type",
+    "included and excluded case types are disjoint",
+    "included plus excluded case types exactly cover the Rule Pack engine baseline",
+    "every excluded case type has a non-empty reason",
+    "every declared family with zero engine case types is explicitly excluded with a non-empty reason",
+    "every included case type has complete provenance",
+    "no unsupported family remains inside the target",
+    "Provenance Matrix blind target exactly matches the Rule Pack blind target",
+    "blind eligibility is recomputed rather than trusted from stored data",
+    "Rule Pack and Provenance Matrix internal versions match the versions supplied to freeze"
+  ],
+  "versioning": {
+    "v1_semantics_preserved": true,
+    "target_change_after_freeze_requires_new_manifest": true,
+    "matrix_change_after_freeze_requires_new_manifest": true
+  },
+  "invariants": [
+    {
+      "id": "BT2-001",
+      "statement": "The Rule Pack is the single normative source of blind scope."
+    },
+    {
+      "id": "BT2-002",
+      "statement": "Provenance qualification and blind scope are independent axes."
+    },
+    {
+      "id": "BT2-003",
+      "statement": "An excluded incomplete rule remains visible but does not block blind readiness."
+    },
+    {
+      "id": "BT2-004",
+      "statement": "An included incomplete rule always blocks blind readiness."
+    },
+    {
+      "id": "BT2-005",
+      "statement": "A calibration-provisional target can never be frozen for blind evaluation."
+    },
+    {
+      "id": "BT2-006",
+      "statement": "The freeze validator independently recomputes readiness and rejects inconsistent declarations."
+    },
+    {
+      "id": "BT2-007",
+      "statement": "Historical v1 Rule Pack and Provenance Matrix semantics are not rewritten by v2."
+    }
+  ]
+}
