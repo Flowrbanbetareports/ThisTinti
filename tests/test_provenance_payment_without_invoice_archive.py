@@ -40,10 +40,7 @@ def _payload() -> bytes:
     ).encode("utf-8")
 
 
-def test_payment_without_invoice_fails_closed_when_supporting_payment_is_archived(
-    client,
-    auth,
-):
+def test_payment_without_invoice_fails_closed_when_supporting_payment_is_archived(client, auth):
     response = client.post(
         "/api/documents/upload",
         headers=auth,
@@ -52,9 +49,7 @@ def test_payment_without_invoice_fails_closed_when_supporting_payment_is_archive
     assert response.status_code == 201, response.text
 
     with SessionLocal() as db:
-        case = db.scalar(
-            select(DiscrepancyCase).where(DiscrepancyCase.case_type == "payment_without_invoice")
-        )
+        case = db.scalar(select(DiscrepancyCase).where(DiscrepancyCase.case_type == "payment_without_invoice"))
         assert case is not None
         finding = db.scalar(
             select(ProvenanceFinding)
