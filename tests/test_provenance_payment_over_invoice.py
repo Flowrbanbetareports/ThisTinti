@@ -6,7 +6,7 @@ from decimal import Decimal
 from sqlalchemy import select
 
 from app.db import SessionLocal
-from app.models import DiscrepancyCase, DocumentLine, OperationChain
+from app.models import DiscrepancyCase, Document, DocumentLine, OperationChain
 from app.provenance_models import (
     ProvenanceFact,
     ProvenanceFinding,
@@ -335,4 +335,33 @@ def test_payment_over_invoice_malformed_support_and_metadata_fail_closed(client,
             finding_key="payment-over-invoice",
         )
         case.fingerprint = original_fingerprint
+        assert payment_over_invoice_finding_matches_current_support(db, finding=finding) is True
+
+
+def test_payment_over_invoice_archived_support_fails_closed_and_cannot_mint_new_finding(client, auth):
+    _upload_overpayment(client, auth, suffix="ARCHIVED")
+    with SessionLocal() as db:
+        case = _case(db)
+        assert case is not None
+        findings = _findings(db, case)
+        assert len(findings) == 1
+        finding = findings[0]
+        chain = db.get(OperationChain, case.chain_id)
+        assert chain is not None and chain.payment_document_id is not None
+        payment = db.get(Document, chain.payment_document_id)
+        assert payment is not None and payment.archived is False
+        assert payment_over_invoice_finding_matches_current_support(db, finding=finding) is True
+
+        payment.archived = True
+        db.flush()
+        analyze_chain(db, chain)
+        db.flush()
+
+        assert payment_over_invoice_finding_matches_current_support(db, finding=finding) is False
+        assert _findings(db, case) == findings
+
+        payment.archived = False
+        db.flush()
+        analyze_chain(db, chain)
+        db.flush()
         assert payment_over_invoice_finding_matches_current_support(db, finding=finding) is True
