@@ -61,6 +61,7 @@ def test_current_target_is_provisional_and_only_included_incomplete_rules_block(
         "delivered_over_order",
         "invoiced_over_received",
         "currency_mismatch",
+        "payment_over_invoice",
     ]
 
     currency_rule = next(rule for rule in included if rule["case_type"] == "currency_mismatch")
@@ -75,12 +76,13 @@ def test_current_target_is_provisional_and_only_included_incomplete_rules_block(
     assert invoiced_rule["provenance_status"] == "complete"
     assert invoiced_rule["blind_eligible"] is True
 
+    payment_rule = next(rule for rule in included if rule["case_type"] == "payment_over_invoice")
+    assert payment_rule["provenance_status"] == "complete"
+    assert payment_rule["blind_eligible"] is True
+
     assert matrix["blind_readiness"]["ready"] is False
     assert matrix["blind_readiness"]["target_status"] == "calibration-provisional"
-    assert matrix["blind_readiness"]["blocking_case_types"] == [
-        "payment_over_invoice",
-        "payment_without_invoice",
-    ]
+    assert matrix["blind_readiness"]["blocking_case_types"] == ["payment_without_invoice"]
     assert matrix["blind_readiness"]["unsupported_included_families"] == []
     temporal = next(family for family in matrix["families"] if family["id"] == "temporal-consistency")
     assert temporal["provenance_status"] == "unsupported"
