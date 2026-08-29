@@ -32,7 +32,9 @@ STATEFUL_SETTINGS = settings(
     derandomize=True,
     suppress_health_check=[HealthCheck.function_scoped_fixture, HealthCheck.too_slow],
 )
-BAD_KIND = st.sampled_from(("missing", "external_unavailable", "wrong_value", "missing_locator", "wrong_pointer"))
+BAD_KIND = st.sampled_from(
+    ("missing", "external_unavailable", "wrong_value", "missing_locator", "wrong_pointer", "out_of_range_pointer")
+)
 ROLE = st.sampled_from(("invoice", "payment"))
 
 
@@ -131,7 +133,12 @@ class _Scenario:
         if kind == "missing":
             return
         status = "missing" if kind == "missing_locator" else "present"
-        pointer = "/lines/0/not_line_total" if kind == "wrong_pointer" else "/lines/0/line_total"
+        if kind == "wrong_pointer":
+            pointer = "/lines/0/not_line_total"
+        elif kind == "out_of_range_pointer":
+            pointer = "/lines/7/line_total"
+        else:
+            pointer = "/lines/0/line_total"
         origin = create_origin(
             self.db,
             tenant_id=self.tenant.id,
@@ -154,6 +161,11 @@ class _Scenario:
             value_json=json.dumps(str(value)),
             origin_id=origin.id,
         )
+        if kind in {"wrong_pointer", "out_of_range_pointer"}:
+            raw = json.loads(line.raw_json)
+            raw["_source_locators"]["line_total"]["pointer"] = pointer
+            line.raw_json = json.dumps(raw, sort_keys=True, separators=(",", ":"))
+            self.db.flush()
 
     def analyze(self) -> None:
         analyze_chain(self.db, self.chain)
