@@ -27,6 +27,7 @@ _RULE_CONFIGURATION_HASH = hashlib.sha256(
                 "all_current_reference_quantity,uom and invoice_quantity,uom,unit_price,price_base_quantity "
                 "must be direct native JSON evidence"
             ),
+            "active_document_required": True,
             "missing_or_defaulted_inputs": "fail_closed",
         },
         sort_keys=True,
@@ -96,6 +97,7 @@ def _role_documents(db: Session, chain: OperationChain) -> dict[str, list[Docume
             .where(
                 Document.tenant_id == chain.tenant_id,
                 Document.id.in_(set(ids)),
+                Document.archived.is_(False),
             )
         )
     )
@@ -193,6 +195,8 @@ def _direct_fact(
     document: Document,
     field_name: str,
 ) -> ProvenanceFact | None:
+    if document.archived:
+        return None
     fact_key = f"document_line:{line.id}:{field_name}"
     fact = db.scalar(
         select(ProvenanceFact)
@@ -276,6 +280,7 @@ def _supporting_facts(
             select(Document).where(
                 Document.tenant_id == chain.tenant_id,
                 Document.id.in_(document_ids),
+                Document.archived.is_(False),
             )
         )
     }
