@@ -368,6 +368,18 @@ def record_duplicate_number_finding_provenance(
     finding_key: str,
     all_documents: list[Document],
 ) -> None:
+    # Compatibility entrypoint: rules.py already invokes this hook for every
+    # machine finding. Keep that stable while qualifying additional built-ins.
+    if finding_case_type == "currency_mismatch":
+        record_currency_mismatch_finding_provenance(
+            db,
+            chain=chain,
+            case=case,
+            finding_case_type=finding_case_type,
+            finding_key=finding_key,
+            all_documents=all_documents,
+        )
+        return
     if finding_case_type != "duplicate_document_number":
         return
 
