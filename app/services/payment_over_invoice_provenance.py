@@ -128,6 +128,8 @@ def _direct_line_total_fact(
     parts = pointer.split("/")
     if len(parts) != 4 or parts[:2] != ["", "lines"] or not parts[2].isdigit() or parts[3] != "line_total":
         return None
+    if int(parts[2]) >= len(document.lines):
+        return None
     if (
         locator.get("locator_type") != "JSON_POINTER"
         or locator.get("engine_id") != "native-json-parser"
@@ -171,10 +173,16 @@ def _supporting_facts(
     for document in [*invoices, *payments]:
         if not document.lines:
             return []
+        seen_pointers: set[str] = set()
         for line in sorted(document.lines, key=lambda item: item.id):
             fact = _direct_line_total_fact(db, chain=chain, document=document, line=line)
-            if fact is None:
+            locator = _raw_locator(line)
+            if fact is None or locator is None:
                 return []
+            pointer = str(locator.get("pointer") or "")
+            if pointer in seen_pointers:
+                return []
+            seen_pointers.add(pointer)
             facts.append(fact)
 
     invoice_total = sum((_document_total(document) for document in invoices), Decimal("0"))
