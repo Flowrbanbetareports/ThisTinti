@@ -55,9 +55,7 @@ def test_payment_without_invoice_fails_closed_for_unsupported_payment_parse_stat
     assert response.status_code == 201, response.text
 
     with SessionLocal() as db:
-        case = db.scalar(
-            select(DiscrepancyCase).where(DiscrepancyCase.case_type == "payment_without_invoice")
-        )
+        case = db.scalar(select(DiscrepancyCase).where(DiscrepancyCase.case_type == "payment_without_invoice"))
         assert case is not None
         finding = db.scalar(
             select(ProvenanceFinding)
@@ -80,8 +78,7 @@ def test_payment_without_invoice_fails_closed_for_unsupported_payment_parse_stat
                 db.scalars(
                     select(ProvenanceFact).where(
                         ProvenanceFact.tenant_id == case.tenant_id,
-                        ProvenanceFact.fact_key
-                        == f"operation_chain:{chain.id}:payment_without_invoice_snapshot",
+                        ProvenanceFact.fact_key == f"operation_chain:{chain.id}:payment_without_invoice_snapshot",
                     )
                 )
             )
@@ -103,27 +100,32 @@ def test_payment_without_invoice_fails_closed_for_unsupported_payment_parse_stat
         db.flush()
 
         assert payment_without_invoice_finding_matches_current_support(db, finding=finding) is False
-        assert len(
-            list(
-                db.scalars(
-                    select(ProvenanceFact).where(
-                        ProvenanceFact.tenant_id == case.tenant_id,
-                        ProvenanceFact.fact_key
-                        == f"operation_chain:{chain.id}:payment_without_invoice_snapshot",
+        assert (
+            len(
+                list(
+                    db.scalars(
+                        select(ProvenanceFact).where(
+                            ProvenanceFact.tenant_id == case.tenant_id,
+                            ProvenanceFact.fact_key == f"operation_chain:{chain.id}:payment_without_invoice_snapshot",
+                        )
                     )
                 )
             )
-        ) == fact_count_before
-        assert len(
-            list(
-                db.scalars(
-                    select(ProvenanceFinding).where(
-                        ProvenanceFinding.tenant_id == case.tenant_id,
-                        ProvenanceFinding.case_id == case.id,
+            == fact_count_before
+        )
+        assert (
+            len(
+                list(
+                    db.scalars(
+                        select(ProvenanceFinding).where(
+                            ProvenanceFinding.tenant_id == case.tenant_id,
+                            ProvenanceFinding.case_id == case.id,
+                        )
                     )
                 )
             )
-        ) == finding_count_before
+            == finding_count_before
+        )
 
         payment.parse_status = "parsed"
         db.flush()
