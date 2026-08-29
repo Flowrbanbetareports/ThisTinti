@@ -50,9 +50,7 @@ def _current_case_and_finding(db):
     case = db.scalar(select(DiscrepancyCase).where(DiscrepancyCase.case_type == "invoiced_over_received"))
     assert case is not None
     finding = db.scalar(
-        select(ProvenanceFinding)
-        .where(ProvenanceFinding.case_id == case.id)
-        .order_by(ProvenanceFinding.version.desc())
+        select(ProvenanceFinding).where(ProvenanceFinding.case_id == case.id).order_by(ProvenanceFinding.version.desc())
     )
     assert finding is not None
     return case, finding
@@ -80,7 +78,9 @@ def test_invoiced_over_received_qualifies_commercial_fallback_without_delivery(c
 def test_invoiced_over_received_rejects_tampered_amount_and_rule_configuration(client, auth):
     order_number = "PO-INV-GATE-STALE"
     _upload(client, auth, kind="order", number=order_number, quantity="10", price="5")
-    _upload(client, auth, kind="delivery", number="DDT-INV-GATE-STALE", quantity="10", price=None, order_number=order_number)
+    _upload(
+        client, auth, kind="delivery", number="DDT-INV-GATE-STALE", quantity="10", price=None, order_number=order_number
+    )
     _upload(
         client,
         auth,
