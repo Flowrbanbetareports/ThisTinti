@@ -192,9 +192,7 @@ def _current_membership_snapshot(db: Session, chain: OperationChain) -> dict[str
             "configuration_hash": _RULE_CONFIGURATION_HASH,
         },
         "membership": membership,
-        "primary_document_ids": {
-            role: getattr(chain, f"{role}_document_id", None) for role in _CHAIN_ROLES
-        },
+        "primary_document_ids": {role: getattr(chain, f"{role}_document_id", None) for role in _CHAIN_ROLES},
         "invoice_document_ids": invoice_ids,
         "payment_document_ids": payment_ids,
         "predicate": {
