@@ -162,11 +162,7 @@ def test_delivered_over_order_binds_all_direct_engine_inputs_and_judgment(client
         assert len(finding.rule_configuration_hash) == 64
         assert delivered_over_order_finding_matches_current_support(db, finding=finding) is True
 
-        links = list(
-            db.scalars(
-                select(ProvenanceFindingFact).where(ProvenanceFindingFact.finding_id == finding.id)
-            )
-        )
+        links = list(db.scalars(select(ProvenanceFindingFact).where(ProvenanceFindingFact.finding_id == finding.id)))
         assert len(links) == 6
         facts = [db.get(ProvenanceFact, link.fact_id) for link in links]
         assert all(fact is not None for fact in facts)
@@ -178,9 +174,7 @@ def test_delivered_over_order_binds_all_direct_engine_inputs_and_judgment(client
         }
         line_documents = {
             line.id: line.document_id
-            for line in db.scalars(
-                select(DocumentLine).where(DocumentLine.document_id.in_({order_id, delivery_id}))
-            )
+            for line in db.scalars(select(DocumentLine).where(DocumentLine.document_id.in_({order_id, delivery_id})))
         }
         assert len(line_documents) == 2
         for fact in facts:
