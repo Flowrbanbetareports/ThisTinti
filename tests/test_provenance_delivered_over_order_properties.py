@@ -40,20 +40,14 @@ from app.services.rules import analyze_chain
 
 
 PROPERTY_SETTINGS = settings(
-    max_examples=1000
-    if os.environ.get("THISTINTI_HYPOTHESIS_PROFILE") == "deep"
-    else 150,
+    max_examples=1000 if os.environ.get("THISTINTI_HYPOTHESIS_PROFILE") == "deep" else 150,
     deadline=None,
     derandomize=True,
     suppress_health_check=[HealthCheck.function_scoped_fixture, HealthCheck.too_slow],
 )
 STATEFUL_SETTINGS = settings(
-    max_examples=200
-    if os.environ.get("THISTINTI_HYPOTHESIS_PROFILE") == "deep"
-    else 60,
-    stateful_step_count=75
-    if os.environ.get("THISTINTI_HYPOTHESIS_PROFILE") == "deep"
-    else 25,
+    max_examples=200 if os.environ.get("THISTINTI_HYPOTHESIS_PROFILE") == "deep" else 60,
+    stateful_step_count=75 if os.environ.get("THISTINTI_HYPOTHESIS_PROFILE") == "deep" else 25,
     deadline=None,
     derandomize=True,
     suppress_health_check=[HealthCheck.function_scoped_fixture, HealthCheck.too_slow],
@@ -165,10 +159,7 @@ class _DeliveredScenario:
         document_id = _stable_id(self.token, "document", logical_index)
         line_id = _stable_id(self.token, "line", logical_index)
         digest = hashlib.sha256(
-            (
-                f"{self.token}:{logical_index}:{role}:{quantity}:"
-                f"{unit_price}:{price_base_quantity}:{uom}"
-            ).encode()
+            (f"{self.token}:{logical_index}:{role}:{quantity}:{unit_price}:{price_base_quantity}:{uom}").encode()
         ).hexdigest()
         document = Document(
             id=document_id,
@@ -280,28 +271,18 @@ class _DeliveredScenario:
             "wrong_pointer",
         }:
             locator_status = "missing" if kind == "missing_locator" else "present"
-            pointer = (
-                f"/lines/0/not_{field}"
-                if kind == "wrong_pointer"
-                else f"/lines/0/{field}"
-            )
+            pointer = f"/lines/0/not_{field}" if kind == "wrong_pointer" else f"/lines/0/{field}"
             origin = create_origin(
                 self.db,
                 tenant_id=self.tenant.id,
                 origin_type="DOCUMENT_EVIDENCE",
                 source_ref=f"sha256:{document.file_hash}",
                 document_id=document.id,
-                source_availability=(
-                    "external_unavailable"
-                    if kind == "external_unavailable"
-                    else "available"
-                ),
+                source_availability=("external_unavailable" if kind == "external_unavailable" else "available"),
                 locator_status=locator_status,
                 locator_type="JSON_POINTER" if locator_status == "present" else None,
                 locator_json=(
-                    json.dumps({"pointer": pointer}, separators=(",", ":"))
-                    if locator_status == "present"
-                    else None
+                    json.dumps({"pointer": pointer}, separators=(",", ":")) if locator_status == "present" else None
                 ),
                 engine_id="native-json-parser",
                 engine_version="1",
@@ -320,11 +301,7 @@ class _DeliveredScenario:
             raise AssertionError(f"unsupported provenance kind: {kind}")
 
         if kind == "wrong_value":
-            fact_value: object = (
-                "BROKEN"
-                if field == "unit_of_measure"
-                else str(Decimal(str(value)) + Decimal("1"))
-            )
+            fact_value: object = "BROKEN" if field == "unit_of_measure" else str(Decimal(str(value)) + Decimal("1"))
         else:
             fact_value = str(value) if field != "unit_of_measure" else value
         fact_type = {
@@ -360,11 +337,7 @@ class _DeliveredScenario:
         return [] if case is None else _finding_versions(self.db, case)
 
     def all_support_is_direct(self) -> bool:
-        return all(
-            kind == "direct"
-            for fields in self.document_kinds.values()
-            for kind in fields.values()
-        )
+        return all(kind == "direct" for fields in self.document_kinds.values() for kind in fields.values())
 
     def review(self, *, note: str) -> ProvenanceJudgment | None:
         case = self.case()
@@ -430,13 +403,7 @@ def test_property_delivered_over_order_complete_direct_support_binds_every_engin
             )
             is True
         )
-        links = list(
-            db.scalars(
-                select(ProvenanceFindingFact).where(
-                    ProvenanceFindingFact.finding_id == finding.id
-                )
-            )
-        )
+        links = list(db.scalars(select(ProvenanceFindingFact).where(ProvenanceFindingFact.finding_id == finding.id)))
         assert len(links) == 6
         facts = [db.get(ProvenanceFact, link.fact_id) for link in links]
         assert all(fact is not None for fact in facts)
@@ -553,11 +520,7 @@ class DeliveredOverOrderProvenanceStateMachine(RuleBasedStateMachine):
                 self._finding_snapshot(finding),
             )
         judgments = list(
-            self.db.scalars(
-                select(ProvenanceJudgment).where(
-                    ProvenanceJudgment.tenant_id == self.scenario.tenant.id
-                )
-            )
+            self.db.scalars(select(ProvenanceJudgment).where(ProvenanceJudgment.tenant_id == self.scenario.tenant.id))
         )
         for judgment in judgments:
             self.judgment_history.setdefault(
@@ -588,12 +551,8 @@ class DeliveredOverOrderProvenanceStateMachine(RuleBasedStateMachine):
 
     @rule()
     def record_human_judgment(self) -> None:
-        expected = (
-            not self.dirty_since_analysis and self.scenario.all_support_is_direct()
-        )
-        judgment = self.scenario.review(
-            note=f"Stateful delivered review {len(self.judgment_history) + 1}."
-        )
+        expected = not self.dirty_since_analysis and self.scenario.all_support_is_direct()
+        judgment = self.scenario.review(note=f"Stateful delivered review {len(self.judgment_history) + 1}.")
         assert (judgment is not None) is expected
         if judgment is not None:
             latest = self.scenario.findings()[-1]
@@ -610,11 +569,7 @@ class DeliveredOverOrderProvenanceStateMachine(RuleBasedStateMachine):
     @invariant()
     def references_resolve_and_recorded_history_is_immutable(self) -> None:
         tenant_id = self.scenario.tenant.id
-        links = self.db.scalars(
-            select(ProvenanceFindingFact).where(
-                ProvenanceFindingFact.tenant_id == tenant_id
-            )
-        )
+        links = self.db.scalars(select(ProvenanceFindingFact).where(ProvenanceFindingFact.tenant_id == tenant_id))
         for link in links:
             assert self.db.get(ProvenanceFinding, link.finding_id) is not None
             assert self.db.get(ProvenanceFact, link.fact_id) is not None
@@ -630,16 +585,12 @@ class DeliveredOverOrderProvenanceStateMachine(RuleBasedStateMachine):
     @invariant()
     def finding_versions_are_linear_and_supersession_is_append_only(self) -> None:
         findings = self.scenario.findings()
-        assert [finding.version for finding in findings] == list(
-            range(1, len(findings) + 1)
-        )
+        assert [finding.version for finding in findings] == list(range(1, len(findings) + 1))
         if findings:
             assert findings[0].supersedes_finding_id is None
         for previous, current in zip(findings, findings[1:], strict=False):
             assert current.supersedes_finding_id == previous.id
 
 
-TestDeliveredOverOrderProvenanceStateMachine = (
-    DeliveredOverOrderProvenanceStateMachine.TestCase
-)
+TestDeliveredOverOrderProvenanceStateMachine = DeliveredOverOrderProvenanceStateMachine.TestCase
 TestDeliveredOverOrderProvenanceStateMachine.settings = STATEFUL_SETTINGS
