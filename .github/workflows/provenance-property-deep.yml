@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - app/db.py
+      - app/main.py
+      - app/legacy_cases_api.py
       - app/models.py
       - app/provenance_models.py
       - app/services/provenance.py
@@ -20,6 +22,8 @@ on:
   pull_request:
     paths:
       - app/db.py
+      - app/main.py
+      - app/legacy_cases_api.py
       - app/models.py
       - app/provenance_models.py
       - app/services/provenance.py
@@ -57,9 +61,9 @@ jobs:
         run: pip install -r requirements-dev.txt
       - name: Verify provenance source and static gates
         run: |
-          python -m ruff format --check app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py
-          python -m ruff check app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py
-          python -m py_compile app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py
+          python -m ruff format --check app/main.py app/legacy_cases_api.py app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py
+          python -m ruff check app/main.py app/legacy_cases_api.py app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py
+          python -m py_compile app/main.py app/legacy_cases_api.py app/services/finding_provenance.py app/services/judgment_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py
           python scripts/check_module_boundaries.py
           python scripts/check_dependencies.py
       - name: Verify runtime SBOM is byte-identical
