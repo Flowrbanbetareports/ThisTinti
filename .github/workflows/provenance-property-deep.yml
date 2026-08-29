@@ -61,6 +61,8 @@ jobs:
           cache: pip
       - name: Install development dependencies
         run: pip install -r requirements-dev.txt
+      - name: Show delivered qualification format diff
+        run: python -m ruff format --diff tests/test_provenance_delivered_over_order_properties.py
       - name: Verify provenance source and static gates
         run: |
           python -m ruff format --check app/main.py app/legacy_cases_api.py app/services/finding_provenance.py app/services/judgment_provenance.py app/services/delivered_over_order_provenance.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py tests/test_provenance_delivered_over_order.py tests/test_provenance_delivered_over_order_properties.py tests/test_provenance_legacy_case_decision.py
