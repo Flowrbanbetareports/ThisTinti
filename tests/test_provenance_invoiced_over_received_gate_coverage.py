@@ -172,9 +172,14 @@ def test_invoiced_over_received_rejects_corrupt_fact_and_locator_evidence(client
         origin.locator_json = original_origin_locator
 
         original_status = origin.locator_status
+        original_type = origin.locator_type
         origin.locator_status = "missing"
+        origin.locator_type = None
+        origin.locator_json = None
         db.flush()
         assert invoiced_over_received_finding_matches_current_support(db, finding=finding) is False
         origin.locator_status = original_status
+        origin.locator_type = original_type
+        origin.locator_json = original_origin_locator
         db.flush()
         assert invoiced_over_received_finding_matches_current_support(db, finding=finding) is True
