@@ -11,19 +11,22 @@ qualification source of truth.
 from __future__ import annotations
 
 import argparse
+import configparser
 import json
 import os
-import subprocess
 import sys
 import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from typing import Any
 
 DEFAULT_REPO = "Flowrbanbetareports/ThisTinti"
 DEFAULT_TTL_MINUTES = 45
+MAX_TTL_MINUTES = 180
+LEASE_HISTORY_HOURS = 6
 LEASE_MARKER = "<!-- thistinti-agent-lease:v1 -->"
 LEASE_BOARD_TITLE = "Agent Lease Board — ThisTinti coordination"
 TRACKED = {
@@ -63,15 +66,12 @@ def _iso(value: datetime) -> str:
 
 
 def _repo_from_git() -> str | None:
+    config_path = Path(".git") / "config"
     try:
-        remote = subprocess.run(
-            ["git", "config", "--get", "remote.origin.url"],
-            check=False,
-            capture_output=True,
-            text=True,
-            timeout=2,
-        ).stdout.strip()
-    except (OSError, subprocess.SubprocessError):
+        parser = configparser.ConfigParser()
+        parser.read(config_path, encoding="utf-8")
+        remote = parser.get('remote "origin"', "url", fallback="").strip()
+    except (OSError, configparser.Error):
         return None
     if not remote:
         return None
@@ -155,6 +155,12 @@ def find_lease_board(repo: str) -> int:
     return int(exact[0]["number"])
 
 
+def recent_lease_comments(repo: str, board: int) -> list[dict[str, Any]]:
+    since = _iso(_utc_now() - timedelta(hours=LEASE_HISTORY_HOURS))
+    encoded_since = urllib.parse.quote(since, safe="")
+    return paged(repo, f"/issues/{board}/comments?since={encoded_since}")
+
+
 def parse_lease_comment(body: str, comment_id: int | None = None) -> Lease | None:
     if LEASE_MARKER not in body:
         return None
@@ -203,8 +209,7 @@ def lease_body(item: str, owner: str, state: str, ttl_minutes: int) -> str:
 
 
 def post_lease(repo: str, board: int, *, item: str, owner: str, state: str, ttl_minutes: int) -> None:
-    comments = paged(repo, f"/issues/{board}/comments")
-    active = current_leases(comments)
+    active = current_leases(recent_lease_comments(repo, board))
     existing = active.get(item)
     if state == "active" and existing and existing.owner != owner:
         remaining = max(0, int((existing.expires_at - _utc_now()).total_seconds() // 60))
@@ -219,15 +224,23 @@ def post_lease(repo: str, board: int, *, item: str, owner: str, state: str, ttl_
     )
 
 
-def issue_snapshot(repo: str, number: int) -> dict[str, Any]:
-    data = api(repo, f"/issues/{number}")
+def _snapshot(data: dict[str, Any]) -> dict[str, Any]:
     return {
-        "number": number,
+        "number": int(data["number"]),
         "title": data.get("title", ""),
         "state": data.get("state", "unknown"),
         "is_pr": "pull_request" in data,
         "updated_at": data.get("updated_at"),
     }
+
+
+def tracked_snapshots(repo: str) -> dict[int, dict[str, Any]]:
+    wanted = {number for numbers in TRACKED.values() for number in numbers}
+    issues = paged(repo, "/issues?state=all&sort=created&direction=desc", max_pages=3)
+    snapshots = {int(data["number"]): _snapshot(data) for data in issues if int(data["number"]) in wanted}
+    for number in sorted(wanted - snapshots.keys()):
+        snapshots[number] = _snapshot(api(repo, f"/issues/{number}"))
+    return snapshots
 
 
 def status(repo: str) -> int:
@@ -237,14 +250,8 @@ def status(repo: str) -> int:
     main_sha = branch["commit"]["sha"]
     pulls = paged(repo, "/pulls?state=open&sort=updated&direction=desc", max_pages=3)
     board = find_lease_board(repo)
-    comments = paged(repo, f"/issues/{board}/comments")
-    leases = current_leases(comments)
-
-    snapshots: dict[int, dict[str, Any]] = {}
-    for numbers in TRACKED.values():
-        for number in numbers:
-            if number not in snapshots:
-                snapshots[number] = issue_snapshot(repo, number)
+    leases = current_leases(recent_lease_comments(repo, board))
+    snapshots = tracked_snapshots(repo)
 
     print("THISTINTI AGENT STATUS")
     print(f"repo: {repo}")
@@ -322,8 +329,8 @@ def main(argv: list[str] | None = None) -> int:
     repo = resolve_repo(args.repo)
     try:
         if args.command == "claim":
-            if args.ttl < 5 or args.ttl > 180:
-                raise RuntimeError("TTL must be between 5 and 180 minutes")
+            if args.ttl < 5 or args.ttl > MAX_TTL_MINUTES:
+                raise RuntimeError(f"TTL must be between 5 and {MAX_TTL_MINUTES} minutes")
             board = find_lease_board(repo)
             post_lease(repo, board, item=args.item, owner=args.owner, state="active", ttl_minutes=args.ttl)
             print(f"claimed {args.item} for {args.owner} ({args.ttl} min)")
