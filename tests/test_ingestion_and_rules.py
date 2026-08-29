@@ -109,17 +109,15 @@ def test_document_number_override_is_not_recorded_as_document_evidence(client, a
             )
         )
         assert facts == []
-        origins = list(
-            db.scalars(
-                select(ProvenanceOrigin).where(
-                    ProvenanceOrigin.tenant_id == document.tenant_id,
-                    ProvenanceOrigin.document_id == document_id,
-                    ProvenanceOrigin.origin_type == "DOCUMENT_EVIDENCE",
-                )
+        document_origin = db.scalar(
+            select(ProvenanceOrigin).where(
+                ProvenanceOrigin.tenant_id == document.tenant_id,
+                ProvenanceOrigin.document_id == document_id,
+                ProvenanceOrigin.origin_type == "DOCUMENT_EVIDENCE",
+                ProvenanceOrigin.locator_status == "not_applicable",
             )
         )
-        assert len(origins) == 1
-        assert origins[0].locator_status == "not_applicable"
+        assert document_origin is not None
 
 
 def test_duplicate_file_is_idempotent(client, auth):

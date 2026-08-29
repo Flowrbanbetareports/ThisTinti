@@ -27,6 +27,18 @@ _DIRECT_DOCUMENT_FACTS = {
     "number": ("document.number", "/number"),
     "currency": ("document.currency", "/currency"),
 }
+_DIRECT_LINE_FACTS = {
+    "quantity": "document_line.quantity",
+    "unit_of_measure": "document_line.unit_of_measure",
+    "unit_price": "document_line.unit_price",
+    "price_base_quantity": "document_line.price_base_quantity",
+}
+_DIRECT_LINE_POINTER_FIELDS = {
+    "quantity": {"quantity"},
+    "unit_of_measure": {"unit_of_measure", "uom"},
+    "unit_price": {"unit_price"},
+    "price_base_quantity": {"price_base_quantity"},
+}
 
 
 def document_parse_error_detail(document: Document) -> dict[str, Any]:
@@ -131,6 +143,69 @@ def _record_direct_source_facts(db: Session, tenant_id: str, document: Document,
         )
 
 
+def _record_direct_line_source_facts(
+    db: Session,
+    tenant_id: str,
+    document: Document,
+    line_pairs: list[tuple[DocumentLine, Any]],
+    file_hash: str,
+) -> None:
+    for source_index, (document_line, parsed_line) in enumerate(line_pairs):
+        raw = parsed_line.raw if isinstance(parsed_line.raw, dict) else {}
+        locators = raw.get("_source_locators")
+        if not isinstance(locators, dict):
+            continue
+        for field_name, fact_type in _DIRECT_LINE_FACTS.items():
+            locator = locators.get(field_name)
+            value = getattr(parsed_line, field_name, None)
+            if value in (None, "") or not isinstance(locator, dict):
+                continue
+            if locator.get("locator_type") != "JSON_POINTER":
+                raise ValueError(f"Unsupported direct source locator for {fact_type}")
+            pointer = str(locator.get("pointer") or "")
+            allowed = {
+                f"/lines/{source_index}/{source_field}" for source_field in _DIRECT_LINE_POINTER_FIELDS[field_name]
+            }
+            if pointer not in allowed:
+                raise ValueError(f"Unsupported direct source locator for {fact_type}")
+
+            fact_key = f"document_line:{document_line.id}:{field_name}"
+            value_json = json.dumps(str(value), ensure_ascii=False)
+            previous = db.scalar(
+                select(ProvenanceFact)
+                .where(
+                    ProvenanceFact.tenant_id == tenant_id,
+                    ProvenanceFact.fact_key == fact_key,
+                )
+                .order_by(ProvenanceFact.version.desc())
+            )
+            if previous is not None and previous.value_json == value_json:
+                continue
+
+            origin = create_origin(
+                db,
+                tenant_id=tenant_id,
+                origin_type="DOCUMENT_EVIDENCE",
+                source_ref=f"sha256:{file_hash}",
+                document_id=document.id,
+                source_availability="available",
+                locator_status="present",
+                locator_type="JSON_POINTER",
+                locator_json=json.dumps({"pointer": pointer}),
+                engine_id=locator.get("engine_id"),
+                engine_version=locator.get("engine_version"),
+            )
+            append_fact(
+                db,
+                tenant_id=tenant_id,
+                fact_key=fact_key,
+                fact_type=fact_type,
+                value_json=value_json,
+                origin_id=origin.id,
+                supersedes_fact_id=previous.id if previous is not None else None,
+            )
+
+
 def _validate_file_shape(path: Path) -> None:
     suffix = path.suffix.lower()
     with path.open("rb") as handle:
@@ -215,32 +290,34 @@ def ingest_path(
         document.confidence = parsed.confidence
         document.parse_message = parsed.message
         _record_direct_source_facts(db, tenant_id, document, parsed, file_hash)
+        line_pairs: list[tuple[DocumentLine, Any]] = []
         for line in parsed.lines:
             key = canonical_item_key(line.sku, line.description, line.color, line.size, line.lot)
-            db.add(
-                DocumentLine(
-                    tenant_id=tenant_id,
-                    document_id=document.id,
-                    line_no=line.line_no,
-                    sku=line.sku,
-                    description=line.description,
-                    color=line.color,
-                    size=line.size,
-                    lot=line.lot,
-                    unit_of_measure=line.unit_of_measure,
-                    quantity=line.quantity,
-                    unit_price=line.unit_price,
-                    price_base_quantity=line.price_base_quantity,
-                    discount_rate=line.discount_rate,
-                    tax_rate=line.tax_rate,
-                    line_total=line.line_total,
-                    canonical_key=key,
-                    confidence=line.confidence,
-                    raw_json=json.dumps(line.raw, ensure_ascii=False, default=str),
-                )
+            document_line = DocumentLine(
+                tenant_id=tenant_id,
+                document_id=document.id,
+                line_no=line.line_no,
+                sku=line.sku,
+                description=line.description,
+                color=line.color,
+                size=line.size,
+                lot=line.lot,
+                unit_of_measure=line.unit_of_measure,
+                quantity=line.quantity,
+                unit_price=line.unit_price,
+                price_base_quantity=line.price_base_quantity,
+                discount_rate=line.discount_rate,
+                tax_rate=line.tax_rate,
+                line_total=line.line_total,
+                canonical_key=key,
+                confidence=line.confidence,
+                raw_json=json.dumps(line.raw, ensure_ascii=False, default=str),
             )
+            db.add(document_line)
+            line_pairs.append((document_line, line))
         document.parse_status = "review_required" if parsed.message or not parsed.lines else "parsed"
         db.flush()
+        _record_direct_line_source_facts(db, tenant_id, document, line_pairs, file_hash)
         chain = attach_document_to_chain(db, document)
         analyze_chain(db, chain)
         return document, None
@@ -317,32 +394,34 @@ def reprocess_document(db: Session, document: Document, overrides: dict[str, Any
     document.confidence = parsed.confidence
     document.parse_message = parsed.message
     _record_direct_source_facts(db, document.tenant_id, document, parsed, document.file_hash)
+    line_pairs: list[tuple[DocumentLine, Any]] = []
     for line in parsed.lines:
         key = canonical_item_key(line.sku, line.description, line.color, line.size, line.lot)
-        db.add(
-            DocumentLine(
-                tenant_id=document.tenant_id,
-                document_id=document.id,
-                line_no=line.line_no,
-                sku=line.sku,
-                description=line.description,
-                color=line.color,
-                size=line.size,
-                lot=line.lot,
-                unit_of_measure=line.unit_of_measure,
-                quantity=line.quantity,
-                unit_price=line.unit_price,
-                price_base_quantity=line.price_base_quantity,
-                discount_rate=line.discount_rate,
-                tax_rate=line.tax_rate,
-                line_total=line.line_total,
-                canonical_key=key,
-                confidence=line.confidence,
-                raw_json=json.dumps(line.raw, ensure_ascii=False, default=str),
-            )
+        document_line = DocumentLine(
+            tenant_id=document.tenant_id,
+            document_id=document.id,
+            line_no=line.line_no,
+            sku=line.sku,
+            description=line.description,
+            color=line.color,
+            size=line.size,
+            lot=line.lot,
+            unit_of_measure=line.unit_of_measure,
+            quantity=line.quantity,
+            unit_price=line.unit_price,
+            price_base_quantity=line.price_base_quantity,
+            discount_rate=line.discount_rate,
+            tax_rate=line.tax_rate,
+            line_total=line.line_total,
+            canonical_key=key,
+            confidence=line.confidence,
+            raw_json=json.dumps(line.raw, ensure_ascii=False, default=str),
         )
+        db.add(document_line)
+        line_pairs.append((document_line, line))
     document.parse_status = "review_required" if parsed.message or not parsed.lines else "parsed"
     db.flush()
+    _record_direct_line_source_facts(db, document.tenant_id, document, line_pairs, document.file_hash)
 
     # Re-evaluate old chains after detachment, then place the corrected document.
     for chain_id in old_chain_ids:

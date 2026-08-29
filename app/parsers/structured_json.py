@@ -134,6 +134,15 @@ def _parse_confidence(value: Any, *, line: int) -> float:
     )
 
 
+def _json_pointer(index: int, field: str) -> dict[str, str]:
+    return {
+        "locator_type": "JSON_POINTER",
+        "pointer": f"/lines/{index}/{field}",
+        "engine_id": "native-json-parser",
+        "engine_version": "1",
+    }
+
+
 def parse_json(path: Path, overrides: dict) -> ParsedDocument:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -264,6 +273,19 @@ def parse_json(path: Path, overrides: dict) -> ParsedDocument:
             )
         raw = dict(item)
         raw["numeric_provenance"] = provenance
+        zero_based_index = index - 1
+        source_locators: dict[str, dict[str, str]] = {
+            "quantity": _json_pointer(zero_based_index, "quantity"),
+        }
+        if item.get("unit_price") not in (None, ""):
+            source_locators["unit_price"] = _json_pointer(zero_based_index, "unit_price")
+        if item.get("price_base_quantity") not in (None, ""):
+            source_locators["price_base_quantity"] = _json_pointer(zero_based_index, "price_base_quantity")
+        if item.get("unit_of_measure") not in (None, ""):
+            source_locators["unit_of_measure"] = _json_pointer(zero_based_index, "unit_of_measure")
+        elif item.get("uom") not in (None, ""):
+            source_locators["unit_of_measure"] = _json_pointer(zero_based_index, "uom")
+        raw["_source_locators"] = source_locators
         if discounts:
             raw["discount_components"] = [str(value) for value in discounts]
         if charges:
