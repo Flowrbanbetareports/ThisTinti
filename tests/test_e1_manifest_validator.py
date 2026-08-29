@@ -75,6 +75,12 @@ def test_preparation_template_is_valid_only_as_preparation():
         validate_manifest(data, final=True)
 
 
+def test_frozen_status_cannot_use_preparation_validation_mode():
+    data = frozen_manifest()
+    with pytest.raises(ManifestError, match="FROZEN requires --final"):
+        validate_manifest(data)
+
+
 def test_frozen_manifest_accepts_exact_same_sha_gate_evidence():
     validate_manifest(frozen_manifest(), final=True)
 
