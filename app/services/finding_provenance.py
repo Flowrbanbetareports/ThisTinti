@@ -370,6 +370,17 @@ def record_duplicate_number_finding_provenance(
 ) -> None:
     # Compatibility entrypoint: rules.py already invokes this hook for every
     # machine finding. Keep that stable while qualifying additional built-ins.
+    if finding_case_type == "invoiced_over_received":
+        from .invoiced_over_received_provenance import record_invoiced_over_received_finding_provenance
+
+        record_invoiced_over_received_finding_provenance(
+            db,
+            chain=chain,
+            case=case,
+            finding_case_type=finding_case_type,
+            finding_key=finding_key,
+        )
+        return
     if finding_case_type == "delivered_over_order":
         from .delivered_over_order_provenance import record_delivered_over_order_finding_provenance
 
