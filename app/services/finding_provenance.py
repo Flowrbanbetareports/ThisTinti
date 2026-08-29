@@ -370,6 +370,17 @@ def record_duplicate_number_finding_provenance(
 ) -> None:
     # Compatibility entrypoint: rules.py already invokes this hook for every
     # machine finding. Keep that stable while qualifying additional built-ins.
+    if finding_case_type == "payment_without_invoice":
+        from .payment_without_invoice_provenance import record_payment_without_invoice_finding_provenance
+
+        record_payment_without_invoice_finding_provenance(
+            db,
+            chain=chain,
+            case=case,
+            finding_case_type=finding_case_type,
+            finding_key=finding_key,
+        )
+        return
     if finding_case_type == "payment_over_invoice":
         from .payment_over_invoice_provenance import record_payment_over_invoice_finding_provenance
 
