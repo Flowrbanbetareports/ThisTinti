@@ -285,6 +285,8 @@ def parse_json(path: Path, overrides: dict) -> ParsedDocument:
             source_locators["unit_of_measure"] = _json_pointer(zero_based_index, "unit_of_measure")
         elif item.get("uom") not in (None, ""):
             source_locators["unit_of_measure"] = _json_pointer(zero_based_index, "uom")
+        if item.get("line_total") not in (None, ""):
+            source_locators["line_total"] = _json_pointer(zero_based_index, "line_total")
         raw["_source_locators"] = source_locators
         if discounts:
             raw["discount_components"] = [str(value) for value in discounts]
