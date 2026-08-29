@@ -16,7 +16,7 @@ export THISTINTI_SECURE_COOKIES=false
 export COVERAGE_FILE="$TMP/.coverage"
 
 python -m ruff check app tests scripts migrations
-python -m ruff format --check app tests scripts migrations
+python -m ruff format --check --diff app tests scripts migrations
 python -m bandit -q -r app scripts -x tests
 python -m compileall -q app scripts
 if command -v node >/dev/null 2>&1; then
