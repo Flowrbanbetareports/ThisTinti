@@ -205,9 +205,7 @@ def payment_over_invoice_finding_matches_current_support(
     chain = db.get(OperationChain, case.chain_id)
     if chain is None or chain.tenant_id != finding.tenant_id:
         return False
-    expected_fingerprint = hashlib.sha256(
-        f"{chain.id}|payment_over_invoice|payment-over-invoice".encode()
-    ).hexdigest()
+    expected_fingerprint = hashlib.sha256(f"{chain.id}|payment_over_invoice|payment-over-invoice".encode()).hexdigest()
     if case.fingerprint != expected_fingerprint:
         return False
     current_facts = _supporting_facts(db, chain=chain, case=case)
@@ -234,9 +232,7 @@ def record_payment_over_invoice_finding_provenance(
 ) -> None:
     if finding_case_type != "payment_over_invoice" or finding_key != "payment-over-invoice":
         return
-    expected_fingerprint = hashlib.sha256(
-        f"{chain.id}|payment_over_invoice|payment-over-invoice".encode()
-    ).hexdigest()
+    expected_fingerprint = hashlib.sha256(f"{chain.id}|payment_over_invoice|payment-over-invoice".encode()).hexdigest()
     if case.fingerprint != expected_fingerprint:
         return
     facts = _supporting_facts(db, chain=chain, case=case)
