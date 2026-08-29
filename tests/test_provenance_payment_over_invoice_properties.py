@@ -120,11 +120,7 @@ class _Scenario:
             line_total=total,
             canonical_key=f"sku:pay-prop-{idx}",
             confidence=1.0,
-            raw_json=json.dumps(
-                {"_source_locators": {"line_total": locator}},
-                sort_keys=True,
-                separators=(",", ":"),
-            ),
+            raw_json=json.dumps({"_source_locators": {"line_total": locator}}, sort_keys=True, separators=(",", ":")),
         )
         self.db.add(line)
         self.db.flush()
@@ -145,9 +141,7 @@ class _Scenario:
             source_availability="external_unavailable" if kind == "external_unavailable" else "available",
             locator_status=status,
             locator_type="JSON_POINTER" if status == "present" else None,
-            locator_json=(
-                json.dumps({"pointer": pointer}, separators=(",", ":")) if status == "present" else None
-            ),
+            locator_json=json.dumps({"pointer": pointer}, separators=(",", ":")) if status == "present" else None,
             engine_id="native-json-parser",
             engine_version="1",
         )
@@ -207,9 +201,7 @@ def test_property_payment_over_invoice_complete_direct_support_binds_every_curre
         assert len(findings) == 1
         assert payment_over_invoice_finding_matches_current_support(db, finding=findings[0]) is True
         links = list(
-            db.scalars(
-                select(ProvenanceFindingFact).where(ProvenanceFindingFact.finding_id == findings[0].id)
-            )
+            db.scalars(select(ProvenanceFindingFact).where(ProvenanceFindingFact.finding_id == findings[0].id))
         )
         assert len(links) == 2
 
@@ -227,11 +219,7 @@ def test_property_payment_over_invoice_fails_closed_for_any_unqualified_current_
     with _isolated_db() as db:
         scenario = _Scenario(db, "property-hostile")
         scenario.add("invoice", Decimal(invoice_total), kind=kind if role == "invoice" else "direct")
-        scenario.add(
-            "payment",
-            Decimal(invoice_total + excess),
-            kind=kind if role == "payment" else "direct",
-        )
+        scenario.add("payment", Decimal(invoice_total + excess), kind=kind if role == "payment" else "direct")
         scenario.analyze()
         assert scenario.case() is not None
         assert scenario.findings() == []
