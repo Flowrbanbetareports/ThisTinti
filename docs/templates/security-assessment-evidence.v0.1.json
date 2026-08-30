@@ -1,0 +1,71 @@
+{
+  "schema_version": "security-assessment-evidence.v0.1",
+  "qualification_claim": "ThisTinti 1.0 Qualified — Procurement v1 — profile P1 — protocol E1",
+  "status": "PREPARATION_ONLY",
+  "candidate": {
+    "source_sha": "<40-hex-final-candidate-sha>",
+    "release_version": "<version>",
+    "artifacts": [
+      {
+        "artifact_id": "<artifact-id>",
+        "sha256": "<64-hex-sha256>"
+      }
+    ]
+  },
+  "environment": {
+    "deployment_topology": "<topology>",
+    "database": "<database/version/role-model>",
+    "os_runtime": "<os/runtime>"
+  },
+  "assessor": {
+    "organisation": "<independent-organisation>",
+    "lead_assessor": "<assessor-id>",
+    "independence_declaration": "<declaration>",
+    "assessment_window": "<start/end>",
+    "report_ref": "<dated-report-ref>"
+  },
+  "coverage": [
+    {
+      "area": "attack_surface",
+      "result": "NOT_RUN",
+      "evidence_refs": []
+    },
+    {
+      "area": "auth_session_csrf_csp_cors_proxy",
+      "result": "NOT_RUN",
+      "evidence_refs": []
+    },
+    {
+      "area": "backup_restore_security",
+      "result": "NOT_RUN",
+      "evidence_refs": []
+    },
+    {
+      "area": "evidence_integrity",
+      "result": "NOT_RUN",
+      "evidence_refs": []
+    },
+    {
+      "area": "incident_vulnerability_disclosure",
+      "result": "NOT_RUN",
+      "evidence_refs": []
+    },
+    {
+      "area": "malicious_document_parser_ocr",
+      "result": "NOT_RUN",
+      "evidence_refs": []
+    },
+    {
+      "area": "secrets_ci_release_supply_chain",
+      "result": "NOT_RUN",
+      "evidence_refs": []
+    },
+    {
+      "area": "tenant_database_isolation",
+      "result": "NOT_RUN",
+      "evidence_refs": []
+    }
+  ],
+  "findings": [],
+  "final_report_evidence_refs": []
+}
