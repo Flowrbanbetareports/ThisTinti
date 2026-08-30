@@ -6,7 +6,7 @@ import pytest
 from sqlalchemy import select
 
 from app.db import SessionLocal
-from app.models import DiscrepancyCase, Document, OperationChain
+from app.models import DiscrepancyCase, Document, OperationChain, ReviewDecision
 from app.provenance_models import ProvenanceFinding, ProvenanceJudgment
 from app.services.delivered_over_order_provenance import (
     delivered_over_order_finding_matches_current_support,
@@ -139,14 +139,16 @@ def test_delivered_over_order_archive_invalidates_current_support_and_blocks_jud
         headers=auth,
         json={"decision": "confirmed", "note": "Archived evidence must not support a new provenance judgment."},
     )
-    assert reviewed.status_code == 200, reviewed.text
+    assert reviewed.status_code == 409, reviewed.text
 
     with SessionLocal() as db:
         judgment = db.scalar(select(ProvenanceJudgment).where(ProvenanceJudgment.finding_id == finding_id))
         assert judgment is None
+        assert db.scalar(select(ReviewDecision).where(ReviewDecision.case_id == case_id)) is None
 
         case = db.get(DiscrepancyCase, case_id)
         assert case is not None
+        assert case.status == "open"
         chain = db.get(OperationChain, case.chain_id)
         finding = db.get(ProvenanceFinding, finding_id)
         target = db.get(Document, target_id)

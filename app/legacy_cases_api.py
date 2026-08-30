@@ -14,6 +14,28 @@ from .services.judgment_provenance import record_judgment_provenance, resolve_re
 
 router = APIRouter()
 
+_P1_PROVENANCE_CASE_TYPES = frozenset(
+    {
+        "duplicate_document_number",
+        "currency_mismatch",
+        "delivered_over_order",
+        "invoiced_over_received",
+        "payment_over_invoice",
+        "payment_without_invoice",
+    }
+)
+
+
+def _locked_case_query(*, case_id: str, tenant_id: str):
+    return (
+        select(DiscrepancyCase)
+        .where(
+            DiscrepancyCase.id == case_id,
+            DiscrepancyCase.tenant_id == tenant_id,
+        )
+        .with_for_update()
+    )
+
 
 @router.post(
     "/api/cases/{case_id}/decision",
@@ -26,12 +48,7 @@ def review_case_with_provenance(
     ctx: AuthContext = Depends(require_reviewer),
     db: Session = Depends(get_db),
 ) -> dict:
-    case = db.scalar(
-        select(DiscrepancyCase).where(
-            DiscrepancyCase.id == case_id,
-            DiscrepancyCase.tenant_id == ctx.tenant_id,
-        )
-    )
+    case = db.scalar(_locked_case_query(case_id=case_id, tenant_id=ctx.tenant_id))
     if case is None:
         raise HTTPException(status_code=404, detail="Case not found")
 
@@ -41,7 +58,6 @@ def review_case_with_provenance(
         tenant_id=ctx.tenant_id,
         actor_id=ctx.user_id,
     )
-    case.status = payload.decision
     decision = ReviewDecision(
         tenant_id=ctx.tenant_id,
         case_id=case.id,
@@ -51,7 +67,7 @@ def review_case_with_provenance(
     )
     db.add(decision)
     db.flush()
-    record_judgment_provenance(
+    judgment = record_judgment_provenance(
         db,
         tenant_id=ctx.tenant_id,
         case_id=case.id,
@@ -60,6 +76,14 @@ def review_case_with_provenance(
         reviewer_user_id=reviewer_user_id,
         previous_state=previous_state,
     )
+    if case.case_type in _P1_PROVENANCE_CASE_TYPES and judgment is None:
+        db.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail="Case decision requires exact-current provenance support",
+        )
+
+    case.status = payload.decision
     add_audit(
         db,
         ctx.tenant_id,
