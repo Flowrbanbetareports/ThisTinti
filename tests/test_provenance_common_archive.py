@@ -46,7 +46,7 @@ def _upload(client, auth, *, document_type: str, number: str, currency: str, ord
         headers=auth,
         files={
             "file": (
-                f"{number}.json",
+                f"{number}-{document_type}.json",
                 _payload(
                     document_type=document_type,
                     number=number,
@@ -86,8 +86,25 @@ def _finding_count(db, case: DiscrepancyCase) -> int:
 
 
 def test_duplicate_number_support_fails_closed_when_document_is_archived(client, auth):
-    first = _upload(client, auth, document_type="order", number="DUP-ARCH-141", currency="EUR")
-    second = _upload(client, auth, document_type="order", number="DUP-ARCH-141", currency="EUR")
+    order_number = "PO-DUP-ARCH-141"
+    order = _upload(client, auth, document_type="order", number=order_number, currency="EUR")
+    first = _upload(
+        client,
+        auth,
+        document_type="invoice",
+        number="DUP-ARCH-141",
+        currency="EUR",
+        order_number=order_number,
+    )
+    second = _upload(
+        client,
+        auth,
+        document_type="invoice",
+        number="DUP-ARCH-141",
+        currency="EUR",
+        order_number=order_number,
+    )
+    assert order.status_code == 201, order.text
     assert first.status_code == 201, first.text
     assert second.status_code == 201, second.text
     archived_id = second.json()["document"]["id"]
