@@ -6,7 +6,7 @@ from decimal import Decimal
 from sqlalchemy import select
 
 from app.db import SessionLocal
-from app.models import DiscrepancyCase, DocumentLine, OperationChain
+from app.models import DiscrepancyCase, DocumentLine, OperationChain, ReviewDecision
 from app.provenance_models import (
     ProvenanceFact,
     ProvenanceFinding,
@@ -309,10 +309,14 @@ def test_delivered_over_order_rejects_unavailable_support_before_human_binding(c
         headers=auth,
         json={"decision": "confirmed", "note": "This must not bind stale or unavailable provenance."},
     )
-    assert reviewed.status_code == 200, reviewed.text
+    assert reviewed.status_code == 409, reviewed.text
     with SessionLocal() as db:
         judgment = db.scalar(select(ProvenanceJudgment).where(ProvenanceJudgment.finding_id == finding_id))
         assert judgment is None
+        assert db.scalar(select(ReviewDecision).where(ReviewDecision.case_id == case_id)) is None
+        case = db.get(DiscrepancyCase, case_id)
+        assert case is not None
+        assert case.status == "open"
 
 
 def test_delivered_over_order_rejects_tampered_rule_fact_and_locator_support(client, auth):

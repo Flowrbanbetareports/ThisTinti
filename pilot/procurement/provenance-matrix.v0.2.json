@@ -41,7 +41,7 @@
     {"id": "quantity-consistency", "provenance_status": "incomplete", "blind_scope": "mixed", "rule_count": 4, "blind_included_rule_count": 2, "complete_rule_count": 2, "incomplete_rule_count": 2, "case_types": ["unit_mismatch", "delivered_over_order", "invoiced_over_received", "credit_below_return"]},
     {"id": "amount-consistency", "provenance_status": "incomplete", "blind_scope": "mixed", "rule_count": 7, "blind_included_rule_count": 2, "complete_rule_count": 2, "incomplete_rule_count": 5, "case_types": ["currency_mismatch", "line_total_mismatch", "price_over_order", "discount_missing", "tax_rate_mismatch", "duplicate_invoice_line", "payment_over_invoice"]},
     {"id": "temporal-consistency", "provenance_status": "unsupported", "blind_scope": "excluded", "rule_count": 0, "blind_included_rule_count": 0, "complete_rule_count": 0, "incomplete_rule_count": 0, "case_types": [], "exclusion_reason": "No temporal engine case type is included in the first blind target; temporal checks are deferred."},
-    {"id": "expected-evidence-completeness", "provenance_status": "incomplete", "blind_scope": "mixed", "rule_count": 3, "blind_included_rule_count": 1, "complete_rule_count": 0, "incomplete_rule_count": 3, "case_types": ["unmatched_invoice_line", "payment_without_invoice", "return_without_credit"]}
+    {"id": "expected-evidence-completeness", "provenance_status": "incomplete", "blind_scope": "mixed", "rule_count": 3, "blind_included_rule_count": 1, "complete_rule_count": 1, "incomplete_rule_count": 2, "case_types": ["unmatched_invoice_line", "payment_without_invoice", "return_without_credit"]}
   ],
   "rules": [
     {"family": "identity-linkage", "case_type": "duplicate_document_number", "provenance_status": "complete", "evidence": "Qualified property/state-machine vertical slice with immutable finding versions and exact judgment binding.", "blind_scope": "included", "blind_eligible": true},
@@ -58,7 +58,7 @@
     {"family": "amount-consistency", "case_type": "duplicate_invoice_line", "provenance_status": "incomplete", "evidence": "Engine finding and EvidenceLink exist; duplicate-line signature inputs are not yet qualified provenance facts.", "blind_scope": "excluded", "blind_eligible": false, "exclusion_reason": "Deferred from the first blind target pending qualification of duplicate-line signatures."},
     {"family": "amount-consistency", "case_type": "payment_over_invoice", "provenance_status": "complete", "evidence": "Qualified exact current invoice/payment line_total FACT sets -> immutable finding versions -> exact current judgment binding; engine-equivalent amount aggregation and 0.02 tolerance, fail-closed support, property/stateful and Deep qualification passed on the qualified slice.", "blind_scope": "included", "blind_eligible": true},
     {"family": "expected-evidence-completeness", "case_type": "unmatched_invoice_line", "provenance_status": "incomplete", "evidence": "Engine finding and EvidenceLink exist; the absence/matching interpretation is not represented as qualified provenance.", "blind_scope": "excluded", "blind_eligible": false, "exclusion_reason": "Deferred because matching and absence semantics require a separate qualified model."},
-    {"family": "expected-evidence-completeness", "case_type": "payment_without_invoice", "provenance_status": "incomplete", "evidence": "Engine finding and EvidenceLink exist; expected-evidence absence is not yet represented through FACT/FINDING provenance.", "blind_scope": "included", "blind_eligible": false},
+    {"family": "expected-evidence-completeness", "case_type": "payment_without_invoice", "provenance_status": "complete", "evidence": "Qualified snapshot-scoped invoice absence plus exact current payment amount support -> immutable finding versions -> exact current judgment binding; rules.py-equivalent absence semantics, fail-closed degradation, property/stateful and Deep qualification passed on the qualified slice.", "blind_scope": "included", "blind_eligible": true},
     {"family": "expected-evidence-completeness", "case_type": "return_without_credit", "provenance_status": "incomplete", "evidence": "Engine finding and EvidenceLink exist; expected credit evidence is not yet represented through FACT/FINDING provenance.", "blind_scope": "excluded", "blind_eligible": false, "exclusion_reason": "Deferred because expected-credit absence semantics are outside the first blind target."}
   ],
   "excluded_runtime_rules": [
@@ -70,7 +70,7 @@
     "target_approved": false,
     "target_nonempty": true,
     "policy": "Blind freeze requires an approved-for-blind non-empty target, complete provenance for every included case type, and no unsupported family left inside the target.",
-    "blocking_case_types": ["payment_without_invoice"],
+    "blocking_case_types": [],
     "unsupported_included_families": []
   },
   "claim_boundary": {

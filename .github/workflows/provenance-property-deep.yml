@@ -18,6 +18,7 @@ on:
       - app/services/delivered_over_order_provenance.py
       - app/services/invoiced_over_received_provenance.py
       - app/services/payment_over_invoice_provenance.py
+      - app/services/payment_without_invoice_provenance.py
       - app/services/rules.py
       - requirements-dev.txt
       - tests/test_provenance_*.py
@@ -26,27 +27,8 @@ on:
       - tests/test_finding_judgment_provenance.py
       - .github/workflows/provenance-property-deep.yml
   pull_request:
-    paths:
-      - app/db.py
-      - app/main.py
-      - app/legacy_cases_api.py
-      - app/models.py
-      - app/provenance_models.py
-      - app/parsers/structured_json.py
-      - app/services/provenance.py
-      - app/services/finding_provenance.py
-      - app/services/judgment_provenance.py
-      - app/services/ingestion.py
-      - app/services/delivered_over_order_provenance.py
-      - app/services/invoiced_over_received_provenance.py
-      - app/services/payment_over_invoice_provenance.py
-      - app/services/rules.py
-      - requirements-dev.txt
-      - tests/test_provenance_*.py
-      - tests/test_payment_over_invoice_line_total_fact.py
-      - tests/test_duplicate_number_finding_provenance.py
-      - tests/test_finding_judgment_provenance.py
-      - .github/workflows/provenance-property-deep.yml
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -71,13 +53,16 @@ jobs:
           cache: pip
       - name: Install development dependencies
         run: pip install -r requirements-dev.txt
-      - name: Verify provenance source and static gates
-        run: |
-          python -m ruff format --check app/main.py app/legacy_cases_api.py app/parsers/structured_json.py app/services/ingestion.py app/services/finding_provenance.py app/services/judgment_provenance.py app/services/delivered_over_order_provenance.py app/services/invoiced_over_received_provenance.py app/services/payment_over_invoice_provenance.py tests/test_payment_over_invoice_line_total_fact.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py tests/test_provenance_delivered_over_order.py tests/test_provenance_delivered_over_order_properties.py tests/test_provenance_invoiced_over_received.py tests/test_provenance_invoiced_over_received_properties.py tests/test_provenance_payment_over_invoice.py tests/test_provenance_payment_over_invoice_properties.py tests/test_provenance_legacy_case_decision.py
-          python -m ruff check app/main.py app/legacy_cases_api.py app/parsers/structured_json.py app/services/ingestion.py app/services/finding_provenance.py app/services/judgment_provenance.py app/services/delivered_over_order_provenance.py app/services/invoiced_over_received_provenance.py app/services/payment_over_invoice_provenance.py tests/test_payment_over_invoice_line_total_fact.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py tests/test_provenance_delivered_over_order.py tests/test_provenance_delivered_over_order_properties.py tests/test_provenance_invoiced_over_received.py tests/test_provenance_invoiced_over_received_properties.py tests/test_provenance_payment_over_invoice.py tests/test_provenance_payment_over_invoice_properties.py tests/test_provenance_legacy_case_decision.py
-          python -m py_compile app/main.py app/legacy_cases_api.py app/parsers/structured_json.py app/services/ingestion.py app/services/finding_provenance.py app/services/judgment_provenance.py app/services/delivered_over_order_provenance.py app/services/invoiced_over_received_provenance.py app/services/payment_over_invoice_provenance.py tests/test_payment_over_invoice_line_total_fact.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py tests/test_provenance_delivered_over_order.py tests/test_provenance_delivered_over_order_properties.py tests/test_provenance_invoiced_over_received.py tests/test_provenance_invoiced_over_received_properties.py tests/test_provenance_payment_over_invoice.py tests/test_provenance_payment_over_invoice_properties.py tests/test_provenance_legacy_case_decision.py
-          python scripts/check_module_boundaries.py
-          python scripts/check_dependencies.py
+      - name: Verify provenance formatting
+        run: python -m ruff format --check app/main.py app/legacy_cases_api.py app/parsers/structured_json.py app/services/ingestion.py app/services/finding_provenance.py app/services/judgment_provenance.py app/services/delivered_over_order_provenance.py app/services/invoiced_over_received_provenance.py app/services/payment_over_invoice_provenance.py app/services/payment_without_invoice_provenance.py tests/test_payment_over_invoice_line_total_fact.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py tests/test_provenance_common_archive.py tests/test_provenance_delivered_over_order.py tests/test_provenance_delivered_over_order_properties.py tests/test_provenance_invoiced_over_received.py tests/test_provenance_invoiced_over_received_archive.py tests/test_provenance_invoiced_over_received_properties.py tests/test_provenance_payment_over_invoice.py tests/test_provenance_payment_over_invoice_properties.py tests/test_provenance_payment_without_invoice.py tests/test_provenance_payment_without_invoice_properties.py tests/test_provenance_payment_without_invoice_parse_status.py tests/test_provenance_payment_without_invoice_archive.py tests/test_provenance_legacy_case_decision.py
+      - name: Verify provenance lint
+        run: python -m ruff check app/main.py app/legacy_cases_api.py app/parsers/structured_json.py app/services/ingestion.py app/services/finding_provenance.py app/services/judgment_provenance.py app/services/delivered_over_order_provenance.py app/services/invoiced_over_received_provenance.py app/services/payment_over_invoice_provenance.py app/services/payment_without_invoice_provenance.py tests/test_payment_over_invoice_line_total_fact.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py tests/test_provenance_common_archive.py tests/test_provenance_delivered_over_order.py tests/test_provenance_delivered_over_order_properties.py tests/test_provenance_invoiced_over_received.py tests/test_provenance_invoiced_over_received_archive.py tests/test_provenance_invoiced_over_received_properties.py tests/test_provenance_payment_over_invoice.py tests/test_provenance_payment_over_invoice_properties.py tests/test_provenance_payment_without_invoice.py tests/test_provenance_payment_without_invoice_properties.py tests/test_provenance_payment_without_invoice_parse_status.py tests/test_provenance_payment_without_invoice_archive.py tests/test_provenance_legacy_case_decision.py
+      - name: Verify provenance compilation
+        run: python -m py_compile app/main.py app/legacy_cases_api.py app/parsers/structured_json.py app/services/ingestion.py app/services/finding_provenance.py app/services/judgment_provenance.py app/services/delivered_over_order_provenance.py app/services/invoiced_over_received_provenance.py app/services/payment_over_invoice_provenance.py app/services/payment_without_invoice_provenance.py tests/test_payment_over_invoice_line_total_fact.py tests/test_provenance_properties.py tests/test_provenance_currency_mismatch.py tests/test_provenance_common_archive.py tests/test_provenance_delivered_over_order.py tests/test_provenance_delivered_over_order_properties.py tests/test_provenance_invoiced_over_received.py tests/test_provenance_invoiced_over_received_archive.py tests/test_provenance_invoiced_over_received_properties.py tests/test_provenance_payment_over_invoice.py tests/test_provenance_payment_over_invoice_properties.py tests/test_provenance_payment_without_invoice.py tests/test_provenance_payment_without_invoice_properties.py tests/test_provenance_payment_without_invoice_parse_status.py tests/test_provenance_payment_without_invoice_archive.py tests/test_provenance_legacy_case_decision.py
+      - name: Verify module boundaries
+        run: python scripts/check_module_boundaries.py
+      - name: Verify dependency graph
+        run: python scripts/check_dependencies.py
       - name: Verify runtime SBOM is byte-identical
         run: |
           cp docs/sbom.cdx.json /tmp/sbom-before.cdx.json
@@ -94,12 +79,18 @@ jobs:
           tests/test_payment_over_invoice_line_total_fact.py
           tests/test_provenance_properties.py
           tests/test_provenance_currency_mismatch.py
+          tests/test_provenance_common_archive.py
           tests/test_provenance_delivered_over_order.py
           tests/test_provenance_delivered_over_order_properties.py
           tests/test_provenance_invoiced_over_received.py
+          tests/test_provenance_invoiced_over_received_archive.py
           tests/test_provenance_invoiced_over_received_properties.py
           tests/test_provenance_payment_over_invoice.py
           tests/test_provenance_payment_over_invoice_properties.py
+          tests/test_provenance_payment_without_invoice.py
+          tests/test_provenance_payment_without_invoice_properties.py
+          tests/test_provenance_payment_without_invoice_parse_status.py
+          tests/test_provenance_payment_without_invoice_archive.py
           tests/test_provenance_legacy_case_decision.py
       - name: Record deep qualification evidence
         if: success()
@@ -113,16 +104,25 @@ jobs:
             "currency_property_max_examples=1000" \
             "currency_stateful_max_examples=200" \
             "currency_stateful_step_count=75" \
+            "common_archive_state_fail_closed=deep_regression" \
             "delivered_over_order_property_max_examples=1000" \
             "delivered_over_order_stateful_max_examples=200" \
             "delivered_over_order_stateful_step_count=75" \
             "invoiced_over_received_property_max_examples=1000" \
             "invoiced_over_received_stateful_max_examples=200" \
             "invoiced_over_received_stateful_step_count=75" \
+            "invoiced_over_received_archive_state_fail_closed=deep_regression" \
             "payment_over_invoice_property_max_examples=1000" \
             "payment_over_invoice_stateful_max_examples=200" \
             "payment_over_invoice_stateful_step_count=75" \
             "payment_over_invoice_direct_line_total_fact_prerequisite=qualified" \
+            "payment_without_invoice_property_max_examples=1000" \
+            "payment_without_invoice_stateful_max_examples=200" \
+            "payment_without_invoice_stateful_step_count=75" \
+            "payment_without_invoice_absence_snapshot_scope=exact_current_chain_membership" \
+            "payment_without_invoice_matching_configuration=versioned" \
+            "payment_without_invoice_parse_state_fail_closed=deep_regression" \
+            "payment_without_invoice_archive_state_fail_closed=deep_regression" \
             > provenance-deep-qualification.txt
       - name: Upload deep qualification evidence
         if: success()

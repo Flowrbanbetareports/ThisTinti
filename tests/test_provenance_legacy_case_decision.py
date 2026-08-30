@@ -4,8 +4,10 @@ import json
 from types import SimpleNamespace
 
 from sqlalchemy import select
+from sqlalchemy.dialects import postgresql
 
 from app.db import SessionLocal
+from app.legacy_cases_api import _locked_case_query
 from app.models import DiscrepancyCase, ReviewDecision
 from app.provenance_models import ProvenanceFinding, ProvenanceJudgment
 from app.services.finding_provenance import _supporting_number_facts
@@ -83,6 +85,11 @@ def _upload_currency_mismatch(client, auth, *, suffix: str) -> tuple[str, str]:
         return case.id, finding.id
 
 
+def test_case_decision_query_serializes_conflicting_writers_on_postgres():
+    compiled = str(_locked_case_query(case_id="case-1", tenant_id="tenant-1").compile(dialect=postgresql.dialect()))
+    assert "FOR UPDATE" in compiled
+
+
 def test_legacy_case_decision_records_previous_state_and_exact_judgment(client, auth):
     case_id, finding_id = _upload_currency_mismatch(client, auth, suffix="USER")
 
@@ -144,6 +151,26 @@ def test_legacy_case_decision_preserves_api_credential_identity_without_user_fk(
         assert judgment.reviewer_ref == f"api_credential:{credential['id']}"
         assert judgment.reviewer_user_id is None
         assert judgment.previous_state == "open"
+
+
+def test_p1_case_decision_rolls_back_when_judgment_provenance_cannot_bind(client, auth, monkeypatch):
+    case_id, finding_id = _upload_currency_mismatch(client, auth, suffix="STALE")
+
+    monkeypatch.setattr("app.legacy_cases_api.record_judgment_provenance", lambda *args, **kwargs: None)
+    response = client.post(
+        f"/api/cases/{case_id}/decision",
+        headers=auth,
+        json={"decision": "confirmed", "note": "Must not commit without exact-current support."},
+    )
+    assert response.status_code == 409, response.text
+    assert response.json()["detail"] == "Case decision requires exact-current provenance support"
+
+    with SessionLocal() as db:
+        case = db.get(DiscrepancyCase, case_id)
+        assert case is not None
+        assert case.status == "open"
+        assert db.scalar(select(ReviewDecision).where(ReviewDecision.case_id == case_id)) is None
+        assert db.scalar(select(ProvenanceJudgment).where(ProvenanceJudgment.finding_id == finding_id)) is None
 
 
 def test_reviewer_identity_and_malformed_finding_key_fail_closed():
