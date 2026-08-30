@@ -20,6 +20,7 @@ _DUPLICATE_NUMBER_RULE_CONFIGURATION_HASH = hashlib.sha256(
             "scope": "operation_chain",
             "document_type_scope": "same",
             "number_comparison": "exact_non_empty",
+            "active_document_required": True,
         },
         sort_keys=True,
         separators=(",", ":"),
@@ -34,6 +35,7 @@ _CURRENCY_MISMATCH_RULE_CONFIGURATION_HASH = hashlib.sha256(
             "input": "all_non_empty_document_currency_values",
             "comparison": "distinct_value_count_gt_1",
             "support": "all_current_engine_inputs_require_direct_document_evidence",
+            "active_document_required": True,
         },
         sort_keys=True,
         separators=(",", ":"),
@@ -66,7 +68,7 @@ def _supporting_number_facts(
         [
             document
             for document in all_documents
-            if document.document_type == document_type and document.number == number
+            if not document.archived and document.document_type == document_type and document.number == number
         ],
         key=lambda document: document.id,
     )
@@ -126,7 +128,9 @@ def _supporting_currency_facts(
     chain: OperationChain,
     all_documents: list[Document],
 ) -> list[ProvenanceFact]:
-    documents_by_id = {document.id: document for document in all_documents if document.currency}
+    documents_by_id = {
+        document.id: document for document in all_documents if document.currency and not document.archived
+    }
     documents = sorted(documents_by_id.values(), key=lambda document: document.id)
     if len({document.currency for document in documents}) < 2:
         return []
@@ -219,7 +223,7 @@ def _current_chain_documents(db: Session, chain: OperationChain) -> list[Documen
             )
         )
     )
-    by_id = {document.id: document for document in documents}
+    by_id = {document.id: document for document in documents if not document.archived}
     return [by_id[document_id] for document_id in ordered_ids if document_id in by_id]
 
 
@@ -292,7 +296,7 @@ def duplicate_number_finding_matches_current_support(
             )
         )
     )
-    if len(linked_documents) != len(document_ids):
+    if len(linked_documents) != len(document_ids) or any(document.archived for document in linked_documents):
         return False
     document_types = {document.document_type for document in linked_documents}
     if len(document_types) != 1:
@@ -347,6 +351,17 @@ def currency_mismatch_finding_matches_current_support(
         document_ids.add(parts[1])
         values.add(value)
     if len(values) < 2:
+        return False
+
+    linked_documents = list(
+        db.scalars(
+            select(Document).where(
+                Document.tenant_id == finding.tenant_id,
+                Document.id.in_(document_ids),
+            )
+        )
+    )
+    if len(linked_documents) != len(document_ids) or any(document.archived for document in linked_documents):
         return False
 
     current_facts = _supporting_currency_facts(
