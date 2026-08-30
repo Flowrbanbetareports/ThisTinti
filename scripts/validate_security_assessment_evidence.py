@@ -194,13 +194,17 @@ def validate_security_evidence(data: dict[str, Any], *, final: bool = False) -> 
         if evidence_integrity:
             release_blocking = True
 
-        if final and release_blocking:
-            if evidence_integrity and status_value != "RETESTED_PASS":
-                raise SecurityEvidenceError(
-                    f"{prefix}.status: evidence-integrity blocker requires RETESTED_PASS"
-                )
-            if status_value not in {"RETESTED_PASS", "ACCEPTED_RESIDUAL", "REJECTED_NOT_APPLICABLE"}:
-                raise SecurityEvidenceError(f"{prefix}.status: unresolved release blocker")
+        if final and status_value in {"OPEN", "FIXED_PENDING_RETEST"}:
+            raise SecurityEvidenceError(f"{prefix}.status: final evidence requires a terminal decision")
+        if final and evidence_integrity and status_value != "RETESTED_PASS":
+            raise SecurityEvidenceError(
+                f"{prefix}.status: evidence-integrity blocker requires RETESTED_PASS"
+            )
+        if final and release_blocking and status_value not in {
+            "RETESTED_PASS",
+            "REJECTED_NOT_APPLICABLE",
+        }:
+            raise SecurityEvidenceError(f"{prefix}.status: release blocker requires retest or rejection")
 
         if status_value == "RETESTED_PASS":
             retest_sha = _sha(
@@ -212,10 +216,10 @@ def validate_security_evidence(data: dict[str, Any], *, final: bool = False) -> 
             if not PLACEHOLDER.fullmatch(str(source_sha)) and retest_sha != source_sha:
                 raise SecurityEvidenceError(f"{prefix}.retest_candidate_sha: stale-candidate retest")
             _refs(item.get("retest_evidence_refs"), f"{prefix}.retest_evidence_refs", required=True)
-        elif final and release_blocking and status_value == "ACCEPTED_RESIDUAL":
+        elif final and status_value == "ACCEPTED_RESIDUAL":
             _string(item.get("residual_risk_rationale"), f"{prefix}.residual_risk_rationale")
             _string(item.get("residual_risk_approval_ref"), f"{prefix}.residual_risk_approval_ref")
-        elif final and release_blocking and status_value == "REJECTED_NOT_APPLICABLE":
+        elif final and status_value == "REJECTED_NOT_APPLICABLE":
             _string(item.get("rejection_basis"), f"{prefix}.rejection_basis")
             _string(item.get("rejection_approval_ref"), f"{prefix}.rejection_approval_ref")
 
