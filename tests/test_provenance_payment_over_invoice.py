@@ -6,7 +6,7 @@ from decimal import Decimal
 from sqlalchemy import select
 
 from app.db import SessionLocal
-from app.models import DiscrepancyCase, DocumentLine, OperationChain
+from app.models import DiscrepancyCase, DocumentLine, OperationChain, ReviewDecision
 from app.provenance_models import (
     ProvenanceFact,
     ProvenanceFinding,
@@ -238,9 +238,13 @@ def test_payment_over_invoice_rejects_unavailable_support_before_human_binding(c
         headers=auth,
         json={"decision": "confirmed", "note": "Must not bind stale payment provenance."},
     )
-    assert reviewed.status_code == 200, reviewed.text
+    assert reviewed.status_code == 409, reviewed.text
     with SessionLocal() as db:
         assert db.scalar(select(ProvenanceJudgment).where(ProvenanceJudgment.finding_id == finding_id)) is None
+        assert db.scalar(select(ReviewDecision).where(ReviewDecision.case_id == case_id)) is None
+        case = db.get(DiscrepancyCase, case_id)
+        assert case is not None
+        assert case.status == "open"
 
 
 def test_payment_over_invoice_rejects_support_marked_missing_by_numeric_provenance(client, auth):
@@ -269,9 +273,13 @@ def test_payment_over_invoice_rejects_support_marked_missing_by_numeric_provenan
         headers=auth,
         json={"decision": "confirmed", "note": "Missing numeric support must fail closed."},
     )
-    assert reviewed.status_code == 200, reviewed.text
+    assert reviewed.status_code == 409, reviewed.text
     with SessionLocal() as db:
         assert db.scalar(select(ProvenanceJudgment).where(ProvenanceJudgment.finding_id == finding_id)) is None
+        assert db.scalar(select(ReviewDecision).where(ReviewDecision.case_id == case_id)) is None
+        case = db.get(DiscrepancyCase, case_id)
+        assert case is not None
+        assert case.status == "open"
 
 
 def test_payment_over_invoice_malformed_support_and_metadata_fail_closed(client, auth):
