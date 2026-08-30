@@ -14,9 +14,7 @@ from app.services.finding_provenance import _supporting_number_facts
 from app.services.judgment_provenance import record_judgment_provenance, resolve_reviewer_identity
 
 
-def _payload(
-    *, document_type: str, number: str, currency: str, order_number: str | None = None
-) -> bytes:
+def _payload(*, document_type: str, number: str, currency: str, order_number: str | None = None) -> bytes:
     data: dict[str, object] = {
         "document_type": document_type,
         "number": number,
@@ -88,11 +86,7 @@ def _upload_currency_mismatch(client, auth, *, suffix: str) -> tuple[str, str]:
 
 
 def test_case_decision_query_serializes_conflicting_writers_on_postgres():
-    compiled = str(
-        _locked_case_query(case_id="case-1", tenant_id="tenant-1").compile(
-            dialect=postgresql.dialect()
-        )
-    )
+    compiled = str(_locked_case_query(case_id="case-1", tenant_id="tenant-1").compile(dialect=postgresql.dialect()))
     assert "FOR UPDATE" in compiled
 
 
