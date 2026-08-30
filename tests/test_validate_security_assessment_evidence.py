@@ -217,3 +217,11 @@ def test_duplicate_artifact_identity_is_rejected() -> None:
 
     with pytest.raises(SecurityEvidenceError, match="duplicate artifact"):
         validate_security_evidence(data, final=True)
+
+
+def test_assessor_report_must_be_in_final_evidence_index() -> None:
+    data = _complete_evidence()
+    data["final_report_evidence_refs"] = ["SOME-OTHER-REPORT"]
+
+    with pytest.raises(SecurityEvidenceError, match="assessor report_ref is not referenced"):
+        validate_security_evidence(data, final=True)
