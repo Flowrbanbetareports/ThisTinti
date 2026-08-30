@@ -132,16 +132,17 @@ def test_invoiced_over_received_archive_invalidates_current_support_and_blocks_j
         assert chain is not None
         assert target is not None and target.archived is False
 
-        finding_count_before = len(
-            list(
-                db.scalars(
-                    select(ProvenanceFinding).where(
-                        ProvenanceFinding.tenant_id == case.tenant_id,
-                        ProvenanceFinding.case_id == case.id,
-                    )
+        findings_before = list(
+            db.scalars(
+                select(ProvenanceFinding)
+                .where(
+                    ProvenanceFinding.tenant_id == case.tenant_id,
+                    ProvenanceFinding.case_id == case.id,
                 )
+                .order_by(ProvenanceFinding.version)
             )
         )
+        finding_count_before = len(findings_before)
         case_id = case.id
         finding_id = finding.id
 
@@ -151,19 +152,24 @@ def test_invoiced_over_received_archive_invalidates_current_support_and_blocks_j
         db.flush()
 
         assert invoiced_over_received_finding_matches_current_support(db, finding=finding) is False
-        assert (
-            len(
-                list(
-                    db.scalars(
-                        select(ProvenanceFinding).where(
-                            ProvenanceFinding.tenant_id == case.tenant_id,
-                            ProvenanceFinding.case_id == case.id,
-                        )
-                    )
+        findings_after = list(
+            db.scalars(
+                select(ProvenanceFinding)
+                .where(
+                    ProvenanceFinding.tenant_id == case.tenant_id,
+                    ProvenanceFinding.case_id == case.id,
                 )
+                .order_by(ProvenanceFinding.version)
             )
-            == finding_count_before
         )
+        if archived_role == "delivery":
+            # Removing the delivery legitimately activates the documented commercial fallback.
+            # The old delivery-backed finding must be stale, while any newly versioned finding
+            # must itself match the current active support rather than the archived delivery.
+            assert len(findings_after) == finding_count_before + 1
+            assert invoiced_over_received_finding_matches_current_support(db, finding=findings_after[-1]) is True
+        else:
+            assert len(findings_after) == finding_count_before
         db.commit()
 
     reviewed = client.post(
