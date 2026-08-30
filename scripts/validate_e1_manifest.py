@@ -178,9 +178,7 @@ def validate_manifest(data: dict[str, Any], *, final: bool = False) -> None:
     if final:
         missing_checks = sorted(REQUIRED_QUALIFICATION_CHECKS - seen_checks)
         if missing_checks:
-            raise ManifestError(
-                "required_gate_evidence: missing required checks: " + ", ".join(missing_checks)
-            )
+            raise ManifestError("required_gate_evidence: missing required checks: " + ", ".join(missing_checks))
 
     pools = _require_mapping(data.get("pools"), "pools")
     if set(pools) != set(POOLS):
