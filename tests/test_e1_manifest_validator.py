@@ -6,7 +6,6 @@ import pytest
 
 from scripts.validate_e1_manifest import ManifestError, validate_manifest
 
-
 TEMPLATE = Path("docs/qualification/e1-manifest.template.json")
 
 
