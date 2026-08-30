@@ -101,7 +101,7 @@ def test_duplicate_number_support_fails_closed_when_document_is_archived(client,
         auth,
         document_type="invoice",
         number="DUP-ARCH-141",
-        currency="EUR",
+        currency="USD",
         order_number=order_number,
     )
     assert order.status_code == 201, order.text
