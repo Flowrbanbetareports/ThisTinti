@@ -4,7 +4,11 @@ from pathlib import Path
 
 import pytest
 
-from scripts.validate_e1_manifest import ManifestError, validate_manifest
+from scripts.validate_e1_manifest import (
+    REQUIRED_QUALIFICATION_CHECKS,
+    ManifestError,
+    validate_manifest,
+)
 
 TEMPLATE = Path("docs/qualification/e1-manifest.template.json")
 
@@ -34,10 +38,11 @@ def frozen_manifest():
         data["candidate"][component] = {"version": "1", "sha256": token * 64}
     data["required_gate_evidence"] = [
         {
-            "check": "quality",
+            "check": check,
             "source_sha": data["candidate"]["source_sha"],
             "conclusion": "success",
         }
+        for check in sorted(REQUIRED_QUALIFICATION_CHECKS)
     ]
     for pool_name, token in zip(("CALIBRATION", "BLIND", "HOLDOUT"), ("3", "4", "5"), strict=True):
         data["pools"][pool_name] = {
@@ -76,7 +81,7 @@ def test_frozen_status_cannot_use_preparation_validation_mode():
         validate_manifest(data)
 
 
-def test_frozen_manifest_accepts_exact_same_sha_gate_evidence():
+def test_frozen_manifest_accepts_complete_exact_same_sha_gate_evidence():
     validate_manifest(frozen_manifest(), final=True)
 
 
@@ -84,6 +89,15 @@ def test_frozen_manifest_rejects_missing_gate_evidence():
     data = frozen_manifest()
     data["required_gate_evidence"] = []
     with pytest.raises(ManifestError, match="requires gate evidence"):
+        validate_manifest(data, final=True)
+
+
+def test_frozen_manifest_rejects_incomplete_required_gate_set():
+    data = frozen_manifest()
+    data["required_gate_evidence"] = [
+        gate for gate in data["required_gate_evidence"] if gate["check"] != "dependency-audit"
+    ]
+    with pytest.raises(ManifestError, match=r"missing required checks: dependency-audit"):
         validate_manifest(data, final=True)
 
 
