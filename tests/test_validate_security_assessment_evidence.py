@@ -104,7 +104,7 @@ def test_high_findings_cannot_remain_unresolved(status: str) -> None:
         }
     ]
 
-    with pytest.raises(SecurityEvidenceError, match="unresolved release blocker"):
+    with pytest.raises(SecurityEvidenceError, match="terminal decision"):
         validate_security_evidence(data, final=True)
 
 
@@ -129,7 +129,7 @@ def test_evidence_integrity_blocker_requires_retested_pass() -> None:
         validate_security_evidence(data, final=True)
 
 
-def test_high_residual_acceptance_requires_real_approval_fields() -> None:
+def test_high_residual_acceptance_is_rejected_for_final_packet() -> None:
     data = _complete_evidence()
     data["findings"] = [
         {
@@ -141,12 +141,73 @@ def test_high_residual_acceptance_requires_real_approval_fields() -> None:
             "reproduction_or_basis": "Reproducer",
             "evidence_refs": ["FINDING-001"],
             "status": "ACCEPTED_RESIDUAL",
+            "residual_risk_rationale": "Proposed acceptance",
+            "residual_risk_approval_ref": "RISK-001",
+        }
+    ]
+
+    with pytest.raises(SecurityEvidenceError, match="release blocker requires retest or rejection"):
+        validate_security_evidence(data, final=True)
+
+
+def test_nonblocking_open_finding_is_not_silently_carried_into_final_packet() -> None:
+    data = _complete_evidence()
+    data["findings"] = [
+        {
+            "finding_id": "SEC-LOW-001",
+            "title": "Low finding",
+            "severity": "LOW",
+            "qualification_impact": "NON_BLOCKING",
+            "evidence_integrity_impact": False,
+            "reproduction_or_basis": "Observation",
+            "evidence_refs": ["FINDING-LOW-001"],
+            "status": "OPEN",
+        }
+    ]
+
+    with pytest.raises(SecurityEvidenceError, match="terminal decision"):
+        validate_security_evidence(data, final=True)
+
+
+def test_nonblocking_residual_decision_still_requires_approval_trace() -> None:
+    data = _complete_evidence()
+    data["findings"] = [
+        {
+            "finding_id": "SEC-LOW-001",
+            "title": "Low finding",
+            "severity": "LOW",
+            "qualification_impact": "NON_BLOCKING",
+            "evidence_integrity_impact": False,
+            "reproduction_or_basis": "Observation",
+            "evidence_refs": ["FINDING-LOW-001"],
+            "status": "ACCEPTED_RESIDUAL",
             "residual_risk_rationale": "",
             "residual_risk_approval_ref": "",
         }
     ]
 
     with pytest.raises(SecurityEvidenceError, match="residual_risk_rationale"):
+        validate_security_evidence(data, final=True)
+
+
+def test_high_blocker_cannot_be_residual_risk_accepted() -> None:
+    data = _complete_evidence()
+    data["findings"] = [
+        {
+            "finding_id": "SEC-HIGH-001",
+            "title": "High finding",
+            "severity": "HIGH",
+            "qualification_impact": "BLOCKER",
+            "evidence_integrity_impact": False,
+            "reproduction_or_basis": "Reproducer",
+            "evidence_refs": ["FINDING-HIGH-001"],
+            "status": "ACCEPTED_RESIDUAL",
+            "residual_risk_rationale": "Proposed acceptance",
+            "residual_risk_approval_ref": "RISK-001",
+        }
+    ]
+
+    with pytest.raises(SecurityEvidenceError, match="release blocker requires retest or rejection"):
         validate_security_evidence(data, final=True)
 
 
