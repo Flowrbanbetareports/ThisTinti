@@ -196,8 +196,13 @@ def validate_manifest(data: dict[str, Any], *, final: bool = False) -> None:
             SHA256,
             allow_placeholder=not final,
         )
-        if not isinstance(pool.get("case_count"), int) or pool["case_count"] < 0:
+        case_count = pool.get("case_count")
+        if not isinstance(case_count, int) or case_count < 0:
             raise ManifestError(f"pools.{pool_name}.case_count: expected non-negative integer")
+        if final and pool_name == "CALIBRATION" and not 5 <= case_count <= 10:
+            raise ManifestError("pools.CALIBRATION.case_count: frozen E1 requires 5-10 cases")
+        if final and pool_name == "BLIND" and not 20 <= case_count <= 25:
+            raise ManifestError("pools.BLIND.case_count: frozen E1 requires 20-25 cases")
         if final and not pool.get("sealed"):
             raise ManifestError(f"pools.{pool_name}.sealed: frozen manifest requires sealed pool")
 
