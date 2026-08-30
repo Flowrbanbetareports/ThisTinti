@@ -44,12 +44,13 @@ def frozen_manifest():
         }
         for check in sorted(REQUIRED_QUALIFICATION_CHECKS)
     ]
+    pool_sizes = {"CALIBRATION": 5, "BLIND": 20, "HOLDOUT": 1}
     for pool_name, token in zip(("CALIBRATION", "BLIND", "HOLDOUT"), ("3", "4", "5"), strict=True):
         data["pools"][pool_name] = {
             "manifest_id": f"{pool_name.lower()}-v1",
             "sha256": token * 64,
             "sealed": True,
-            "case_count": 1,
+            "case_count": pool_sizes[pool_name],
         }
     data["reviewer_protocol"] = {
         "version": "1",
@@ -112,6 +113,22 @@ def test_frozen_manifest_rejects_stale_gate_sha():
     data = frozen_manifest()
     data["required_gate_evidence"][0]["source_sha"] = "9" * 40
     with pytest.raises(ManifestError, match="stale-SHA evidence"):
+        validate_manifest(data, final=True)
+
+
+@pytest.mark.parametrize(
+    ("pool_name", "case_count", "expected"),
+    [
+        ("CALIBRATION", 4, "5-10 cases"),
+        ("CALIBRATION", 11, "5-10 cases"),
+        ("BLIND", 19, "20-25 cases"),
+        ("BLIND", 26, "20-25 cases"),
+    ],
+)
+def test_frozen_manifest_rejects_out_of_protocol_pool_sizes(pool_name, case_count, expected):
+    data = frozen_manifest()
+    data["pools"][pool_name]["case_count"] = case_count
+    with pytest.raises(ManifestError, match=expected):
         validate_manifest(data, final=True)
 
 
