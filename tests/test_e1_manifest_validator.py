@@ -25,9 +25,7 @@ def frozen_manifest():
     data["candidate"]["release_version"] = "1.0.0-rc.1"
     data["candidate"]["engine_version"] = "1.0.0-rc.1"
     data["candidate"]["qualification_config_sha256"] = "c" * 64
-    data["candidate"]["parser_set"] = [
-        {"id": "structured-json", "version": "1", "sha256": "d" * 64}
-    ]
+    data["candidate"]["parser_set"] = [{"id": "structured-json", "version": "1", "sha256": "d" * 64}]
     for component, token in zip(
         ("rule_pack", "practice_model", "company_profile", "provenance_matrix"),
         ("e", "f", "1", "2"),
@@ -41,9 +39,7 @@ def frozen_manifest():
             "conclusion": "success",
         }
     ]
-    for pool_name, token in zip(
-        ("CALIBRATION", "BLIND", "HOLDOUT"), ("3", "4", "5"), strict=True
-    ):
+    for pool_name, token in zip(("CALIBRATION", "BLIND", "HOLDOUT"), ("3", "4", "5"), strict=True):
         data["pools"][pool_name] = {
             "manifest_id": f"{pool_name.lower()}-v1",
             "sha256": token * 64,
@@ -93,9 +89,7 @@ def test_frozen_manifest_rejects_missing_gate_evidence():
 
 def test_frozen_manifest_rejects_duplicate_gate_identity():
     data = frozen_manifest()
-    data["required_gate_evidence"].append(
-        copy.deepcopy(data["required_gate_evidence"][0])
-    )
+    data["required_gate_evidence"].append(copy.deepcopy(data["required_gate_evidence"][0]))
     with pytest.raises(ManifestError, match="duplicate check"):
         validate_manifest(data, final=True)
 
