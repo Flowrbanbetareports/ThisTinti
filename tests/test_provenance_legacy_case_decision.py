@@ -14,7 +14,9 @@ from app.services.finding_provenance import _supporting_number_facts
 from app.services.judgment_provenance import record_judgment_provenance, resolve_reviewer_identity
 
 
-def _payload(*, document_type: str, number: str, currency: str, order_number: str | None = None) -> bytes:
+def _payload(
+    *, document_type: str, number: str, currency: str, order_number: str | None = None
+) -> bytes:
     data: dict[str, object] = {
         "document_type": document_type,
         "number": number,
