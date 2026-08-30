@@ -89,9 +89,7 @@ def _refs(value: Any, path: str, *, required: bool) -> list[str]:
 def validate_security_evidence(data: dict[str, Any], *, final: bool = False) -> None:
     if data.get("schema_version") != SCHEMA_VERSION:
         raise SecurityEvidenceError("schema_version: unsupported schema")
-    if data.get("qualification_claim") != (
-        "ThisTinti 1.0 Qualified — Procurement v1 — profile P1 — protocol E1"
-    ):
+    if data.get("qualification_claim") != ("ThisTinti 1.0 Qualified — Procurement v1 — profile P1 — protocol E1"):
         raise SecurityEvidenceError("qualification_claim: unexpected claim")
 
     status = data.get("status")
@@ -139,8 +137,9 @@ def validate_security_evidence(data: dict[str, Any], *, final: bool = False) -> 
     assessor = _mapping(data.get("assessor"), "assessor")
     for field in ("organisation", "lead_assessor", "independence_declaration", "assessment_window"):
         _string(assessor.get(field), f"assessor.{field}", allow_placeholder=not final)
+    report_ref: str | None = None
     if final:
-        _string(assessor.get("report_ref"), "assessor.report_ref")
+        report_ref = _string(assessor.get("report_ref"), "assessor.report_ref")
 
     coverage = _array(data.get("coverage"), "coverage")
     seen_coverage: set[str] = set()
@@ -197,13 +196,16 @@ def validate_security_evidence(data: dict[str, Any], *, final: bool = False) -> 
         if final and status_value in {"OPEN", "FIXED_PENDING_RETEST"}:
             raise SecurityEvidenceError(f"{prefix}.status: final evidence requires a terminal decision")
         if final and evidence_integrity and status_value != "RETESTED_PASS":
-            raise SecurityEvidenceError(
-                f"{prefix}.status: evidence-integrity blocker requires RETESTED_PASS"
-            )
-        if final and release_blocking and status_value not in {
-            "RETESTED_PASS",
-            "REJECTED_NOT_APPLICABLE",
-        }:
+            raise SecurityEvidenceError(f"{prefix}.status: evidence-integrity blocker requires RETESTED_PASS")
+        if (
+            final
+            and release_blocking
+            and status_value
+            not in {
+                "RETESTED_PASS",
+                "REJECTED_NOT_APPLICABLE",
+            }
+        ):
             raise SecurityEvidenceError(f"{prefix}.status: release blocker requires retest or rejection")
 
         if status_value == "RETESTED_PASS":
@@ -224,7 +226,13 @@ def validate_security_evidence(data: dict[str, Any], *, final: bool = False) -> 
             _string(item.get("rejection_approval_ref"), f"{prefix}.rejection_approval_ref")
 
     if final:
-        _refs(data.get("final_report_evidence_refs"), "final_report_evidence_refs", required=True)
+        final_report_refs = _refs(
+            data.get("final_report_evidence_refs"),
+            "final_report_evidence_refs",
+            required=True,
+        )
+        if report_ref not in final_report_refs:
+            raise SecurityEvidenceError("final_report_evidence_refs: assessor report_ref is not referenced")
 
 
 def main() -> int:
