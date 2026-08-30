@@ -19,6 +19,23 @@ SHA256 = re.compile(r"^[0-9a-f]{64}$")
 PLACEHOLDER = re.compile(r"^<.*>$")
 POOLS = ("CALIBRATION", "BLIND", "HOLDOUT")
 ALLOWED_STATUS = {"PREPARATION_ONLY", "FROZEN"}
+# e1-manifest.v0.1 binds the qualification gate identities configured by #133.
+# If repository policy changes, version this contract rather than silently
+# accepting a different/partial check set for an already-defined schema.
+REQUIRED_QUALIFICATION_CHECKS = frozenset(
+    {
+        "quality",
+        "qualify-deep-profile",
+        "internal-gates",
+        "docker-reference-proof",
+        "source-verification",
+        "windows-installer",
+        "postgres-external-proof",
+        "python-compatibility (3.11)",
+        "python-compatibility (3.12)",
+        "dependency-audit",
+    }
+)
 
 
 class ManifestError(ValueError):
@@ -158,6 +175,12 @@ def validate_manifest(data: dict[str, Any], *, final: bool = False) -> None:
             raise ManifestError(f"required_gate_evidence[{index}].source_sha: stale-SHA evidence")
         if gate_obj.get("conclusion") != "success":
             raise ManifestError(f"required_gate_evidence[{index}].conclusion: expected success")
+    if final:
+        missing_checks = sorted(REQUIRED_QUALIFICATION_CHECKS - seen_checks)
+        if missing_checks:
+            raise ManifestError(
+                "required_gate_evidence: missing required checks: " + ", ".join(missing_checks)
+            )
 
     pools = _require_mapping(data.get("pools"), "pools")
     if set(pools) != set(POOLS):
