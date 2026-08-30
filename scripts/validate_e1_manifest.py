@@ -58,9 +58,7 @@ def validate_manifest(data: dict[str, Any], *, final: bool = False) -> None:
         raise ManifestError("manifest_schema_version: unsupported schema")
     if data.get("protocol_version") != "E1":
         raise ManifestError("protocol_version: expected E1")
-    if data.get("qualification_claim") != (
-        "ThisTinti 1.0 Qualified — Procurement v1 — profile P1 — protocol E1"
-    ):
+    if data.get("qualification_claim") != ("ThisTinti 1.0 Qualified — Procurement v1 — profile P1 — protocol E1"):
         raise ManifestError("qualification_claim: unexpected claim")
 
     status = data.get("status")
@@ -72,9 +70,7 @@ def validate_manifest(data: dict[str, Any], *, final: bool = False) -> None:
         raise ManifestError("status: final validation requires FROZEN")
 
     scope = _require_mapping(data.get("p1_scope"), "p1_scope")
-    _require_string(
-        scope.get("version"), "p1_scope.version", allow_placeholder=not final
-    )
+    _require_string(scope.get("version"), "p1_scope.version", allow_placeholder=not final)
     _require_sha(
         scope.get("sha256"),
         "p1_scope.sha256",
@@ -92,9 +88,7 @@ def validate_manifest(data: dict[str, Any], *, final: bool = False) -> None:
         allow_placeholder=not final,
     )
     for field in ("release_version", "engine_version"):
-        _require_string(
-            candidate.get(field), f"candidate.{field}", allow_placeholder=not final
-        )
+        _require_string(candidate.get(field), f"candidate.{field}", allow_placeholder=not final)
     _require_sha(
         candidate.get("qualification_config_sha256"),
         "candidate.qualification_config_sha256",
@@ -152,26 +146,18 @@ def validate_manifest(data: dict[str, Any], *, final: bool = False) -> None:
     seen_checks: set[str] = set()
     for index, gate in enumerate(gates):
         gate_obj = _require_mapping(gate, f"required_gate_evidence[{index}]")
-        check = _require_string(
-            gate_obj.get("check"), f"required_gate_evidence[{index}].check"
-        )
+        check = _require_string(gate_obj.get("check"), f"required_gate_evidence[{index}].check")
         if check in seen_checks:
-            raise ManifestError(
-                f"required_gate_evidence[{index}].check: duplicate check"
-            )
+            raise ManifestError(f"required_gate_evidence[{index}].check: duplicate check")
         seen_checks.add(check)
         gate_sha = _require_string(
             gate_obj.get("source_sha"),
             f"required_gate_evidence[{index}].source_sha",
         )
         if not PLACEHOLDER.match(str(source_sha)) and gate_sha != source_sha:
-            raise ManifestError(
-                f"required_gate_evidence[{index}].source_sha: stale-SHA evidence"
-            )
+            raise ManifestError(f"required_gate_evidence[{index}].source_sha: stale-SHA evidence")
         if gate_obj.get("conclusion") != "success":
-            raise ManifestError(
-                f"required_gate_evidence[{index}].conclusion: expected success"
-            )
+            raise ManifestError(f"required_gate_evidence[{index}].conclusion: expected success")
 
     pools = _require_mapping(data.get("pools"), "pools")
     if set(pools) != set(POOLS):
@@ -190,13 +176,9 @@ def validate_manifest(data: dict[str, Any], *, final: bool = False) -> None:
             allow_placeholder=not final,
         )
         if not isinstance(pool.get("case_count"), int) or pool["case_count"] < 0:
-            raise ManifestError(
-                f"pools.{pool_name}.case_count: expected non-negative integer"
-            )
+            raise ManifestError(f"pools.{pool_name}.case_count: expected non-negative integer")
         if final and not pool.get("sealed"):
-            raise ManifestError(
-                f"pools.{pool_name}.sealed: frozen manifest requires sealed pool"
-            )
+            raise ManifestError(f"pools.{pool_name}.sealed: frozen manifest requires sealed pool")
 
     reviewer = _require_mapping(data.get("reviewer_protocol"), "reviewer_protocol")
     _require_string(
@@ -211,13 +193,9 @@ def validate_manifest(data: dict[str, Any], *, final: bool = False) -> None:
         allow_placeholder=not final,
     )
     if final and not reviewer.get("reviewers_secured"):
-        raise ManifestError(
-            "reviewer_protocol.reviewers_secured: required for frozen manifest"
-        )
+        raise ManifestError("reviewer_protocol.reviewers_secured: required for frozen manifest")
     if final and not reviewer.get("adjudication_protocol_ref"):
-        raise ManifestError(
-            "reviewer_protocol.adjudication_protocol_ref: required for frozen manifest"
-        )
+        raise ManifestError("reviewer_protocol.adjudication_protocol_ref: required for frozen manifest")
 
     freeze = _require_mapping(data.get("freeze"), "freeze")
     if final:
@@ -230,21 +208,15 @@ def validate_manifest(data: dict[str, Any], *, final: bool = False) -> None:
     external = _require_mapping(data.get("external_evidence"), "external_evidence")
     if final:
         if not external.get("authorised_case_sources_secured"):
-            raise ManifestError(
-                "external_evidence.authorised_case_sources_secured: required"
-            )
+            raise ManifestError("external_evidence.authorised_case_sources_secured: required")
         if not external.get("independent_reviewers_secured"):
-            raise ManifestError(
-                "external_evidence.independent_reviewers_secured: required"
-            )
+            raise ManifestError("external_evidence.independent_reviewers_secured: required")
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("manifest", type=Path)
-    parser.add_argument(
-        "--final", action="store_true", help="enforce frozen-manifest preconditions"
-    )
+    parser.add_argument("--final", action="store_true", help="enforce frozen-manifest preconditions")
     args = parser.parse_args()
 
     data = json.loads(args.manifest.read_text(encoding="utf-8"))
