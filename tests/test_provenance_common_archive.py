@@ -127,6 +127,7 @@ def test_duplicate_number_support_fails_closed_when_document_is_archived(client,
 
         assert duplicate_number_finding_matches_current_support(db, finding=finding) is False
         assert _finding_count(db, case) == count_before
+        assert case.status == "superseded"
 
         document.archived = False
         db.flush()
@@ -134,6 +135,7 @@ def test_duplicate_number_support_fails_closed_when_document_is_archived(client,
         db.flush()
         assert duplicate_number_finding_matches_current_support(db, finding=finding) is True
         assert _finding_count(db, case) == count_before
+        assert case.status == "open"
 
 
 def test_currency_mismatch_support_fails_closed_when_document_is_archived(client, auth):
@@ -168,6 +170,7 @@ def test_currency_mismatch_support_fails_closed_when_document_is_archived(client
 
         assert currency_mismatch_finding_matches_current_support(db, finding=finding) is False
         assert _finding_count(db, case) == count_before
+        assert case.status == "superseded"
 
         document.archived = False
         db.flush()
@@ -175,3 +178,4 @@ def test_currency_mismatch_support_fails_closed_when_document_is_archived(client
         db.flush()
         assert currency_mismatch_finding_matches_current_support(db, finding=finding) is True
         assert _finding_count(db, case) == count_before
+        assert case.status == "open"
