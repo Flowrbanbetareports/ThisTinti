@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..models import ApiCredential, ReviewDecision, User
+from ..models import ApiCredential, DiscrepancyCase, ReviewDecision, User
 from ..provenance_models import ProvenanceFinding, ProvenanceJudgment
 from .delivered_over_order_provenance import delivered_over_order_finding_matches_current_support
 from .finding_provenance import (
@@ -13,6 +15,52 @@ from .finding_provenance import (
 from .invoiced_over_received_provenance import invoiced_over_received_finding_matches_current_support
 from .payment_over_invoice_provenance import payment_over_invoice_finding_matches_current_support
 from .payment_without_invoice_provenance import payment_without_invoice_finding_matches_current_support
+
+
+FindingSupportMatcher = Callable[[Session], bool]
+
+_P1_RULE_MATCHERS = {
+    "duplicate_document_number": (
+        "builtin:duplicate_document_number",
+        duplicate_number_finding_matches_current_support,
+    ),
+    "currency_mismatch": (
+        "builtin:currency_mismatch",
+        currency_mismatch_finding_matches_current_support,
+    ),
+    "delivered_over_order": (
+        "builtin:delivered_over_order",
+        delivered_over_order_finding_matches_current_support,
+    ),
+    "invoiced_over_received": (
+        "builtin:invoiced_over_received",
+        invoiced_over_received_finding_matches_current_support,
+    ),
+    "payment_over_invoice": (
+        "builtin:payment_over_invoice",
+        payment_over_invoice_finding_matches_current_support,
+    ),
+    "payment_without_invoice": (
+        "builtin:payment_without_invoice",
+        payment_without_invoice_finding_matches_current_support,
+    ),
+}
+
+
+def _finding_matches_case_contract(
+    db: Session,
+    *,
+    case_type: str,
+    finding: ProvenanceFinding,
+) -> bool:
+    """Require an exact P1 case→rule identity before invoking current-support verification."""
+    rule_contract = _P1_RULE_MATCHERS.get(case_type)
+    if rule_contract is None:
+        return False
+    expected_rule_id, matcher = rule_contract
+    if finding.rule_id != expected_rule_id:
+        return False
+    return matcher(db, finding=finding)
 
 
 def resolve_reviewer_identity(
@@ -69,6 +117,10 @@ def record_judgment_provenance(
     if existing is not None:
         return existing
 
+    case = db.get(DiscrepancyCase, case_id)
+    if case is None or case.tenant_id != tenant_id:
+        return None
+
     finding = db.scalar(
         select(ProvenanceFinding)
         .where(
@@ -78,32 +130,10 @@ def record_judgment_provenance(
         .order_by(ProvenanceFinding.version.desc())
         .limit(1)
     )
-    if finding is None:
-        return None
-    if finding.rule_id == "builtin:duplicate_document_number" and not duplicate_number_finding_matches_current_support(
-        db, finding=finding
-    ):
-        return None
-    if finding.rule_id == "builtin:currency_mismatch" and not currency_mismatch_finding_matches_current_support(
-        db, finding=finding
-    ):
-        return None
-    if finding.rule_id == "builtin:delivered_over_order" and not delivered_over_order_finding_matches_current_support(
-        db, finding=finding
-    ):
-        return None
-    if (
-        finding.rule_id == "builtin:invoiced_over_received"
-        and not invoiced_over_received_finding_matches_current_support(db, finding=finding)
-    ):
-        return None
-    if finding.rule_id == "builtin:payment_over_invoice" and not payment_over_invoice_finding_matches_current_support(
-        db, finding=finding
-    ):
-        return None
-    if (
-        finding.rule_id == "builtin:payment_without_invoice"
-        and not payment_without_invoice_finding_matches_current_support(db, finding=finding)
+    if finding is None or not _finding_matches_case_contract(
+        db,
+        case_type=case.case_type,
+        finding=finding,
     ):
         return None
 
