@@ -132,6 +132,7 @@ def test_delivered_over_order_archive_invalidates_current_support_and_blocks_jud
             )
             == finding_count_before
         )
+        assert case.status == "superseded"
         db.commit()
 
     reviewed = client.post(
@@ -148,7 +149,7 @@ def test_delivered_over_order_archive_invalidates_current_support_and_blocks_jud
 
         case = db.get(DiscrepancyCase, case_id)
         assert case is not None
-        assert case.status == "open"
+        assert case.status == "superseded"
         chain = db.get(OperationChain, case.chain_id)
         finding = db.get(ProvenanceFinding, finding_id)
         target = db.get(Document, target_id)
@@ -159,3 +160,4 @@ def test_delivered_over_order_archive_invalidates_current_support_and_blocks_jud
         analyze_chain(db, chain)
         db.flush()
         assert delivered_over_order_finding_matches_current_support(db, finding=finding) is True
+        assert case.status == "open"
