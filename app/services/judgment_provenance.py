@@ -5,7 +5,16 @@ from collections.abc import Callable
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..models import ApiCredential, DiscrepancyCase, ReviewDecision, User
+from ..models import (
+    ApiCredential,
+    ChainDocument,
+    DiscrepancyCase,
+    Document,
+    DocumentLine,
+    OperationChain,
+    ReviewDecision,
+    User,
+)
 from ..provenance_models import ProvenanceFinding, ProvenanceJudgment
 from .delivered_over_order_provenance import delivered_over_order_finding_matches_current_support
 from .finding_provenance import (
@@ -45,6 +54,86 @@ _P1_RULE_MATCHERS = {
         payment_without_invoice_finding_matches_current_support,
     ),
 }
+
+
+def lock_p1_support_for_update(
+    db: Session,
+    *,
+    tenant_id: str,
+    chain_id: str,
+) -> bool:
+    """Lock a P1 chain and its current document support before judgment validation.
+
+    The lock order deliberately starts from the chain, then membership rows, documents,
+    and document lines. Support-changing transactions that already hold a document/line
+    lock must finish before this function returns; transactions that have only staged a
+    mutation cannot commit that mutation until this judgment transaction releases the
+    locked support rows. This closes the evidence-mutation vs judgment-commit TOCTOU
+    without relying on an inherited/stale support check.
+    """
+    with db.no_autoflush:
+        chain = db.scalar(
+            select(OperationChain)
+            .where(
+                OperationChain.id == chain_id,
+                OperationChain.tenant_id == tenant_id,
+            )
+            .with_for_update()
+        )
+        if chain is None:
+            return False
+
+        links = list(
+            db.scalars(
+                select(ChainDocument)
+                .where(
+                    ChainDocument.tenant_id == tenant_id,
+                    ChainDocument.chain_id == chain_id,
+                )
+                .order_by(ChainDocument.id)
+                .with_for_update()
+            )
+        )
+        document_ids = {link.document_id for link in links}
+        for role in (
+            "proposal",
+            "order",
+            "confirmation",
+            "delivery",
+            "invoice",
+            "payment",
+            "return",
+            "credit_note",
+        ):
+            document_id = getattr(chain, f"{role}_document_id", None)
+            if document_id:
+                document_ids.add(document_id)
+
+        ordered_document_ids = sorted(document_ids)
+        if ordered_document_ids:
+            list(
+                db.scalars(
+                    select(Document.id)
+                    .where(
+                        Document.tenant_id == tenant_id,
+                        Document.id.in_(ordered_document_ids),
+                    )
+                    .order_by(Document.id)
+                    .with_for_update()
+                )
+            )
+            list(
+                db.scalars(
+                    select(DocumentLine.id)
+                    .where(
+                        DocumentLine.tenant_id == tenant_id,
+                        DocumentLine.document_id.in_(ordered_document_ids),
+                    )
+                    .order_by(DocumentLine.id)
+                    .with_for_update()
+                )
+            )
+    return True
 
 
 def _finding_matches_case_contract(
