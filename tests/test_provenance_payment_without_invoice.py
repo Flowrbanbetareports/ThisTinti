@@ -122,7 +122,9 @@ def test_payment_without_invoice_binds_exact_snapshot_and_current_human_judgment
         fact = _linked_fact(db, finding)
         assert fact.fact_type == "operation_chain.payment_without_invoice_snapshot"
         snapshot = json.loads(fact.value_json)
-        assert snapshot["claim_boundary"].startswith("no invoice is linked in this exact operation-chain snapshot")
+        assert snapshot["claim_boundary"].startswith(
+            "no active invoice is linked in this exact operation-chain snapshot"
+        )
         assert snapshot["invoice_document_ids"] == []
         assert len(snapshot["payment_document_ids"]) == 1
         assert snapshot["predicate"] == {"invoice_role_empty": True, "payments_present": True}
