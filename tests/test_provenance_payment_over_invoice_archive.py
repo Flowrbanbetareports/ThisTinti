@@ -13,9 +13,7 @@ from app.services.payment_over_invoice_provenance import (
 from app.services.rules import analyze_chain
 
 
-def _payload(
-    *, document_type: str, number: str, total: str, invoice_number: str | None = None
-) -> bytes:
+def _payload(*, document_type: str, number: str, total: str, invoice_number: str | None = None) -> bytes:
     payload: dict[str, object] = {
         "document_type": document_type,
         "number": number,
@@ -71,9 +69,7 @@ def _upload(
     assert response.status_code == 201, response.text
 
 
-def test_payment_over_invoice_archived_support_fails_closed_and_cannot_mint_new_finding(
-    client, auth
-):
+def test_payment_over_invoice_archived_support_fails_closed_and_cannot_mint_new_finding(client, auth):
     invoice_number = "INV-PAY-ARCHIVE-V2"
     _upload(client, auth, document_type="invoice", number=invoice_number, total="100.00")
     _upload(
@@ -86,11 +82,7 @@ def test_payment_over_invoice_archived_support_fails_closed_and_cannot_mint_new_
     )
 
     with SessionLocal() as db:
-        case = db.scalar(
-            select(DiscrepancyCase).where(
-                DiscrepancyCase.case_type == "payment_over_invoice"
-            )
-        )
+        case = db.scalar(select(DiscrepancyCase).where(DiscrepancyCase.case_type == "payment_over_invoice"))
         assert case is not None
         findings = list(
             db.scalars(
@@ -105,33 +97,27 @@ def test_payment_over_invoice_archived_support_fails_closed_and_cannot_mint_new_
         assert chain is not None and chain.payment_document_id is not None
         payment = db.get(Document, chain.payment_document_id)
         assert payment is not None and payment.archived is False
-        assert (
-            payment_over_invoice_finding_matches_current_support(db, finding=finding)
-            is True
-        )
+        assert payment_over_invoice_finding_matches_current_support(db, finding=finding) is True
 
         payment.archived = True
         db.flush()
         analyze_chain(db, chain)
         db.flush()
 
+        assert payment_over_invoice_finding_matches_current_support(db, finding=finding) is False
         assert (
-            payment_over_invoice_finding_matches_current_support(db, finding=finding)
-            is False
-        )
-        assert list(
-            db.scalars(
-                select(ProvenanceFinding)
-                .where(ProvenanceFinding.case_id == case.id)
-                .order_by(ProvenanceFinding.version)
+            list(
+                db.scalars(
+                    select(ProvenanceFinding)
+                    .where(ProvenanceFinding.case_id == case.id)
+                    .order_by(ProvenanceFinding.version)
+                )
             )
-        ) == findings
+            == findings
+        )
 
         payment.archived = False
         db.flush()
         analyze_chain(db, chain)
         db.flush()
-        assert (
-            payment_over_invoice_finding_matches_current_support(db, finding=finding)
-            is True
-        )
+        assert payment_over_invoice_finding_matches_current_support(db, finding=finding) is True
