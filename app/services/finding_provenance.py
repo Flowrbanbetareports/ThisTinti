@@ -257,7 +257,11 @@ def duplicate_number_finding_matches_current_support(
     finding: ProvenanceFinding,
 ) -> bool:
     """Return True only while a duplicate-number finding exactly matches current complete evidence."""
-    if finding.rule_id != _DUPLICATE_NUMBER_RULE_ID:
+    if (
+        finding.rule_id != _DUPLICATE_NUMBER_RULE_ID
+        or finding.rule_version != _DUPLICATE_NUMBER_RULE_VERSION
+        or finding.rule_configuration_hash != _DUPLICATE_NUMBER_RULE_CONFIGURATION_HASH
+    ):
         return False
 
     case = db.get(DiscrepancyCase, finding.case_id)
@@ -321,7 +325,11 @@ def currency_mismatch_finding_matches_current_support(
     finding: ProvenanceFinding,
 ) -> bool:
     """Return True only while the mismatch exactly matches all current direct currency inputs."""
-    if finding.rule_id != _CURRENCY_MISMATCH_RULE_ID:
+    if (
+        finding.rule_id != _CURRENCY_MISMATCH_RULE_ID
+        or finding.rule_version != _CURRENCY_MISMATCH_RULE_VERSION
+        or finding.rule_configuration_hash != _CURRENCY_MISMATCH_RULE_CONFIGURATION_HASH
+    ):
         return False
 
     case = db.get(DiscrepancyCase, finding.case_id)
