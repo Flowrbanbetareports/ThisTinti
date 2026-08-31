@@ -34,15 +34,9 @@ def test_p1_support_queries_are_real_postgresql_row_locks():
 
 
 def test_support_lock_queries_are_scoped_and_deterministically_ordered():
-    membership_sql = _postgres_sql(
-        _locked_chain_membership_query(tenant_id="tenant-1", chain_id="chain-1")
-    )
-    document_sql = _postgres_sql(
-        _locked_documents_query(tenant_id="tenant-1", document_ids=("doc-b", "doc-a"))
-    )
-    line_sql = _postgres_sql(
-        _locked_document_lines_query(tenant_id="tenant-1", document_ids=("doc-b", "doc-a"))
-    )
+    membership_sql = _postgres_sql(_locked_chain_membership_query(tenant_id="tenant-1", chain_id="chain-1"))
+    document_sql = _postgres_sql(_locked_documents_query(tenant_id="tenant-1", document_ids=("doc-b", "doc-a")))
+    line_sql = _postgres_sql(_locked_document_lines_query(tenant_id="tenant-1", document_ids=("doc-b", "doc-a")))
 
     assert "CHAIN_DOCUMENTS.TENANT_ID = 'TENANT-1'" in membership_sql
     assert "CHAIN_DOCUMENTS.CHAIN_ID = 'CHAIN-1'" in membership_sql
