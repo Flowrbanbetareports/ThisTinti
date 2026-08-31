@@ -76,9 +76,7 @@ def frozen_manifest():
     data["candidate"]["release_version"] = "1.0.0-rc.1"
     data["candidate"]["engine_version"] = "1.0.0-rc.1"
     data["candidate"]["qualification_config_sha256"] = "c" * 64
-    data["candidate"]["parser_set"] = [
-        {"id": "structured-json", "version": "1", "sha256": "d" * 64}
-    ]
+    data["candidate"]["parser_set"] = [{"id": "structured-json", "version": "1", "sha256": "d" * 64}]
     for component, token in zip(
         ("rule_pack", "practice_model", "company_profile", "provenance_matrix"),
         ("e", "f", "1", "2"),
