@@ -114,12 +114,8 @@ def _validate_pool_shape(pool_name: str, pool: dict[str, Any], *, strict: bool) 
     )
 
 
-def _validate_pre_calibration(data: dict[str, Any]) -> None:
-    """Require a sealed, segregated E1 assignment before calibration starts.
-
-    This is a declaration/integrity gate, not proof that the referenced external
-    evidence is genuine. Qualification C must not inspect BLIND/HOLDOUT content.
-    """
+def _validate_segregation(data: dict[str, Any], *, before_calibration: bool) -> None:
+    """Validate declared pool segregation without inspecting any case contents."""
 
     scope = _require_mapping(data.get("p1_scope"), "p1_scope")
     _require_string(scope.get("version"), "p1_scope.version")
@@ -142,9 +138,9 @@ def _validate_pre_calibration(data: dict[str, Any]) -> None:
             raise ManifestError(f"pools.{pool_name}.sha256: duplicate across pools")
         pool_hashes.add(pool_hash)
         if pool["case_count"] <= 0:
-            raise ManifestError(f"pools.{pool_name}.case_count: must be > 0 before calibration")
+            raise ManifestError(f"pools.{pool_name}.case_count: must be > 0")
         if pool.get("sealed") is not True:
-            raise ManifestError(f"pools.{pool_name}.sealed: must be true before calibration")
+            raise ManifestError(f"pools.{pool_name}.sealed: must be true")
         sealed_times.append(_require_timestamp(pool.get("sealed_at"), f"pools.{pool_name}.sealed_at"))
         for field in (
             "authorization_evidence_ref",
@@ -158,7 +154,7 @@ def _validate_pre_calibration(data: dict[str, Any]) -> None:
                 raise ManifestError(
                     f"pools.{pool_name}.access_policy.developer_access_before_release: must be false"
                 )
-            if pool.get("opened_at") is not None:
+            if before_calibration and pool.get("opened_at") is not None:
                 raise ManifestError(f"pools.{pool_name}.opened_at: must be null before calibration")
 
     calibration_count = pools["CALIBRATION"]["case_count"]
@@ -190,15 +186,16 @@ def _validate_pre_calibration(data: dict[str, Any]) -> None:
     pools_sealed_at = _require_timestamp(timeline.get("pools_sealed_at"), "timeline.pools_sealed_at")
     if any(sealed_at > pools_sealed_at for sealed_at in sealed_times):
         raise ManifestError("timeline.pools_sealed_at: cannot precede a pool seal timestamp")
-    for field in ("calibration_started_at", "blind_started_at", "holdout_started_at"):
-        if timeline.get(field) is not None:
-            raise ManifestError(f"timeline.{field}: must be null at pre-calibration gate")
+    if before_calibration:
+        for field in ("calibration_started_at", "blind_started_at", "holdout_started_at"):
+            if timeline.get(field) is not None:
+                raise ManifestError(f"timeline.{field}: must be null at pre-calibration gate")
 
     reviewer = _require_mapping(data.get("reviewer_protocol"), "reviewer_protocol")
     _require_string(reviewer.get("version"), "reviewer_protocol.version")
     _require_sha(reviewer.get("sha256"), "reviewer_protocol.sha256", SHA256, allow_placeholder=False)
     if reviewer.get("reviewers_secured") is not True:
-        raise ManifestError("reviewer_protocol.reviewers_secured: required before calibration")
+        raise ManifestError("reviewer_protocol.reviewers_secured: required")
     reviewer_refs = reviewer.get("reviewer_refs")
     if not isinstance(reviewer_refs, list) or len(reviewer_refs) < 2:
         raise ManifestError("reviewer_protocol.reviewer_refs: at least two reviewers required")
@@ -249,7 +246,11 @@ def validate_manifest(
         raise ManifestError("status: final validation requires FROZEN")
 
     scope = _require_mapping(data.get("p1_scope"), "p1_scope")
-    _require_string(scope.get("version"), "p1_scope.version", allow_placeholder=not (pre_calibration or final))
+    _require_string(
+        scope.get("version"),
+        "p1_scope.version",
+        allow_placeholder=not (pre_calibration or final),
+    )
     _require_sha(
         scope.get("sha256"),
         "p1_scope.sha256",
@@ -369,12 +370,12 @@ def validate_manifest(
             raise ManifestError(f"claim_boundary.{field}: must remain true")
 
     if pre_calibration:
-        _validate_pre_calibration(data)
+        _validate_segregation(data, before_calibration=True)
 
     freeze = _require_mapping(data.get("freeze"), "freeze")
     external = _require_mapping(data.get("external_evidence"), "external_evidence")
     if final:
-        _validate_pre_calibration(data)
+        _validate_segregation(data, before_calibration=False)
         for field in ("approved_by", "approved_at", "freeze_ref"):
             _require_real_ref(freeze.get(field), f"freeze.{field}")
         if freeze.get("approved") is not True:
