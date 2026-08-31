@@ -1,11 +1,20 @@
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..models import ApiCredential, DiscrepancyCase, ReviewDecision, User
+from ..models import (
+    ApiCredential,
+    ChainDocument,
+    DiscrepancyCase,
+    Document,
+    DocumentLine,
+    OperationChain,
+    ReviewDecision,
+    User,
+)
 from ..provenance_models import ProvenanceFinding, ProvenanceJudgment
 from .delivered_over_order_provenance import delivered_over_order_finding_matches_current_support
 from .finding_provenance import (
@@ -45,6 +54,115 @@ _P1_RULE_MATCHERS = {
         payment_without_invoice_finding_matches_current_support,
     ),
 }
+
+
+def _locked_chain_query(*, tenant_id: str, chain_id: str):
+    return (
+        select(OperationChain)
+        .where(
+            OperationChain.id == chain_id,
+            OperationChain.tenant_id == tenant_id,
+        )
+        .with_for_update()
+    )
+
+
+def _locked_chain_membership_query(*, tenant_id: str, chain_id: str):
+    return (
+        select(ChainDocument)
+        .where(
+            ChainDocument.tenant_id == tenant_id,
+            ChainDocument.chain_id == chain_id,
+        )
+        .order_by(ChainDocument.id)
+        .with_for_update()
+    )
+
+
+def _locked_documents_query(*, tenant_id: str, document_ids: Iterable[str]):
+    return (
+        select(Document.id)
+        .where(
+            Document.tenant_id == tenant_id,
+            Document.id.in_(tuple(document_ids)),
+        )
+        .order_by(Document.id)
+        .with_for_update()
+    )
+
+
+def _locked_document_lines_query(*, tenant_id: str, document_ids: Iterable[str]):
+    return (
+        select(DocumentLine.id)
+        .where(
+            DocumentLine.tenant_id == tenant_id,
+            DocumentLine.document_id.in_(tuple(document_ids)),
+        )
+        .order_by(DocumentLine.id)
+        .with_for_update()
+    )
+
+
+def lock_p1_support_for_update(
+    db: Session,
+    *,
+    tenant_id: str,
+    chain_id: str,
+) -> bool:
+    """Lock a P1 chain and its current document support before judgment validation.
+
+    Lock order is chain -> membership -> documents -> document lines. The review path
+    acquires these locks before the case-row lock, so support-changing transactions
+    cannot commit a mutation after exact-current validation but before the judgment
+    commit, while avoiding a case-first/document-second deadlock with reanalysis paths.
+    """
+    with db.no_autoflush:
+        chain = db.scalar(_locked_chain_query(tenant_id=tenant_id, chain_id=chain_id))
+        if chain is None:
+            return False
+
+        links = list(
+            db.scalars(
+                _locked_chain_membership_query(
+                    tenant_id=tenant_id,
+                    chain_id=chain_id,
+                )
+            )
+        )
+        document_ids = {link.document_id for link in links}
+        for role in (
+            "proposal",
+            "order",
+            "confirmation",
+            "delivery",
+            "invoice",
+            "payment",
+            "return",
+            "credit_note",
+        ):
+            document_id = getattr(chain, f"{role}_document_id", None)
+            if document_id:
+                document_ids.add(document_id)
+
+        ordered_document_ids = tuple(sorted(document_ids))
+        if ordered_document_ids:
+            list(
+                db.scalars(
+                    _locked_documents_query(
+                        tenant_id=tenant_id,
+                        document_ids=ordered_document_ids,
+                    )
+                )
+            )
+            list(
+                db.scalars(
+                    _locked_document_lines_query(
+                        tenant_id=tenant_id,
+                        document_ids=ordered_document_ids,
+                    )
+                )
+            )
+    return True
 
 
 def _finding_matches_case_contract(

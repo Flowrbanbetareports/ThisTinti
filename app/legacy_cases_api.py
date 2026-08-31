@@ -9,7 +9,11 @@ from .db import get_db
 from .models import DiscrepancyCase, ReviewDecision
 from .schemas import ReviewRequest
 from .security import AuthContext, require_reviewer
-from .services.judgment_provenance import record_judgment_provenance, resolve_reviewer_identity
+from .services.judgment_provenance import (
+    lock_p1_support_for_update,
+    record_judgment_provenance,
+    resolve_reviewer_identity,
+)
 
 
 router = APIRouter()
@@ -26,15 +30,15 @@ _P1_PROVENANCE_CASE_TYPES = frozenset(
 )
 
 
-def _locked_case_query(*, case_id: str, tenant_id: str):
-    return (
-        select(DiscrepancyCase)
-        .where(
-            DiscrepancyCase.id == case_id,
-            DiscrepancyCase.tenant_id == tenant_id,
-        )
-        .with_for_update()
+def _case_query(*, case_id: str, tenant_id: str):
+    return select(DiscrepancyCase).where(
+        DiscrepancyCase.id == case_id,
+        DiscrepancyCase.tenant_id == tenant_id,
     )
+
+
+def _locked_case_query(*, case_id: str, tenant_id: str):
+    return _case_query(case_id=case_id, tenant_id=tenant_id).with_for_update()
 
 
 @router.post(
@@ -48,8 +52,22 @@ def review_case_with_provenance(
     ctx: AuthContext = Depends(require_reviewer),
     db: Session = Depends(get_db),
 ) -> dict:
+    case = db.scalar(_case_query(case_id=case_id, tenant_id=ctx.tenant_id))
+    if case is None:
+        raise HTTPException(status_code=404, detail="Case not found")
+
+    if case.case_type in _P1_PROVENANCE_CASE_TYPES:
+        if not lock_p1_support_for_update(
+            db,
+            tenant_id=ctx.tenant_id,
+            chain_id=case.chain_id,
+        ):
+            db.rollback()
+            raise HTTPException(status_code=409, detail="Case support chain is unavailable")
+
     case = db.scalar(_locked_case_query(case_id=case_id, tenant_id=ctx.tenant_id))
     if case is None:
+        db.rollback()
         raise HTTPException(status_code=404, detail="Case not found")
 
     previous_state = case.status
