@@ -168,8 +168,10 @@ def test_invoiced_over_received_archive_invalidates_current_support_and_blocks_j
             # must itself match the current active support rather than the archived delivery.
             assert len(findings_after) == finding_count_before + 1
             assert invoiced_over_received_finding_matches_current_support(db, finding=findings_after[-1]) is True
+            assert case.status == "open"
         else:
             assert len(findings_after) == finding_count_before
+            assert case.status == "superseded"
         db.commit()
 
     reviewed = client.post(
@@ -190,8 +192,10 @@ def test_invoiced_over_received_archive_invalidates_current_support_and_blocks_j
 
         case = db.get(DiscrepancyCase, case_id)
         assert case is not None
-        if archived_role != "delivery":
-            assert case.status == "open"
+        if archived_role == "delivery":
+            assert case.status in {"confirmed", "open"}
+        else:
+            assert case.status == "superseded"
         chain = db.get(OperationChain, case.chain_id)
         finding = db.get(ProvenanceFinding, finding_id)
         target = db.get(Document, target_id)
@@ -202,3 +206,5 @@ def test_invoiced_over_received_archive_invalidates_current_support_and_blocks_j
         analyze_chain(db, chain)
         db.flush()
         assert invoiced_over_received_finding_matches_current_support(db, finding=finding) is True
+        if archived_role != "delivery":
+            assert case.status == "open"
