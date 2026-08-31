@@ -104,9 +104,7 @@ def _validate_pool_shape(pool_name: str, pool: dict[str, Any], *, strict: bool) 
         raise ManifestError(f"pools.{pool_name}.sealed: expected boolean")
     policy = _require_mapping(pool.get("access_policy"), f"pools.{pool_name}.access_policy")
     if not isinstance(policy.get("developer_access_before_release"), bool):
-        raise ManifestError(
-            f"pools.{pool_name}.access_policy.developer_access_before_release: expected boolean"
-        )
+        raise ManifestError(f"pools.{pool_name}.access_policy.developer_access_before_release: expected boolean")
     _require_string(
         policy.get("release_condition"),
         f"pools.{pool_name}.access_policy.release_condition",
@@ -151,9 +149,7 @@ def _validate_segregation(data: dict[str, Any], *, before_calibration: bool) -> 
         if pool_name in {"BLIND", "HOLDOUT"}:
             policy = _require_mapping(pool.get("access_policy"), f"pools.{pool_name}.access_policy")
             if policy.get("developer_access_before_release") is not False:
-                raise ManifestError(
-                    f"pools.{pool_name}.access_policy.developer_access_before_release: must be false"
-                )
+                raise ManifestError(f"pools.{pool_name}.access_policy.developer_access_before_release: must be false")
             if before_calibration and pool.get("opened_at") is not None:
                 raise ManifestError(f"pools.{pool_name}.opened_at: must be null before calibration")
 
@@ -166,9 +162,7 @@ def _validate_segregation(data: dict[str, Any], *, before_calibration: bool) -> 
 
     segregation = _require_mapping(data.get("segregation"), "segregation")
     if segregation.get("pool_assignment_frozen_before_calibration") is not True:
-        raise ManifestError(
-            "segregation.pool_assignment_frozen_before_calibration: must be true"
-        )
+        raise ManifestError("segregation.pool_assignment_frozen_before_calibration: must be true")
     similarity = _require_mapping(
         segregation.get("cross_pool_similarity_check"),
         "segregation.cross_pool_similarity_check",
@@ -232,9 +226,7 @@ def validate_manifest(
         raise ManifestError("manifest_schema_version: unsupported schema")
     if data.get("protocol_version") != "E1":
         raise ManifestError("protocol_version: expected E1")
-    if data.get("qualification_claim") != (
-        "ThisTinti 1.0 Qualified — Procurement v1 — profile P1 — protocol E1"
-    ):
+    if data.get("qualification_claim") != "ThisTinti 1.0 Qualified — Procurement v1 — profile P1 — protocol E1":
         raise ManifestError("qualification_claim: unexpected claim")
 
     status = data.get("status")
@@ -336,9 +328,7 @@ def validate_manifest(
     if final:
         missing_checks = sorted(REQUIRED_QUALIFICATION_CHECKS - seen_checks)
         if missing_checks:
-            raise ManifestError(
-                "required_gate_evidence: missing required checks: " + ", ".join(missing_checks)
-            )
+            raise ManifestError("required_gate_evidence: missing required checks: " + ", ".join(missing_checks))
 
     pools = _require_mapping(data.get("pools"), "pools")
     if set(pools) != set(POOLS):
@@ -408,10 +398,7 @@ def main() -> int:
         raise ManifestError("root: expected object")
     validate_manifest(data, pre_calibration=args.pre_calibration, final=args.final)
     mode = "PRE-CALIBRATION" if args.pre_calibration else "FINAL" if args.final else "PREPARATION"
-    print(
-        f"E1 manifest structural validation: PASS ({mode}); "
-        "qualification/external evidence: NOT ASSERTED"
-    )
+    print(f"E1 manifest structural validation: PASS ({mode}); qualification/external evidence: NOT ASSERTED")
     return 0
 
 
