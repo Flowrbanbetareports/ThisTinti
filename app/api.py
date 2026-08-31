@@ -1879,9 +1879,36 @@ def archive_document(
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
     document.archived = True
-    add_audit(db, ctx.tenant_id, "document.archived", ctx.user_id, "document", document.id)
+    affected_chain_ids = list(
+        db.scalars(
+            select(ChainDocument.chain_id)
+            .where(
+                ChainDocument.tenant_id == ctx.tenant_id,
+                ChainDocument.document_id == document.id,
+            )
+            .distinct()
+        )
+    )
+    for chain_id in affected_chain_ids:
+        chain = db.scalar(
+            select(OperationChain).where(
+                OperationChain.id == chain_id,
+                OperationChain.tenant_id == ctx.tenant_id,
+            )
+        )
+        if chain:
+            analyze_chain(db, chain)
+    add_audit(
+        db,
+        ctx.tenant_id,
+        "document.archived",
+        ctx.user_id,
+        "document",
+        document.id,
+        {"affected_chains": len(affected_chain_ids)},
+    )
     db.commit()
-    return {"ok": True}
+    return {"ok": True, "affected_chains": len(affected_chain_ids)}
 
 
 @app.get("/api/chains")
