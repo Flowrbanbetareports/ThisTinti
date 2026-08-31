@@ -75,9 +75,8 @@ def _direct_document_fact_is_canonical(
         and origin.source_availability == "available"
         and origin.locator_status == "present"
         and origin.locator_type == "JSON_POINTER"
-        and origin.locator_json == json.dumps(
-            {"pointer": expected_pointer}, ensure_ascii=False, sort_keys=True, separators=(",", ":")
-        )
+        and origin.locator_json
+        == json.dumps({"pointer": expected_pointer}, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
         and origin.engine_id == _DIRECT_DOCUMENT_ENGINE_ID
         and origin.engine_version == _DIRECT_DOCUMENT_ENGINE_VERSION
     )
