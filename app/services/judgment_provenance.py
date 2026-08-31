@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -56,6 +56,53 @@ _P1_RULE_MATCHERS = {
 }
 
 
+def _locked_chain_query(*, tenant_id: str, chain_id: str):
+    return (
+        select(OperationChain)
+        .where(
+            OperationChain.id == chain_id,
+            OperationChain.tenant_id == tenant_id,
+        )
+        .with_for_update()
+    )
+
+
+def _locked_chain_membership_query(*, tenant_id: str, chain_id: str):
+    return (
+        select(ChainDocument)
+        .where(
+            ChainDocument.tenant_id == tenant_id,
+            ChainDocument.chain_id == chain_id,
+        )
+        .order_by(ChainDocument.id)
+        .with_for_update()
+    )
+
+
+def _locked_documents_query(*, tenant_id: str, document_ids: Iterable[str]):
+    return (
+        select(Document.id)
+        .where(
+            Document.tenant_id == tenant_id,
+            Document.id.in_(tuple(document_ids)),
+        )
+        .order_by(Document.id)
+        .with_for_update()
+    )
+
+
+def _locked_document_lines_query(*, tenant_id: str, document_ids: Iterable[str]):
+    return (
+        select(DocumentLine.id)
+        .where(
+            DocumentLine.tenant_id == tenant_id,
+            DocumentLine.document_id.in_(tuple(document_ids)),
+        )
+        .order_by(DocumentLine.id)
+        .with_for_update()
+    )
+
+
 def lock_p1_support_for_update(
     db: Session,
     *,
@@ -64,34 +111,22 @@ def lock_p1_support_for_update(
 ) -> bool:
     """Lock a P1 chain and its current document support before judgment validation.
 
-    The lock order deliberately starts from the chain, then membership rows, documents,
-    and document lines. Support-changing transactions that already hold a document/line
-    lock must finish before this function returns; transactions that have only staged a
-    mutation cannot commit that mutation until this judgment transaction releases the
-    locked support rows. This closes the evidence-mutation vs judgment-commit TOCTOU
-    without relying on an inherited/stale support check.
+    Lock order is chain -> membership -> documents -> document lines. The review path
+    acquires these locks before the case-row lock, so support-changing transactions
+    cannot commit a mutation after exact-current validation but before the judgment
+    commit, while avoiding a case-first/document-second deadlock with reanalysis paths.
     """
     with db.no_autoflush:
-        chain = db.scalar(
-            select(OperationChain)
-            .where(
-                OperationChain.id == chain_id,
-                OperationChain.tenant_id == tenant_id,
-            )
-            .with_for_update()
-        )
+        chain = db.scalar(_locked_chain_query(tenant_id=tenant_id, chain_id=chain_id))
         if chain is None:
             return False
 
         links = list(
             db.scalars(
-                select(ChainDocument)
-                .where(
-                    ChainDocument.tenant_id == tenant_id,
-                    ChainDocument.chain_id == chain_id,
+                _locked_chain_membership_query(
+                    tenant_id=tenant_id,
+                    chain_id=chain_id,
                 )
-                .order_by(ChainDocument.id)
-                .with_for_update()
             )
         )
         document_ids = {link.document_id for link in links}
@@ -109,28 +144,22 @@ def lock_p1_support_for_update(
             if document_id:
                 document_ids.add(document_id)
 
-        ordered_document_ids = sorted(document_ids)
+        ordered_document_ids = tuple(sorted(document_ids))
         if ordered_document_ids:
             list(
                 db.scalars(
-                    select(Document.id)
-                    .where(
-                        Document.tenant_id == tenant_id,
-                        Document.id.in_(ordered_document_ids),
+                    _locked_documents_query(
+                        tenant_id=tenant_id,
+                        document_ids=ordered_document_ids,
                     )
-                    .order_by(Document.id)
-                    .with_for_update()
                 )
             )
             list(
                 db.scalars(
-                    select(DocumentLine.id)
-                    .where(
-                        DocumentLine.tenant_id == tenant_id,
-                        DocumentLine.document_id.in_(ordered_document_ids),
+                    _locked_document_lines_query(
+                        tenant_id=tenant_id,
+                        document_ids=ordered_document_ids,
                     )
-                    .order_by(DocumentLine.id)
-                    .with_for_update()
                 )
             )
     return True
