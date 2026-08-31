@@ -1,5 +1,5 @@
 {
-  "manifest_schema_version": "e1-manifest.v0.1",
+  "manifest_schema_version": "e1-manifest.v0.2",
   "protocol_version": "E1",
   "qualification_claim": "ThisTinti 1.0 Qualified — Procurement v1 — profile P1 — protocol E1",
   "status": "PREPARATION_ONLY",
@@ -42,26 +42,71 @@
     "CALIBRATION": {
       "manifest_id": "<id>",
       "sha256": "<64-hex>",
+      "case_count": 0,
       "sealed": false,
-      "case_count": 0
+      "sealed_at": null,
+      "authorization_evidence_ref": null,
+      "anonymization_evidence_ref": null,
+      "custodian_ref": null,
+      "opened_at": null,
+      "access_policy": {
+        "developer_access_before_release": true,
+        "release_condition": "calibration_authorised"
+      }
     },
     "BLIND": {
       "manifest_id": "<id>",
       "sha256": "<64-hex>",
+      "case_count": 0,
       "sealed": false,
-      "case_count": 0
+      "sealed_at": null,
+      "authorization_evidence_ref": null,
+      "anonymization_evidence_ref": null,
+      "custodian_ref": null,
+      "opened_at": null,
+      "access_policy": {
+        "developer_access_before_release": false,
+        "release_condition": "frozen_candidate_and_sealed_ground_truth"
+      }
     },
     "HOLDOUT": {
       "manifest_id": "<id>",
       "sha256": "<64-hex>",
+      "case_count": 0,
       "sealed": false,
-      "case_count": 0
+      "sealed_at": null,
+      "authorization_evidence_ref": null,
+      "anonymization_evidence_ref": null,
+      "custodian_ref": null,
+      "opened_at": null,
+      "access_policy": {
+        "developer_access_before_release": false,
+        "release_condition": "post_blind_remediation_candidate"
+      }
     }
+  },
+  "segregation": {
+    "pool_assignment_frozen_before_calibration": false,
+    "cross_pool_similarity_check": {
+      "status": "NOT_RUN",
+      "evidence_ref": null
+    },
+    "access_control_evidence_ref": null,
+    "assignment_evidence_ref": null
+  },
+  "timeline": {
+    "pools_sealed_at": null,
+    "calibration_started_at": null,
+    "blind_started_at": null,
+    "holdout_started_at": null
   },
   "reviewer_protocol": {
     "version": "<version>",
     "sha256": "<64-hex>",
     "reviewers_secured": false,
+    "reviewer_refs": [],
+    "independent_review_required": true,
+    "reviewers_must_not_see_thistinti_output_before_submission": true,
     "adjudication_protocol_ref": null
   },
   "freeze": {
@@ -78,5 +123,10 @@
     "human_evidence_ref": null,
     "signing_evidence_ref": null,
     "recovery_evidence_ref": null
+  },
+  "claim_boundary": {
+    "manifest_completeness_is_not_qualification": true,
+    "self_declared_fields_are_not_external_evidence": true,
+    "not_blind_material_cannot_substitute_blind_or_holdout": true
   }
 }
