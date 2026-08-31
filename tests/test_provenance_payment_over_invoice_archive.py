@@ -115,9 +115,11 @@ def test_payment_over_invoice_archived_support_fails_closed_and_cannot_mint_new_
             )
             == findings
         )
+        assert case.status == "superseded"
 
         payment.archived = False
         db.flush()
         analyze_chain(db, chain)
         db.flush()
         assert payment_over_invoice_finding_matches_current_support(db, finding=finding) is True
+        assert case.status == "open"
