@@ -1,0 +1,57 @@
+{
+  "schema": "thistinti-recovery-evidence.v0.1",
+  "status": "PREPARATION_ONLY",
+  "candidate": {
+    "source_sha": "<40-hex>",
+    "candidate_id": "<release-or-rc-id>",
+    "artifact_refs": ["<signed-or-applicable-release-artifact-ref>"]
+  },
+  "environment": {
+    "environment_id": "<intended-release-environment-id>",
+    "deployment_model": "<deployment-model>",
+    "database_engine": "<postgresql-or-applicable-engine>",
+    "database_version": "<version>",
+    "storage_model": "<storage-model>",
+    "is_isolated_restore_target": "<true-or-false>"
+  },
+  "objectives": {
+    "rpo_target_seconds": "<release-owner-defined-target>",
+    "rto_target_seconds": "<release-owner-defined-target>"
+  },
+  "backup": {
+    "procedure_ref": "<procedure-or-command-log-ref>",
+    "started_at_utc": "<timestamp>",
+    "completed_at_utc": "<timestamp>",
+    "bundle_ref": "<backup-bundle-ref>",
+    "bundle_sha256": "<64-hex>",
+    "manifest_ref": "<backup-manifest-ref>",
+    "storage_included": "<true-or-false>",
+    "log_refs": ["<backup-log-ref>"]
+  },
+  "restore": {
+    "procedure_ref": "<restore-procedure-or-command-log-ref>",
+    "started_at_utc": "<timestamp>",
+    "completed_at_utc": "<timestamp>",
+    "target_ref": "<isolated-restore-target-ref>",
+    "used_bundle_sha256": "<64-hex>",
+    "log_refs": ["<restore-log-ref>"]
+  },
+  "observed": {
+    "recovery_point_age_seconds": "<measured-nonnegative-integer>",
+    "recovery_time_seconds": "<measured-nonnegative-integer>"
+  },
+  "verification": {
+    "bundle_integrity": "NOT_EXECUTED",
+    "database_integrity": "NOT_EXECUTED",
+    "schema_migration_state": "NOT_EXECUTED",
+    "storage_integrity": "NOT_EXECUTED",
+    "tenant_workspace_isolation": "NOT_EXECUTED",
+    "document_fact_finding_judgment_integrity": "NOT_EXECUTED",
+    "application_smoke": "NOT_EXECUTED",
+    "verification_refs": ["<verification-evidence-ref>"]
+  },
+  "findings": [],
+  "operator_attestation_ref": "<real-operator-attestation-ref>",
+  "evidence_index": ["<evidence-ref>"],
+  "limitations": ["PREPARATION_ONLY: no recovery exercise has been executed or passed by this template."]
+}
