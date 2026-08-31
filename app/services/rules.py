@@ -616,8 +616,16 @@ def analyze_chain(db: Session, chain: OperationChain) -> list[DiscrepancyCase]:
         if all(total is not None for total in payment_totals)
         else None
     )
-    if payments and not invoices:
-        known_payment_total = payment_total or ZERO
+    active_invoices = [document for document in invoices if not document.archived]
+    active_payments = [document for document in payments if not document.archived]
+    active_payment_totals = [_document_total(document) for document in active_payments]
+    active_payment_total = (
+        sum((total for total in active_payment_totals if total is not None), ZERO)
+        if all(total is not None for total in active_payment_totals)
+        else None
+    )
+    if active_payments and not active_invoices:
+        known_payment_total = active_payment_total or ZERO
         findings.append(
             Finding(
                 "payment_without_invoice",
@@ -626,20 +634,20 @@ def analyze_chain(db: Session, chain: OperationChain) -> list[DiscrepancyCase]:
                 0.99,
                 "Pagamento senza fattura collegata",
                 (
-                    f"Sono presenti pagamenti per €{known_payment_total:.2f} senza una fattura nella stessa catena."
-                    if payment_total is not None
-                    else "Sono presenti pagamenti senza una fattura nella stessa catena; "
+                    f"Sono presenti pagamenti per €{known_payment_total:.2f} senza una fattura attiva nella stessa catena."
+                    if active_payment_total is not None
+                    else "Sono presenti pagamenti senza una fattura attiva nella stessa catena; "
                     "l'importo non è determinabile dai dati disponibili."
                 ),
                 "Bloccare la riconciliazione e identificare la fattura o la causale corretta.",
                 "payment-without-invoice",
                 [
                     {
-                        "document_id": payments[0].id,
+                        "document_id": active_payments[0].id,
                         "document_line_id": None,
                         "field_name": "payment_total",
-                        "observed_value": f"{payment_total:.2f}" if payment_total is not None else None,
-                        "expected_value": "fattura collegata",
+                        "observed_value": (f"{active_payment_total:.2f}" if active_payment_total is not None else None),
+                        "expected_value": "fattura attiva collegata",
                         "note": None,
                     }
                 ],

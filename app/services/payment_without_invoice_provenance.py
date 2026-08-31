@@ -33,10 +33,10 @@ _MATCHER_CONFIGURATION_HASH = hashlib.sha256(
 ).hexdigest()
 _RULE_CONFIGURATION = {
     "scope": "exact_current_operation_chain_membership_snapshot",
-    "predicate": "active_parsed_payments_present_and_invoice_role_empty",
+    "predicate": "active_parsed_payments_present_and_active_invoice_role_empty",
     "accepted_payment_parse_statuses": ["parsed"],
     "accepted_payment_archived_states": [False],
-    "absence_claim": "no_invoice_linked_in_this_exact_snapshot_not_global_nonexistence",
+    "absence_claim": "no_active_invoice_linked_in_this_exact_snapshot_not_global_nonexistence",
     "amount": "known_payment_total_or_zero_when_numeric_inputs_unavailable",
     "matching_engine_id": _MATCHER_ID,
     "matching_engine_version": _MATCHER_VERSION,
@@ -168,9 +168,11 @@ def _current_membership_snapshot(db: Session, chain: OperationChain) -> dict[str
         entry["parse_status"] = document.parse_status
         entry["archived"] = bool(document.archived)
 
-    payment_documents = [by_id[document_id] for document_id in role_document_ids["payment"]]
     invoice_ids = role_document_ids["invoice"]
     payment_ids = role_document_ids["payment"]
+    active_invoice_ids = [document_id for document_id in invoice_ids if not by_id[document_id].archived]
+    active_payment_ids = [document_id for document_id in payment_ids if not by_id[document_id].archived]
+    payment_documents = [by_id[document_id] for document_id in active_payment_ids]
     totals = [_document_total(document) for document in payment_documents]
     payment_total = (
         sum((total for total in totals if total is not None), Decimal("0"))
@@ -183,7 +185,7 @@ def _current_membership_snapshot(db: Session, chain: OperationChain) -> dict[str
         "schema": "payment-without-invoice-snapshot/v1",
         "chain_id": chain.id,
         "tenant_id": chain.tenant_id,
-        "claim_boundary": "no invoice is linked in this exact operation-chain snapshot; this does not assert global invoice nonexistence",
+        "claim_boundary": "no active invoice is linked in this exact operation-chain snapshot; this does not assert global invoice nonexistence",
         "matcher": {
             "id": _MATCHER_ID,
             "version": _MATCHER_VERSION,
@@ -198,9 +200,11 @@ def _current_membership_snapshot(db: Session, chain: OperationChain) -> dict[str
         "primary_document_ids": {role: getattr(chain, f"{role}_document_id", None) for role in _CHAIN_ROLES},
         "invoice_document_ids": invoice_ids,
         "payment_document_ids": payment_ids,
+        "active_invoice_document_ids": active_invoice_ids,
+        "active_payment_document_ids": active_payment_ids,
         "predicate": {
-            "payments_present": bool(payment_ids),
-            "invoice_role_empty": not invoice_ids,
+            "payments_present": bool(active_payment_ids),
+            "invoice_role_empty": not active_invoice_ids,
         },
         "payment_total": {
             "status": "known" if payment_total is not None else "numeric_inputs_unavailable",
@@ -213,8 +217,16 @@ def _current_membership_snapshot(db: Session, chain: OperationChain) -> dict[str
 def _snapshot_is_eligible(snapshot: dict[str, object]) -> bool:
     predicate = snapshot.get("predicate")
     membership = snapshot.get("membership")
+    active_payment_ids = snapshot.get("active_payment_document_ids")
+    active_payment_id_set = set(active_payment_ids) if isinstance(active_payment_ids, list) else set()
     payment_entries = (
-        [entry for entry in membership if isinstance(entry, dict) and entry.get("role") == "payment"]
+        [
+            entry
+            for entry in membership
+            if isinstance(entry, dict)
+            and entry.get("role") == "payment"
+            and entry.get("document_id") in active_payment_id_set
+        ]
         if isinstance(membership, list)
         else []
     )
