@@ -55,7 +55,13 @@ def _documents(db: Session, chain: OperationChain, role: str) -> list[Document]:
         ids = [primary_id] if primary_id else []
     if not ids:
         return []
-    documents = list(db.scalars(select(Document).options(selectinload(Document.lines)).where(Document.id.in_(ids))))
+    documents = list(
+        db.scalars(
+            select(Document)
+            .options(selectinload(Document.lines))
+            .where(Document.id.in_(ids), Document.archived.is_(False))
+        )
+    )
     order = {doc_id: idx for idx, doc_id in enumerate(ids)}
     return sorted(documents, key=lambda doc: order.get(doc.id, 9999))
 
