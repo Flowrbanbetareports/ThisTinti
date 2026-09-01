@@ -59,6 +59,11 @@ def test_p1_judgment_dispatch_invokes_only_the_exact_case_matcher(
         case_type,
         (expected_rule_id, current_support),
     )
+    monkeypatch.setattr(
+        judgment_provenance,
+        "finding_document_evidence_bytes_are_current",
+        lambda db, *, finding: True,
+    )
 
     assert judgment_provenance._finding_matches_case_contract(
         sentinel_db,
