@@ -4,6 +4,9 @@ import io
 import os
 import zipfile
 from pathlib import Path
+from unittest.mock import patch
+
+import pytest
 
 from app.db import SessionLocal
 from app.models import Document
@@ -59,3 +62,12 @@ def test_unsealed_invalid_storage_fails_closed_for_download_and_export(client, a
         assert client.get("/api/export?include_files=true", headers=auth).status_code == 410
     finally:
         storage_path.write_bytes(original)
+
+
+def test_export_cleanup_runs_when_archive_creation_fails(client, auth):
+    loaded = client.post("/api/demo/load", headers=auth)
+    assert loaded.status_code == 200, loaded.text
+
+    with patch("app.qualified_evidence_api.zipfile.ZipFile", side_effect=RuntimeError("archive failure")):
+        with pytest.raises(RuntimeError, match="archive failure"):
+            client.get("/api/export?include_files=true", headers=auth)
