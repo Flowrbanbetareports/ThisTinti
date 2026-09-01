@@ -310,7 +310,5 @@ def test_committed_payment_parse_drift_invalidates_finding_before_real_judgment(
     )
 
     with SessionLocal() as db:
-        persisted_parse_status = db.scalar(
-            select(Document.parse_status).where(Document.id == payment_document_id)
-        )
+        persisted_parse_status = db.scalar(select(Document.parse_status).where(Document.id == payment_document_id))
         assert persisted_parse_status == "failed"
