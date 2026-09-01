@@ -12,6 +12,22 @@ Set-Location (Resolve-Path "$PSScriptRoot\..\..")
 $Version = (Select-String -Path "app\version.py" -Pattern 'RELEASE_VERSION = "([^"]+)"').Matches.Groups[1].Value
 if (-not $Version) { throw "Versione non rilevata" }
 
+# Windows file-version metadata is numeric-only. Preserve the historical alpha
+# metadata until the official line begins, then map X.Y.Z -> X.Y.Z.0 so the
+# installer metadata cannot remain on the legacy 3.4.x identity.
+$WindowsFileVersion = "3.4.0.19"
+if ($Version -match '^([0-9]+)\.([0-9]+)\.([0-9]+)$') {
+  $WindowsVersionParts = @(
+    [int64]$Matches[1],
+    [int64]$Matches[2],
+    [int64]$Matches[3]
+  )
+  if ($WindowsVersionParts | Where-Object { $_ -gt 65535 }) {
+    throw "Versione ufficiale non rappresentabile nei metadati Windows: $Version"
+  }
+  $WindowsFileVersion = "$($WindowsVersionParts[0]).$($WindowsVersionParts[1]).$($WindowsVersionParts[2]).0"
+}
+
 # Generate all Windows icon resolutions from the same reviewable geometry used by the brand.
 python scripts\generate_brand_icon.py --output "installer\assets\thistinti.ico"
 if ($LASTEXITCODE -ne 0 -or -not (Test-Path "installer\assets\thistinti.ico")) {
@@ -90,7 +106,7 @@ if ($LASTEXITCODE -ne 0) { throw "Installazione Inno Setup fallita" }
 $Iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
 if (-not (Test-Path $Iscc)) { $Iscc = "$env:ProgramFiles\Inno Setup 6\ISCC.exe" }
 if (-not (Test-Path $Iscc)) { throw "Compilatore Inno Setup non trovato" }
-& $Iscc "/DMyAppVersion=$Version" "installer\windows\ThisTinti.iss"
+& $Iscc "/DMyAppVersion=$Version" "/DMyAppFileVersion=$WindowsFileVersion" "installer\windows\ThisTinti.iss"
 if ($LASTEXITCODE -ne 0) { throw "Compilazione installer fallita" }
 
 Copy-Item "TERMS_OF_USE.md", "DISCLAIMER.md", "PRIVACY.md", "TRADEMARKS.md", "SUPPORT.md" "release\windows" -Force
