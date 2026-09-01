@@ -189,6 +189,23 @@ def test_canonical_snapshot_rejects_malformed_snapshot_hash(tmp_path):
         assert canonical_document_evidence_matches_hash(db, document) is False
 
 
+def test_canonical_document_evidence_bytes_fails_closed_if_snapshot_disappears():
+    document = SimpleNamespace(
+        id="document-1",
+        tenant_id="tenant-1",
+        file_hash="a" * 64,
+        storage_path="ignored",
+    )
+    snapshot_lookup = MagicMock()
+    snapshot_lookup.first.return_value = ("document-1",)
+    snapshot_read = MagicMock()
+    snapshot_read.mappings.return_value.one_or_none.return_value = None
+    db = MagicMock()
+    db.execute.side_effect = [snapshot_lookup, snapshot_read]
+
+    assert canonical_document_evidence_bytes(db, document) is None
+
+
 def _finding() -> SimpleNamespace:
     return SimpleNamespace(tenant_id="tenant-1", id="finding-1", rule_id="procurement.duplicate_document_number")
 
