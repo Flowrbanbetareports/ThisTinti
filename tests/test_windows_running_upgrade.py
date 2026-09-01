@@ -24,9 +24,9 @@ def test_installer_file_version_tracks_official_release_line() -> None:
     installer = (ROOT / "installer" / "windows" / "ThisTinti.iss").read_text(encoding="utf-8")
     build_script = (ROOT / "installer" / "windows" / "build_windows.ps1").read_text(encoding="utf-8")
 
-    assert '#ifndef MyAppFileVersion' in installer
-    assert 'VersionInfoVersion={#MyAppFileVersion}' in installer
-    assert "$WindowsFileVersion = \"3.4.0.19\"" in build_script
+    assert "#ifndef MyAppFileVersion" in installer
+    assert "VersionInfoVersion={#MyAppFileVersion}" in installer
+    assert '$WindowsFileVersion = "3.4.0.19"' in build_script
     assert "$Version -match '^([0-9]+)\\.([0-9]+)\\.([0-9]+)$'" in build_script
     assert '"/DMyAppFileVersion=$WindowsFileVersion"' in build_script
     assert "Versione ufficiale non rappresentabile nei metadati Windows" in build_script
