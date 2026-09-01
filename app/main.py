@@ -8,6 +8,7 @@ from . import provenance_models as _provenance_models  # noqa: F401
 from .api import *  # noqa: F401,F403
 from .legacy_cases_api import router as legacy_cases_router
 from .procurement_api import router as procurement_router
+from .qualified_evidence_api import router as qualified_evidence_router
 from .rc15_api import router as rc15_router
 
 # Re-export private helpers too: maintenance scripts/tests import a few symbols
@@ -26,21 +27,34 @@ app = _api.app
 if _api.settings.auto_create_schema:
     _api.Base.metadata.create_all(bind=_api.engine)
 
+
+# Replace historical routes whose qualification contract is now stricter. Keep
+# their exact positions so public routing/OpenAPI ordering remains stable.
+def _replace_route(path: str, method: str, replacement_route) -> None:
+    index = next(
+        index
+        for index, route in enumerate(app.router.routes)
+        if getattr(route, "path", None) == path and method in (getattr(route, "methods", None) or set())
+    )
+    app.router.routes.pop(index)
+    app.router.routes.insert(index, replacement_route)
+
+
 # The historical decision endpoint predates qualified judgment provenance.
-# Replace only that POST route at composition time so every supported decision
-# path records the same fail-closed provenance without growing app.api further.
-# Insert the already-built APIRoute at the exact historical position so the
-# public OpenAPI ordering remains stable.
-_legacy_case_decision_path = "/api/cases/{case_id}/decision"
-_legacy_case_decision_index = next(
-    index
-    for index, route in enumerate(app.router.routes)
-    if getattr(route, "path", None) == _legacy_case_decision_path
-    and "POST" in (getattr(route, "methods", None) or set())
+_replace_route("/api/cases/{case_id}/decision", "POST", legacy_cases_router.routes[0])
+
+# Once qualification seals document bytes, those same canonical bytes must be
+# the ones exposed to reviewers and tenant exports. The legacy handlers read the
+# mutable filesystem path directly, so replace only those GET surfaces.
+_qualified_routes = {
+    (route.path, next(iter(route.methods or {"GET"}))): route for route in qualified_evidence_router.routes
+}
+_replace_route(
+    "/api/documents/{document_id}/file",
+    "GET",
+    _qualified_routes[("/api/documents/{document_id}/file", "GET")],
 )
-app.router.routes.pop(_legacy_case_decision_index)
-_replacement_case_route = legacy_cases_router.routes[0]
-app.router.routes.insert(_legacy_case_decision_index, _replacement_case_route)
+_replace_route("/api/export", "GET", _qualified_routes[("/api/export", "GET")])
 
 # app.api mounts StaticFiles at '/'. Starlette resolves routes in order, so the
 # catch-all static mount must remain last after additional routes are registered.
