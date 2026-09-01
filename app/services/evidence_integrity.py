@@ -69,15 +69,19 @@ def canonical_document_evidence_matches_hash(db: Session, document: Document) ->
     if expected is None or not document.id or not document.tenant_id:
         return False
 
-    snapshot = db.execute(
-        select(
-            document_evidence_snapshots.c.file_hash,
-            document_evidence_snapshots.c.evidence_bytes,
-        ).where(
-            document_evidence_snapshots.c.document_id == document.id,
-            document_evidence_snapshots.c.tenant_id == document.tenant_id,
+    snapshot = (
+        db.execute(
+            select(
+                document_evidence_snapshots.c.file_hash,
+                document_evidence_snapshots.c.evidence_bytes,
+            ).where(
+                document_evidence_snapshots.c.document_id == document.id,
+                document_evidence_snapshots.c.tenant_id == document.tenant_id,
+            )
         )
-    ).mappings().one_or_none()
+        .mappings()
+        .one_or_none()
+    )
     if snapshot is not None:
         snapshot_hash = _normalized_sha256(snapshot["file_hash"])
         payload = bytes(snapshot["evidence_bytes"])
