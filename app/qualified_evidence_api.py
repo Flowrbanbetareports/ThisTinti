@@ -36,9 +36,7 @@ def download_qualified_document(
     ctx: AuthContext = Depends(current_user),
     db: Session = Depends(get_db),
 ) -> Response:
-    document = db.scalar(
-        select(Document).where(Document.id == document_id, Document.tenant_id == ctx.tenant_id)
-    )
+    document = db.scalar(select(Document).where(Document.id == document_id, Document.tenant_id == ctx.tenant_id))
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
     payload = canonical_document_evidence_bytes(db, document)
@@ -64,9 +62,7 @@ def export_qualified_tenant(
 ):
     api = _legacy_api()
     documents = list(
-        db.scalars(
-            select(Document).options(selectinload(Document.lines)).where(Document.tenant_id == ctx.tenant_id)
-        )
+        db.scalars(select(Document).options(selectinload(Document.lines)).where(Document.tenant_id == ctx.tenant_id))
     )
     cases = list(
         db.scalars(
