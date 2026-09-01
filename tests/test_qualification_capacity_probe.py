@@ -43,9 +43,9 @@ def test_aggregate_requires_real_repetitions(tmp_path: Path) -> None:
 
 def test_final_validation_fails_closed_on_template() -> None:
     template = json.loads(
-        (Path(__file__).resolve().parents[1] / "docs/templates/qualified-performance-capacity-evidence.v0.1.json").read_text(
-            encoding="utf-8"
-        )
+        (
+            Path(__file__).resolve().parents[1] / "docs/templates/qualified-performance-capacity-evidence.v0.1.json"
+        ).read_text(encoding="utf-8")
     )
 
     errors = probe.final_errors(template)
