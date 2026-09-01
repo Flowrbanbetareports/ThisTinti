@@ -179,9 +179,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--workload-classification", choices=["SYNTHETIC", "PUBLIC_NOT_BLIND", "AUTHORISED_NON_BLIND"])
     parser.add_argument("--workload-definition-ref")
     parser.add_argument("--load-report", type=Path, action="append", default=[])
-    parser.add_argument("--evidence", type=Path, help="Validate an already populated evidence JSON instead of building one")
+    parser.add_argument(
+        "--evidence", type=Path, help="Validate an already populated evidence JSON instead of building one"
+    )
     parser.add_argument("--output", type=Path)
-    parser.add_argument("--final", action="store_true", help="Fail closed unless the evidence is structurally final-ready")
+    parser.add_argument(
+        "--final", action="store_true", help="Fail closed unless the evidence is structurally final-ready"
+    )
     return parser.parse_args(argv)
 
 
