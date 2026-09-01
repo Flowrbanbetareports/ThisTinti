@@ -17,6 +17,7 @@ from ..models import (
 )
 from ..provenance_models import ProvenanceFinding, ProvenanceJudgment
 from .delivered_over_order_provenance import delivered_over_order_finding_matches_current_support
+from .evidence_integrity import finding_document_evidence_bytes_are_current
 from .finding_provenance import (
     currency_mismatch_finding_matches_current_support,
     duplicate_number_finding_matches_current_support,
@@ -171,12 +172,14 @@ def _finding_matches_case_contract(
     case_type: str,
     finding: ProvenanceFinding,
 ) -> bool:
-    """Require an exact P1 case→rule identity before invoking current-support verification."""
+    """Require exact P1 rule identity and current evidence before support verification."""
     rule_contract = _P1_RULE_MATCHERS.get(case_type)
     if rule_contract is None:
         return False
     expected_rule_id, matcher = rule_contract
     if finding.rule_id != expected_rule_id:
+        return False
+    if not finding_document_evidence_bytes_are_current(db, finding=finding):
         return False
     return matcher(db, finding=finding)
 
