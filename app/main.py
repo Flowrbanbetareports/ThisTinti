@@ -27,6 +27,7 @@ app = _api.app
 if _api.settings.auto_create_schema:
     _api.Base.metadata.create_all(bind=_api.engine)
 
+
 # Replace historical routes whose qualification contract is now stricter. Keep
 # their exact positions so public routing/OpenAPI ordering remains stable.
 def _replace_route(path: str, method: str, replacement_route) -> None:
