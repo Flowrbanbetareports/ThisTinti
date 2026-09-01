@@ -9,7 +9,7 @@ import shutil
 
 TEST_ROOT = Path(__file__).parent / ".runtime"
 TEST_ROOT.mkdir(parents=True, exist_ok=True)
-os.environ.setdefault("THISTINTI_DATABASE_URL", f"sqlite:///{TEST_ROOT / 'test.db'}")
+os.environ["THISTINTI_DATABASE_URL"] = os.getenv("THISTINTI_TEST_POSTGRES_URL") or f"sqlite:///{TEST_ROOT / 'test.db'}"
 os.environ["THISTINTI_STORAGE_DIR"] = str(TEST_ROOT / "uploads")
 os.environ["THISTINTI_QUARANTINE_DIR"] = str(TEST_ROOT / "quarantine")
 os.environ["THISTINTI_REJECTED_DIR"] = str(TEST_ROOT / "rejected")
