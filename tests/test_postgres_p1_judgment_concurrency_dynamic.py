@@ -26,6 +26,7 @@ from app.models import (
 from app.services.judgment_provenance import lock_p1_support_for_update
 
 
+# Dynamic qualification evidence only: this module must run against a real PostgreSQL instance.
 pytestmark = pytest.mark.skipif(
     not os.getenv("THISTINTI_TEST_POSTGRES_URL"),
     reason="requires a real PostgreSQL database via THISTINTI_TEST_POSTGRES_URL",
