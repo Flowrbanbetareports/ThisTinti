@@ -1,0 +1,56 @@
+{
+  "schema": "thistinti-data-protection-evidence",
+  "schema_version": 1,
+  "status": "PREPARATION_ONLY_NOT_EXECUTED",
+  "qualification_scope": "ThisTinti 1.0 Qualified — Procurement v1 — profile P1 — protocol E1",
+  "posture_version": "1.0-draft",
+  "candidate": {
+    "source_sha": null,
+    "release_tag": "v1.0.0",
+    "windows_artifact": null,
+    "windows_artifact_sha256": null,
+    "self_hosted_artifact": null,
+    "self_hosted_digest": null
+  },
+  "local_edition": {
+    "application_level_encryption_at_rest_claim": false,
+    "host_encryption_prerequisite_or_recommendation_verified": false,
+    "storage_surfaces_verified": false,
+    "uninstall_retention_behavior_verified": false,
+    "complete_deletion_procedure_verified": false
+  },
+  "self_hosted": {
+    "reference_environment_identified": false,
+    "database_storage_encryption_documented": false,
+    "document_storage_encryption_documented": false,
+    "backup_encryption_documented": false,
+    "key_ownership_and_recovery_documented": false,
+    "transport_boundary_documented": false,
+    "operator_responsibility_boundary_documented": false
+  },
+  "outbound_network": {
+    "observation_executed": false,
+    "evidence_reference": null,
+    "observed_destinations": [],
+    "unexplained_destinations": [],
+    "silent_document_or_evidence_upload_detected": null
+  },
+  "sensitive_surface_review": {
+    "originals": "NOT_EXECUTED",
+    "database": "NOT_EXECUTED",
+    "quarantine": "NOT_EXECUTED",
+    "logs": "NOT_EXECUTED",
+    "temp": "NOT_EXECUTED",
+    "exports": "NOT_EXECUTED",
+    "backups": "NOT_EXECUTED",
+    "diagnostics_or_crash_material": "NOT_EXECUTED"
+  },
+  "independent_review": {
+    "security_issue": 134,
+    "security_review_reference": null,
+    "privacy_legal_claims_issue": 135,
+    "privacy_legal_claims_review_reference": null,
+    "release_blocking_findings_open": null
+  },
+  "qualification_decision": "NOT_A_PASS"
+}
