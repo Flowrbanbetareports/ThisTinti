@@ -1,0 +1,72 @@
+{
+  "schema": "thistinti-performance-capacity-evidence",
+  "schema_version": 1,
+  "status": "PREPARATION_ONLY_NOT_EXECUTED",
+  "release_line": "v1.0.0",
+  "qualification_claim": "ThisTinti 1.0 Qualified — Procurement v1 — P1 — E1",
+  "candidate": {
+    "source_sha": null,
+    "artifact_identity": null,
+    "artifact_sha256": null,
+    "edition": null,
+    "os": null,
+    "hardware": {
+      "cpu": null,
+      "cores": null,
+      "ram_bytes": null,
+      "storage_type": null
+    },
+    "database": {
+      "engine": null,
+      "version": null,
+      "configuration_ref": null
+    }
+  },
+  "workload": {
+    "manifest_sha256": null,
+    "classification": "NON_BLIND_ONLY",
+    "blind_or_holdout_used": false,
+    "sizes": {
+      "small": null,
+      "representative": null,
+      "stress": null
+    }
+  },
+  "measurements": {
+    "installer_bytes": null,
+    "post_install_bytes": null,
+    "idle": {
+      "window_seconds": null,
+      "cpu": null,
+      "ram_bytes": null
+    },
+    "runs": [],
+    "storage_growth": {
+      "database_bytes": null,
+      "canonical_evidence_snapshot_bytes": null,
+      "logs_bytes": null,
+      "quarantine_or_temp_bytes": null
+    },
+    "backup": {
+      "duration_seconds": null,
+      "artifact_bytes": null,
+      "sha256": null,
+      "verified": null
+    },
+    "restore": {
+      "duration_seconds": null,
+      "verification_result": null,
+      "cross_reference": "#168"
+    }
+  },
+  "limits": {
+    "hard_product_limits": [],
+    "tested_limits": [],
+    "observed_degradation": []
+  },
+  "result": {
+    "classification": "GAP",
+    "blockers": [],
+    "residual_limitations": []
+  }
+}
