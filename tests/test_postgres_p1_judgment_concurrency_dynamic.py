@@ -8,7 +8,6 @@ import pytest
 from sqlalchemy import create_engine, select, update
 from sqlalchemy.orm import Session
 
-from app.db import Base
 from app.legacy_cases_api import (
     _case_query,
     _case_support_identity_is_stable,
@@ -20,7 +19,6 @@ from app.models import (
     Document,
     DocumentLine,
     OperationChain,
-    Supplier,
     Tenant,
 )
 from app.services.judgment_provenance import lock_p1_support_for_update
@@ -35,18 +33,13 @@ pytestmark = pytest.mark.skipif(
 
 @pytest.fixture()
 def postgres_engine():
+    # tests/conftest.py already performs a full Base.metadata reset before every
+    # test against THISTINTI_DATABASE_URL. This fixture must not attempt a
+    # partial drop: the full application schema contains FK dependants outside
+    # this focused seed set, and PostgreSQL correctly refuses an unsafe subset
+    # teardown. Keep this fixture responsible only for the real engine and the
+    # rows needed by the concurrency scenarios.
     engine = create_engine(os.environ["THISTINTI_TEST_POSTGRES_URL"], future=True)
-    tables = [
-        Tenant.__table__,
-        Supplier.__table__,
-        Document.__table__,
-        DocumentLine.__table__,
-        OperationChain.__table__,
-        ChainDocument.__table__,
-        DiscrepancyCase.__table__,
-    ]
-    Base.metadata.drop_all(engine, tables=tables, checkfirst=True)
-    Base.metadata.create_all(engine, tables=tables, checkfirst=True)
 
     with Session(engine) as db, db.begin():
         db.add(Tenant(id="tenant-1", name="Concurrency evidence tenant"))
@@ -102,7 +95,6 @@ def postgres_engine():
     try:
         yield engine
     finally:
-        Base.metadata.drop_all(engine, tables=tables, checkfirst=True)
         engine.dispose()
 
 
