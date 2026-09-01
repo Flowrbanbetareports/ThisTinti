@@ -31,7 +31,7 @@ def _legacy_api():
     response_class=Response,
     responses={200: {"content": {"application/octet-stream": {}}}},
 )
-def download_qualified_document(
+def download_document(
     document_id: str,
     ctx: AuthContext = Depends(current_user),
     db: Session = Depends(get_db),
@@ -55,7 +55,7 @@ def download_qualified_document(
     response_class=FileResponse,
     responses={200: {"content": {"application/zip": {}}}},
 )
-def export_qualified_tenant(
+def export_tenant(
     include_files: bool = Query(default=False),
     ctx: AuthContext = Depends(require_admin),
     db: Session = Depends(get_db),
