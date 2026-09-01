@@ -18,9 +18,7 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_committed_quantity_mutation_invalidates_finding_before_real_judgment(
-    client, auth
-):
+def test_committed_quantity_mutation_invalidates_finding_before_real_judgment(client, auth):
     """Mutation-first support drift must fail closed through the real review endpoint.
 
     The finding is created from an over-delivery (12 > 10). A separate committed
@@ -38,11 +36,7 @@ def test_committed_quantity_mutation_invalidates_finding_before_real_judgment(
     )
 
     with SessionLocal() as db:
-        case = db.scalar(
-            select(DiscrepancyCase).where(
-                DiscrepancyCase.case_type == "delivered_over_order"
-            )
-        )
+        case = db.scalar(select(DiscrepancyCase).where(DiscrepancyCase.case_type == "delivered_over_order"))
         assert case is not None
         finding = db.scalar(
             select(ProvenanceFinding).where(
@@ -77,29 +71,14 @@ def test_committed_quantity_mutation_invalidates_finding_before_real_judgment(
         },
     )
     assert reviewed.status_code == 409, reviewed.text
-    assert (
-        reviewed.json()["detail"]
-        == "Case decision requires exact-current provenance support"
-    )
+    assert reviewed.json()["detail"] == "Case decision requires exact-current provenance support"
 
     with SessionLocal() as db:
         case = db.get(DiscrepancyCase, case_id)
         assert case is not None
         assert case.status == original_status
-        assert (
-            db.scalar(
-                select(ReviewDecision).where(ReviewDecision.case_id == case_id)
-            )
-            is None
-        )
-        assert (
-            db.scalar(
-                select(ProvenanceJudgment).where(
-                    ProvenanceJudgment.finding_id == finding_id
-                )
-            )
-            is None
-        )
+        assert db.scalar(select(ReviewDecision).where(ReviewDecision.case_id == case_id)) is None
+        assert db.scalar(select(ProvenanceJudgment).where(ProvenanceJudgment.finding_id == finding_id)) is None
         persisted_quantity = db.scalar(
             select(DocumentLine.quantity).where(
                 DocumentLine.document_id == delivery_id,
