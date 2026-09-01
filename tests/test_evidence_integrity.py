@@ -241,7 +241,9 @@ def test_judgment_contract_rejects_failed_canonical_evidence_check():
         "app.services.judgment_provenance.finding_document_evidence_bytes_are_current",
         return_value=False,
     ):
-        assert _finding_matches_case_contract(MagicMock(), case_type="duplicate_document_number", finding=finding) is False
+        assert (
+            _finding_matches_case_contract(MagicMock(), case_type="duplicate_document_number", finding=finding) is False
+        )
 
 
 def test_lock_p1_support_rejects_missing_chain():
