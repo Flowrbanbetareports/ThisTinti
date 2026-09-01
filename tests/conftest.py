@@ -1,3 +1,4 @@
+import hashlib
 import sys
 from pathlib import Path
 
@@ -17,9 +18,36 @@ os.environ["THISTINTI_ALLOW_REGISTRATION"] = "true"
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import event
 
 from app.db import Base, engine
 from app.main import app, _rate_buckets
+from app.models import Document
+
+
+_SYNTHETIC_PROVENANCE_PREFIXES = ("property-", "currency-", "delivered-")
+
+
+def _materialize_synthetic_provenance_bytes(mapper, connection, target: Document) -> None:
+    """Give property/stateful Document fixtures real stored bytes.
+
+    The provenance property suites construct Documents directly instead of using the
+    upload endpoint. Stored-byte qualification now requires those fixtures to model
+    the same invariant as production: ``file_hash`` must match bytes at
+    ``storage_path``. Restrict this hook to the known synthetic fixture filenames so
+    tests for missing/substituted storage remain meaningful.
+    """
+    source_filename = target.source_filename or ""
+    if not source_filename.startswith(_SYNTHETIC_PROVENANCE_PREFIXES):
+        return
+    path = Path(target.storage_path)
+    payload = f"synthetic-provenance:{target.id}:{source_filename}".encode("utf-8")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(payload)
+    target.file_hash = hashlib.sha256(payload).hexdigest()
+
+
+event.listen(Document, "before_insert", _materialize_synthetic_provenance_bytes)
 
 
 @pytest.fixture(autouse=True)
