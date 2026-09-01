@@ -1,0 +1,91 @@
+{
+  "schema": "thistinti-exit-portability-reconstruction-evidence.v0.1",
+  "status": "PREPARATION_ONLY_NOT_EXECUTED",
+  "qualification_result": "NOT_A_PASS",
+  "candidate": {
+    "source_sha": "<40-hex>",
+    "candidate_id": "<release-or-rc-id>",
+    "release_artifact_refs": ["<artifact-ref>"]
+  },
+  "package": {
+    "format": "<e.g.-thistinti-backup-v1>",
+    "producer_release": "<release-version>",
+    "package_ref": "<portable-package-ref>",
+    "package_sha256": "<64-hex>",
+    "manifest_ref": "<manifest-ref>",
+    "storage_included": "<true-or-false>",
+    "database_engine": "<sqlite-or-postgresql>",
+    "database_version": "<version>"
+  },
+  "canonical_evidence_snapshots": {
+    "applicable": "<true-or-false>",
+    "pre_loss_identity_ref": "<canonical-evidence-identity-manifest-ref>",
+    "snapshot_row_presence": "NOT_EXECUTED",
+    "document_tenant_linkage": "NOT_EXECUTED",
+    "canonical_byte_hash_match_after_restore": "NOT_EXECUTED",
+    "reviewer_export_identity_match": "NOT_EXECUTED",
+    "filesystem_fallback_not_used_as_substitute": "NOT_EXECUTED",
+    "offline_inspection_method_documented": "NOT_EXECUTED",
+    "offline_inspection_result": "NOT_EXECUTED",
+    "evidence_refs": ["<canonical-snapshot-evidence-ref>"]
+  },
+  "clean_machine": {
+    "environment_id": "<isolated-clean-target-id>",
+    "is_source_state_absent_before_test": "<true-or-false>",
+    "os_runtime": "<os-and-runtime>",
+    "prerequisite_tools": [
+      {
+        "name": "<tool>",
+        "version": "<version>",
+        "purpose": "<restore-or-offline-inspection-purpose>"
+      }
+    ]
+  },
+  "reconstruction": {
+    "linked_recovery_evidence_ref": "<final-recovery-evidence-ref>",
+    "package_identity_verified": "NOT_EXECUTED",
+    "manifest_entry_integrity": "NOT_EXECUTED",
+    "restore_on_clean_target": "NOT_EXECUTED",
+    "storage_integrity": "NOT_EXECUTED",
+    "canonical_evidence_integrity": "NOT_EXECUTED",
+    "document_fact_finding_judgment_integrity": "NOT_EXECUTED",
+    "application_read_only_smoke": "NOT_EXECUTED",
+    "manual_interventions": [],
+    "evidence_refs": ["<reconstruction-evidence-ref>"]
+  },
+  "offline_exit_inspection": {
+    "thistinti_service_running": false,
+    "container_openable": "NOT_EXECUTED",
+    "manifest_json_readable": "NOT_EXECUTED",
+    "integrity_metadata_inspectable": "NOT_EXECUTED",
+    "source_documents_extractable": "NOT_EXECUTED",
+    "database_snapshot_method_documented": "NOT_EXECUTED",
+    "canonical_snapshot_records": "NOT_EXECUTED",
+    "semantic_records": "NOT_EXECUTED",
+    "identifier_correlation": "NOT_EXECUTED",
+    "provenance_traceability": "NOT_EXECUTED",
+    "required_offline_method": "<documented-method-not-using-live-thistinti-service>",
+    "opaque_or_unsupported_fields": [],
+    "evidence_refs": ["<offline-inspection-evidence-ref>"]
+  },
+  "compatibility": {
+    "consumer_release_tested": "<release-version-or-not-applicable>",
+    "forward_compatibility_claim": "NO_UNTESTED_CLAIM",
+    "backward_compatibility_claim": "NO_UNTESTED_CLAIM",
+    "database_downgrade_claim": "NO_UNTESTED_CLAIM",
+    "original_package_preserved": "<true-or-false>",
+    "known_prerequisites": [],
+    "unsupported_paths": [],
+    "maintenance_eol_policy_ref": "<release-owner-policy-ref-or-unset>"
+  },
+  "findings": [],
+  "operator_attestation_ref": "<real-operator-attestation-ref>",
+  "evidence_index": ["<evidence-ref>"],
+  "limitations": [
+    "PREPARATION_ONLY: no clean-machine reconstruction has been executed or passed by this template.",
+    "PREPARATION_ONLY: no offline exit-portability inspection has been executed or passed by this template.",
+    "A restorable backup is not automatically a meaningful offline semantic export.",
+    "Presence of document_evidence_snapshots in a database backup is not a reconstruction or portability PASS until exact-candidate restore and identity checks are executed.",
+    "No compatibility, rollback, downgrade, maintenance or EOL claim is established by this template."
+  ]
+}
