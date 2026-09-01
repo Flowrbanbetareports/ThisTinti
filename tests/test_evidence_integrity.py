@@ -110,9 +110,7 @@ def test_canonical_snapshot_rejects_substitution_before_first_seal(tmp_path):
 
         assert canonical_document_evidence_matches_hash(db, document) is False
         snapshot = db.execute(
-            document_evidence_snapshots.select().where(
-                document_evidence_snapshots.c.document_id == document.id
-            )
+            document_evidence_snapshots.select().where(document_evidence_snapshots.c.document_id == document.id)
         ).first()
         assert snapshot is None
 
