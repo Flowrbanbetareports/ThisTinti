@@ -47,6 +47,34 @@ def _verified_storage_bytes(document: Document) -> bytes | None:
     return payload
 
 
+def _verified_snapshot_bytes(db: Session, document: Document) -> bytes | None:
+    expected = _normalized_sha256(document.file_hash)
+    if expected is None or not document.id or not document.tenant_id:
+        return None
+    snapshot = (
+        db.execute(
+            select(
+                document_evidence_snapshots.c.file_hash,
+                document_evidence_snapshots.c.evidence_bytes,
+            ).where(
+                document_evidence_snapshots.c.document_id == document.id,
+                document_evidence_snapshots.c.tenant_id == document.tenant_id,
+            )
+        )
+        .mappings()
+        .one_or_none()
+    )
+    if snapshot is None:
+        return None
+    snapshot_hash = _normalized_sha256(snapshot["file_hash"])
+    payload = bytes(snapshot["evidence_bytes"])
+    if snapshot_hash is None or not hmac.compare_digest(snapshot_hash, expected):
+        return None
+    if not hmac.compare_digest(hashlib.sha256(payload).hexdigest(), expected):
+        return None
+    return payload
+
+
 def stored_document_bytes_match_hash(document: Document) -> bool:
     """Return True only when the current filesystem bytes match Document.file_hash.
 
@@ -55,6 +83,26 @@ def stored_document_bytes_match_hash(document: Document) -> bool:
     cannot change the evidence semantics after verification.
     """
     return _verified_storage_bytes(document) is not None
+
+
+def canonical_document_evidence_bytes(db: Session, document: Document) -> bytes | None:
+    """Return the bytes that the product may expose as this document's evidence.
+
+    A sealed snapshot is authoritative and must itself verify against Document.file_hash.
+    Before a snapshot exists, mutable storage may be exposed only while its bytes verify.
+    This read-only helper never seals evidence; qualification remains the only seal path.
+    """
+    if _normalized_sha256(document.file_hash) is None or not document.id or not document.tenant_id:
+        return None
+    snapshot = db.execute(
+        select(document_evidence_snapshots.c.document_id).where(
+            document_evidence_snapshots.c.document_id == document.id,
+            document_evidence_snapshots.c.tenant_id == document.tenant_id,
+        )
+    ).first()
+    if snapshot is not None:
+        return _verified_snapshot_bytes(db, document)
+    return _verified_storage_bytes(document)
 
 
 def canonical_document_evidence_matches_hash(db: Session, document: Document) -> bool:
@@ -69,25 +117,14 @@ def canonical_document_evidence_matches_hash(db: Session, document: Document) ->
     if expected is None or not document.id or not document.tenant_id:
         return False
 
-    snapshot = (
-        db.execute(
-            select(
-                document_evidence_snapshots.c.file_hash,
-                document_evidence_snapshots.c.evidence_bytes,
-            ).where(
-                document_evidence_snapshots.c.document_id == document.id,
-                document_evidence_snapshots.c.tenant_id == document.tenant_id,
-            )
+    existing = db.execute(
+        select(document_evidence_snapshots.c.document_id).where(
+            document_evidence_snapshots.c.document_id == document.id,
+            document_evidence_snapshots.c.tenant_id == document.tenant_id,
         )
-        .mappings()
-        .one_or_none()
-    )
-    if snapshot is not None:
-        snapshot_hash = _normalized_sha256(snapshot["file_hash"])
-        payload = bytes(snapshot["evidence_bytes"])
-        if snapshot_hash is None or not hmac.compare_digest(snapshot_hash, expected):
-            return False
-        return hmac.compare_digest(hashlib.sha256(payload).hexdigest(), expected)
+    ).first()
+    if existing is not None:
+        return _verified_snapshot_bytes(db, document) is not None
 
     payload = _verified_storage_bytes(document)
     if payload is None:
