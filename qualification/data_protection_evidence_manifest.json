@@ -16,6 +16,7 @@
     "application_level_encryption_at_rest_claim": false,
     "host_encryption_prerequisite_or_recommendation_verified": false,
     "storage_surfaces_verified": false,
+    "canonical_evidence_snapshot_storage_verified": false,
     "uninstall_retention_behavior_verified": false,
     "complete_deletion_procedure_verified": false
   },
@@ -23,6 +24,7 @@
     "reference_environment_identified": false,
     "database_storage_encryption_documented": false,
     "document_storage_encryption_documented": false,
+    "canonical_evidence_snapshot_storage_documented": false,
     "backup_encryption_documented": false,
     "key_ownership_and_recovery_documented": false,
     "transport_boundary_documented": false,
@@ -38,6 +40,7 @@
   "sensitive_surface_review": {
     "originals": "NOT_EXECUTED",
     "database": "NOT_EXECUTED",
+    "canonical_evidence_snapshots": "NOT_EXECUTED",
     "quarantine": "NOT_EXECUTED",
     "logs": "NOT_EXECUTED",
     "temp": "NOT_EXECUTED",
