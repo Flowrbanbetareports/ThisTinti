@@ -2,6 +2,9 @@
 #ifndef MyAppVersion
   #define MyAppVersion "3.4.0-alpha.7-rc.15"
 #endif
+#ifndef MyAppFileVersion
+  #define MyAppFileVersion "3.4.0.19"
+#endif
 #define MyAppPublisher "Lorenzo Tinti"
 #define MyAppExeName "ThisTinti.exe"
 
@@ -29,7 +32,7 @@ WizardStyle=modern dynamic
 CloseApplications=yes
 RestartApplications=no
 ChangesAssociations=no
-VersionInfoVersion=3.4.0.19
+VersionInfoVersion={#MyAppFileVersion}
 VersionInfoProductName={#MyAppName}
 VersionInfoDescription=Local document integrity and discrepancy review platform
 VersionInfoCompany={#MyAppPublisher}
