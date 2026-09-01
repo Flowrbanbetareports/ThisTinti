@@ -51,6 +51,35 @@ _CHAIN_ROLES = (
     "return",
     "credit_note",
 )
+_DIRECT_DOCUMENT_ENGINE_ID = "native-json-parser"
+_DIRECT_DOCUMENT_ENGINE_VERSION = "1"
+
+
+def _direct_document_fact_is_canonical(
+    *,
+    fact: ProvenanceFact,
+    origin: ProvenanceOrigin | None,
+    document: Document,
+    field_name: str,
+    fact_type: str,
+    expected_value: str,
+) -> bool:
+    expected_pointer = f"/{field_name}"
+    return bool(
+        fact.fact_type == fact_type
+        and fact.value_json == expected_value
+        and origin is not None
+        and origin.origin_type == "DOCUMENT_EVIDENCE"
+        and origin.document_id == document.id
+        and origin.source_ref == f"sha256:{document.file_hash}"
+        and origin.source_availability == "available"
+        and origin.locator_status == "present"
+        and origin.locator_type == "JSON_POINTER"
+        and origin.locator_json
+        == json.dumps({"pointer": expected_pointer}, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        and origin.engine_id == _DIRECT_DOCUMENT_ENGINE_ID
+        and origin.engine_version == _DIRECT_DOCUMENT_ENGINE_VERSION
+    )
 
 
 def _supporting_number_facts(
@@ -106,16 +135,13 @@ def _supporting_number_facts(
     ordered: list[ProvenanceFact] = []
     for document, fact_key in zip(documents, fact_keys, strict=True):
         fact = latest_by_key[fact_key]
-        origin = origins.get(fact.origin_id)
-        if (
-            fact.value_json != expected_value
-            or origin is None
-            or origin.origin_type != "DOCUMENT_EVIDENCE"
-            or origin.document_id != document.id
-            or origin.source_availability != "available"
-            or origin.locator_status != "present"
-            or origin.locator_type != "JSON_POINTER"
-            or origin.locator_json != '{"pointer":"/number"}'
+        if not _direct_document_fact_is_canonical(
+            fact=fact,
+            origin=origins.get(fact.origin_id),
+            document=document,
+            field_name="number",
+            fact_type="document.number",
+            expected_value=expected_value,
         ):
             return []
         ordered.append(fact)
@@ -165,22 +191,15 @@ def _supporting_currency_facts(
     ordered: list[ProvenanceFact] = []
     for document, fact_key in zip(documents, fact_keys, strict=True):
         fact = latest_by_key[fact_key]
-        origin = origins.get(fact.origin_id)
         expected_value = json.dumps(document.currency, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-        if (
-            fact.fact_type != "document.currency"
-            or fact.value_json != expected_value
-            or origin is None
-            or origin.origin_type != "DOCUMENT_EVIDENCE"
-            or origin.document_id != document.id
-            or origin.source_ref != f"sha256:{document.file_hash}"
-            or origin.source_availability != "available"
-            or origin.locator_status != "present"
-            or not origin.locator_type
-            or not origin.locator_json
+        if not _direct_document_fact_is_canonical(
+            fact=fact,
+            origin=origins.get(fact.origin_id),
+            document=document,
+            field_name="currency",
+            fact_type="document.currency",
+            expected_value=expected_value,
         ):
-            return []
-        if origin.locator_type == "JSON_POINTER" and origin.locator_json != '{"pointer":"/currency"}':
             return []
         ordered.append(fact)
     return ordered

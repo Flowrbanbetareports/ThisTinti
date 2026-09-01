@@ -164,6 +164,8 @@ class _Scenario:
                 locator_status=locator_status,
                 locator_type="JSON_POINTER" if locator_status == "present" else None,
                 locator_json='{"pointer":"/number"}' if locator_status == "present" else None,
+                engine_id="native-json-parser",
+                engine_version="1",
             )
         elif kind == "human":
             origin = create_origin(

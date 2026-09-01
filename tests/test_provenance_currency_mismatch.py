@@ -183,6 +183,8 @@ def test_currency_mismatch_end_to_end_binds_direct_currency_facts_and_judgment(c
             assert origin.locator_status == "present"
             assert origin.locator_type == "JSON_POINTER"
             assert origin.locator_json == '{"pointer":"/currency"}'
+            assert origin.engine_id == "native-json-parser"
+            assert origin.engine_version == "1"
 
         case_id = case.id
         finding_id = finding.id
@@ -390,6 +392,8 @@ class _CurrencyScenario:
                 locator_json=json.dumps({"pointer": pointer}, separators=(",", ":"))
                 if locator_status == "present"
                 else None,
+                engine_id="native-json-parser",
+                engine_version="1",
             )
         elif kind == "human":
             origin = create_origin(
