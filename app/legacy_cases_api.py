@@ -43,11 +43,7 @@ def _locked_case_query(*, case_id: str, tenant_id: str):
     # case between that read and this row lock. Force the locked SELECT to
     # refresh an already-present identity-map object so the drift cannot be
     # hidden by stale ORM state.
-    return (
-        _case_query(case_id=case_id, tenant_id=tenant_id)
-        .with_for_update()
-        .execution_options(populate_existing=True)
-    )
+    return _case_query(case_id=case_id, tenant_id=tenant_id).with_for_update().execution_options(populate_existing=True)
 
 
 def _case_support_identity_is_stable(
