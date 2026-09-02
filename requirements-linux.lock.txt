@@ -6,7 +6,7 @@ click==8.4.2
 dnspython==2.8.0
 email_validator==2.2.0
 et_xmlfile==2.0.0
-fastapi==0.139.2
+fastapi==0.140.2
 greenlet==3.5.3
 h11==0.16.0
 httptools==0.8.0
