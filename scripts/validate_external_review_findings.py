@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
+SHA256 = re.compile(r"^[0-9a-f]{64}$")
 ALLOWED_SEVERITIES = {"CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO", "NOT_APPLICABLE"}
 ALLOWED_MATERIALITY = {"MATERIAL", "NON_MATERIAL", "UNKNOWN", "NOT_APPLICABLE"}
 ALLOWED_REMEDIATION = {"OPEN", "IN_PROGRESS", "REMEDIATED", "NOT_APPLICABLE", "RISK_ACCEPTED"}
@@ -91,7 +92,7 @@ def validate(data: object, final: bool) -> list[str]:
     if not isinstance(data, dict):
         return ["register must be a JSON object"]
 
-    if data.get("schema") != "thistinti-external-review-findings" or data.get("schema_version") != 1:
+    if data.get("schema") != "thistinti-external-review-findings" or data.get("schema_version") != 2:
         fail(errors, "unsupported schema")
 
     if data.get("release_version") != "1.0.0":
@@ -100,9 +101,13 @@ def validate(data: object, final: bool) -> list[str]:
         fail(errors, "release_tag must be exactly v1.0.0; legacy prerelease tags are not valid")
 
     candidate_sha = data.get("candidate_sha")
+    artifact_sha256 = data.get("artifact_sha256")
+    environment = data.get("environment")
     if final and not (isinstance(candidate_sha, str) and SHA40.fullmatch(candidate_sha)):
         fail(errors, "final register requires full 40-hex candidate_sha")
-    if final and not nonempty(data.get("environment")):
+    if final and not (isinstance(artifact_sha256, str) and SHA256.fullmatch(artifact_sha256)):
+        fail(errors, "final register requires full 64-hex artifact_sha256")
+    if final and not nonempty(environment):
         fail(errors, "final register requires environment")
 
     tracks = data.get("tracks")
@@ -121,12 +126,35 @@ def validate(data: object, final: bool) -> list[str]:
         if track.get("issue") != issue_number:
             fail(errors, f"{track_name}: wrong issue binding")
         if final:
-            for key in ("independent_reviewer", "reviewer_organisation", "report_date", "report_reference"):
+            for key in (
+                "independent_reviewer",
+                "reviewer_organisation",
+                "report_date",
+                "report_reference",
+                "reviewed_environment",
+            ):
                 if not nonempty(track.get(key)):
                     fail(errors, f"{track_name}: final evidence missing {key}")
+
+            reviewed_sha = track.get("reviewed_candidate_sha")
+            if not (isinstance(reviewed_sha, str) and SHA40.fullmatch(reviewed_sha)):
+                fail(errors, f"{track_name}: reviewed_candidate_sha must be full 40-hex SHA")
+            elif reviewed_sha != candidate_sha:
+                fail(errors, f"{track_name}: reviewed candidate does not match final candidate_sha")
+
+            reviewed_artifact = track.get("reviewed_artifact_sha256")
+            if not (isinstance(reviewed_artifact, str) and SHA256.fullmatch(reviewed_artifact)):
+                fail(errors, f"{track_name}: reviewed_artifact_sha256 must be full 64-hex SHA-256")
+            elif reviewed_artifact != artifact_sha256:
+                fail(errors, f"{track_name}: reviewed artifact does not match final artifact_sha256")
+
+            if track.get("reviewed_environment") != environment:
+                fail(errors, f"{track_name}: reviewed environment does not match final environment")
+
             scope = track.get("scope")
             if not isinstance(scope, list) or not scope or not all(nonempty(item) for item in scope):
                 fail(errors, f"{track_name}: final evidence requires non-empty scope")
+
         findings = track.get("findings")
         if not isinstance(findings, list):
             fail(errors, f"{track_name}: findings must be a list")
@@ -141,10 +169,10 @@ def validate(data: object, final: bool) -> list[str]:
                     seen.add(finding_id)
 
     if final:
-        if data.get("status") != "EXTERNAL_REVIEWS_COMPLETE":
-            fail(errors, "final status must be EXTERNAL_REVIEWS_COMPLETE")
-        if data.get("final_disposition") != "PASS":
-            fail(errors, "final_disposition must be PASS")
+        if data.get("status") != "EXTERNAL_REVIEWS_STRUCTURALLY_COMPLETE":
+            fail(errors, "final status must be EXTERNAL_REVIEWS_STRUCTURALLY_COMPLETE")
+        if data.get("qualification_decision") != "NOT_A_PASS":
+            fail(errors, "qualification_decision must remain NOT_A_PASS; this validator cannot declare qualification")
 
     return errors
 
@@ -166,7 +194,7 @@ def main() -> int:
         for error in errors:
             print(f"INVALID: {error}", file=sys.stderr)
         return 1
-    print("VALID STRUCTURE — not proof of independent review authenticity")
+    print("VALID_STRUCTURE_NOT_QUALIFICATION_PASS")
     return 0
 
 
