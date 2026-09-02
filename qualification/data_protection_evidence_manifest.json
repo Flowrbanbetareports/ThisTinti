@@ -1,12 +1,13 @@
 {
   "schema": "thistinti-data-protection-evidence",
-  "schema_version": 1,
+  "schema_version": 2,
   "status": "PREPARATION_ONLY_NOT_EXECUTED",
   "qualification_scope": "ThisTinti 1.0 Qualified — Procurement v1 — profile P1 — protocol E1",
   "posture_version": "1.0-draft",
   "candidate": {
-    "source_sha": null,
+    "release_version": "1.0.0",
     "release_tag": "v1.0.0",
+    "source_sha": null,
     "windows_artifact": null,
     "windows_artifact_sha256": null,
     "self_hosted_artifact": null,
@@ -33,6 +34,14 @@
   "outbound_network": {
     "observation_executed": false,
     "evidence_reference": null,
+    "observation_context": {
+      "windows_version": null,
+      "tool_name": null,
+      "tool_version": null,
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "actions_exercised": []
+    },
     "observed_destinations": [],
     "unexplained_destinations": [],
     "silent_document_or_evidence_upload_detected": null
