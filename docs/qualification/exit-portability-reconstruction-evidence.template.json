@@ -1,15 +1,18 @@
 {
-  "schema": "thistinti-exit-portability-reconstruction-evidence.v0.1",
+  "schema": "thistinti-exit-portability-reconstruction-evidence",
+  "schema_version": 1,
   "status": "PREPARATION_ONLY_NOT_EXECUTED",
   "qualification_result": "NOT_A_PASS",
   "candidate": {
+    "release_version": "1.0.0",
+    "release_tag": "v1.0.0",
     "source_sha": "<40-hex>",
     "candidate_id": "<release-or-rc-id>",
     "release_artifact_refs": ["<artifact-ref>"]
   },
   "package": {
     "format": "<e.g.-thistinti-backup-v1>",
-    "producer_release": "<release-version>",
+    "producer_release": "1.0.0",
     "package_ref": "<portable-package-ref>",
     "package_sha256": "<64-hex>",
     "manifest_ref": "<manifest-ref>",
@@ -18,7 +21,7 @@
     "database_version": "<version>"
   },
   "canonical_evidence_snapshots": {
-    "applicable": "<true-or-false>",
+    "applicable": true,
     "pre_loss_identity_ref": "<canonical-evidence-identity-manifest-ref>",
     "snapshot_row_presence": "NOT_EXECUTED",
     "document_tenant_linkage": "NOT_EXECUTED",
@@ -50,6 +53,7 @@
     "canonical_evidence_integrity": "NOT_EXECUTED",
     "document_fact_finding_judgment_integrity": "NOT_EXECUTED",
     "application_read_only_smoke": "NOT_EXECUTED",
+    "measured_elapsed_seconds": null,
     "manual_interventions": [],
     "evidence_refs": ["<reconstruction-evidence-ref>"]
   },
