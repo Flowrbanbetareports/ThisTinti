@@ -10,7 +10,7 @@ DIGEST = "a" * 64
 def final_dossier():
     return {
         "schema": "thistinti-qualified-release-dossier",
-        "schema_version": 1,
+        "schema_version": 2,
         "status": "FINAL_CANDIDATE_EVIDENCE_COMPLETE",
         "release_version": "1.0.0",
         "release_tag": "v1.0.0",
@@ -25,6 +25,16 @@ def final_dossier():
                     "source_sha": SHA,
                     "conclusion": "success",
                     "evidence_ref": "run:123",
+                }
+            ],
+            "main_post_merge_checks": [
+                {
+                    "name": "P1 PostgreSQL Concurrency Evidence",
+                    "source_sha": SHA,
+                    "branch": "main",
+                    "event": "push",
+                    "conclusion": "success",
+                    "evidence_ref": "run:456",
                 }
             ],
         },
@@ -84,6 +94,54 @@ def test_stale_workflow_sha_is_rejected():
     errors = validate(data, final=True)
 
     assert any("required_check_policy.checks[0] is not bound" in error for error in errors)
+
+
+def test_concurrency_evidence_must_be_from_exact_main_sha():
+    data = final_dossier()
+    data["required_check_policy"]["main_post_merge_checks"][0]["source_sha"] = OTHER_SHA
+
+    errors = validate(data, final=True)
+
+    assert any("main_post_merge_checks[0] is not bound" in error for error in errors)
+
+
+def test_pr_only_concurrency_evidence_is_rejected():
+    data = final_dossier()
+    check = data["required_check_policy"]["main_post_merge_checks"][0]
+    check["branch"] = "qualification-c/final-evidence-dossier"
+    check["event"] = "pull_request"
+
+    errors = validate(data, final=True)
+
+    assert any("must be recorded from branch main" in error for error in errors)
+    assert any("must be recorded from a push run" in error for error in errors)
+
+
+def test_missing_or_duplicate_exact_main_concurrency_check_is_rejected():
+    missing = final_dossier()
+    missing["required_check_policy"]["main_post_merge_checks"] = []
+    assert any(
+        "must contain exactly the required exact-main check set" in error
+        for error in validate(missing, final=True)
+    )
+
+    duplicate = final_dossier()
+    duplicate["required_check_policy"]["main_post_merge_checks"].append(
+        deepcopy(duplicate["required_check_policy"]["main_post_merge_checks"][0])
+    )
+    assert any(
+        "must contain exactly the required exact-main check set" in error
+        for error in validate(duplicate, final=True)
+    )
+
+
+def test_failed_exact_main_concurrency_check_is_rejected():
+    data = final_dossier()
+    data["required_check_policy"]["main_post_merge_checks"][0]["conclusion"] = "failure"
+
+    errors = validate(data, final=True)
+
+    assert any("main_post_merge_checks[0] did not conclude success" in error for error in errors)
 
 
 def test_stale_track_sha_is_rejected():
