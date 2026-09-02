@@ -14,6 +14,24 @@ Provide the reviewer with immutable or versioned copies of: P1 scope/exclusions;
 
 For every supplied item record a stable path/URL, version or source SHA, content hash where practical, and review date. A later material wording or operating-model change requires explicit delta review rather than silent inheritance.
 
+### Material architecture delta: canonical evidence snapshots
+
+The qualified candidate now persists canonical document evidence bytes in `document_evidence_snapshots` and serves qualified reviewer/export evidence from that canonical store. This is a material data-governance surface, not merely an integrity hash or transient parser cache. The independent review must therefore examine the actual persisted evidence bytes and their lifecycle, not infer privacy properties from source-document paths or hashes alone.
+
+At minimum the reviewer packet must describe, for each intended Local and Self-Hosted deployment model where applicable:
+
+- what document/evidence bytes are persisted, why they are required for the bounded P1/E1 workflow, and whether derived copies are created;
+- tenant/workspace linkage and the intended access-control/RLS boundary around snapshot rows;
+- whether operators, reviewers, exports, support personnel, database administrators or backup operators can access the bytes and under what authority;
+- retention, deletion, legal-hold and data-subject/request implications for the snapshot rows themselves, including whether deletion of a source file leaves canonical bytes behind;
+- backup/restore consequences, including how deleted or restricted snapshot bytes can reappear from backup media and what controls govern that path;
+- encryption-at-rest responsibility and the boundary between application controls and host/database/storage controls; absence of an application-managed encryption feature must not be described as equivalent to encrypted storage;
+- export/reviewer behavior, including whether canonical bytes can leave the primary database through generated evidence packages or reviewer downloads;
+- incident-response implications for compromise, accidental disclosure, tenant-boundary failure or snapshot substitution;
+- migration/upgrade behavior for existing documents that predate snapshot storage, including any backfill or fail-closed behavior relevant to privacy expectations.
+
+The reviewer must record any assumption that depends on deployment configuration rather than product-enforced behavior. A green CI result or successful RLS test is technical evidence only and does not decide controller/processor roles, lawful basis, retention lawfulness, contractual duties or acceptable residual privacy risk.
+
 ## Review matrix
 
 The independent reviewer should disposition every row as `APPROVED`, `APPROVED_WITH_LIMITATION`, `REMEDIATION_REQUIRED`, `OUT_OF_SCOPE_WITH_REASON`, or `NOT_REVIEWED`. Empty/unknown rows fail closed for final qualification.
@@ -24,6 +42,11 @@ The independent reviewer should disposition every row as `APPROVED`, `APPROVED_W
 | Lawful basis & purpose limitation | Is each intended processing purpose supported and bounded? | Purpose/basis mapping and prohibited secondary uses |
 | Pilot authorisation | Is each real scenario explicitly authorised before use? | Authorisation requirements, responsible party, retention of proof |
 | Anonymisation/pseudonymisation | What must be removed/transformed before ingestion and who verifies it? | Procedure, residual re-identification risk, exceptions |
+| Canonical evidence snapshots | Are persisted full evidence bytes necessary, bounded, access-controlled and described accurately? | Data-category inventory, purpose, access roles, tenant/RLS assumptions and limitations |
+| Snapshot retention/deletion | Can canonical bytes outlive the source document, request, pilot or intended retention window? | Snapshot-specific retention/deletion/legal-hold decision and operational limits |
+| Snapshot backup/restore | Can deleted/restricted snapshot bytes reappear from backups or restored environments? | Restore implications, operator responsibilities and documented controls |
+| Snapshot encryption/storage boundary | Which layer actually protects persisted bytes at rest and in backups? | Deployment-specific responsibility statement; no unsupported encryption claim |
+| Reviewer/export disclosure | Can canonical evidence bytes leave the database through reviewer or export surfaces? | Approved purpose/access/disclosure constraints and handling requirements |
 | CALIBRATION/BLIND/HOLDOUT governance | Are access, segregation and contamination rules compatible with privacy obligations? | Approved handling constraints; no inspection of case contents is required for this repository review |
 | Retention/deletion/export | What data/artifacts/backups persist, for how long, and how are requests executed? | Retention schedule/decision, deletion/export limitations |
 | Backup/recovery | Can deleted or restricted data reappear from backups? | Restore/deletion implications and documented controls |
@@ -57,7 +80,7 @@ The final independent package should include:
 
 - reviewer identity/organisation, independence/conflict statement and date;
 - exact review scope and material inventory with versions/hashes;
-- completed review matrix;
+- completed review matrix, including the canonical-evidence snapshot rows where applicable;
 - finding/remediation ledger and re-review evidence;
 - residual-risk decisions by accountable humans;
 - trademark/name clearance scope and limitations;
@@ -67,4 +90,4 @@ The final independent package should include:
 
 ## Handoff readiness
 
-This packet is ready to send to an independent reviewer once the actual material inventory is populated. Do not change `NOT REVIEWED` to a passing state internally. Final candidate-dependent wording and any materially changed public material must be reviewed against the applicable release candidate before #135 can close.
+This packet is ready to send to an independent reviewer once the actual material inventory is populated. Do not change `NOT REVIEWED` to a passing state internally. Final candidate-dependent wording, deployment assumptions and any materially changed public or data-flow material must be reviewed against the applicable release candidate before #135 can close.
