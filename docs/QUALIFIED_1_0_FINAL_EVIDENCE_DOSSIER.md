@@ -61,7 +61,11 @@ The final dossier therefore carries a separate `required_check_policy.main_post_
 
 This is intentionally complementary to the workflow trigger owned by the Builder. This dossier does not modify or reproduce that workflow. It only fails closed if final qualification tries to reuse PR-only concurrency evidence or a run from another SHA as proof for the exact `main` candidate.
 
-The validator is still structural: strings such as `branch=main` and an evidence reference do not authenticate GitHub by themselves. Final assembly must reference the real workflow run; the dossier cannot manufacture that fact.
+A successful workflow run is still only evidence that the configured harness executed successfully. It is not, by itself, proof that the required decision/judgment semantics were exercised. In particular, a lock-only concurrency test must not be promoted into proof of judgment currentness if it never drives the production decision path or persists the corresponding `ReviewDecision` and `ProvenanceJudgment` records.
+
+For that reason schema v3 adds `required_check_policy.semantic_concurrency_proof`. Final mode requires exactly six unique P1 rule records tied to the same final SHA. For each rule, both `concurrent_judgment` and `conflicting_judgment` scenarios must be separately evidenced as `PROVEN_FAIL_CLOSED`, must exercise the production decision path, must persist both `ReviewDecision` and `ProvenanceJudgment`, and must include evidence references. A workflow `success` cannot substitute for any of those semantic outcomes.
+
+The validator is still structural: strings such as `branch=main`, `PROVEN_FAIL_CLOSED`, booleans, and evidence references do not authenticate GitHub or prove runtime behaviour by themselves. Final assembly must reference the real workflow and semantic evidence; the dossier cannot manufacture those facts.
 
 ## External and human evidence
 
@@ -75,10 +79,11 @@ Immediately before finalisation:
 
 1. compare the candidate SHA with every build-dependent record;
 2. confirm that the required exact-main concurrency run belongs to that same SHA and was produced by the `main` push context, not inherited from a PR run;
-3. confirm whether any material parser, rule, provenance, storage, recovery, portability, deployment or evidence-interpretation change occurred after a completed campaign;
-4. if yes, mark the affected track non-complete and rerun the evidence required by #136;
-5. record whether a fresh holdout is required and, if required, its completed evidence reference;
-6. run the structural validator with `--final` only after all real evidence is present.
+3. confirm that semantic concurrency evidence exists separately for all six P1 rules and covers both concurrent and conflicting judgment currentness through the production persistence path;
+4. confirm whether any material parser, rule, provenance, storage, recovery, portability, deployment or evidence-interpretation change occurred after a completed campaign;
+5. if yes, mark the affected track non-complete and rerun the evidence required by #136;
+6. record whether a fresh holdout is required and, if required, its completed evidence reference;
+7. run the structural validator with `--final` only after all real evidence is present.
 
 A structurally valid final dossier is still not self-certifying. Final qualification remains the decision governed by #136 and the underlying independent/human evidence.
 
