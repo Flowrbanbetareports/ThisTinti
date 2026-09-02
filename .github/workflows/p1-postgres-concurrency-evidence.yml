@@ -1,0 +1,51 @@
+name: P1 PostgreSQL Concurrency Evidence
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  postgres-concurrency-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: thistinti
+          POSTGRES_PASSWORD: thistinti
+          POSTGRES_DB: thistinti_concurrency
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U thistinti -d thistinti_concurrency"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+
+    env:
+      THISTINTI_TEST_POSTGRES_URL: postgresql+psycopg://thistinti:thistinti@127.0.0.1:5432/thistinti_concurrency
+      THISTINTI_DATABASE_URL: postgresql+psycopg://thistinti:thistinti@127.0.0.1:5432/thistinti_concurrency
+
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install test dependencies
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Execute dynamic two-transaction and semantic mutation evidence
+        run: >-
+          python -m pytest -q
+          tests/test_postgres_p1_judgment_concurrency_dynamic.py
+          tests/test_postgres_p1_judgment_semantic_mutation.py

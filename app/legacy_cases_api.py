@@ -38,7 +38,22 @@ def _case_query(*, case_id: str, tenant_id: str):
 
 
 def _locked_case_query(*, case_id: str, tenant_id: str):
-    return _case_query(case_id=case_id, tenant_id=tenant_id).with_for_update()
+    # The review path first reads the case without a lock so it knows which
+    # support chain must be locked. A concurrent transaction can change the
+    # case between that read and this row lock. Force the locked SELECT to
+    # refresh an already-present identity-map object so the drift cannot be
+    # hidden by stale ORM state.
+    return _case_query(case_id=case_id, tenant_id=tenant_id).with_for_update().execution_options(populate_existing=True)
+
+
+def _case_support_identity_is_stable(
+    case: DiscrepancyCase,
+    *,
+    observed_case_type: str,
+    observed_chain_id: str,
+) -> bool:
+    """Reject a review when the case identity changed before its row lock."""
+    return case.case_type == observed_case_type and case.chain_id == observed_chain_id
 
 
 @router.post(
@@ -56,11 +71,13 @@ def review_case_with_provenance(
     if case is None:
         raise HTTPException(status_code=404, detail="Case not found")
 
-    if case.case_type in _P1_PROVENANCE_CASE_TYPES:
+    observed_case_type = case.case_type
+    observed_chain_id = case.chain_id
+    if observed_case_type in _P1_PROVENANCE_CASE_TYPES:
         if not lock_p1_support_for_update(
             db,
             tenant_id=ctx.tenant_id,
-            chain_id=case.chain_id,
+            chain_id=observed_chain_id,
         ):
             db.rollback()
             raise HTTPException(status_code=409, detail="Case support chain is unavailable")
@@ -69,6 +86,16 @@ def review_case_with_provenance(
     if case is None:
         db.rollback()
         raise HTTPException(status_code=404, detail="Case not found")
+    if not _case_support_identity_is_stable(
+        case,
+        observed_case_type=observed_case_type,
+        observed_chain_id=observed_chain_id,
+    ):
+        db.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail="Case support identity changed during review; retry against current evidence",
+        )
 
     previous_state = case.status
     reviewer_ref, reviewer_user_id = resolve_reviewer_identity(
