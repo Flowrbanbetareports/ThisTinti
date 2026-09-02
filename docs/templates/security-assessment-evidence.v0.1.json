@@ -4,7 +4,8 @@
   "status": "PREPARATION_ONLY",
   "candidate": {
     "source_sha": "<40-hex-final-candidate-sha>",
-    "release_version": "<version>",
+    "release_version": "<must-be-1.0.0-at-final-validation>",
+    "release_tag": "<must-be-v1.0.0-at-final-validation>",
     "artifacts": [
       {
         "artifact_id": "<artifact-id>",
@@ -37,6 +38,11 @@
     },
     {
       "area": "backup_restore_security",
+      "result": "NOT_RUN",
+      "evidence_refs": []
+    },
+    {
+      "area": "canonical_evidence_snapshot_security",
       "result": "NOT_RUN",
       "evidence_refs": []
     },
