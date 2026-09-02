@@ -1,0 +1,47 @@
+{
+  "schema": "thistinti-human-campaign-v1",
+  "state": "PREPARATION_ONLY_NOT_EXECUTED",
+  "qualification_claim": "ThisTinti 1.0 Qualified — Procurement v1 — profile P1 — protocol E1",
+  "candidate": {
+    "source_sha": null,
+    "release_version": null,
+    "artifact_id": null,
+    "artifact_sha256": null,
+    "environment": null,
+    "protocol_ref": "docs/QUALIFIED_HUMAN_CAMPAIGN.md"
+  },
+  "sessions": [],
+  "observations": [],
+  "issue_32": {
+    "untrained_session_target": 10,
+    "minimum_successes": 8,
+    "successes": 0,
+    "result": "NOT_RUN"
+  },
+  "issue_94": {
+    "criteria": {
+      "installation_first_run": "NOT_RUN",
+      "workspace_navigation": "NOT_RUN",
+      "demo_worker_path": "NOT_RUN",
+      "finding_evidence_original_trace": "NOT_RUN",
+      "correction_reanalysis": "NOT_RUN",
+      "activity_retry_restart_persistence": "NOT_RUN",
+      "diagnostics_json": "NOT_RUN",
+      "claims_observation": "NOT_RUN",
+      "update_backup_restore_uninstall": "NOT_RUN",
+      "zoom_125_150_200": "NOT_RUN",
+      "keyboard_only_human": "NOT_RUN",
+      "assistive_technology_human": "NOT_RUN",
+      "serious_defect_reproduction": "NOT_RUN"
+    },
+    "not_applicable_rationales": {},
+    "result": "NOT_RUN"
+  },
+  "findings": [],
+  "final_result": "NOT_A_PASS",
+  "limitations": [
+    "Template existence is preparation only and is not human evidence.",
+    "Automated accessibility tests cannot replace required human keyboard or assistive-technology observations.",
+    "No BLIND/HOLDOUT material is inspected or required by this template."
+  ]
+}
