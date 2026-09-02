@@ -1,6 +1,8 @@
 name: P1 PostgreSQL Concurrency Evidence
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
