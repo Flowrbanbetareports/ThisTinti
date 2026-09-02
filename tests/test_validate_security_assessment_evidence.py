@@ -27,6 +27,7 @@ def _complete_evidence() -> dict:
         "candidate": {
             "source_sha": SHA,
             "release_version": "1.0.0",
+            "release_tag": "v1.0.0",
             "artifacts": [{"artifact_id": "windows-installer", "sha256": HASH}],
         },
         "environment": {
@@ -64,6 +65,33 @@ def test_missing_required_coverage_fails_closed() -> None:
     data["coverage"].pop()
 
     with pytest.raises(SecurityEvidenceError, match="missing required areas"):
+        validate_security_evidence(data, final=True)
+
+
+def test_canonical_evidence_snapshot_security_is_mandatory() -> None:
+    data = _complete_evidence()
+    data["coverage"] = [
+        row for row in data["coverage"] if row["area"] != "canonical_evidence_snapshot_security"
+    ]
+
+    with pytest.raises(SecurityEvidenceError, match="canonical_evidence_snapshot_security"):
+        validate_security_evidence(data, final=True)
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("release_version", "3.4.0-alpha.7-rc.15", "final evidence requires 1.0.0"),
+        ("release_tag", "v3.4.0-alpha.7-rc.15", "final evidence requires v1.0.0"),
+    ],
+)
+def test_legacy_prerelease_identity_cannot_substitute_for_official_v1(
+    field: str, value: str, message: str
+) -> None:
+    data = _complete_evidence()
+    data["candidate"][field] = value
+
+    with pytest.raises(SecurityEvidenceError, match=message):
         validate_security_evidence(data, final=True)
 
 
