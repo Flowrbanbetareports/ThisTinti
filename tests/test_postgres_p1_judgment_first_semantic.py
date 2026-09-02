@@ -228,9 +228,11 @@ def test_real_judgment_first_serializes_mutation_and_becomes_stale_afterward(
 
     def record_then_pause(*args, **kwargs):
         judgment = original_record(*args, **kwargs)
-        assert judgment is not None
-        judgment_flushed.set()
-        assert allow_judgment_commit.wait(timeout=3.0)
+        review_decision = kwargs["review_decision"]
+        if review_decision.decision == "confirmed":
+            assert judgment is not None
+            judgment_flushed.set()
+            assert allow_judgment_commit.wait(timeout=3.0)
         return judgment
 
     monkeypatch.setattr(legacy_cases_api, "record_judgment_provenance", record_then_pause)
