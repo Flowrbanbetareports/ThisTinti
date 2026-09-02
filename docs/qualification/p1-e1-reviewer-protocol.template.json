@@ -1,0 +1,50 @@
+{
+  "schema": "thistinti-p1-e1-reviewer-protocol",
+  "schema_version": 1,
+  "protocol_version": "E1",
+  "status": "PREPARATION_ONLY_NOT_EXECUTED",
+  "review_protocol_id": "<protocol-id>",
+  "pool_manifest_sha256": null,
+  "reviewers": [
+    {
+      "reviewer_id": "<pseudonymous-reviewer-id>",
+      "competence_attestation_ref": null,
+      "conflict_declaration_ref": null,
+      "independence_attestation_ref": null,
+      "assigned_at": null
+    },
+    {
+      "reviewer_id": "<pseudonymous-reviewer-id-2>",
+      "competence_attestation_ref": null,
+      "conflict_declaration_ref": null,
+      "independence_attestation_ref": null,
+      "assigned_at": null
+    }
+  ],
+  "reference_record_contract": {
+    "must_be_sealed_before_product_exposure": true,
+    "required_fields": [
+      "reviewer_id",
+      "case_id",
+      "pool_manifest_sha256",
+      "reference_findings",
+      "recorded_at",
+      "record_sha256"
+    ]
+  },
+  "adjudication_contract": {
+    "separate_record_required": true,
+    "must_preserve_original_reviews": true,
+    "required_fields": [
+      "case_id",
+      "review_1_sha256",
+      "review_2_sha256",
+      "disagreement_set",
+      "adjudicator_ref",
+      "rationale",
+      "adjudicated_at",
+      "record_sha256"
+    ]
+  },
+  "notes": "Template only. This file does not assert that reviewers exist, are independent, or have reviewed any case."
+}
