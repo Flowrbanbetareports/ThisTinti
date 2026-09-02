@@ -1,7 +1,7 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
-  "serialNumber": "urn:uuid:b9d76a7d-e4a5-f687-5d84-38988a9a855d",
+  "serialNumber": "urn:uuid:1f1282a0-c2f2-fd9a-5461-714cea9e9436",
   "version": 1,
   "metadata": {
     "component": {
@@ -17,7 +17,7 @@
       },
       {
         "name": "thistinti:lock-sha256",
-        "value": "b9d76a7de4a5f6875d8438988a9a855d4d17f69b528e1eedaf49a9bc5fd923f3"
+        "value": "1f1282a0c2f2fd9a5461714cea9e9436b8ac46db9899ef464d3031ff6b4fb4d3"
       },
       {
         "name": "thistinti:vulnerability-audit",
@@ -183,9 +183,9 @@
     {
       "type": "library",
       "name": "pypdf",
-      "version": "6.15.0",
-      "purl": "pkg:pypi/pypdf@6.15.0",
-      "bom-ref": "pkg:pypi/pypdf@6.15.0"
+      "version": "6.16.1",
+      "purl": "pkg:pypi/pypdf@6.16.1",
+      "bom-ref": "pkg:pypi/pypdf@6.16.1"
     },
     {
       "type": "library",
@@ -298,7 +298,7 @@
         "pkg:pypi/psycopg-binary@3.3.4",
         "pkg:pypi/pydantic@2.13.4",
         "pkg:pypi/pydantic-core@2.46.4",
-        "pkg:pypi/pypdf@6.15.0",
+        "pkg:pypi/pypdf@6.16.1",
         "pkg:pypi/pypdfium2@5.8.0",
         "pkg:pypi/python-dotenv@1.2.2",
         "pkg:pypi/python-multipart@0.0.32",
