@@ -1,0 +1,21 @@
+{
+  "schema": "thistinti-controlled-rollout",
+  "schema_version": 1,
+  "status": "PREPARATION_ONLY_NOT_EXECUTED",
+  "release_version": "1.0.0",
+  "release_tag": "v1.0.0",
+  "source_sha": null,
+  "qualified_claim": "ThisTinti 1.0 Qualified — Procurement v1 — profile P1 — protocol E1",
+  "scope_ref": null,
+  "authorisation_policy_ref": null,
+  "stop_rollback_ref": null,
+  "artifact_sha256": [],
+  "sessions": [],
+  "findings": [],
+  "blind_holdout_used": false,
+  "release_blockers_open": [],
+  "limitations": [],
+  "final_evidence_ref": null,
+  "qualification_decision": "NOT_A_PASS",
+  "prepared_only_notice": "This template is preparation only and cannot establish rollout acceptance or qualification."
+}
