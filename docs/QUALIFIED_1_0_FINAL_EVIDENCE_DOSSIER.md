@@ -47,6 +47,22 @@ For every build-dependent record, capture:
 
 Required workflow checks are recorded as an exact-head snapshot. In final mode every listed check must be `success` and bind to `source_sha`. The list itself must be accompanied by a policy/ruleset reference so this dossier does not invent a weaker substitute for #133.
 
+### Exact-main concurrency evidence
+
+The PostgreSQL P1 concurrency campaign has an additional final-release constraint. A green run obtained only from a pull-request context is useful development evidence, but it is not sufficient evidence that the exact post-merge `main` candidate exercised the concurrency harness.
+
+The final dossier therefore carries a separate `required_check_policy.main_post_merge_checks` set. For `ThisTinti 1.0 Qualified`, that set must contain exactly one `P1 PostgreSQL Concurrency Evidence` record and it must:
+
+- bind to the same full `source_sha` used by the final dossier;
+- identify `branch` as exactly `main`;
+- identify the workflow `event` as exactly `push`;
+- conclude `success`;
+- carry an evidence reference to the actual run.
+
+This is intentionally complementary to the workflow trigger owned by the Builder. This dossier does not modify or reproduce that workflow. It only fails closed if final qualification tries to reuse PR-only concurrency evidence or a run from another SHA as proof for the exact `main` candidate.
+
+The validator is still structural: strings such as `branch=main` and an evidence reference do not authenticate GitHub by themselves. Final assembly must reference the real workflow run; the dossier cannot manufacture that fact.
+
 ## External and human evidence
 
 Do not put confidential case contents into this dossier. Store references to the authorised evidence package, report, sealed reviewer records, or redacted deliverable. BLIND/HOLDOUT case content remains segregated under #132/#19.
@@ -58,10 +74,11 @@ Internal validators never convert `WAITING_EXTERNAL` into `COMPLETE`. Security, 
 Immediately before finalisation:
 
 1. compare the candidate SHA with every build-dependent record;
-2. confirm whether any material parser, rule, provenance, storage, recovery, portability, deployment or evidence-interpretation change occurred after a completed campaign;
-3. if yes, mark the affected track non-complete and rerun the evidence required by #136;
-4. record whether a fresh holdout is required and, if required, its completed evidence reference;
-5. run the structural validator with `--final` only after all real evidence is present.
+2. confirm that the required exact-main concurrency run belongs to that same SHA and was produced by the `main` push context, not inherited from a PR run;
+3. confirm whether any material parser, rule, provenance, storage, recovery, portability, deployment or evidence-interpretation change occurred after a completed campaign;
+4. if yes, mark the affected track non-complete and rerun the evidence required by #136;
+5. record whether a fresh holdout is required and, if required, its completed evidence reference;
+6. run the structural validator with `--final` only after all real evidence is present.
 
 A structurally valid final dossier is still not self-certifying. Final qualification remains the decision governed by #136 and the underlying independent/human evidence.
 
