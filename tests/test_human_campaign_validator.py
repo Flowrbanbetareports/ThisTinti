@@ -21,27 +21,20 @@ def _final_manifest():
                 "evidence_refs": [f"evidence/{session_id}.json"],
             }
         )
-    observations.extend(
-        [
-            {
-                "observation_id": "OBS-KBD",
-                "session_id": "H-0001",
-                "issue_94_criterion": "keyboard_only_human",
-                "result": "PASS",
-                "observation_mode": "HUMAN",
-                "evidence_refs": ["evidence/keyboard.json"],
-            },
-            {
-                "observation_id": "OBS-AT",
-                "session_id": "H-0002",
-                "issue_94_criterion": "assistive_technology_human",
-                "result": "PASS",
-                "observation_mode": "HUMAN",
-                "assistive_technology": "NVDA <record real version>",
-                "evidence_refs": ["evidence/assistive-tech.json"],
-            },
-        ]
-    )
+
+    for index, criterion in enumerate(sorted(ISSUE94_CRITERIA)):
+        observation = {
+            "observation_id": f"OBS-{index + 1:03d}",
+            "session_id": "H-0001" if index % 2 == 0 else "H-0002",
+            "issue_94_criterion": criterion,
+            "result": "PASS",
+            "observation_mode": "HUMAN",
+            "evidence_refs": [f"evidence/{criterion}.json"],
+        }
+        if criterion == "assistive_technology_human":
+            observation["assistive_technology"] = "NVDA <record real version>"
+        observations.append(observation)
+
     return {
         "schema": "thistinti-human-campaign-v1",
         "state": "EXECUTED",
@@ -70,6 +63,14 @@ def _final_manifest():
     }
 
 
+def _observation_for(data, criterion):
+    return next(
+        observation
+        for observation in data["observations"]
+        if observation["issue_94_criterion"] == criterion
+    )
+
+
 def test_preparation_template_shape_is_allowed_without_final_claim():
     data = {
         "schema": "thistinti-human-campaign-v1",
@@ -93,14 +94,14 @@ def test_final_rejects_fewer_than_ten_untrained_sessions():
 
 def test_final_rejects_automated_keyboard_substitution():
     data = _final_manifest()
-    data["observations"][0]["observation_mode"] = "AUTOMATED"
+    _observation_for(data, "keyboard_only_human")["observation_mode"] = "AUTOMATED"
     errors = validate(data, final=True)
     assert any("keyboard-only PASS requires a HUMAN observation" in error for error in errors)
 
 
 def test_final_rejects_assistive_technology_without_tool_identity():
     data = _final_manifest()
-    data["observations"][1]["assistive_technology"] = None
+    _observation_for(data, "assistive_technology_human")["assistive_technology"] = None
     errors = validate(data, final=True)
     assert any("assistive-technology PASS requires HUMAN observation" in error for error in errors)
 
@@ -126,6 +127,17 @@ def test_final_requires_rationale_for_not_applicable():
     data["issue_94"]["criteria"]["update_backup_restore_uninstall"] = "NOT_APPLICABLE"
     errors = validate(data, final=True)
     assert any("needs NOT_APPLICABLE rationale" in error for error in errors)
+
+
+def test_final_rejects_summary_pass_without_supporting_observation():
+    data = _final_manifest()
+    data["observations"] = [
+        observation
+        for observation in data["observations"]
+        if observation["issue_94_criterion"] != "diagnostics_json"
+    ]
+    errors = validate(data, final=True)
+    assert any("diagnostics_json lacks a supporting PASS observation" in error for error in errors)
 
 
 def test_final_rejects_open_blocking_human_finding():
