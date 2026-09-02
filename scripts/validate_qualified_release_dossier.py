@@ -18,6 +18,8 @@ SHA40 = re.compile(r"^[0-9a-f]{40}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
 EXPECTED_SCHEMA = "thistinti-qualified-release-dossier"
+EXPECTED_SCHEMA_VERSION = 2
+EXPECTED_MAIN_POST_MERGE_CHECKS = {"P1 PostgreSQL Concurrency Evidence"}
 EXPECTED_TRACKS = {
     "stream_a_technical",
     "stream_b_e1",
@@ -47,7 +49,11 @@ def validate(data: dict[str, Any], final: bool = False) -> list[str]:
     errors: list[str] = []
 
     _require(data.get("schema") == EXPECTED_SCHEMA, "invalid schema", errors)
-    _require(data.get("schema_version") == 1, "schema_version must be 1", errors)
+    _require(
+        data.get("schema_version") == EXPECTED_SCHEMA_VERSION,
+        f"schema_version must be {EXPECTED_SCHEMA_VERSION}",
+        errors,
+    )
     _require(data.get("release_version") == "1.0.0", "release_version must be exactly 1.0.0", errors)
     _require(data.get("release_tag") == "v1.0.0", "release_tag must be exactly v1.0.0", errors)
 
@@ -68,7 +74,13 @@ def validate(data: dict[str, Any], final: bool = False) -> list[str]:
     _require(isinstance(policy, dict), "required_check_policy must be an object", errors)
     if isinstance(policy, dict):
         checks = policy.get("checks")
+        main_post_merge_checks = policy.get("main_post_merge_checks")
         _require(isinstance(checks, list), "required_check_policy.checks must be a list", errors)
+        _require(
+            isinstance(main_post_merge_checks, list),
+            "required_check_policy.main_post_merge_checks must be a list",
+            errors,
+        )
         if final:
             _require(bool(policy.get("reference")), "final dossier requires a required-check policy reference", errors)
             _require(bool(policy.get("captured_at")), "final dossier requires required-check capture time", errors)
@@ -84,6 +96,29 @@ def validate(data: dict[str, Any], final: bool = False) -> list[str]:
                     _require(check.get("source_sha") == source_sha, f"{prefix} is not bound to final source_sha", errors)
                     _require(check.get("conclusion") == "success", f"{prefix} did not conclude success", errors)
                     _require(bool(check.get("evidence_ref")), f"{prefix}.evidence_ref is required", errors)
+        if isinstance(main_post_merge_checks, list):
+            names: list[str] = []
+            for index, check in enumerate(main_post_merge_checks):
+                prefix = f"required_check_policy.main_post_merge_checks[{index}]"
+                _require(isinstance(check, dict), f"{prefix} must be an object", errors)
+                if not isinstance(check, dict):
+                    continue
+                name = check.get("name")
+                _require(isinstance(name, str) and bool(name), f"{prefix}.name is required", errors)
+                if isinstance(name, str) and name:
+                    names.append(name)
+                if final:
+                    _require(check.get("source_sha") == source_sha, f"{prefix} is not bound to final source_sha", errors)
+                    _require(check.get("branch") == "main", f"{prefix} must be recorded from branch main", errors)
+                    _require(check.get("event") == "push", f"{prefix} must be recorded from a push run", errors)
+                    _require(check.get("conclusion") == "success", f"{prefix} did not conclude success", errors)
+                    _require(bool(check.get("evidence_ref")), f"{prefix}.evidence_ref is required", errors)
+            if final:
+                _require(
+                    set(names) == EXPECTED_MAIN_POST_MERGE_CHECKS and len(names) == len(EXPECTED_MAIN_POST_MERGE_CHECKS),
+                    "main_post_merge_checks must contain exactly the required exact-main check set",
+                    errors,
+                )
 
     artifacts = data.get("release_artifacts")
     _require(isinstance(artifacts, list), "release_artifacts must be a list", errors)
