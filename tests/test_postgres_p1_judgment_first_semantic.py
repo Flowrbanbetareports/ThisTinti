@@ -149,6 +149,9 @@ def test_conflicting_real_judgments_serialize_into_deterministic_history(client,
         delivered="12",
     )
     case_id, finding_id = _current_case_and_finding()
+    with SessionLocal() as db:
+        initial_status = db.scalar(select(DiscrepancyCase.status).where(DiscrepancyCase.id == case_id))
+    assert initial_status is not None
 
     first_judgment_flushed = threading.Event()
     allow_first_commit = threading.Event()
@@ -220,14 +223,12 @@ def test_conflicting_real_judgments_serialize_into_deterministic_history(client,
         assert case.status == "dismissed"
 
         decisions = list(db.scalars(select(ReviewDecision).where(ReviewDecision.case_id == case_id)))
-        judgments = list(
-            db.scalars(select(ProvenanceJudgment).where(ProvenanceJudgment.finding_id == finding_id))
-        )
+        judgments = list(db.scalars(select(ProvenanceJudgment).where(ProvenanceJudgment.finding_id == finding_id)))
         assert len(decisions) == 2
         assert len(judgments) == 2
         assert {decision.decision for decision in decisions} == {"confirmed", "dismissed"}
         assert {judgment.review_decision_id for judgment in judgments} == {decision.id for decision in decisions}
 
         by_decision = {judgment.decision: judgment for judgment in judgments}
-        assert by_decision["confirmed"].previous_state == "needs_review"
+        assert by_decision["confirmed"].previous_state == initial_status
         assert by_decision["dismissed"].previous_state == "confirmed"
