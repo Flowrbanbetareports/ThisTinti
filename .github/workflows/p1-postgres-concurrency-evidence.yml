@@ -51,3 +51,4 @@ jobs:
           python -m pytest -q
           tests/test_postgres_p1_judgment_concurrency_dynamic.py
           tests/test_postgres_p1_judgment_semantic_mutation.py
+          tests/test_postgres_p1_judgment_first_semantic.py
