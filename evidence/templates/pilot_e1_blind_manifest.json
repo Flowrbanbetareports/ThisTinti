@@ -1,0 +1,48 @@
+{
+  "schema": "thistinti-pilot-e1-blind",
+  "schema_version": 1,
+  "status": "PREPARATION_ONLY_NOT_EXECUTED",
+  "claim": "ThisTinti 1.0 Qualified — Procurement v1 — profile P1 — protocol E1",
+  "release_version": "1.0.0",
+  "release_tag": "v1.0.0",
+  "candidate_sha": null,
+  "frozen_at": null,
+  "components": {
+    "rule_pack_id": null,
+    "rule_pack_hash": null,
+    "practice_model_id": null,
+    "practice_model_hash": null,
+    "company_profile_id": null,
+    "company_profile_hash": null,
+    "parser_versions": [],
+    "provenance_configuration_hash": null,
+    "qualification_configuration_hash": null
+  },
+  "blind_pool": [],
+  "reviewers": {
+    "reviewer_a_id": null,
+    "reviewer_b_id": null,
+    "reference_a_sealed_at": null,
+    "reference_b_sealed_at": null,
+    "findings_exposed_at": null
+  },
+  "adjudication": {
+    "adjudicator_id": null,
+    "performed_at": null,
+    "preserves_original_reviewer_records": null
+  },
+  "execution": {
+    "started_at": null,
+    "ended_at": null,
+    "tuning_during_run": null,
+    "protocol_contamination": null,
+    "material_change_after_freeze": null
+  },
+  "economic_reporting": {
+    "potential_exposure_signalled_by_system": null,
+    "reviewer_confirmed_anomaly": null,
+    "company_validated_recoverable_or_avoided_value": null,
+    "company_validation_record_present": null
+  },
+  "result": "GAP"
+}
