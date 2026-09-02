@@ -1,0 +1,52 @@
+{
+  "schema": "thistinti-windows-signing-evidence",
+  "schema_version": 1,
+  "qualification_scope": "ThisTinti 1.0 Qualified — Procurement v1 — profile P1 — protocol E1",
+  "product_version": "1.0.0",
+  "release_tag": "v1.0.0",
+  "source_sha": "0000000000000000000000000000000000000000",
+  "qualification_decision": "NOT_A_PASS",
+  "clean_windows_host": {
+    "os_edition": "TO_BE_RECORDED",
+    "os_build": "TO_BE_RECORDED",
+    "project_dev_certificate_present": false,
+    "project_trust_store_modified": false
+  },
+  "pipeline_controls": {
+    "private_key_outside_repository": false,
+    "untrusted_prs_receive_signing_credentials": null,
+    "protected_signing_environment": false,
+    "logs_secret_material": null,
+    "checksums_computed_after_signing": false,
+    "unsigned_publication_blocked": false,
+    "evidence_refs": []
+  },
+  "artifacts": [
+    {
+      "role": "installer",
+      "filename": "TO_BE_RECORDED",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "signing_required": true,
+      "authenticode_status": "NOT_VERIFIED",
+      "publisher_subject": "TO_BE_RECORDED",
+      "certificate_thumbprint": "TO_BE_RECORDED",
+      "certificate_serial": "TO_BE_RECORDED",
+      "certificate_not_before": "TO_BE_RECORDED",
+      "certificate_not_after": "TO_BE_RECORDED",
+      "timestamp_present": false,
+      "timestamp_authority": "TO_BE_RECORDED",
+      "timestamp_verification": "NOT_VERIFIED",
+      "powershell_verification": "NOT_VERIFIED",
+      "signtool_verification": "NOT_VERIFIED",
+      "verification_tool_versions": [],
+      "verified_at_utc": "TO_BE_RECORDED",
+      "evidence_refs": []
+    }
+  ],
+  "certificate_operations": {
+    "owner_recorded": false,
+    "renewal_procedure_ref": "TO_BE_RECORDED",
+    "revocation_procedure_ref": "TO_BE_RECORDED",
+    "emergency_rotation_procedure_ref": "TO_BE_RECORDED"
+  }
+}
