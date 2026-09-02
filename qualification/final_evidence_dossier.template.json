@@ -1,6 +1,6 @@
 {
   "schema": "thistinti-qualified-release-dossier",
-  "schema_version": 1,
+  "schema_version": 2,
   "status": "PREPARATION_ONLY_NOT_EXECUTED",
   "release_version": "1.0.0",
   "release_tag": "v1.0.0",
@@ -9,7 +9,17 @@
   "required_check_policy": {
     "reference": null,
     "captured_at": null,
-    "checks": []
+    "checks": [],
+    "main_post_merge_checks": [
+      {
+        "name": "P1 PostgreSQL Concurrency Evidence",
+        "source_sha": null,
+        "branch": "main",
+        "event": "push",
+        "conclusion": null,
+        "evidence_ref": null
+      }
+    ]
   },
   "release_artifacts": [],
   "tracks": {
