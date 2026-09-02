@@ -1,6 +1,6 @@
 {
   "schema": "thistinti-qualified-release-dossier",
-  "schema_version": 2,
+  "schema_version": 3,
   "status": "PREPARATION_ONLY_NOT_EXECUTED",
   "release_version": "1.0.0",
   "release_tag": "v1.0.0",
@@ -19,7 +19,12 @@
         "conclusion": null,
         "evidence_ref": null
       }
-    ]
+    ],
+    "semantic_concurrency_proof": {
+      "scope_ref": null,
+      "expected_rule_count": 6,
+      "rules": []
+    }
   },
   "release_artifacts": [],
   "tracks": {
