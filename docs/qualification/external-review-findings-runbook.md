@@ -6,11 +6,13 @@ This runbook supports issue #21 and the independent tracks #134 (security/pentes
 
 It does not create external evidence. Internal contributors may prepare the structure and populate logistics, but only a genuinely independent assessor/reviewer may supply findings or conclusions attributable to that review. An internal test, CI result, automated scanner, AI-generated opinion, or repository maintainer statement must not be represented as independent evidence.
 
-## Exact-candidate binding
+## Exact-candidate and artifact binding
 
-Final review evidence must identify the exact source SHA, environment/deployment profile, report date, assessor organisation/person and review track. For the official Qualified release line, the final register is valid only for `release_version=1.0.0` and `release_tag=v1.0.0`; historical `v3.4.0-alpha.*` prereleases remain legacy development artifacts and cannot satisfy this gate.
+Final review evidence must identify the exact source SHA, official artifact SHA-256, environment/deployment profile, report date, assessor organisation/person and review track. For the official Qualified release line, the final register is valid only for `release_version=1.0.0` and `release_tag=v1.0.0`; historical `v3.4.0-alpha.*` prereleases remain legacy development artifacts and cannot satisfy this gate.
 
-A review performed against an earlier candidate may remain useful evidence, but it is stale for release qualification when a later material change affects the reviewed surface. The register must record whether a finding requires retest and which exact SHA/environment the retest covered.
+The umbrella register is deliberately fail-closed across tracks: both #134 and #135 must independently record the same final candidate SHA, artifact SHA-256 and intended environment as the umbrella identity. A report against an earlier candidate or different artifact/environment remains useful supporting evidence, but it cannot be silently promoted to final release evidence.
+
+A later material change affecting a reviewed surface invalidates automatic carry-over. Record whether a finding requires retest and which exact SHA/artifact/environment the retest covered.
 
 ## Required separation
 
@@ -19,14 +21,14 @@ Keep at least these tracks distinct:
 - `SECURITY`: independent security assessment / penetration test (#134).
 - `PRIVACY_LEGAL`: independent privacy, legal, trademark and public-claims review (#135).
 
-Passing one track cannot close the other. Findings can cross-reference one another, but each has its own reviewer, scope and disposition.
+Passing one track cannot close the other. Findings can cross-reference one another, but each has its own reviewer, scope, report reference and disposition. One combined informal conclusion is not a substitute for the two independently scoped gates.
 
 ## Finding record
 
 Every finding needs a stable ID and must state:
 
 - track and reviewed surface;
-- exact candidate SHA and environment;
+- exact candidate SHA, artifact and environment;
 - title and concise description;
 - severity (`CRITICAL`, `HIGH`, `MEDIUM`, `LOW`, `INFO`) for technical/security impact where applicable;
 - materiality (`MATERIAL`, `NON_MATERIAL`, `UNKNOWN`) for legal/privacy/claims impact where applicable;
@@ -45,9 +47,10 @@ The final register must fail closed when any of these conditions exists:
 1. a `CRITICAL` or `HIGH` security finding remains `OPEN`/`IN_PROGRESS`, or required retest is `NOT_RUN`/`FAIL`;
 2. a privacy/legal/trademark/claims finding marked `MATERIAL` remains unresolved without an explicit, accountable residual-risk decision compatible with #136;
 3. a finding affecting provenance/evidence integrity, protected company data, reviewer correctness, release claims or intended operating safety is unresolved even if CI is green;
-4. a remediation changed the reviewed surface but no required retest is tied to the corrected exact SHA/environment;
-5. the assessor identity, report date, scope or exact candidate binding is missing;
-6. the two independent tracks are collapsed into one unscoped informal conclusion.
+4. a remediation changed the reviewed surface but no required retest is tied to the corrected exact SHA/artifact/environment;
+5. assessor identity, report date, scope or exact candidate/artifact/environment binding is missing;
+6. either independent track points at a different SHA, artifact or environment from the intended final release;
+7. the two independent tracks are collapsed into one unscoped informal conclusion.
 
 `RISK_ACCEPTED` is not an automatic escape hatch. It requires a written rationale and named accountable approver; it cannot override the mandatory-fix policy in #136.
 
@@ -57,13 +60,16 @@ The independent handoffs must explicitly consider the canonical `document_eviden
 
 ## Final handoff procedure
 
-1. Freeze the candidate identity and intended environment supplied to each external subject.
+1. Freeze the candidate SHA, official artifact SHA-256 and intended environment supplied to each external subject.
 2. Give the assessor only the relevant prepared packet; do not pre-fill findings or conclusions on their behalf.
 3. Record the received report metadata and findings verbatim enough to preserve severity/materiality and disposition without reproducing confidential report content unnecessarily.
-4. Link remediation to exact commits/non-code actions.
-5. Obtain required retest from the independent assessor on the corrected candidate.
-6. Run `python scripts/validate_external_review_findings.py <register.json> --final`.
-7. Attach/link the resulting register from #134/#135 and finally #21. A validator PASS means only that the evidence register is structurally complete and contains no declared unresolved blocker; it does **not** prove that the external evidence is authentic or sufficient by itself.
+4. Confirm each track's reviewed SHA/artifact/environment against the umbrella final identity; mismatches remain stale/supporting evidence only.
+5. Link remediation to exact commits/non-code actions.
+6. Obtain required retest from the independent assessor on the corrected candidate.
+7. Run `python scripts/validate_external_review_findings.py <register.json> --final`.
+8. Attach/link the resulting register from #134/#135 and finally #21.
+
+A structurally valid result is emitted only as `VALID_STRUCTURE_NOT_QUALIFICATION_PASS`. The validator must never set or accept `qualification_decision=PASS`; it cannot authenticate an assessor, prove report independence, evaluate legal sufficiency or close #21 by itself.
 
 ## Residual-risk acceptance
 
