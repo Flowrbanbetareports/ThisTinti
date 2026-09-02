@@ -1,0 +1,32 @@
+{
+  "schema": "thistinti-p1-e1-case-registry",
+  "schema_version": 1,
+  "protocol_version": "E1",
+  "status": "PREPARATION_ONLY_NOT_SEALED",
+  "registry_id": "<registry-id>",
+  "created_at": null,
+  "cases": [
+    {
+      "case_id": "<opaque-case-id>",
+      "pool": "CALIBRATION",
+      "stratum": "<pre-outcome-stratum>",
+      "authorization_status": "pending",
+      "authorization_ref": null,
+      "anonymization_status": "pending",
+      "anonymization_method_version": null,
+      "anonymization_operator_ref": null,
+      "content_hashes": [],
+      "source_provenance_ref": null,
+      "declared_acquisition_path": null,
+      "declared_parser_path": null,
+      "ingestion_allowed": false,
+      "access_history": []
+    }
+  ],
+  "pool_manifests": {
+    "CALIBRATION": {"manifest_id": null, "sha256": null, "sealed": false, "sealed_at": null},
+    "BLIND": {"manifest_id": null, "sha256": null, "sealed": false, "sealed_at": null},
+    "HOLDOUT": {"manifest_id": null, "sha256": null, "sealed": false, "sealed_at": null}
+  },
+  "notes": "Template only. Do not place document contents, reviewer labels, findings or ground truth in this registry. BLIND/HOLDOUT content remains sequestered."
+}
