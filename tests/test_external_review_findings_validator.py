@@ -25,37 +25,46 @@ def complete_register() -> dict:
         "retest_required": True,
         "retest_status": "PASS",
     }
+    candidate = "a" * 40
+    artifact = "b" * 64
+    environment = "final intended environment"
+    common_track = {
+        "report_date": "2026-09-02",
+        "reviewed_candidate_sha": candidate,
+        "reviewed_artifact_sha256": artifact,
+        "reviewed_environment": environment,
+        "findings": [finding.copy()],
+    }
     return {
         "schema": "thistinti-external-review-findings",
-        "schema_version": 1,
-        "status": "EXTERNAL_REVIEWS_COMPLETE",
+        "schema_version": 2,
+        "status": "EXTERNAL_REVIEWS_STRUCTURALLY_COMPLETE",
         "release_claim": "ThisTinti 1.0 Qualified — Procurement v1 — profile P1 — protocol E1",
         "release_version": "1.0.0",
         "release_tag": "v1.0.0",
-        "candidate_sha": "a" * 40,
-        "environment": "final intended environment",
+        "candidate_sha": candidate,
+        "artifact_sha256": artifact,
+        "environment": environment,
         "tracks": {
             "SECURITY": {
                 "issue": 134,
                 "independent_reviewer": "external reviewer A",
                 "reviewer_organisation": "independent organisation A",
-                "report_date": "2026-09-02",
                 "scope": ["application and intended deployment"],
                 "report_reference": "security-report-reference",
-                "findings": [finding.copy()],
+                **common_track,
             },
             "PRIVACY_LEGAL": {
                 "issue": 135,
                 "independent_reviewer": "external reviewer B",
                 "reviewer_organisation": "independent organisation B",
-                "report_date": "2026-09-02",
                 "scope": ["privacy, legal, trademark and release claims"],
                 "report_reference": "legal-review-reference",
-                "findings": [finding.copy()],
+                **common_track,
             },
         },
         "residual_risks": [],
-        "final_disposition": "PASS",
+        "qualification_decision": "NOT_A_PASS",
     }
 
 
@@ -75,6 +84,34 @@ def test_final_rejects_missing_independent_track_metadata():
     data["tracks"]["SECURITY"]["independent_reviewer"] = None
     errors = validator.validate(data, final=True)
     assert any("independent_reviewer" in error for error in errors)
+
+
+def test_final_rejects_stale_track_candidate():
+    data = complete_register()
+    data["tracks"]["SECURITY"]["reviewed_candidate_sha"] = "c" * 40
+    errors = validator.validate(data, final=True)
+    assert any("does not match final candidate_sha" in error for error in errors)
+
+
+def test_final_rejects_stale_track_artifact():
+    data = complete_register()
+    data["tracks"]["PRIVACY_LEGAL"]["reviewed_artifact_sha256"] = "d" * 64
+    errors = validator.validate(data, final=True)
+    assert any("does not match final artifact_sha256" in error for error in errors)
+
+
+def test_final_rejects_mismatched_review_environment():
+    data = complete_register()
+    data["tracks"]["SECURITY"]["reviewed_environment"] = "old environment"
+    errors = validator.validate(data, final=True)
+    assert any("reviewed environment does not match" in error for error in errors)
+
+
+def test_final_rejects_self_declared_pass():
+    data = complete_register()
+    data["qualification_decision"] = "PASS"
+    errors = validator.validate(data, final=True)
+    assert any("cannot declare qualification" in error for error in errors)
 
 
 def test_high_open_security_finding_blocks():
