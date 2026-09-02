@@ -18,8 +18,10 @@ SHA40 = re.compile(r"^[0-9a-f]{40}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
 EXPECTED_SCHEMA = "thistinti-qualified-release-dossier"
-EXPECTED_SCHEMA_VERSION = 2
+EXPECTED_SCHEMA_VERSION = 3
 EXPECTED_MAIN_POST_MERGE_CHECKS = {"P1 PostgreSQL Concurrency Evidence"}
+EXPECTED_P1_RULE_COUNT = 6
+EXPECTED_CONCURRENCY_SCENARIOS = {"concurrent_judgment", "conflicting_judgment"}
 EXPECTED_TRACKS = {
     "stream_a_technical",
     "stream_b_e1",
@@ -43,6 +45,99 @@ def _require(condition: bool, message: str, errors: list[str]) -> None:
 
 def _is_sha40(value: Any) -> bool:
     return isinstance(value, str) and SHA40.fullmatch(value) is not None
+
+
+def _validate_semantic_concurrency_proof(
+    proof: Any,
+    source_sha: Any,
+    final: bool,
+    errors: list[str],
+) -> None:
+    _require(isinstance(proof, dict), "semantic_concurrency_proof must be an object", errors)
+    if not isinstance(proof, dict):
+        return
+
+    _require(
+        proof.get("expected_rule_count") == EXPECTED_P1_RULE_COUNT,
+        f"semantic_concurrency_proof.expected_rule_count must be {EXPECTED_P1_RULE_COUNT}",
+        errors,
+    )
+    rules = proof.get("rules")
+    _require(isinstance(rules, list), "semantic_concurrency_proof.rules must be a list", errors)
+    if final:
+        _require(bool(proof.get("scope_ref")), "final semantic concurrency proof requires scope_ref", errors)
+    if not isinstance(rules, list):
+        return
+
+    if final:
+        _require(
+            len(rules) == EXPECTED_P1_RULE_COUNT,
+            f"final semantic concurrency proof must contain exactly {EXPECTED_P1_RULE_COUNT} P1 rules",
+            errors,
+        )
+
+    seen_rule_ids: set[str] = set()
+    for index, rule in enumerate(rules):
+        prefix = f"semantic_concurrency_proof.rules[{index}]"
+        _require(isinstance(rule, dict), f"{prefix} must be an object", errors)
+        if not isinstance(rule, dict):
+            continue
+
+        rule_id = rule.get("rule_id")
+        _require(isinstance(rule_id, str) and bool(rule_id), f"{prefix}.rule_id is required", errors)
+        if isinstance(rule_id, str) and rule_id:
+            _require(rule_id not in seen_rule_ids, f"duplicate semantic concurrency rule_id: {rule_id}", errors)
+            seen_rule_ids.add(rule_id)
+
+        rule_sha = rule.get("source_sha")
+        if rule_sha is not None:
+            _require(_is_sha40(rule_sha), f"{prefix}.source_sha must be full 40-hex", errors)
+        if final:
+            _require(rule_sha == source_sha, f"{prefix} is not bound to final source_sha", errors)
+
+        scenarios = rule.get("scenarios")
+        _require(isinstance(scenarios, dict), f"{prefix}.scenarios must be an object", errors)
+        if not isinstance(scenarios, dict):
+            continue
+        _require(
+            set(scenarios) == EXPECTED_CONCURRENCY_SCENARIOS,
+            f"{prefix}.scenarios must contain exactly concurrent_judgment and conflicting_judgment",
+            errors,
+        )
+
+        for scenario_name in sorted(EXPECTED_CONCURRENCY_SCENARIOS):
+            scenario = scenarios.get(scenario_name)
+            scenario_prefix = f"{prefix}.scenarios.{scenario_name}"
+            _require(isinstance(scenario, dict), f"{scenario_prefix} must be an object", errors)
+            if not isinstance(scenario, dict):
+                continue
+            if final:
+                _require(
+                    scenario.get("status") == "PROVEN_FAIL_CLOSED",
+                    f"{scenario_prefix}.status must be PROVEN_FAIL_CLOSED",
+                    errors,
+                )
+                _require(
+                    scenario.get("production_decision_exercised") is True,
+                    f"{scenario_prefix} did not exercise the production decision path",
+                    errors,
+                )
+                _require(
+                    scenario.get("review_decision_persisted") is True,
+                    f"{scenario_prefix} did not persist ReviewDecision",
+                    errors,
+                )
+                _require(
+                    scenario.get("provenance_judgment_persisted") is True,
+                    f"{scenario_prefix} did not persist ProvenanceJudgment",
+                    errors,
+                )
+                refs = scenario.get("evidence_refs")
+                _require(
+                    isinstance(refs, list) and bool(refs),
+                    f"{scenario_prefix} has no evidence_refs",
+                    errors,
+                )
 
 
 def validate(data: dict[str, Any], final: bool = False) -> list[str]:
@@ -80,6 +175,9 @@ def validate(data: dict[str, Any], final: bool = False) -> list[str]:
             isinstance(main_post_merge_checks, list),
             "required_check_policy.main_post_merge_checks must be a list",
             errors,
+        )
+        _validate_semantic_concurrency_proof(
+            policy.get("semantic_concurrency_proof"), source_sha, final, errors
         )
         if final:
             _require(bool(policy.get("reference")), "final dossier requires a required-check policy reference", errors)
