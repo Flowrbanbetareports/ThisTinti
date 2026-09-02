@@ -116,17 +116,24 @@ def validate(data: dict, final: bool = False) -> list[str]:
     human_keyboard = False
     human_at = False
     known_sessions = set(session_ids)
+    passed_observation_criteria: set[str] = set()
     for obs in observations:
         if obs.get("session_id") not in known_sessions:
             _fail(errors, f"observation {obs.get('observation_id')} references unknown session")
         if not obs.get("evidence_refs"):
             _fail(errors, f"observation {obs.get('observation_id')} missing evidence_refs")
         criterion = obs.get("issue_94_criterion")
+        if criterion not in ISSUE94_CRITERIA:
+            _fail(errors, f"observation {obs.get('observation_id')} has invalid #94 criterion")
+            continue
+        if obs.get("result") == "PASS":
+            passed_observation_criteria.add(criterion)
         if criterion == "keyboard_only_human" and obs.get("result") == "PASS":
-            human_keyboard = obs.get("observation_mode") == "HUMAN"
+            human_keyboard = human_keyboard or obs.get("observation_mode") == "HUMAN"
         if criterion == "assistive_technology_human" and obs.get("result") == "PASS":
-            human_at = obs.get("observation_mode") == "HUMAN" and bool(
-                obs.get("assistive_technology")
+            human_at = human_at or (
+                obs.get("observation_mode") == "HUMAN"
+                and bool(obs.get("assistive_technology"))
             )
 
     if not human_keyboard:
@@ -148,6 +155,8 @@ def validate(data: dict, final: bool = False) -> list[str]:
             _fail(errors, f"#94 criterion {name} is not complete")
         if result == "NOT_APPLICABLE" and not rationales.get(name):
             _fail(errors, f"#94 criterion {name} needs NOT_APPLICABLE rationale")
+        if result == "PASS" and name not in passed_observation_criteria:
+            _fail(errors, f"#94 criterion {name} lacks a supporting PASS observation")
     if issue94.get("result") != "PASS":
         _fail(errors, "issue_94.result must be PASS for final structural validation")
 
