@@ -24,6 +24,7 @@ def _line(quantity):
         "unit_price": 10,
         "line_total": quantity * 10,
         "unit_of_measure": "EA",
+        "price_base_quantity": 1,
     }
 
 
@@ -47,7 +48,7 @@ def test_frozen_p1_quantity_findings_ignore_unrelated_discovery_state(client, au
             "document_type": "delivery",
             "number": "DDT-P1-ISO-1",
             "currency": "EUR",
-            "references": {"order_number": "PO-P1-ISO-1"},
+            "references": {"order_numbers": ["PO-P1-ISO-1"]},
             "lines": [_line(2)],
         },
     )
@@ -59,10 +60,7 @@ def test_frozen_p1_quantity_findings_ignore_unrelated_discovery_state(client, au
             "document_type": "invoice",
             "number": "INV-P1-ISO-1",
             "currency": "EUR",
-            "references": {
-                "order_number": "PO-P1-ISO-1",
-                "delivery_number": "DDT-P1-ISO-1",
-            },
+            "references": {"order_numbers": ["PO-P1-ISO-1"]},
             "lines": [_line(3)],
         },
     )
