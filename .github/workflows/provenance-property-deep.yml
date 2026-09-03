@@ -4,28 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - app/db.py
-      - app/main.py
-      - app/legacy_cases_api.py
-      - app/models.py
-      - app/provenance_models.py
-      - app/parsers/structured_json.py
-      - app/services/provenance.py
-      - app/services/finding_provenance.py
-      - app/services/judgment_provenance.py
-      - app/services/ingestion.py
-      - app/services/delivered_over_order_provenance.py
-      - app/services/invoiced_over_received_provenance.py
-      - app/services/payment_over_invoice_provenance.py
-      - app/services/payment_without_invoice_provenance.py
-      - app/services/rules.py
-      - requirements-dev.txt
-      - tests/test_provenance_*.py
-      - tests/test_payment_over_invoice_line_total_fact.py
-      - tests/test_duplicate_number_finding_provenance.py
-      - tests/test_finding_judgment_provenance.py
-      - .github/workflows/provenance-property-deep.yml
   pull_request:
     branches:
       - main
