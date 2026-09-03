@@ -147,11 +147,7 @@ def _mutate_support(case_type: str, context: dict[str, str]) -> None:
             return
 
         if case_type == "currency_mismatch":
-            mutator.execute(
-                update(Document)
-                .where(Document.id == context["document_id"])
-                .values(currency="EUR")
-            )
+            mutator.execute(update(Document).where(Document.id == context["document_id"]).values(currency="EUR"))
             return
 
         if case_type == "delivered_over_order":
@@ -190,11 +186,7 @@ def _mutate_support(case_type: str, context: dict[str, str]) -> None:
             return
 
         if case_type == "payment_without_invoice":
-            mutator.execute(
-                update(Document)
-                .where(Document.id == context["document_id"])
-                .values(parse_status="failed")
-            )
+            mutator.execute(update(Document).where(Document.id == context["document_id"]).values(parse_status="failed"))
             return
 
         raise AssertionError(f"unsupported P1 case type: {case_type}")
