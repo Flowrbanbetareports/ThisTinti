@@ -8,22 +8,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - ".github/workflows/windows-release.yml"
-      - ".github/workflows/windows-attestation.yml"
-      - ".github/workflows/publish-public-preview.yml"
-      - "Makefile"
-      - "app/**"
-      - "builds/windows-upgrade-baseline.json"
-      - "docs/openapi.json"
-      - "docs/sbom.cdx.json"
-      - "installer/windows/**"
-      - "migrations/**"
-      - "samples/**"
-      - "scripts/**"
-      - "pyproject.toml"
-      - "requirements*.txt"
-      - "run_thistinti.py"
 
 permissions:
   contents: read
