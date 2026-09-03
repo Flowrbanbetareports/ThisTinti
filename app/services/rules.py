@@ -81,14 +81,18 @@ QTY_EPSILON = Decimal("0.000001")
 PRICE_EPSILON = Decimal("0.005")
 RATE_EPSILON = Decimal("0.01")
 MONEY_QUANTUM = Decimal("0.01")
-ALWAYS_ON_RULES = {
+QUALIFIED_P1_RULES = {
     "currency_mismatch",
     "duplicate_document_number",
+    "delivered_over_order",
+    "invoiced_over_received",
+    "payment_without_invoice",
+    "payment_over_invoice",
+}
+ALWAYS_ON_RULES = QUALIFIED_P1_RULES | {
     "line_total_mismatch",
     "unit_mismatch",
     "duplicate_invoice_line",
-    "payment_without_invoice",
-    "payment_over_invoice",
     "duplicate_payment",
 }
 
