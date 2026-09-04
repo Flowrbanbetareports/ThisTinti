@@ -59,11 +59,54 @@ def _documents(db: Session, chain: OperationChain, role: str) -> list[Document]:
         db.scalars(
             select(Document)
             .options(selectinload(Document.lines))
-            .where(Document.id.in_(ids), Document.archived.is_(False))
+            .where(
+                Document.id.in_(ids),
+                Document.archived.is_(False),
+                Document.parse_status == "parsed",
+            )
         )
     )
     order = {doc_id: idx for idx, doc_id in enumerate(ids)}
     return sorted(documents, key=lambda doc: order.get(doc.id, 9999))
+
+
+def _chain_has_non_evaluable_active_documents(db: Session, chain: OperationChain) -> bool:
+    linked_ids = set(
+        db.scalars(
+            select(ChainDocument.document_id).where(
+                ChainDocument.tenant_id == chain.tenant_id,
+                ChainDocument.chain_id == chain.id,
+            )
+        )
+    )
+    for role in (
+        "proposal",
+        "order",
+        "confirmation",
+        "delivery",
+        "invoice",
+        "payment",
+        "return",
+        "credit_note",
+    ):
+        primary_id = getattr(chain, f"{role}_document_id", None)
+        if primary_id:
+            linked_ids.add(primary_id)
+    if not linked_ids:
+        return False
+    return (
+        db.scalar(
+            select(Document.id)
+            .where(
+                Document.tenant_id == chain.tenant_id,
+                Document.id.in_(linked_ids),
+                Document.archived.is_(False),
+                Document.parse_status != "parsed",
+            )
+            .limit(1)
+        )
+        is not None
+    )
 
 
 def _group(documents: list[Document]) -> dict[str, list[DocumentLine]]:
@@ -894,6 +937,11 @@ def analyze_chain(db: Session, chain: OperationChain) -> list[DiscrepancyCase]:
         if case.fingerprint not in active_fingerprints and case.status in {"open", "needs_review"}:
             case.status = "superseded"
 
-    chain.status = "review" if any(c.status in {"open", "needs_review"} for c in output) else "clear"
+    chain.status = (
+        "review"
+        if _chain_has_non_evaluable_active_documents(db, chain)
+        or any(c.status in {"open", "needs_review"} for c in output)
+        else "clear"
+    )
     db.flush()
     return output
