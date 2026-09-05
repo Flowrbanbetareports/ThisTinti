@@ -1,0 +1,33 @@
+{
+  "schema": "qualified-human-campaign.v1",
+  "status": "PREPARATION_ONLY",
+  "qualification_claim": "ThisTinti 1.0 Qualified — Procurement v1 — profile P1 — protocol E1",
+  "candidate": {
+    "source_sha": "<40-hex>",
+    "release_version": "1.0.0",
+    "release_tag": "v1.0.0",
+    "artifact_sha256": "<64-hex>",
+    "artifact_id": "<id>"
+  },
+  "campaign": {
+    "protocol_ref": "docs/QUALIFIED_HUMAN_CAMPAIGN.md",
+    "protocol_sha256": "<64-hex>",
+    "started_at": "<UTC RFC3339>",
+    "ended_at": "<UTC RFC3339>",
+    "observer_ids": [],
+    "sessions": []
+  },
+  "issue_32": {
+    "required_untrained_sessions": 10,
+    "minimum_successes": 8,
+    "result": "NOT_RUN"
+  },
+  "issue_94": {
+    "keyboard_only_human_review": "NOT_RUN",
+    "assistive_technology_human_review": "NOT_RUN",
+    "hands_on_path_review": "NOT_RUN",
+    "result": "NOT_RUN"
+  },
+  "findings": [],
+  "qualification_decision": "NOT_A_PASS"
+}
