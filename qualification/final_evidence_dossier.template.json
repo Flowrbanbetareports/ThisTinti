@@ -1,0 +1,51 @@
+{
+  "schema": "thistinti-qualified-release-dossier",
+  "schema_version": 3,
+  "status": "PREPARATION_ONLY_NOT_EXECUTED",
+  "release_version": "1.0.0",
+  "release_tag": "v1.0.0",
+  "source_sha": null,
+  "qualified_claim": "ThisTinti 1.0 Qualified — Procurement v1 — profile P1 — protocol E1",
+  "required_check_policy": {
+    "reference": null,
+    "captured_at": null,
+    "checks": [],
+    "main_post_merge_checks": [
+      {
+        "name": "P1 PostgreSQL Concurrency Evidence",
+        "source_sha": null,
+        "branch": "main",
+        "event": "push",
+        "conclusion": null,
+        "evidence_ref": null
+      }
+    ],
+    "semantic_concurrency_proof": {
+      "scope_ref": null,
+      "expected_rule_count": 6,
+      "rules": []
+    }
+  },
+  "release_artifacts": [],
+  "tracks": {
+    "stream_a_technical": {"status": "WAITING_FINAL_SHA", "source_sha": null, "evidence_refs": []},
+    "stream_b_e1": {"status": "WAITING_EXTERNAL", "source_sha": null, "evidence_refs": []},
+    "security_134": {"status": "WAITING_EXTERNAL", "source_sha": null, "evidence_refs": []},
+    "privacy_legal_135": {"status": "WAITING_EXTERNAL", "source_sha": null, "evidence_refs": []},
+    "windows_signing_20": {"status": "WAITING_FINAL_SHA", "source_sha": null, "evidence_refs": []},
+    "human_32_94": {"status": "WAITING_EXTERNAL", "source_sha": null, "evidence_refs": []},
+    "performance_166": {"status": "WAITING_FINAL_SHA", "source_sha": null, "evidence_refs": []},
+    "data_protection_167": {"status": "WAITING_EXTERNAL", "source_sha": null, "evidence_refs": []},
+    "recovery_portability_168": {"status": "WAITING_FINAL_SHA", "source_sha": null, "evidence_refs": []},
+    "residual_risk_21": {"status": "WAITING_EXTERNAL", "source_sha": null, "evidence_refs": []},
+    "controlled_rollout": {"status": "WAITING_FINAL_SHA", "source_sha": null, "evidence_refs": []}
+  },
+  "change_control": {
+    "material_change_since_completed_evidence": null,
+    "holdout_required": null,
+    "holdout_status": "NOT_DETERMINED",
+    "holdout_evidence_refs": []
+  },
+  "limitations": [],
+  "prepared_only_notice": "This template is not evidence and must not be treated as a qualification PASS."
+}
