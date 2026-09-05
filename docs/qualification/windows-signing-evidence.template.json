@@ -1,0 +1,73 @@
+{
+  "schema_version": "windows-signing-evidence.v0.2",
+  "status": "PREPARATION_ONLY",
+  "qualification_claim": "ThisTinti 1.0 Qualified — Procurement v1 — profile P1 — protocol E1",
+  "candidate": {
+    "source_sha": "<40-hex final candidate SHA>",
+    "release_version": "1.0.0",
+    "release_tag": "v1.0.0"
+  },
+  "certificate": {
+    "subject": "<publisher subject>",
+    "publisher_name": "<exact publisher name expected from Windows>",
+    "thumbprint_sha1": "<40-hex certificate thumbprint>",
+    "serial_number": "<certificate serial number>",
+    "not_before": "<UTC ISO-8601>",
+    "not_after": "<UTC ISO-8601>",
+    "ownership_ref": "<non-secret ownership/approval reference>"
+  },
+  "timestamp": {
+    "rfc3161_url": "<trusted timestamp service URL>",
+    "policy_ref": "<timestamp policy or service reference>"
+  },
+  "artifacts": [
+    {
+      "role": "application_exe",
+      "path": "ThisTinti.exe",
+      "required": true,
+      "signed_sha256": "<64-hex SHA-256 of signed bytes>",
+      "authenticode_status": "<Valid>",
+      "signer_thumbprint_sha1": "<40-hex certificate thumbprint>",
+      "timestamp_present": false,
+      "timestamp_time": "<UTC ISO-8601>",
+      "powershell_evidence_ref": "<Get-AuthenticodeSignature evidence reference>",
+      "signtool_evidence_ref": "<signtool verify /pa /all /v evidence reference>"
+    },
+    {
+      "role": "installer",
+      "path": "ThisTinti-Setup-1.0.0-x64.exe",
+      "required": true,
+      "signed_sha256": "<64-hex SHA-256 of signed bytes>",
+      "authenticode_status": "<Valid>",
+      "signer_thumbprint_sha1": "<40-hex certificate thumbprint>",
+      "timestamp_present": false,
+      "timestamp_time": "<UTC ISO-8601>",
+      "powershell_evidence_ref": "<Get-AuthenticodeSignature evidence reference>",
+      "signtool_evidence_ref": "<signtool verify /pa /all /v evidence reference>"
+    }
+  ],
+  "clean_windows_validation": {
+    "performed": false,
+    "environment_ref": "<clean Windows environment evidence>",
+    "verified_publisher": "<publisher displayed by Windows>",
+    "install_result": "<PASS>",
+    "uninstall_result": "<PASS>",
+    "evidence_ref": "<immutable evidence reference>"
+  },
+  "publication_binding": {
+    "checksum_manifest_ref": "<post-sign checksum manifest reference>",
+    "release_record_ref": "<official v1.0.0 release record reference>",
+    "workflow_run_ref": "<protected release workflow run reference>",
+    "workflow_source_sha": "<40-hex final candidate SHA>",
+    "release_sha": "<40-hex SHA resolved by v1.0.0>",
+    "release_draft": true,
+    "release_prerelease": true
+  },
+  "external_gate": {
+    "certificate_available": false,
+    "signing_performed": false,
+    "clean_windows_verified": false,
+    "release_identity_verified": false,
+    "final_candidate_verified": false
+  }
+}
