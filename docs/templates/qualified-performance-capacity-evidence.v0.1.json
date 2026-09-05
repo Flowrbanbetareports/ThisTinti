@@ -1,0 +1,78 @@
+{
+  "schema": "thistinti.qualified-performance-capacity-evidence",
+  "schema_version": 1,
+  "status": "PREPARATION_ONLY_NOT_EXECUTED",
+  "qualification_result": "NOT_A_PASS",
+  "candidate": {
+    "release": "RELEASE 1.0.0",
+    "version": null,
+    "source_sha": null,
+    "artifact_name": null,
+    "artifact_sha256": null,
+    "artifact_bytes": null,
+    "edition": null
+  },
+  "environment": {
+    "os": null,
+    "os_version": null,
+    "cpu": null,
+    "logical_cpu_count": null,
+    "ram_bytes": null,
+    "disk_type": null,
+    "runtime_configuration": null,
+    "measurement_tools": []
+  },
+  "workload": {
+    "id": null,
+    "classification": null,
+    "blind_holdout_excluded": true,
+    "practice_count": null,
+    "document_count": null,
+    "input_bytes": null,
+    "definition_ref": null
+  },
+  "installation": {
+    "installed_footprint_bytes": null
+  },
+  "idle": {
+    "steady_state_seconds": null,
+    "samples": []
+  },
+  "representative_runs": [],
+  "storage": {
+    "before_bytes": null,
+    "after_bytes": null,
+    "growth_bytes": null,
+    "originals_bytes": null,
+    "database_bytes": null,
+    "logs_quarantine_bytes": null,
+    "backup_bytes": null
+  },
+  "limits": [],
+  "stress": {
+    "executed": false,
+    "workload_point": null,
+    "observed_degradation": null,
+    "observed_failure_mode": null,
+    "data_integrity_outcome": null
+  },
+  "recovery": {
+    "backup_duration_seconds": null,
+    "verified_backup_bytes": null,
+    "restore_duration_seconds": null,
+    "method_ref": null
+  },
+  "release_blocking_defects": [],
+  "known_limitations": [],
+  "evidence_refs": [],
+  "review": {
+    "reviewer": null,
+    "reviewed_at": null,
+    "notes": null
+  },
+  "claims": {
+    "universal_scale_claim": false,
+    "cross_edition_inheritance": false,
+    "extrapolation_beyond_measured_envelope": false
+  }
+}
