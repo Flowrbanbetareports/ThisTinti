@@ -1,0 +1,228 @@
+name: Publish Qualified Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_sha:
+        description: Full exact current main SHA that passed the final qualification/release gates
+        required: true
+        type: string
+      windows_run_id:
+        description: Successful main-branch Build Windows Free Download run ID for target_sha
+        required: true
+        type: string
+      qualification_issue:
+        description: Closed qualification master issue authorising this official release
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  attestations: read
+  contents: write
+
+concurrency:
+  group: thistinti-qualified-release-publication
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+      TARGET_SHA: ${{ inputs.target_sha }}
+      WINDOWS_RUN_ID: ${{ inputs.windows_run_id }}
+      QUALIFICATION_ISSUE: ${{ inputs.qualification_issue }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          fetch-depth: 0
+          show-progress: false
+
+      - name: Resolve exact official-release source
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$TARGET_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "target_sha must be a full 40-hex commit" >&2; exit 1; }
+          [[ "$WINDOWS_RUN_ID" =~ ^[0-9]+$ ]] || { echo "windows_run_id must be numeric" >&2; exit 1; }
+          [[ "$QUALIFICATION_ISSUE" =~ ^[0-9]+$ ]] || { echo "qualification_issue must be numeric" >&2; exit 1; }
+
+          git fetch --no-tags origin main
+          MAIN_SHA="$(git rev-parse origin/main)"
+          test "$MAIN_SHA" = "$TARGET_SHA" || {
+            echo "Official release target must equal exact current main: expected $MAIN_SHA, got $TARGET_SHA" >&2
+            exit 1
+          }
+          git checkout --detach "$TARGET_SHA"
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+
+          VERSION="$(python -c 'from app.version import RELEASE_VERSION; print(RELEASE_VERSION)')"
+          python - <<'PY'
+          from app.version import RELEASE_VERSION, is_official_release_version
+
+          if not is_official_release_version(RELEASE_VERSION):
+              raise SystemExit(
+                  f"Official publication refuses non-stable release label: {RELEASE_VERSION!r}"
+              )
+          PY
+
+          if [[ "$VERSION" == "1.0.0" && "$QUALIFICATION_ISSUE" != "136" ]]; then
+            echo "The first official v1.0.0 release must be authorised by qualification master #136" >&2
+            exit 1
+          fi
+
+          QUALIFICATION_STATE="$(gh api "repos/$GITHUB_REPOSITORY/issues/$QUALIFICATION_ISSUE" --jq .state)"
+          test "$QUALIFICATION_STATE" = "closed" || {
+            echo "Qualification master #$QUALIFICATION_ISSUE must be closed before official publication" >&2
+            exit 1
+          }
+
+          SOURCE_TREE="$(git rev-parse "${TARGET_SHA}^{tree}")"
+          {
+            echo "VERSION=$VERSION"
+            echo "TAG=v$VERSION"
+            echo "SOURCE_TREE=$SOURCE_TREE"
+          } >> "$GITHUB_ENV"
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22"
+
+      - name: Re-run complete release verification on exact source
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y openssl poppler-utils tesseract-ocr tesseract-ocr-eng tesseract-ocr-ita
+          pip install -r requirements-dev.txt
+          make verify
+
+      - name: Require green exact-commit workflows and Windows build
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/verify_publish_candidate.py \
+            --repository "$GITHUB_REPOSITORY" \
+            --target-sha "$TARGET_SHA" \
+            --windows-run-id "$WINDOWS_RUN_ID" \
+            --output candidate.json
+
+      - name: Download exact verified Windows artifact
+        id: artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          ARTIFACT_NAME="$(python -c 'import json; print(json.load(open("candidate.json", encoding="utf-8"))["artifact_name"])')"
+          echo "name=$ARTIFACT_NAME" >> "$GITHUB_OUTPUT"
+          mkdir -p dist
+          gh run download "$WINDOWS_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name "$ARTIFACT_NAME" \
+            --dir dist
+
+      - name: Verify artifact bytes and source provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/verify_release_artifact.py \
+            --directory dist \
+            --expected-version "$VERSION" \
+            --expected-commit "$TARGET_SHA" \
+            --expected-tree "$SOURCE_TREE"
+          gh attestation verify "dist/ThisTinti-Setup-$VERSION-x64.exe" --repo "$GITHUB_REPOSITORY"
+          gh attestation verify "dist/ThisTinti-Portable-$VERSION-x64.zip" --repo "$GITHUB_REPOSITORY"
+          gh attestation verify "dist/ThisTinti-$VERSION-self-hosted-source.zip" --repo "$GITHUB_REPOSITORY"
+
+      - name: Refuse conflicting or prerelease reuse
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG_EXISTS=false
+          RELEASE_EXISTS=false
+          git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1 && TAG_EXISTS=true
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 && RELEASE_EXISTS=true
+
+          if [[ "$TAG_EXISTS" != "$RELEASE_EXISTS" ]]; then
+            echo "Tag and release state differ; refusing official publication" >&2
+            exit 1
+          fi
+
+          if [[ "$RELEASE_EXISTS" == true ]]; then
+            EXISTING="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json targetCommitish,isDraft,isPrerelease)"
+            EXISTING_TARGET="$(python -c 'import json,sys; print(json.load(sys.stdin)["targetCommitish"])' <<<"$EXISTING")"
+            EXISTING_DRAFT="$(python -c 'import json,sys; print(str(json.load(sys.stdin)["isDraft"]).lower())' <<<"$EXISTING")"
+            EXISTING_PRERELEASE="$(python -c 'import json,sys; print(str(json.load(sys.stdin)["isPrerelease"]).lower())' <<<"$EXISTING")"
+            test "$EXISTING_TARGET" = "$TARGET_SHA" || { echo "Existing release targets another commit" >&2; exit 1; }
+            test "$EXISTING_DRAFT" = "false" || { echo "Existing official release is still a draft" >&2; exit 1; }
+            test "$EXISTING_PRERELEASE" = "false" || { echo "Existing tag is attached to a prerelease" >&2; exit 1; }
+            echo "RELEASE_ALREADY_EXISTS=true" >> "$GITHUB_ENV"
+          else
+            echo "RELEASE_ALREADY_EXISTS=false" >> "$GITHUB_ENV"
+          fi
+
+      - name: Prepare official release notes
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            printf '## ThisTinti %s — Official Release\n\n' "$VERSION"
+            printf 'Official non-draft, non-prerelease publication from the exact qualified source candidate.\n\n'
+            printf '### Release identity\n\n'
+            printf -- '- Source commit: `%s`\n' "$TARGET_SHA"
+            printf -- '- Source tree: `%s`\n' "$SOURCE_TREE"
+            printf -- '- Qualification master: `#%s`\n' "$QUALIFICATION_ISSUE"
+            printf -- '- Windows workflow run: `%s`\n\n' "$WINDOWS_RUN_ID"
+            printf 'Qualification scope, limitations, residual risks and release-specific changes are defined by the frozen repository evidence and release notes below.\n\n'
+            cat RELEASE_NOTES.md
+          } > qualified-release-notes.md
+
+      - name: Publish immutable official release
+        if: env.RELEASE_ALREADY_EXISTS != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release create "$TAG" dist/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$TARGET_SHA" \
+            --title "ThisTinti $VERSION — Official Release" \
+            --notes-file qualified-release-notes.md
+
+      - name: Verify published release is official and exact
+        shell: bash
+        run: |
+          set -euo pipefail
+          PUBLISHED="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json targetCommitish,isDraft,isPrerelease)"
+          PUBLISHED_TARGET="$(python -c 'import json,sys; print(json.load(sys.stdin)["targetCommitish"])' <<<"$PUBLISHED")"
+          PUBLISHED_DRAFT="$(python -c 'import json,sys; print(str(json.load(sys.stdin)["isDraft"]).lower())' <<<"$PUBLISHED")"
+          PUBLISHED_PRERELEASE="$(python -c 'import json,sys; print(str(json.load(sys.stdin)["isPrerelease"]).lower())' <<<"$PUBLISHED")"
+          test "$PUBLISHED_TARGET" = "$TARGET_SHA"
+          test "$PUBLISHED_DRAFT" = "false"
+          test "$PUBLISHED_PRERELEASE" = "false"
+
+      - name: Generate immutable publication evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p publication-evidence
+          python scripts/record_github_publication.py \
+            --repository "$GITHUB_REPOSITORY" \
+            --tag "$TAG" \
+            --source-commit "$TARGET_SHA" \
+            --source-tree "$SOURCE_TREE" \
+            --artifact-directory dist \
+            --release-output publication-evidence/release-latest.json \
+            --publication-output publication-evidence/publication-latest.json
+
+      - name: Upload official publication evidence without mutating main
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: qualified-release-publication-${{ env.VERSION }}-${{ env.TARGET_SHA }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: publication-evidence/
+          retention-days: 90
