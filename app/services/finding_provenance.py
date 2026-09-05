@@ -13,7 +13,7 @@ from .provenance import record_finding
 
 
 _DUPLICATE_NUMBER_RULE_ID = "builtin:duplicate_document_number"
-_DUPLICATE_NUMBER_RULE_VERSION = "1"
+_DUPLICATE_NUMBER_RULE_VERSION = "2"
 _DUPLICATE_NUMBER_RULE_CONFIGURATION_HASH = hashlib.sha256(
     json.dumps(
         {
@@ -21,13 +21,14 @@ _DUPLICATE_NUMBER_RULE_CONFIGURATION_HASH = hashlib.sha256(
             "document_type_scope": "same",
             "number_comparison": "exact_non_empty",
             "active_document_required": True,
+            "parsed_document_required": True,
         },
         sort_keys=True,
         separators=(",", ":"),
     ).encode("utf-8")
 ).hexdigest()
 _CURRENCY_MISMATCH_RULE_ID = "builtin:currency_mismatch"
-_CURRENCY_MISMATCH_RULE_VERSION = "1"
+_CURRENCY_MISMATCH_RULE_VERSION = "2"
 _CURRENCY_MISMATCH_RULE_CONFIGURATION_HASH = hashlib.sha256(
     json.dumps(
         {
@@ -36,6 +37,7 @@ _CURRENCY_MISMATCH_RULE_CONFIGURATION_HASH = hashlib.sha256(
             "comparison": "distinct_value_count_gt_1",
             "support": "all_current_engine_inputs_require_direct_document_evidence",
             "active_document_required": True,
+            "parsed_document_required": True,
         },
         sort_keys=True,
         separators=(",", ":"),
@@ -66,7 +68,8 @@ def _direct_document_fact_is_canonical(
 ) -> bool:
     expected_pointer = f"/{field_name}"
     return bool(
-        fact.fact_type == fact_type
+        document.parse_status == "parsed"
+        and fact.fact_type == fact_type
         and fact.value_json == expected_value
         and origin is not None
         and origin.origin_type == "DOCUMENT_EVIDENCE"

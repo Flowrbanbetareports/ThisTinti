@@ -5,8 +5,9 @@ import json
 from sqlalchemy import select
 
 from app.db import SessionLocal
-from app.models import DiscrepancyCase
+from app.models import DiscrepancyCase, Document
 from app.provenance_models import ProvenanceFact, ProvenanceFinding, ProvenanceFindingFact
+from app.services.finding_provenance import duplicate_number_finding_matches_current_support
 
 
 def _order_payload(number: str, *, suffix: str) -> bytes:
@@ -63,7 +64,7 @@ def test_duplicate_number_finding_links_direct_json_number_facts(client, auth):
         assert provenance is not None
         assert provenance.version == 1
         assert provenance.rule_id == "builtin:duplicate_document_number"
-        assert provenance.rule_version == "1"
+        assert provenance.rule_version == "2"
         assert len(provenance.rule_configuration_hash) == 64
 
         links = list(
@@ -134,3 +135,33 @@ def test_duplicate_number_finding_provenance_versions_when_support_set_changes(c
             db.scalars(select(ProvenanceFindingFact).where(ProvenanceFindingFact.finding_id == versions[1].id))
         )
         assert len(latest_links) == 3
+
+
+def test_duplicate_number_existing_finding_becomes_stale_when_support_document_requires_review(client, auth):
+    first = _upload(client, auth, filename="degraded-a.json", source_number="DUP-DEGRADED", suffix="A")
+    second = _upload(client, auth, filename="degraded-b.json", source_number="DUP-DEGRADED", suffix="B")
+    assert first.status_code == 201, first.text
+    assert second.status_code == 201, second.text
+
+    degraded_document_id = first.json()["document"]["id"]
+    with SessionLocal() as db:
+        case = db.scalar(select(DiscrepancyCase).where(DiscrepancyCase.case_type == "duplicate_document_number"))
+        assert case is not None
+        finding = db.scalar(
+            select(ProvenanceFinding)
+            .where(
+                ProvenanceFinding.tenant_id == case.tenant_id,
+                ProvenanceFinding.case_id == case.id,
+            )
+            .order_by(ProvenanceFinding.version.desc())
+        )
+        assert finding is not None
+        assert duplicate_number_finding_matches_current_support(db, finding=finding)
+
+        document = db.get(Document, degraded_document_id)
+        assert document is not None
+        assert document.parse_status == "parsed"
+        document.parse_status = "review_required"
+        db.flush()
+
+        assert not duplicate_number_finding_matches_current_support(db, finding=finding)
