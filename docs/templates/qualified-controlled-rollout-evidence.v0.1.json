@@ -1,0 +1,83 @@
+{
+  "schema": "qualified-controlled-rollout-evidence.v0.1",
+  "status": "NOT_EXECUTED",
+  "qualification_claim": "ThisTinti 1.0 Qualified — Procurement v1 — profile P1 — protocol E1",
+  "preparation_only": true,
+  "candidate": {
+    "source_sha": null,
+    "release_version": null,
+    "artifacts": [],
+    "signing_evidence_ref": null,
+    "rule_pack_ref": null,
+    "practice_model_ref": null,
+    "company_profile_ref": null,
+    "parser_engine_refs": [],
+    "p1_scope_ref": null,
+    "e1_manifest_ref": null,
+    "environment_ref": null,
+    "configuration_ref": null,
+    "rollout_plan_version": null
+  },
+  "prerequisites": {
+    "same_sha_technical_gates_ref": null,
+    "blind_evaluation_ref": null,
+    "required_post_correction_holdout_ref": null,
+    "security_assessment_ref": null,
+    "privacy_legal_trademark_claims_review_ref": null,
+    "windows_signing_ref": null,
+    "human_evidence_32_ref": null,
+    "human_evidence_94_ref": null,
+    "recovery_exercise_ref": null,
+    "unresolved_release_blockers": []
+  },
+  "authorised_plan": {
+    "approval_ref": null,
+    "organisation_or_environment_ref": null,
+    "participant_role_refs": [],
+    "approved_input_class_ref": null,
+    "data_handling_ref": null,
+    "session_window": null,
+    "support_escalation_ref": null,
+    "rollback_owner_ref": null,
+    "rollback_method_ref": null,
+    "excluded_operations": [],
+    "acceptance_authority_ref": null,
+    "participant_count": null,
+    "participant_count_rationale": null
+  },
+  "segregation": {
+    "blind_or_holdout_used": false,
+    "development_exposed_material_classification": "NOT_BLIND",
+    "protected_material_committed_to_git": false,
+    "notes": null
+  },
+  "sessions": [],
+  "findings": [],
+  "retests": [],
+  "residual_risks": [],
+  "rollback_recovery_refs": [],
+  "decision": {
+    "state": "NOT_EXECUTED",
+    "authority_ref": null,
+    "decided_at": null,
+    "decision_record_ref": null,
+    "limitations": [],
+    "unexercised_items": []
+  },
+  "cross_gate_references": {
+    "issue_32": [],
+    "issue_94": [],
+    "issue_134": [],
+    "issue_135": [],
+    "issue_20": [],
+    "issue_19": [],
+    "issue_132": [],
+    "recovery": []
+  },
+  "attestation": {
+    "real_rollout_executed": false,
+    "customer_or_participant_acceptance_simulated": false,
+    "external_review_simulated": false,
+    "qualified_status_claimed_by_this_record": false
+  }
+}
