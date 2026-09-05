@@ -29,6 +29,7 @@ from app.provenance_models import (
     ProvenanceJudgment,
     ProvenanceOrigin,
 )
+from app.services.finding_provenance import currency_mismatch_finding_matches_current_support
 from app.services.judgment_provenance import record_judgment_provenance
 from app.services.provenance import append_fact, create_origin
 from app.services.rules import analyze_chain
@@ -157,7 +158,7 @@ def test_currency_mismatch_end_to_end_binds_direct_currency_facts_and_judgment(c
         assert len(findings) == 1
         finding = findings[0]
         assert finding.rule_id == "builtin:currency_mismatch"
-        assert finding.rule_version == "1"
+        assert finding.rule_version == "2"
         assert len(finding.rule_configuration_hash) == 64
         links = list(
             db.scalars(
@@ -199,6 +200,41 @@ def test_currency_mismatch_end_to_end_binds_direct_currency_facts_and_judgment(c
         judgment = db.scalar(select(ProvenanceJudgment).where(ProvenanceJudgment.finding_id == finding_id))
         assert judgment is not None
         assert judgment.decision == "confirmed"
+
+
+def test_currency_mismatch_existing_finding_becomes_stale_when_support_document_requires_review(client, auth):
+    order = _upload_json(
+        client,
+        auth,
+        document_type="order",
+        number="PO-CURRENCY-DEGRADED",
+        currency="EUR",
+    )
+    invoice = _upload_json(
+        client,
+        auth,
+        document_type="invoice",
+        number="INV-CURRENCY-DEGRADED",
+        currency="USD",
+        order_number="PO-CURRENCY-DEGRADED",
+    )
+    assert order.status_code == 201, order.text
+    assert invoice.status_code == 201, invoice.text
+
+    degraded_document_id = order.json()["document"]["id"]
+    with SessionLocal() as db:
+        case = _currency_case(db)
+        assert case is not None
+        finding = _finding_versions(db, case)[-1]
+        assert currency_mismatch_finding_matches_current_support(db, finding=finding)
+
+        document = db.get(Document, degraded_document_id)
+        assert document is not None
+        assert document.parse_status == "parsed"
+        document.parse_status = "review_required"
+        db.flush()
+
+        assert not currency_mismatch_finding_matches_current_support(db, finding=finding)
 
 
 def test_currency_mismatch_provenance_fails_closed_when_one_currency_is_defaulted(client, auth):
