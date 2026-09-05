@@ -1,0 +1,90 @@
+{
+  "schema": "thistinti-performance-capacity-evidence",
+  "schema_version": 2,
+  "status": "PREPARATION_ONLY_NOT_EXECUTED",
+  "qualification_result": "NOT_A_PASS",
+  "qualification_claim": "ThisTinti 1.0 Qualified — Procurement v1 — P1 — E1",
+  "candidate": {
+    "release_version": "1.0.0",
+    "release_tag": "v1.0.0",
+    "source_sha": null,
+    "artifact_identity": null,
+    "artifact_sha256": null,
+    "edition": null,
+    "os": null,
+    "runtime": null,
+    "hardware": {
+      "cpu": null,
+      "cores": null,
+      "ram_bytes": null,
+      "storage_type": null,
+      "free_storage_bytes_before_run": null
+    },
+    "database": {
+      "engine": null,
+      "version": null,
+      "configuration_ref": null
+    }
+  },
+  "workload": {
+    "manifest_ref": null,
+    "manifest_sha256": null,
+    "classification": "NON_BLIND_ONLY",
+    "blind_or_holdout_used": false,
+    "frozen_before_execution": null,
+    "sizes": {
+      "small": {"documents": null, "practices": null},
+      "representative": {"documents": null, "practices": null},
+      "stress": {"documents": null, "practices": null}
+    }
+  },
+  "measurements": {
+    "installer_bytes": null,
+    "post_install_bytes": null,
+    "idle": {
+      "window_seconds": null,
+      "cpu_percent": null,
+      "ram_bytes": null,
+      "evidence_refs": []
+    },
+    "runs": [],
+    "storage_growth": {
+      "database_bytes": null,
+      "canonical_evidence_snapshot_bytes": null,
+      "logs_bytes": null,
+      "quarantine_or_temp_bytes": null,
+      "evidence_refs": []
+    },
+    "backup": {
+      "duration_seconds": null,
+      "artifact_bytes": null,
+      "sha256": null,
+      "verified": null,
+      "evidence_refs": []
+    },
+    "restore": {
+      "duration_seconds": null,
+      "verification_result": null,
+      "cross_reference": "#168",
+      "evidence_refs": []
+    }
+  },
+  "limits": {
+    "hard_product_limits": [],
+    "tested_limits": [],
+    "observed_degradation": [],
+    "stress_outcome": null
+  },
+  "claims": {
+    "customer_facing_envelope_ref": null,
+    "cross_edition_equivalence_claimed": false,
+    "unmeasured_scale_claimed": false
+  },
+  "findings": [],
+  "evidence_index": [],
+  "result": {
+    "classification": "GAP",
+    "blockers": [],
+    "residual_limitations": []
+  }
+}
