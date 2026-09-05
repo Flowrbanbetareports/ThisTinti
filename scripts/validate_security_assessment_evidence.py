@@ -18,6 +18,8 @@ SHA256 = re.compile(r"^[0-9a-f]{64}$")
 PLACEHOLDER = re.compile(r"^<.*>$")
 
 SCHEMA_VERSION = "security-assessment-evidence.v0.1"
+OFFICIAL_RELEASE_VERSION = "1.0.0"
+OFFICIAL_RELEASE_TAG = "v1.0.0"
 ALLOWED_STATUS = {"PREPARATION_ONLY", "ASSESSMENT_COMPLETE"}
 REQUIRED_COVERAGE = frozenset(
     {
@@ -29,6 +31,7 @@ REQUIRED_COVERAGE = frozenset(
         "backup_restore_security",
         "incident_vulnerability_disclosure",
         "evidence_integrity",
+        "canonical_evidence_snapshot_security",
     }
 )
 SEVERITIES = {"CRITICAL", "HIGH", "MEDIUM", "LOW", "OBSERVATION"}
@@ -107,7 +110,24 @@ def validate_security_evidence(data: dict[str, Any], *, final: bool = False) -> 
         SHA40,
         allow_placeholder=not final,
     )
-    _string(candidate.get("release_version"), "candidate.release_version", allow_placeholder=not final)
+    release_version = _string(
+        candidate.get("release_version"),
+        "candidate.release_version",
+        allow_placeholder=not final,
+    )
+    release_tag = _string(
+        candidate.get("release_tag"),
+        "candidate.release_tag",
+        allow_placeholder=not final,
+    )
+    if final and release_version != OFFICIAL_RELEASE_VERSION:
+        raise SecurityEvidenceError(
+            f"candidate.release_version: final evidence requires {OFFICIAL_RELEASE_VERSION}"
+        )
+    if final and release_tag != OFFICIAL_RELEASE_TAG:
+        raise SecurityEvidenceError(
+            f"candidate.release_tag: final evidence requires {OFFICIAL_RELEASE_TAG}"
+        )
 
     artifacts = _array(candidate.get("artifacts"), "candidate.artifacts")
     if final and not artifacts:
