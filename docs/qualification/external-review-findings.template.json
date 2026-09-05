@@ -1,0 +1,39 @@
+{
+  "schema": "thistinti-external-review-findings",
+  "schema_version": 2,
+  "status": "PREPARATION_ONLY_NOT_REVIEWED",
+  "release_claim": "ThisTinti 1.0 Qualified — Procurement v1 — profile P1 — protocol E1",
+  "release_version": "1.0.0",
+  "release_tag": "v1.0.0",
+  "candidate_sha": null,
+  "artifact_sha256": null,
+  "environment": null,
+  "tracks": {
+    "SECURITY": {
+      "issue": 134,
+      "independent_reviewer": null,
+      "reviewer_organisation": null,
+      "report_date": null,
+      "reviewed_candidate_sha": null,
+      "reviewed_artifact_sha256": null,
+      "reviewed_environment": null,
+      "scope": [],
+      "report_reference": null,
+      "findings": []
+    },
+    "PRIVACY_LEGAL": {
+      "issue": 135,
+      "independent_reviewer": null,
+      "reviewer_organisation": null,
+      "report_date": null,
+      "reviewed_candidate_sha": null,
+      "reviewed_artifact_sha256": null,
+      "reviewed_environment": null,
+      "scope": [],
+      "report_reference": null,
+      "findings": []
+    }
+  },
+  "residual_risks": [],
+  "qualification_decision": "NOT_A_PASS"
+}
